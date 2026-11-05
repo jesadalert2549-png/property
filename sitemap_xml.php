@@ -1,0 +1,57 @@
+<?php
+require_once __DIR__ . '/includes/seo.php';
+
+header('Content-Type: application/xml; charset=utf-8');
+header('Cache-Control: public, max-age=3600');
+
+$urls = [
+    ['loc' => page_url(''), 'lastmod' => null],
+    ['loc' => page_url('search.php'), 'lastmod' => null],
+    ['loc' => page_url('project.php'), 'lastmod' => null],
+    ['loc' => page_url('advertise.php'), 'lastmod' => null],
+    ['loc' => page_url('sitemap.php'), 'lastmod' => null],
+];
+
+foreach (PROPERTY_CATEGORIES as $category => $label) {
+    if ($category !== 'other') {
+        $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode($category)), 'lastmod' => null];
+    }
+}
+foreach (SEO_CATEGORIES as $slug => $config) {
+    $urls[] = ['loc' => category_url($slug), 'lastmod' => null];
+}
+
+$rows = db()->query(
+    "SELECT id, updated_at
+     FROM properties
+     WHERE approval = 'approved'
+     ORDER BY id"
+)->fetchAll();
+foreach ($rows as $row) {
+    $urls[] = [
+        'loc' => page_url('property.php?id=' . (int)$row['id']),
+        'lastmod' => $row['updated_at'] ? date('Y-m-d', strtotime($row['updated_at'])) : null,
+    ];
+}
+
+$projectRows = db()->query(
+    'SELECT id, updated_at FROM development_projects WHERE is_published = 1 ORDER BY id'
+)->fetchAll();
+foreach ($projectRows as $row) {
+    $urls[] = [
+        'loc' => page_url('project.php?id=' . (int)$row['id']),
+        'lastmod' => $row['updated_at'] ? date('Y-m-d', strtotime($row['updated_at'])) : null,
+    ];
+}
+
+echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
+echo '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+foreach ($urls as $url) {
+    echo "  <url>\n";
+    echo '    <loc>' . htmlspecialchars($url['loc'], ENT_XML1, 'UTF-8') . "</loc>\n";
+    if ($url['lastmod'] !== null) {
+        echo '    <lastmod>' . htmlspecialchars($url['lastmod'], ENT_XML1, 'UTF-8') . "</lastmod>\n";
+    }
+    echo "  </url>\n";
+}
+echo "</urlset>\n";

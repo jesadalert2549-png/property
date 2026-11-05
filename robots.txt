@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /api/
+Disallow: /includes/
+Disallow: /install.php
+
+Sitemap: https://standardproperty.cloud/sitemap.xml

@@ -1,0 +1,290 @@
+.seo-footer {
+  padding: 44px 0 0;
+  margin-top: 24px;
+  background: linear-gradient(180deg, #eef1f5 0%, #e9edf2 100%);
+  color: #202832;
+  text-align: left;
+}
+
+.seo-footer-inner {
+  display: grid;
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px 34px;
+  padding-bottom: 32px;
+}
+
+.seo-footer-about h2,
+.seo-footer-group h2 {
+  margin: 0 0 10px;
+  color: #202832;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.seo-footer-about p {
+  max-width: 520px;
+  margin: 0 0 10px;
+  color: #4b5563;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.seo-footer-about > a,
+.seo-footer-group a {
+  color: #303943;
+  font-size: 13px;
+  line-height: 1.75;
+  text-decoration: none;
+  transition: color .18s ease, transform .18s ease;
+}
+
+.seo-footer-about > a {
+  color: #583caa;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.seo-footer-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.seo-footer-group a:hover,
+.seo-footer-about > a:hover {
+  color: #583caa;
+  text-decoration: none;
+}
+
+.seo-footer-group a:not(:hover) {
+  display: inline-block;
+}
+.seo-footer-group a:hover {
+  transform: translateX(2px);
+}
+
+.seo-footer-bottom {
+  display: flex;
+  width: min(1120px, calc(100% - 32px));
+  justify-content: space-between;
+  gap: 12px 24px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+  padding: 16px 0;
+  border-top: 1px solid #d9dee5;
+  color: #58616d;
+  font-size: 12px;
+}
+
+.seo-footer-bottom p {
+  margin: 0;
+}
+
+.seo-footer-bottom .site-version {
+  width: 100%;
+  color: #747b95;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+@media (max-width: 900px) {
+  .seo-footer-inner {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .seo-footer {
+    padding-top: 28px;
+  }
+
+  .seo-footer-inner {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 18px;
+  }
+
+  .seo-footer-bottom {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 360px) {
+  .seo-footer-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Luxury Overhaul - Footer Version Stamp and Styling */
+.seo-footer {
+  background: #071220 !important;
+  color: #c4d1df !important;
+  border-top: 1px solid rgba(197, 160, 89, 0.25) !important;
+}
+.seo-footer-inner {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.seo-footer-about h2,
+.seo-footer-group h2 {
+  color: #ffffff !important;
+  font-family: var(--font, 'Prompt', sans-serif);
+  letter-spacing: 0.5px;
+}
+.seo-footer-about p {
+  color: #9cb0c5 !important;
+}
+.seo-footer-about > a,
+.seo-footer-group a {
+  color: #9cb0c5 !important;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.seo-footer-about > a:hover,
+.seo-footer-group a:hover {
+  color: #C5A059 !important;
+  transform: translateX(3px);
+}
+.seo-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  border-top: none !important;
+  color: #8da2ba !important;
+  padding: 20px 0 24px;
+}
+.seo-footer-legal {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.seo-footer-copy {
+  margin: 0 0 4px;
+  color: #e2eaf2;
+  font-weight: 600;
+  font-size: 13px;
+}
+.seo-footer-disclaimer {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #768a9f;
+}
+.seo-footer-version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(197, 160, 89, 0.12);
+  border: 1px solid rgba(197, 160, 89, 0.35);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  margin-left: auto;
+}
+.seo-footer-version-tag .version-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #C5A059;
+  box-shadow: 0 0 10px #C5A059;
+}
+.seo-footer-version-tag .version-text {
+  font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .05em;
+  color: #e5cb96;
+}
+
+/* Dashboard Footer Status & Version Stamp */
+.dashboard-footer-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 36px 0 20px;
+  padding: 16px 22px;
+  background: #ffffff;
+  border: 1px solid #e7ecf2;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(11, 28, 51, 0.04);
+}
+.dashboard-footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dashboard-footer-logo-text {
+  font-family: var(--font, 'Prompt', sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  color: #0B1C33;
+  letter-spacing: -0.2px;
+}
+.dashboard-footer-hub-label {
+  font-size: 12px;
+  color: #71849a;
+  padding-left: 12px;
+  border-left: 1px solid #e2e8f0;
+}
+.dashboard-version-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #f7f5f0;
+  border: 1px solid rgba(197, 160, 89, 0.4);
+}
+.dashboard-version-tag .version-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #C5A059;
+}
+.dashboard-version-tag .version-label {
+  font-size: 12px;
+  color: #556577;
+  font-weight: 600;
+}
+.dashboard-version-tag .version-code {
+  font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+  font-size: 12px;
+  color: #9c7b39;
+  letter-spacing: .05em;
+}
+
+@media (max-width: 640px) {
+  .seo-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .seo-footer-version-tag {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+  .dashboard-footer-status {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .dashboard-footer-hub-label {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+.seo-footer-cookie-link {
+  display: inline-block;
+  color: #9cb0c5 !important;
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.2s ease, transform 0.2s ease;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.seo-footer-cookie-link:hover {
+  color: #C5A059 !important;
+  transform: translateX(3px);
+}

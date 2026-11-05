@@ -1,0 +1,112 @@
+ /* =========================================================
+   Promo / Decorative Media Slots — responsive image or looping video
+   ========================================================= */
+
+.promo-banner-slot {
+  width: 100%;
+  display: grid;
+  gap: 16px;
+  margin: 26px 0;
+}
+
+/* Height presets */
+.promo-slot-compact .promo-banner-media {
+  max-height: 120px;
+}
+
+.promo-slot-medium .promo-banner-media {
+  max-height: 300px;
+}
+
+.promo-banner-item {
+  display: block;
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8fafc, #edf2f7);
+  border: 1px solid rgba(197, 160, 89, 0.25);
+  box-shadow: 0 6px 22px rgba(11, 28, 51, 0.07);
+  transition: transform .3s cubic-bezier(.22, 1, .36, 1), box-shadow .3s ease, border-color .3s ease;
+  position: relative;
+}
+
+a.promo-banner-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 34px rgba(11, 28, 51, 0.13);
+  border-color: rgba(197, 160, 89, 0.5);
+}
+
+a.promo-banner-item:focus-visible {
+  outline: 3px solid rgba(197, 160, 89, 0.55);
+  outline-offset: 3px;
+}
+
+/* Media fills width, preserves aspect ratio, self-scales */
+.promo-banner-media {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: inherit;
+  object-fit: cover;
+  aspect-ratio: auto;
+}
+
+/* For video loops: keep quiet controls, no native chrome */
+.promo-banner-media[src$='.mp4'],
+.promo-banner-media[src$='.webm'],
+video.promo-banner-media {
+  background: #060f1c;
+}
+
+/* Subtle shine on hover for clickable banners */
+a.promo-banner-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, .08) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+}
+
+a.promo-banner-item:hover::after {
+  opacity: 1;
+}
+
+/* Grid modes for multiple banners in a slot */
+.promo-banner-slot.count-2,
+.promo-banner-slot:has(.promo-banner-item:nth-child(2)) {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.promo-banner-slot.count-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.promo-banner-slot.count-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+  .promo-banner-slot.count-3,
+  .promo-banner-slot.count-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .promo-banner-slot.count-2,
+  .promo-banner-slot.count-3,
+  .promo-banner-slot.count-4,
+  .promo-banner-slot:has(.promo-banner-item:nth-child(2)) {
+    grid-template-columns: 1fr;
+  }
+  .promo-slot-medium .promo-banner-media { max-height: 220px; }
+  .promo-slot-compact .promo-banner-media { max-height: 96px; }
+}
+
+/* Respect reduced motion: don't autoplay the loop visually */
+@media (prefers-reduced-motion: reduce) {
+  video.promo-banner-media {
+    animation: none;
+  }
+}

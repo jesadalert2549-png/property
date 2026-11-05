@@ -1,0 +1,150 @@
+/* Never display floating controls on home page */
+body.home-page .site-controls,
+body.page-home .site-controls,
+body:has(.dd-navbar) .site-controls,
+body:has(.dd-hero) .site-controls,
+.site-controls.home-hidden {
+  display: none !important;
+}
+
+.site-controls {
+  position: fixed;
+  left: 14px;
+  right: auto;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  z-index: 1000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: auto;
+  max-width: max-content;
+}
+
+.site-control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid rgba(197, 160, 89, 0.4);
+  border-radius: 999px;
+  background: rgba(11, 28, 51, 0.9);
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  color: #E2E8F0;
+  box-shadow: 0 4px 16px rgba(6, 15, 28, 0.28);
+  font: 700 12.5px/1.2 "Prompt", "Inter", system-ui, sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .2s ease;
+  white-space: nowrap;
+}
+
+.site-control-button:hover {
+  background: #0B1C33;
+  border-color: #C5A059;
+  color: #C5A059;
+  box-shadow: 0 6px 20px rgba(197, 160, 89, 0.25);
+  transform: translateY(-1px);
+}
+
+.cookie-consent {
+  position: fixed;
+  z-index: 9998;
+  right: 18px;
+  bottom: 74px;
+  width: min(460px, calc(100vw - 36px));
+  padding: 20px;
+  border: 1px solid #dce2e9;
+  border-radius: 18px;
+  background: #fff;
+  color: #24384b;
+  box-shadow: 0 18px 55px rgba(15, 35, 55, .24);
+  font: 14px/1.6 "Prompt", "Inter", system-ui, sans-serif;
+}
+
+.cookie-consent[hidden] { display: none; }
+.cookie-consent h2 { margin: 0 0 8px; color: #2b2150; font-size: 18px; }
+.cookie-consent p { margin: 0 0 12px; }
+.cookie-consent .cookie-consent-error { color: #b42318; font-weight: 700; }
+.cookie-consent-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.cookie-consent-actions button {
+  flex: 1 1 170px;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid #dce2e9;
+  border-radius: 10px;
+  background: #fff;
+  color: #2b2150;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.cookie-consent-actions .cookie-consent-accept { border-color: #ef8950; background: #ef8950; color: #fff; }
+.cookie-consent-actions .cookie-consent-accept:hover { border-color:#d96d39; background:#d96d39; }
+.cookie-consent-actions button:disabled { cursor: wait; opacity: .65; }
+
+@media (max-width: 480px) {
+  .site-controls { right: 12px; bottom: 12px; }
+  .site-control-button { min-height: 40px; padding: 0 13px; }
+  .cookie-consent { right: 12px; bottom: 68px; width: calc(100vw - 24px); padding: 16px; }
+  .cookie-consent-actions button { flex-basis: 100%; }
+}
+
+/* =========================================================
+   KASA Logo Display Rules (Global in site-controls.css)
+   Ensures only one logo is shown even if style.css is not loaded
+   ========================================================= */
+.kasa-logo-img--light { display: block !important; height: 46px; width: auto; max-width: 185px; object-fit: contain; }
+.kasa-logo-img--dark { display: none !important; height: 46px; width: auto; max-width: 185px; object-fit: contain; }
+
+/* Dark mode / dark background surfaces */
+.kasa-logo--dark .kasa-logo-img--light,
+.sp-logo--dark .kasa-logo-img--light,
+.admin-sidebar-brand .kasa-logo-img--light,
+.admin-navbar-brand .kasa-logo-img--light,
+.admin-desktop-navbar .kasa-logo-img--light,
+.site-shell-nav .kasa-logo-img--light,
+.site-header .kasa-logo-img--light,
+.dd-navbar .kasa-logo-img--light,
+.site-shell-drawer-footer .kasa-logo-img--light,
+.seo-footer .kasa-logo-img--light {
+  display: none !important;
+}
+
+.kasa-logo--dark .kasa-logo-img--dark,
+.sp-logo--dark .kasa-logo-img--dark,
+.admin-sidebar-brand .kasa-logo-img--dark,
+.admin-navbar-brand .kasa-logo-img--dark,
+.admin-desktop-navbar .kasa-logo-img--dark,
+.site-shell-nav .kasa-logo-img--dark,
+.site-header .kasa-logo-img--dark,
+.dd-navbar .kasa-logo-img--dark,
+.site-shell-drawer-footer .kasa-logo-img--dark,
+.seo-footer .kasa-logo-img--dark {
+  display: block !important;
+}
+
+/* =========================================================
+   KASA Luxury Logo Accent Glow & Enhancements
+   ========================================================= */
+.kasa-logo-glow {
+  position: absolute;
+  inset: -10px;
+  background: radial-gradient(circle at 50% 50%, rgba(197, 160, 89, 0.25), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.kasa-logo:hover .kasa-logo-glow,
+.sp-logo:hover .kasa-logo-glow {
+  opacity: 1;
+}
+
+/* Subtle gold luxury edge highlight on focus */
+.kasa-logo:focus-visible,
+.sp-logo:focus-visible {
+  outline: 2px solid #C5A059;
+  outline-offset: 4px;
+}

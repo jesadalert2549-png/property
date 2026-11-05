@@ -1,0 +1,6 @@
+Require all denied
+
+RewriteEngine On
+
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+RewriteRule ^(ขายคอนโด|ขายบ้าน|ขายทาวน์เฮ้าส์|ขายที่ดิน|ขายอาคารพาณิชย์|บ้านให้เช่า|คอนโดให้เช่า)/?$ category.php?page=$1 [L,QSA]

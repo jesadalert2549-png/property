@@ -1,0 +1,25 @@
+# ปิดการแสดงรายการไฟล์ในโฟลเดอร์ (ไม่ให้คนนอกเห็นโครงสร้างเว็บ)
+Options -Indexes
+
+# หน้าแรกของเว็บคือ index.php
+DirectoryIndex index.php
+
+RewriteEngine On
+RewriteRule ^sitemap\.xml$ sitemap_xml.php [L]
+
+# ห้ามเปิดไฟล์ฐานข้อมูลหรือไฟล์บันทึก
+<FilesMatch "\.(sql|md|bak|log|ini)$">
+    Require all denied
+</FilesMatch>
+
+# ป้องกันเปิดดูไฟล์ตั้งค่าภายในจากภายนอก
+<FilesMatch "^(version|oauth_config|hero_config)\.json$">
+    Require all denied
+</FilesMatch>
+
+# ===== เปิดเมื่อขึ้น Hostinger แล้วและติดตั้ง SSL เรียบร้อยแล้วเท่านั้น =====
+# ถ้าเปิดตอนใช้ XAMPP จะเข้าเว็บบนเครื่องไม่ได้ จึงคอมเมนต์ไว้
+#
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [L,R=301]
