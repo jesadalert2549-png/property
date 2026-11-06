@@ -1,6 +1,11 @@
 ﻿<?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_once __DIR__ . '/../includes/staff.php';
+require_admin('content', 'view');
+
+$isFounder = ($_SESSION['role'] ?? '') === 'admin';
+$staffId = (int)($_SESSION['staff_id'] ?? 0);
+$canEditCategoryImages = $isFounder || staff_can(db(), $staffId, 'content', 'edit') || staff_can(db(), $staffId, 'content', 'manage');
 
 $pdo = db();
 $message = '';
@@ -9,7 +14,10 @@ $imageDirectory = UPLOAD_DIR . 'categories/';
 
 if (request_is_post()) {
     csrf_check();
-    $category = (string)($_POST['category'] ?? '');
+    if (!$canEditCategoryImages) {
+        $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์จัดการภาพหมวดหมู่ กรุณาติดต่อ Founder & CEO';
+    } else {
+        $category = (string)($_POST['category'] ?? '');
     $action = (string)($_POST['action'] ?? '');
 
     if (!array_key_exists($category, PROPERTY_CATEGORIES) || $category === 'other') {
@@ -74,6 +82,7 @@ if (request_is_post()) {
     } else {
         $errors[] = 'คำสั่งไม่ถูกต้อง';
     }
+    }
 }
 
 $images = $pdo->query('SELECT category, filename FROM category_images')->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -100,17 +109,9 @@ $token = csrf_token();
     .category-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:auto; }
   </style>
 </head>
-<body>
+<body class="has-admin-sidebar">
 <?php require __DIR__ . '/_sidebar.php'; ?>
-<div class="topbar">
-  <strong>🖼️ ภาพประจำหมวดหมู่</strong>
-  <nav>
-    <a href="index.php">จัดการประกาศ</a>
-    <a href="analytics.php">วิเคราะห์สถิติ</a>
-    <a href="../dashboard.php">แดชบอร์ด</a>
-  </nav>
-</div>
-<main class="wrap">
+<main class="wrap" style="margin-top:20px;">
   <?php if ($message): ?><div class="alert success"><?= e($message) ?></div><?php endif; ?>
   <?php foreach ($errors as $error): ?><div class="alert error"><?= e($error) ?></div><?php endforeach; ?>
   <p class="muted">อัปโหลดภาพ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB ภาพจะแสดงเป็น <strong>ไอคอนหมวดหมู่บนหน้าแรก</strong> (วงกลมมุมขวาล่างของตัวอย่าง) และส่วนหัวของหน้าหมวดหมู่นั้น</p>
@@ -129,6 +130,7 @@ $token = csrf_token();
             <div class="category-preview-empty">ยังไม่มีภาพหมวดหมู่</div>
           </div>
         <?php endif; ?>
+        <?php if ($canEditCategoryImages): ?>
         <form method="post" enctype="multipart/form-data">
           <input type="hidden" name="csrf" value="<?= e($token) ?>">
           <input type="hidden" name="category" value="<?= e($category) ?>">
@@ -145,6 +147,9 @@ $token = csrf_token();
             <input type="hidden" name="action" value="delete">
             <button type="submit" class="btn-action btn-red">ลบภาพ</button>
           </form>
+        <?php endif; ?>
+        <?php else: ?>
+          <div style="font-size:12px;color:#64748B;font-style:italic;margin-top:8px;">👁 ดูได้อย่างเดียว (ต้องได้รับสิทธิ์จาก Founder &amp; CEO เพื่อเปลี่ยนภาพ)</div>
         <?php endif; ?>
       </section>
     <?php endforeach; ?>

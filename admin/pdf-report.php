@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_admin('analytics', 'view');
 $pdo = db();
 $range = (int)($_GET['range'] ?? 30);
 if (!in_array($range, [1, 7, 30], true)) $range = 30;

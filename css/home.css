@@ -1074,3 +1074,14 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 10px 26px rgba(197, 160, 89, 0.5) !important;
 }
+
+
+/* Mobile zoom & pan enabled */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body {
+  touch-action: pan-x pan-y pinch-zoom;
+}

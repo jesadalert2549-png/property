@@ -1,6 +1,21 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_once __DIR__ . '/../includes/staff.php';
+require_admin('listings', 'view');
+
+$isFounder = ($_SESSION['role'] ?? '') === 'admin';
+$isPartner = ($_SESSION['role'] ?? '') === 'partner';
+$staffId = (int)($_SESSION['staff_id'] ?? 0);
+$partnerTitle = $_SESSION['partner_title'] ?? ($isFounder ? 'FOUNDER & CEO' : 'PARTNER');
+
+$perms = $isFounder ? [] : staff_permissions(db(), $staffId);
+$canViewListings    = $isFounder || !empty($perms['listings']['view']);
+$canCreateListings  = $isFounder || !empty($perms['listings']['create']);
+$canEditListings    = $isFounder || !empty($perms['listings']['edit']);
+$canDeleteListings  = $isFounder || !empty($perms['listings']['delete']);
+$canManageListings  = $isFounder || !empty($perms['listings']['manage']);
+$canFeatureListings = $isFounder || !empty($perms['marketing']['edit']) || !empty($perms['marketing']['manage']) || $canManageListings;
+
 $pdo = db();
 $pdo->exec("CREATE TABLE IF NOT EXISTS featured_properties (
     property_id INT NOT NULL PRIMARY KEY,
@@ -19,6 +34,20 @@ if (request_is_post()) {
     csrf_check();
     $id = (int)($_POST['id'] ?? 0);
     $action = $_POST['action'] ?? '';
+
+    // ZERO-TRUST PERMISSION GUARDS:
+    if (in_array($action, ['feature', 'unfeature', 'feature_up', 'feature_down'], true) && !$canFeatureListings) {
+        set_flash('สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์จัดการโปรโมตหน้าแรก กรุณาติดต่อ Founder & CEO');
+        redirect('index.php?tab=' . $tab);
+    }
+    if (in_array($action, ['approve', 'reject', 'unpublish', 'toggle'], true) && !$canEditListings) {
+        set_flash('สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์แก้ไขหรืออนุมัติประกาศ กรุณาติดต่อ Founder & CEO');
+        redirect('index.php?tab=' . $tab);
+    }
+    if ($action === 'delete' && !$canDeleteListings) {
+        set_flash('สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์ลบประกาศ กรุณาติดต่อ Founder & CEO');
+        redirect('index.php?tab=' . $tab);
+    }
 
     if ($id > 0 && in_array($action, ['feature', 'unfeature', 'feature_up', 'feature_down'], true)) {
         $propertyCheck = $pdo->prepare('SELECT approval, status FROM properties WHERE id = ? LIMIT 1');
@@ -128,6 +157,21 @@ $doneProps   = (int)$pdo->query("SELECT COUNT(*) FROM properties WHERE status = 
 $flash = get_flash();
 $token = csrf_token();
 
+if ($isFounder) {
+    $profileQuery = $pdo->prepare('SELECT full_name, username FROM users WHERE id = ? LIMIT 1');
+    $profileQuery->execute([(int)($_SESSION['user_id'] ?? 0)]);
+    $uData = $profileQuery->fetch(PDO::FETCH_ASSOC);
+    $adminDisplayName = trim((string)($uData['full_name'] ?? '')) ?: (string)($uData['username'] ?? 'Founder');
+    $roleDisplayName = 'Founder & CEO';
+} else {
+    $profileQuery = $pdo->prepare('SELECT full_name, username, role_slug FROM staff_accounts WHERE id = ? LIMIT 1');
+    $profileQuery->execute([$staffId]);
+    $uData = $profileQuery->fetch(PDO::FETCH_ASSOC);
+    $adminDisplayName = trim((string)($uData['full_name'] ?? '')) ?: (string)($uData['username'] ?? 'Staff');
+    $roleRow = staff_role_by_slug($pdo, (string)($uData['role_slug'] ?? 'partner'));
+    $roleDisplayName = $roleRow['name_th'] ?? ($_SESSION['partner_title'] ?? 'ผู้จัดการ / หุ้นส่วน');
+}
+
 $approvalLabel = [
     'pending'  => t('รออนุมัติ', 'Pending'),
     'approved' => t('แสดงอยู่', 'Active'),
@@ -143,23 +187,8 @@ $approvalLabel = [
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
 </head>
-<body class="admin-body">
+<body class="has-admin-sidebar">
 <?php require __DIR__ . '/_sidebar.php'; ?>
-
-<div class="topbar">
-  <strong>🏠 <?= e(t('ระบบจัดการประกาศทรัพย์สิน', 'Property Management System')) ?></strong>
-  <nav>
-    <a href="add.php">+ <?= e(t('เพิ่มประกาศใหม่', 'Add New Listing')) ?></a>
-    <a href="projects.php">🏙️ <?= e(t('จัดการโครงการ', 'Manage Projects')) ?></a>
-    <a href="featured.php">🏷️ <?= e(t('หมวดแนะนำหน้าแรก', 'Featured Categories')) ?></a>
-    <a href="category-images.php">🖼️ <?= e(t('ภาพหมวดหมู่', 'Category Images')) ?></a>
-    <a href="analytics.php">📊 <?= e(t('วิเคราะห์สถิติ', 'Analytics')) ?></a>
-    <a href="pdf-report.php">🧾 <?= e(t('รายงาน PDF', 'PDF Report')) ?></a>
-    <a href="../index.php" target="_blank"><?= e(t('ดูหน้าเว็บไซต์', 'View Website')) ?></a>
-    <a href="../logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
-    <?php render_lang_toggle(); ?>
-  </nav>
-</div>
 
 <div class="wrap">
 
@@ -167,24 +196,77 @@ $approvalLabel = [
     <div class="flash"><?= e($flash) ?></div>
   <?php endif; ?>
 
+  <?php if ($canFeatureListings): ?>
   <section class="featured-manage-banner">
     <span class="featured-manage-icon" aria-hidden="true">★</span>
     <div><strong><?= e(t('โปรโมตและจัดลำดับทรัพย์หน้าแรก', 'Promote & Order Featured Properties')) ?></strong><small><?= e(t('กำลังโปรโมต', 'Currently promoting')) ?> <?= number_format($featuredTotal) ?> <?= e(t('รายการ · เลือกแท็บ “แสดงอยู่” แล้วใช้ปุ่มโปรโมต/เลื่อนลำดับในแต่ละประกาศ', 'listings · Select "Active" tab and use promote/order buttons on each listing')) ?></small></div>
     <a href="?tab=approved#propertyList"><?= e(t('ไปจัดการประกาศที่อนุมัติแล้ว ↗', 'Manage approved listings ↗')) ?></a>
   </section>
+  <?php endif; ?>
 
   <!-- ===== Hero แดชบอร์ด ===== -->
   <section class="dash-hero">
     <div class="dash-hero-text">
-      <span class="dash-eyebrow">ADMIN DASHBOARD</span>
-      <h1><?= e(t('แดชบอร์ดผู้ดูแลระบบ', 'Admin Dashboard')) ?></h1>
-      <p><?= e(t('ภาพรวมประกาศและสถิติทั้งหมดของเว็บไซต์ — อัปเดต ณ', 'Overview of all listings and stats — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
+      <?php if ($isFounder): ?>
+        <span class="dash-eyebrow">👑 FOUNDER &amp; CEO · MASTER COMMAND</span>
+        <h1><?= e(t('ยินดีต้อนรับ Founder & CEO คุณ ', 'Welcome Founder & CEO ')) ?><?= e($adminDisplayName) ?></h1>
+        <p><?= e(t('ศูนย์รวมอำนาจการบริหารจัดการสูงสุดของเว็บไซต์ KASA Property — อัปเดต ณ', 'Master administrative authority of KASA Property — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
+      <?php else: ?>
+        <span class="dash-eyebrow">💼 <?= strtoupper(e($roleDisplayName)) ?> · WORKSPACE</span>
+        <h1><?= e(t('ยินดีต้อนรับ ', 'Welcome ')) ?><?= e($roleDisplayName) ?> <?= e(t('คุณ ', '')) ?><?= e($adminDisplayName) ?></h1>
+        <p><?= e(t('พื้นที่ปฏิบัติงานเฉพาะส่วนงานที่ได้รับมอบหมายสิทธิ์จาก Founder & CEO — อัปเดต ณ', 'Dedicated workspace for assigned tasks authorized by Founder & CEO — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
+      <?php endif; ?>
       <div class="dash-hero-actions">
-        <a class="btn-hero" href="pdf-report.php">🧾 <?= e(t('สร้างรายงาน PDF สรุปสถิติ', 'Generate PDF Report')) ?></a>
-        <a class="btn-hero ghost" href="analytics.php">📊 <?= e(t('ดูสถิติเชิงลึก', 'View In-depth Stats')) ?></a>
+        <?php if ($isFounder || !empty($perms['analytics']['view'])): ?>
+          <a class="btn-hero" href="pdf-report.php">🧾 <?= e(t('สร้างรายงาน PDF สรุปสถิติ', 'Generate PDF Report')) ?></a>
+          <a class="btn-hero ghost" href="analytics.php">📊 <?= e(t('ดูสถิติเชิงลึก', 'View In-depth Stats')) ?></a>
+        <?php endif; ?>
+        <?php if ($isFounder || !empty($perms['marketing']['view'])): ?>
+          <a class="btn-hero" href="seo.php" style="background:linear-gradient(135deg,#C5A059,#A8843F); border:none;">⚡ <?= e(t('ศูนย์ SEO & AI 77 จว. & CBD', 'SEO & AI Command')) ?></a>
+        <?php endif; ?>
       </div>
     </div>
     <div class="dash-hero-ring" aria-hidden="true"></div>
+  </section>
+
+  <!-- ===== CEO Quick Launchpad: กล่องเครื่องมือด่วนแยกตามหมวดหมู่ ===== -->
+  <section class="ceo-launchpad" style="margin-bottom:24px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+      <div>
+        <h2 style="margin:0; font-size:17px; color:#0B1C33; font-weight:800; display:flex; align-items:center; gap:8px;">
+          <span>⚡</span> <?= e(t('ศูนย์รวมเครื่องมือบริหาร (Executive Launchpad)', 'Executive Launchpad')) ?>
+        </h2>
+        <p style="margin:3px 0 0; font-size:12px; color:#64748B;">คลิกเปิดเครื่องมือในหมวดหมู่งานที่ต้องการได้ทันที</p>
+      </div>
+      <span style="font-size:11px; font-weight:700; color:#8C6B32; background:rgba(197,160,89,.15); padding:4px 12px; border-radius:999px;">
+        <?= count($activeCatalog) ?> <?= e(t('หมวดหมู่งาน', 'Operational Modules')) ?>
+      </span>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:14px;">
+      <?php foreach ($activeCatalog as $catKey => $catData): ?>
+        <div class="ceo-cat-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:16px; box-shadow:0 4px 14px rgba(11,28,51,.04); transition:transform .18s, box-shadow .18s, border-color .18s;" onmouseover="this.style.borderColor='#C5A059';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='#e2e8f0';this.style.transform='none'">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="display:grid; place-items:center; width:32px; height:32px; border-radius:9px; background:rgba(197,160,89,.12); color:#8C6B32; font-size:16px;"><?= e($catData['icon']) ?></span>
+              <strong style="font-size:14px; color:#0B1C33;"><?= e($catData['title']) ?></strong>
+            </div>
+            <small style="color:#94a3b8; font-size:11px; font-weight:700;"><?= count($catData['items']) ?> รายการ</small>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <?php foreach ($catData['items'] as [$href, $icon, $label, $desc]): ?>
+              <a href="<?= e($href) ?>" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:8px; background:#f8fafc; text-decoration:none; color:#1e293b; font-size:12.5px; font-weight:700; transition:all .15s;" onmouseover="this.style.background='#0B1C33';this.style.color='#fff'" onmouseout="this.style.background='#f8fafc';this.style.color='#1e293b'">
+                <span style="display:flex; align-items:center; gap:7px;">
+                  <span style="opacity:0.75;"><?= e($icon) ?></span>
+                  <span><?= e($label) ?></span>
+                </span>
+                <span style="font-size:10px; opacity:0.6;">↗</span>
+              </a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
   </section>
 
   <!-- ===== การ์ดสถิติ ===== -->
@@ -293,7 +375,7 @@ $approvalLabel = [
                 </td>
                 <td>
                   <div class="actions">
-                    <?php if ($p['approval'] !== 'approved'): ?>
+                    <?php if ($canEditListings && $p['approval'] !== 'approved'): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
@@ -301,7 +383,7 @@ $approvalLabel = [
                       </form>
                     <?php endif; ?>
 
-                    <?php if ($p['approval'] === 'pending'): ?>
+                    <?php if ($canEditListings && $p['approval'] === 'pending'): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
@@ -309,7 +391,7 @@ $approvalLabel = [
                       </form>
                     <?php endif; ?>
 
-                    <?php if ($p['approval'] === 'approved'): ?>
+                    <?php if ($canEditListings && $p['approval'] === 'approved'): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
@@ -319,7 +401,7 @@ $approvalLabel = [
                       </form>
                     <?php endif; ?>
 
-                    <?php if ($p['approval'] === 'approved' && ($p['verification_status'] ?? '') === 'flagged'): ?>
+                    <?php if ($canEditListings && $p['approval'] === 'approved' && ($p['verification_status'] ?? '') === 'flagged'): ?>
                       <form method="post" style="display:inline;" onsubmit="return confirm('ซ่อนประกาศที่ระบบติดธงนี้จากหน้าเว็บไซต์หรือไม่?');">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
@@ -327,7 +409,7 @@ $approvalLabel = [
                       </form>
                     <?php endif; ?>
 
-                    <?php if ($featuredRank !== null): ?>
+                    <?php if ($canFeatureListings && $featuredRank !== null): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
                         <button name="action" value="feature_up" class="btn-action btn-order" aria-label="<?= e(t('เลื่อนโปรโมตขึ้น', 'Move up')) ?>" <?= $featuredRank <= 1 ? 'disabled' : '' ?>><?= e(t('↑ เลื่อนขึ้น', '↑ Move Up')) ?></button>
@@ -340,20 +422,26 @@ $approvalLabel = [
                         <input type="hidden" name="csrf" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
                         <button name="action" value="unfeature" class="btn-action btn-feature-remove"><?= e(t('นำออก', 'Remove')) ?></button>
                       </form>
-                    <?php elseif ($p['approval'] === 'approved' && $p['status'] === 'available'): ?>
+                    <?php elseif ($canFeatureListings && $p['approval'] === 'approved' && $p['status'] === 'available'): ?>
                       <form method="post" style="display:inline;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
                         <button name="action" value="feature" class="btn-action btn-feature"><?= e(t('★ โปรโมตหน้าแรก', '★ Feature')) ?></button>
                       </form>
                     <?php endif; ?>
 
-                    <a href="edit.php?id=<?= (int)$p['id'] ?>" class="btn-action btn-edit"><?= e(t('แก้ไข', 'Edit')) ?></a>
+                    <?php if ($canEditListings): ?>
+                      <a href="edit.php?id=<?= (int)$p['id'] ?>" class="btn-action btn-edit"><?= e(t('แก้ไข', 'Edit')) ?></a>
+                    <?php else: ?>
+                      <a href="view.php?id=<?= (int)$p['id'] ?>" class="btn-action btn-gray"><?= e(t('ดูข้อมูล', 'View')) ?></a>
+                    <?php endif; ?>
 
-                    <form method="post" style="display:inline;" onsubmit="return confirm('⚠️ ยืนยันการลบประกาศนี้ถาวรใช่หรือไม่?');">
-                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                      <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
-                      <button name="action" value="delete" class="btn-action btn-red"><?= e(t('ลบ', 'Delete')) ?></button>
-                    </form>
+                    <?php if ($canDeleteListings): ?>
+                      <form method="post" style="display:inline;" onsubmit="return confirm('⚠️ ยืนยันการลบประกาศนี้ถาวรใช่หรือไม่?');">
+                        <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                        <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
+                        <button name="action" value="delete" class="btn-action btn-red"><?= e(t('ลบ', 'Delete')) ?></button>
+                      </form>
+                    <?php endif; ?>
                   </div>
                 </td>
               </tr>

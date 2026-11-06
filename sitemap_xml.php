@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/seo.php';
+require_once __DIR__ . '/includes/seo_provinces.php';
 
 header('Content-Type: application/xml; charset=utf-8');
 header('Cache-Control: public, max-age=3600');
@@ -19,6 +20,28 @@ foreach (PROPERTY_CATEGORIES as $category => $label) {
 }
 foreach (SEO_CATEGORIES as $slug => $config) {
     $urls[] = ['loc' => category_url($slug), 'lastmod' => null];
+}
+
+// 77 จังหวัดประเทศไทยสำหรับ Google & AI Crawler
+foreach (THAI_PROVINCES as $provName => $p) {
+    if ($provName === '') continue;
+    $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('ขายบ้าน' . $provName)), 'lastmod' => null];
+    $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('ขายคอนโด' . $provName)), 'lastmod' => null];
+    $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('ขายที่ดิน' . $provName)), 'lastmod' => null];
+}
+
+// ย่าน Prime CBD Zones & Transit Oriented Hubs ที่มีการค้นหาหนาแน่นที่สุด
+if (defined('PRIME_CBD_ZONES')) {
+    foreach (PRIME_CBD_ZONES as $cbdKey => $cbd) {
+        $cbdName = $cbd['name_th'];
+        $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('คอนโด' . $cbdName)), 'lastmod' => null];
+        $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('คอนโดให้เช่า' . $cbdName)), 'lastmod' => null];
+        $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('บ้าน' . $cbdName)), 'lastmod' => null];
+        foreach (array_slice($cbd['sub_districts'], 0, 3) as $subD) {
+            $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('คอนโด' . $subD)), 'lastmod' => null];
+            $urls[] = ['loc' => page_url('category.php?page=' . rawurlencode('คอนโดให้เช่า' . $subD)), 'lastmod' => null];
+        }
+    }
 }
 
 $rows = db()->query(

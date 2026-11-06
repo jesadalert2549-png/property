@@ -2,46 +2,38 @@
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
+require_once __DIR__ . '/includes/seo_provinces.php';
 current_lang();
 
 $pdo = db();
 $slug = trim((string)($_GET['page'] ?? ''), '/ ');
 $slug = urldecode($slug);
 
-// สารบัญแมป Slug เป็นหมวดหมู่หลัก (เผื่อกรณีไม่มีใน SEO_CATEGORIES)
-$cat_map = [
-    'condo' => 'condo', 'คอนโด' => 'condo',
-    'house' => 'house', 'บ้านเดี่ยว' => 'house',
-    'townhouse' => 'townhouse', 'ทาวน์เฮ้าส์' => 'townhouse', 'ทาวน์โฮม' => 'townhouse',
-    'land' => 'land', 'ที่ดิน' => 'land',
-    'commercial' => 'commercial', 'อาคารพาณิชย์' => 'commercial',
-    'warehouse' => 'warehouse', 'โกดัง' => 'warehouse',
-    'other' => 'other'
-];
-
 $cfg = SEO_CATEGORIES[$slug] ?? null;
-$target_category = null;
-$target_type = null;
-$target_q = '';
-$target_max_price = 0;
+$intent = resolve_seo_intent($slug, $_GET);
 
 if ($cfg) {
     $title_h1 = $cfg['h1'];
     $page_title = $cfg['title'];
     $page_desc = $cfg['desc'];
+    $page_intro = $cfg['intro'] ?? '';
     $target_category = $cfg['category'] ?? null;
     $target_type = $cfg['type'] ?? null;
     $target_q = $cfg['q'] ?? '';
     $target_max_price = (int)($cfg['max_price'] ?? 0);
+    $intent['title'] = $page_title;
+    $intent['desc'] = $page_desc;
+    $intent['h1'] = $title_h1;
+    $intent['intro'] = $page_intro;
 } else {
-    // ค้นหาคีย์ที่ตรงกัน
-    $cat_key = $cat_map[$slug] ?? (isset(PROPERTY_CATEGORIES[$slug]) ? $slug : 'condo');
-    $category_label = PROPERTY_CATEGORIES[$cat_key] ?? 'อสังหาริมทรัพย์';
-    
-    $title_h1 = "ขาย - ให้เช่า " . $category_label;
-    $page_title = "รวมประกาศ " . $category_label;
-    $page_desc = "รวมประกาศซื้อ ขาย ให้เช่า " . $category_label . " รายละเอียดครบถ้วน";
-    $target_category = $cat_key;
+    $title_h1 = $intent['h1'];
+    $page_title = $intent['title'];
+    $page_desc = $intent['desc'];
+    $page_intro = $intent['intro'];
+    $target_category = $intent['category'];
+    $target_type = $intent['type'];
+    $target_q = $intent['search_q'];
+    $target_max_price = 0;
 }
 
 // ดึงรายการประกาศจากฐานข้อมูลตาม Category และ Type (ถ้ากำหนด)
@@ -67,8 +59,9 @@ if (!empty($target_type)) {
 }
 
 if ($target_q !== '') {
-    $sql .= " AND (p.location LIKE ? OR p.nearby_places LIKE ? OR p.description LIKE ?)";
+    $sql .= " AND (p.location LIKE ? OR p.nearby_places LIKE ? OR p.description LIKE ? OR p.title LIKE ?)";
     $like = '%' . addcslashes($target_q, '%_\\') . '%';
+    $params[] = $like;
     $params[] = $like;
     $params[] = $like;
     $params[] = $like;
@@ -116,7 +109,20 @@ $all_slugs = available_category_slugs();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <?php seo_head($page_title . ' | ' . SITE_NAME, $page_desc, $canonical, true, $categoryImage ? page_url($categoryImage) : ''); ?>
+  <?php
+    seo_head($page_title . ' | ' . SITE_NAME, $page_desc, $canonical, true, $categoryImage ? page_url($categoryImage) : '');
+    json_ld([
+      '@context' => 'https://schema.org',
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => [
+        ['@type' => 'ListItem', 'position' => 1, 'name' => t('หน้าแรก', 'Home'), 'item' => page_url('')],
+        ['@type' => 'ListItem', 'position' => 2, 'name' => $title_h1, 'item' => $canonical],
+      ],
+    ]);
+    json_ld(generate_item_list_schema($items, $page_title, $canonical));
+    json_ld(generate_geo_faq_schema($intent));
+    json_ld(generate_national_agency_schema());
+  ?>
   <?php lang_toggle_head(); ?>
   <meta name="theme-color" content="#0B1C33">
   <script>
@@ -191,6 +197,9 @@ $all_slugs = available_category_slugs();
       <div>
         <p class="text-xs font-extrabold uppercase tracking-[.18em] text-accent">Property listing</p>
         <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl"><?= e($title_h1) ?></h1>
+        <?php if (!empty($page_intro)): ?>
+          <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600"><?= e($page_intro) ?></p>
+        <?php endif; ?>
       </div>
       <div class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600">
         <?= e(t('พบ ' . count($items) . ' ประกาศที่ตรงกับเงื่อนไข', count($items) . ' listings match your criteria')) ?>
@@ -256,6 +265,75 @@ $all_slugs = available_category_slugs();
       <?php endforeach; ?>
     </section>
   <?php endif; ?>
+
+  <!-- SEO & AI Overviews Knowledge FAQ Section -->
+  <?php $geoFaq = generate_geo_faq_schema($intent); ?>
+  <section class="mt-12 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+    <div class="flex items-center gap-3">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-accentSoft text-lg text-accent">💡</span>
+      <div>
+        <h2 class="text-xl font-extrabold text-ink"><?= e(t('คำถามที่พบบ่อย (FAQ) เกี่ยวกับ ' . $title_h1, 'Frequently Asked Questions')) ?></h2>
+        <p class="text-xs text-slate-500"><?= e(t('ข้อมูลเชิงลึกสำหรับผู้ซื้อ ผู้เช่า และนักลงทุนอสังหาริมทรัพย์', 'In-depth insights for buyers, tenants and investors')) ?></p>
+      </div>
+    </div>
+
+    <div class="mt-6 space-y-4">
+      <?php foreach ($geoFaq['mainEntity'] as $faqItem): ?>
+        <details class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition open:bg-white open:shadow-sm">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-ink">
+            <span><?= e($faqItem['name']) ?></span>
+            <span class="text-xs text-accent transition group-open:rotate-180">▼</span>
+          </summary>
+          <p class="mt-3 text-sm leading-relaxed text-slate-600"><?= e($faqItem['acceptedAnswer']['text']) ?></p>
+        </details>
+      <?php endforeach; ?>
+    </div>
+  </section>
+
+  <!-- Prime CBD & Transit Zones SEO Linking Cloud -->
+  <section class="mt-8 rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 via-white to-amber-50/20 p-6 shadow-soft sm:p-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider text-accentDark">🏢 ทำเลเศรษฐกิจ Prime CBD &amp; แนวรถไฟฟ้า BTS/MRT</h3>
+        <p class="mt-1 text-xs text-slate-500">ย่านศูนย์กลางธุรกิจและการอยู่อาศัยระดับพรีเมียมที่มีการค้นหาสูงสุด</p>
+      </div>
+      <a href="search.php" class="text-xs font-bold text-accent hover:underline"><?= e(t('ค้นหาตามทำเล ›', 'Search by zone ›')) ?></a>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <?php
+      if (defined('PRIME_CBD_ZONES')) {
+          foreach (PRIME_CBD_ZONES as $cbdKey => $cbd) {
+              $cbdTitle = $cbd['name_th'];
+              $cbdTarget = 'category.php?page=' . urlencode('คอนโด' . $cbdTitle);
+              echo '<a href="' . e($cbdTarget) . '" class="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-ink shadow-xs transition hover:border-accent hover:bg-accentSoft hover:text-accentDark">⚡ ' . e($cbdTitle) . '</a>';
+              foreach (array_slice($cbd['sub_districts'], 0, 2) as $subD) {
+                  $subTarget = 'category.php?page=' . urlencode('คอนโด' . $subD);
+                  echo '<a href="' . e($subTarget) . '" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-accent hover:text-white">' . e($subD) . '</a>';
+              }
+          }
+      }
+      ?>
+    </div>
+  </section>
+
+  <!-- Nationwide Province SEO Linking Cloud -->
+  <section class="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+    <div class="flex items-center justify-between">
+      <h3 class="text-sm font-extrabold uppercase tracking-wider text-slate-600">📍 <?= e(t('เจาะทำเลอสังหาริมทรัพย์ยอดนิยมทั่วไทย', 'Popular Property Locations Across Thailand')) ?></h3>
+      <a href="search.php" class="text-xs font-bold text-accent hover:underline"><?= e(t('ดูทั้งหมด 77 จังหวัด ›', 'View all 77 provinces ›')) ?></a>
+    </div>
+    <div class="mt-4 flex flex-wrap gap-2">
+      <?php
+      $topProvList = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'ชลบุรี', 'นนทบุรี', 'สมุทรปราการ', 'ปทุมธานี', 'ระยอง', 'ประจวบคีรีขันธ์', 'นครราชสีมา', 'ขอนแก่น', 'สุราษฎร์ธานี', 'สงขลา', 'เชียงราย', 'พระนครศรีอยุธยา', 'นครปฐม', 'กระบี่', 'เพชรบุรี', 'กาญจนบุรี', 'อุดรธานี', 'อุบลราชธานี', 'พิษณุโลก', 'ฉะเชิงเทรา', 'สระบุรี'];
+      $activeCatLabel = $intent['category_label'] ?: 'บ้าน';
+      foreach ($topProvList as $pName):
+      ?>
+        <a href="category.php?page=<?= urlencode('ขาย' . $activeCatLabel . $pName) ?>" class="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-accent hover:text-white">
+          <?= e($activeCatLabel . ' ' . $pName) ?>
+        </a>
+      <?php endforeach; ?>
+    </div>
+  </section>
 
   <?php
   render_page_cta([

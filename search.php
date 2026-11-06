@@ -114,6 +114,36 @@ $items = $st->fetchAll();
       </div>
     </form>
 
+    <div class="search-hot-provinces" style="display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 24px; align-items:center;">
+      <span style="font-size:12px; font-weight:700; color:#C5A059;">🏢 ย่าน CBD &amp; รถไฟฟ้า:</span>
+      <?php
+      $cbdFastTags = [
+          'สุขุมวิท' => 'สุขุมวิท',
+          'ทองหล่อ'  => 'ทองหล่อ',
+          'เอกมัย'   => 'เอกมัย',
+          'สาทร'     => 'สาทร',
+          'สีลม'     => 'สีลม',
+          'พระราม 9' => 'พระราม 9',
+          'อารีย์'    => 'อารีย์',
+          'ลาดพร้าว' => 'ลาดพร้าว',
+          'บางนา'    => 'บางนา',
+          'นิมมาน'   => 'นิมมานฯ (เชียงใหม่)',
+          'พัทยา'    => 'พัทยา',
+          'หัวหิน'    => 'หัวหิน'
+      ];
+      foreach ($cbdFastTags as $kw => $lbl):
+      ?>
+        <a href="search.php?q=<?= urlencode($kw) ?>" style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:#0B1C33; color:#fff; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#0B1C33'"><?= e($lbl) ?></a>
+      <?php endforeach; ?>
+      <span style="font-size:12px; font-weight:700; color:#64748B; margin-left:8px;">📍 จังหวัดยอดนิยม:</span>
+      <?php
+      $hotProvs = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'ชลบุรี', 'นนทบุรี', 'สมุทรปราการ', 'ปทุมธานี', 'ระยอง'];
+      foreach ($hotProvs as $hp):
+      ?>
+        <a href="search.php?q=<?= urlencode($hp) ?>" style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:#fff; border:1px solid #e2e8f0; color:#0B1C33; text-decoration:none;" onmouseover="this.style.borderColor='#C5A059';this.style.color='#C5A059'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#0B1C33'"><?= e($hp) ?></a>
+      <?php endforeach; ?>
+    </div>
+
     <div class="search-results-heading">
       <h2><?= e(t('ประกาศอสังหาริมทรัพย์', 'Property listings')) ?></h2>
       <p><?= count($items) >= 100 ? t('แสดง 100 ประกาศล่าสุด', 'Showing the latest 100 listings') : t('พบ ' . count($items) . ' ประกาศ', count($items) . ' listings found') ?></p>

@@ -1,7 +1,15 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/banners.php';
-require_admin();
+require_once __DIR__ . '/../includes/staff.php';
+require_admin('content', 'view');
+
+$isFounder = ($_SESSION['role'] ?? '') === 'admin';
+$staffId = (int)($_SESSION['staff_id'] ?? 0);
+$canManageContent = $isFounder || staff_can(db(), $staffId, 'content', 'manage');
+$canCreateContent = $isFounder || staff_can(db(), $staffId, 'content', 'create') || $canManageContent;
+$canEditContent   = $isFounder || staff_can(db(), $staffId, 'content', 'edit') || $canManageContent;
+$canDeleteContent = $isFounder || staff_can(db(), $staffId, 'content', 'delete') || $canManageContent;
 
 $pdo = db();
 ensure_banner_table($pdo);
@@ -14,59 +22,83 @@ if (request_is_post()) {
     $action = (string)($_POST['action'] ?? '');
 
     if ($action === 'add') {
-        $slot = (string)($_POST['slot'] ?? 'generic');
-        $title = trim((string)($_POST['title'] ?? ''));
-        $linkUrl = trim((string)($_POST['link_url'] ?? ''));
-        $sortOrder = max(0, (int)($_POST['sort_order'] ?? 0));
+        if (!$canCreateContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์เพิ่มสื่อโปรโมชัน กรุณาติดต่อ Founder & CEO';
+        } else {
+            $slot = (string)($_POST['slot'] ?? 'generic');
+            $title = trim((string)($_POST['title'] ?? ''));
+            $linkUrl = trim((string)($_POST['link_url'] ?? ''));
+            $sortOrder = max(0, (int)($_POST['sort_order'] ?? 0));
 
-        if (!array_key_exists($slot, $slots)) $errors[] = 'สล็อตตำแหน่งไม่ถูกต้อง';
-        if ($linkUrl !== '' && !preg_match('#^(https?://|/)#i', $linkUrl)) $errors[] = 'ลิงก์ต้องขึ้นต้นด้วย http(s):// หรือ /';
+            if (!array_key_exists($slot, $slots)) $errors[] = 'สล็อตตำแหน่งไม่ถูกต้อง';
+            if ($linkUrl !== '' && !preg_match('#^(https?://|/)#i', $linkUrl)) $errors[] = 'ลิงก์ต้องขึ้นต้นด้วย http(s):// หรือ /';
 
-        if (!$errors) {
+            if (!$errors) {
+                try {
+                    $media = save_banner_media($_FILES['media'] ?? []);
+                    $pdo->prepare(
+                        'INSERT INTO promo_banners (slot, title, media_type, media_file, link_url, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
+                    )->execute([$slot, mb_substr($title, 0, 120), $media['type'], $media['filename'], mb_substr($linkUrl, 0, 500), $sortOrder]);
+                    $message = 'เพิ่มสื่อโปรโมชันในตำแหน่ง ' . ($slots[$slot]['label'] ?? $slot) . ' เรียบร้อยแล้ว';
+                } catch (RuntimeException $e) {
+                    $errors[] = $e->getMessage();
+                }
+            }
+        }
+    } elseif ($action === 'save_hero') {
+        if (!$canManageContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด: เฉพาะ Founder & CEO หรือผู้ที่ได้รับมอบหมายเท่านั้นที่สามารถเปลี่ยนพื้นหลังหลักได้';
+        } else {
             try {
-                $media = save_banner_media($_FILES['media'] ?? []);
-                $pdo->prepare(
-                    'INSERT INTO promo_banners (slot, title, media_type, media_file, link_url, sort_order) VALUES (?, ?, ?, ?, ?, ?)'
-                )->execute([$slot, mb_substr($title, 0, 120), $media['type'], $media['filename'], mb_substr($linkUrl, 0, 500), $sortOrder]);
-                $message = 'เพิ่มสื่อโปรโมชันในตำแหน่ง ' . ($slots[$slot]['label'] ?? $slot) . ' เรียบร้อยแล้ว';
+                $opacity = isset($_POST['hero_opacity']) ? (float)$_POST['hero_opacity'] : 0.45;
+                $res = save_hero_background($_FILES['hero_media'] ?? [], $opacity);
+                $message = 'อัปเดตสื่อพื้นหลังหลักหน้าแรกเรียบร้อยแล้ว (' . ($res['type'] === 'video' ? 'วิดีโอลูป MP4' : 'ภาพนิ่ง') . ') — แสดงผลบนหน้าแรกทันที';
             } catch (RuntimeException $e) {
                 $errors[] = $e->getMessage();
             }
         }
-    } elseif ($action === 'save_hero') {
-        try {
-            $opacity = isset($_POST['hero_opacity']) ? (float)$_POST['hero_opacity'] : 0.45;
-            $res = save_hero_background($_FILES['hero_media'] ?? [], $opacity);
-            $message = 'อัปเดตสื่อพื้นหลังหลักหน้าแรกเรียบร้อยแล้ว (' . ($res['type'] === 'video' ? 'วิดีโอลูป MP4' : 'ภาพนิ่ง') . ') — แสดงผลบนหน้าแรกทันที';
-        } catch (RuntimeException $e) {
-            $errors[] = $e->getMessage();
-        }
     } elseif ($action === 'reset_hero') {
-        reset_hero_background();
-        $message = 'คืนค่าภาพพื้นหลังหลักหน้าแรกเป็นค่าเริ่มต้นเรียบร้อยแล้ว';
-    } elseif ($action === 'toggle') {
-        $id = (int)($_POST['id'] ?? 0);
-        $pdo->prepare('UPDATE promo_banners SET enabled = 1 - enabled WHERE id = ?')->execute([$id]);
-        $message = 'เปลี่ยนสถานะการแสดงผลแล้ว';
-    } elseif ($action === 'sort') {
-        $id = (int)($_POST['id'] ?? 0);
-        $dir = ($_POST['dir'] ?? 'up') === 'down' ? 1 : -1;
-        $row = $pdo->prepare('SELECT slot, sort_order FROM promo_banners WHERE id = ?');
-        $row->execute([$id]);
-        $item = $row->fetch();
-        if ($item) {
-            $pdo->prepare('UPDATE promo_banners SET sort_order = GREATEST(0, sort_order + ?) WHERE id = ?')
-                ->execute([$dir, $id]);
+        if (!$canManageContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด: เฉพาะ Founder & CEO เท่านั้น';
+        } else {
+            reset_hero_background();
+            $message = 'คืนค่าภาพพื้นหลังหลักหน้าแรกเป็นค่าเริ่มต้นเรียบร้อยแล้ว';
         }
-        $message = 'จัดลำดับแล้ว';
+    } elseif ($action === 'toggle') {
+        if (!$canEditContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์แก้ไขสถานะสื่อ';
+        } else {
+            $id = (int)($_POST['id'] ?? 0);
+            $pdo->prepare('UPDATE promo_banners SET enabled = 1 - enabled WHERE id = ?')->execute([$id]);
+            $message = 'เปลี่ยนสถานะการแสดงผลแล้ว';
+        }
+    } elseif ($action === 'sort') {
+        if (!$canEditContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด';
+        } else {
+            $id = (int)($_POST['id'] ?? 0);
+            $dir = ($_POST['dir'] ?? 'up') === 'down' ? 1 : -1;
+            $row = $pdo->prepare('SELECT slot, sort_order FROM promo_banners WHERE id = ?');
+            $row->execute([$id]);
+            $item = $row->fetch();
+            if ($item) {
+                $pdo->prepare('UPDATE promo_banners SET sort_order = GREATEST(0, sort_order + ?) WHERE id = ?')
+                    ->execute([$dir, $id]);
+            }
+            $message = 'จัดลำดับแล้ว';
+        }
     } elseif ($action === 'delete') {
-        $id = (int)($_POST['id'] ?? 0);
-        $stmt = $pdo->prepare('SELECT media_file FROM promo_banners WHERE id = ?');
-        $stmt->execute([$id]);
-        $file = (string)$stmt->fetchColumn();
-        $pdo->prepare('DELETE FROM promo_banners WHERE id = ?')->execute([$id]);
-        if ($file !== '') delete_banner_media($file);
-        $message = 'ลบสื่อโปรโมชันแล้ว';
+        if (!$canDeleteContent) {
+            $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์ลบสื่อโปรโมชัน';
+        } else {
+            $id = (int)($_POST['id'] ?? 0);
+            $stmt = $pdo->prepare('SELECT media_file FROM promo_banners WHERE id = ?');
+            $stmt->execute([$id]);
+            $file = (string)$stmt->fetchColumn();
+            $pdo->prepare('DELETE FROM promo_banners WHERE id = ?')->execute([$id]);
+            if ($file !== '') delete_banner_media($file);
+            $message = 'ลบสื่อโปรโมชันแล้ว';
+        }
     } else {
         $errors[] = 'คำสั่งไม่ถูกต้อง';
     }
@@ -242,37 +274,41 @@ $heroBg = get_hero_background();
     </div>
 
     <!-- ฟอร์มอัปโหลดสื่อพื้นหลังใหม่ -->
-    <form method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:end;">
-      <input type="hidden" name="csrf" value="<?= e($token) ?>">
-      <input type="hidden" name="action" value="save_hero">
+    <?php if ($canManageContent): ?>
+      <form method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;align-items:end;">
+        <input type="hidden" name="csrf" value="<?= e($token) ?>">
+        <input type="hidden" name="action" value="save_hero">
 
-      <label class="field">
-        <span>เลือกไฟล์สื่อพื้นหลังใหม่ (รูปภาพ JPG, PNG, WebP หรือ คลิป MP4, WebM ≤ 50MB)</span>
-        <input type="file" name="hero_media" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="previewHeroFile(this)" required>
-        <small>💡 แนะนำขนาด: 1920 x 800 ถึง 1920 x 1080 px (สัดส่วน 16:9 แนวนอน) ระบบจะขยายครอบคลุมเต็มจอ 100% อัตโนมัติทั้งบนคอมและมือถือ</small>
-      </label>
+        <label class="field">
+          <span>เลือกไฟล์สื่อพื้นหลังใหม่ (รูปภาพ JPG, PNG, WebP หรือ คลิป MP4, WebM ≤ 50MB)</span>
+          <input type="file" name="hero_media" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="previewHeroFile(this)" required>
+          <small>💡 แนะนำขนาด: 1920 x 800 ถึง 1920 x 1080 px (สัดส่วน 16:9 แนวนอน) ระบบจะขยายครอบคลุมเต็มจอ 100% อัตโนมัติทั้งบนคอมและมือถือ</small>
+        </label>
 
-      <label class="field">
-        <span>ความมืดของเงา Overlay ทับสื่อ (ช่วยให้กล่องค้นหาและข้อความอ่านง่าย)</span>
-        <select name="hero_opacity">
-          <option value="0.30" <?= abs($heroBg['opacity'] - 0.30) < 0.05 ? 'selected' : '' ?>>30% (สว่างมาก เน้นเห็นวิวชัด)</option>
-          <option value="0.45" <?= abs($heroBg['opacity'] - 0.45) < 0.05 ? 'selected' : '' ?>>45% (มาตรฐาน สวยกำลังดี แนะนำ)</option>
-          <option value="0.55" <?= abs($heroBg['opacity'] - 0.55) < 0.05 ? 'selected' : '' ?>>55% (เข้มปานกลาง ช่องค้นหาเด่นชัด)</option>
-          <option value="0.70" <?= abs($heroBg['opacity'] - 0.70) < 0.05 ? 'selected' : '' ?>>70% (เข้มมาก เน้นความคมชัดของข้อความ)</option>
-        </select>
-        <small>ระบบจะซ้อนเงาสีกรมท่าเข้มให้อัตโนมัติ</small>
-      </label>
+        <label class="field">
+          <span>ความมืดของเงา Overlay ทับสื่อ (ช่วยให้กล่องค้นหาและข้อความอ่านง่าย)</span>
+          <select name="hero_opacity">
+            <option value="0.30" <?= abs($heroBg['opacity'] - 0.30) < 0.05 ? 'selected' : '' ?>>30% (สว่างมาก เน้นเห็นวิวชัด)</option>
+            <option value="0.45" <?= abs($heroBg['opacity'] - 0.45) < 0.05 ? 'selected' : '' ?>>45% (มาตรฐาน สวยกำลังดี แนะนำ)</option>
+            <option value="0.55" <?= abs($heroBg['opacity'] - 0.55) < 0.05 ? 'selected' : '' ?>>55% (เข้มปานกลาง ช่องค้นหาเด่นชัด)</option>
+            <option value="0.70" <?= abs($heroBg['opacity'] - 0.70) < 0.05 ? 'selected' : '' ?>>70% (เข้มมาก เน้นความคมชัดของข้อความ)</option>
+          </select>
+          <small>ระบบจะซ้อนเงาสีกรมท่าเข้มให้อัตโนมัติ</small>
+        </label>
 
-      <!-- กล่องพรีวิวสดสำหรับไฟล์ Hero -->
-      <div id="heroPreviewContainer" style="display:none;grid-column:1/-1;background:#0B1C33;border-radius:16px;overflow:hidden;position:relative;max-height:260px;text-align:center;">
-        <img id="heroPreviewImg" style="display:none;width:100%;height:100%;max-height:260px;object-fit:cover;">
-        <video id="heroPreviewVid" autoplay muted loop playsinline style="display:none;width:100%;height:100%;max-height:260px;object-fit:cover;"></video>
-        <div id="heroPreviewOverlay" style="position:absolute;inset:0;background:rgba(11,28,51,0.45);pointer-events:none;"></div>
-        <div style="position:absolute;bottom:10px;left:14px;color:#fff;font-size:12px;font-weight:700;z-index:2;" id="heroPreviewLabel"></div>
-      </div>
+        <!-- กล่องพรีวิวสดสำหรับไฟล์ Hero -->
+        <div id="heroPreviewContainer" style="display:none;grid-column:1/-1;background:#0B1C33;border-radius:16px;overflow:hidden;position:relative;max-height:260px;text-align:center;">
+          <img id="heroPreviewImg" style="display:none;width:100%;height:100%;max-height:260px;object-fit:cover;">
+          <video id="heroPreviewVid" autoplay muted loop playsinline style="display:none;width:100%;height:100%;max-height:260px;object-fit:cover;"></video>
+          <div id="heroPreviewOverlay" style="position:absolute;inset:0;background:rgba(11,28,51,0.45);pointer-events:none;"></div>
+          <div style="position:absolute;bottom:10px;left:14px;color:#fff;font-size:12px;font-weight:700;z-index:2;" id="heroPreviewLabel"></div>
+        </div>
 
-      <button type="submit" class="btn-add" style="grid-column:1/-1;">💾 บันทึกและเปลี่ยนพื้นหลังหน้าแรกทันที</button>
-    </form>
+        <button type="submit" class="btn-add" style="grid-column:1/-1;">💾 บันทึกและเปลี่ยนพื้นหลังหน้าแรกทันที</button>
+      </form>
+    <?php else: ?>
+      <div style="font-size:12.5px;color:#64748B;font-style:italic;padding:10px 0;">👁 สิทธิ์การเปลี่ยนภาพ/วิดีโอพื้นหลังหลักสงวนเฉพาะ Founder &amp; CEO หรือผู้ที่ได้รับมอบหมาย</div>
+    <?php endif; ?>
   </section>
 
   <!-- 1. แผนผังจำลองตำแหน่งบนหน้าเว็บ (Interactive Slot Blueprint) -->
@@ -354,6 +390,7 @@ $heroBg = get_hero_background();
   </section>
 
   <!-- 2. ฟอร์มอัปโหลดสื่อและตัวอย่างสด Real-time -->
+  <?php if ($canCreateContent): ?>
   <section class="promo-card" id="uploadSection">
     <h2>➕ อัปโหลดสื่อโฆษณา / โปรโมชันใหม่</h2>
     <p class="intro">ใส่ไฟล์ภาพนิ่ง โปสเตอร์ หรือคลิปวิดีโอ MP4 สั้น วิดีโอจะเล่นวนลูปอัตโนมัติ (Muted Autoplay Loop) และปรับขนาดตามหน้าจอทันที</p>
@@ -419,6 +456,13 @@ $heroBg = get_hero_background();
       <button type="submit" class="btn-add wide">🚀 อัปโหลดและเผยแพร่ลงเว็บไซต์ทันที</button>
     </form>
   </section>
+  <?php else: ?>
+  <section class="promo-card">
+    <div style="font-size:13.5px;color:#64748B;font-style:italic;padding:12px;text-align:center;background:#F9F9FB;border-radius:12px;">
+      🔒 คุณได้รับสิทธิ์ <strong>ดูสื่อได้อย่างเดียว (View Only)</strong> หากต้องการอัปโหลดโปรโมชันใหม่ กรุณาติดต่อ Founder &amp; CEO เพื่อเปิดสิทธิ์ Create
+    </div>
+  </section>
+  <?php endif; ?>
 
   <!-- 3. รายการสื่อทั้งหมด พร้อมปุ่มดูในหน้าจริง -->
   <section class="promo-card">
@@ -486,32 +530,39 @@ $heroBg = get_hero_background();
                 </div>
 
                 <div class="banner-actions">
-                  <form method="post" style="display:inline;">
-                    <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                    <input type="hidden" name="action" value="toggle">
-                    <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                    <button type="submit" class="mini-btn blue"><?= $row['enabled'] ? '⏸ ซ่อน' : '▶ แสดง' ?></button>
-                  </form>
-                  <form method="post" style="display:inline;">
-                    <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                    <input type="hidden" name="action" value="sort">
-                    <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                    <input type="hidden" name="dir" value="up">
-                    <button type="submit" class="mini-btn gray" title="เลื่อนขึ้น">▲</button>
-                  </form>
-                  <form method="post" style="display:inline;">
-                    <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                    <input type="hidden" name="action" value="sort">
-                    <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                    <input type="hidden" name="dir" value="down">
-                    <button type="submit" class="mini-btn gray" title="เลื่อนลง">▼</button>
-                  </form>
-                  <form method="post" style="display:inline;" onsubmit="return confirm('ยืนยันลบแบนเนอร์นี้ออกจากระบบ?');">
-                    <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
-                    <button type="submit" class="mini-btn red">🗑 ลบ</button>
-                  </form>
+                  <?php if ($canEditContent): ?>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="toggle">
+                      <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                      <button type="submit" class="mini-btn blue"><?= $row['enabled'] ? '⏸ ซ่อน' : '▶ แสดง' ?></button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="sort">
+                      <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                      <input type="hidden" name="dir" value="up">
+                      <button type="submit" class="mini-btn gray" title="เลื่อนขึ้น">▲</button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="sort">
+                      <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                      <input type="hidden" name="dir" value="down">
+                      <button type="submit" class="mini-btn gray" title="เลื่อนลง">▼</button>
+                    </form>
+                  <?php endif; ?>
+                  <?php if ($canDeleteContent): ?>
+                    <form method="post" style="display:inline;" onsubmit="return confirm('ยืนยันลบแบนเนอร์นี้ออกจากระบบ?');">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="id" value="<?= (int)$row['id'] ?>">
+                      <button type="submit" class="mini-btn red">🗑 ลบ</button>
+                    </form>
+                  <?php endif; ?>
+                  <?php if (!$canEditContent && !$canDeleteContent): ?>
+                    <span style="font-size:11.5px;color:#94A3B8;font-style:italic;">(ดูอย่างเดียว)</span>
+                  <?php endif; ?>
                 </div>
               </div>
             <?php endforeach; ?>

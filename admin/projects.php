@@ -1,6 +1,14 @@
 ﻿<?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_once __DIR__ . '/../includes/staff.php';
+require_admin('projects', 'view');
+
+$isFounder = ($_SESSION['role'] ?? '') === 'admin';
+$staffId = (int)($_SESSION['staff_id'] ?? 0);
+$canManageProjects = $isFounder || staff_can(db(), $staffId, 'projects', 'manage');
+$canEditProjects   = $isFounder || staff_can(db(), $staffId, 'projects', 'edit') || $canManageProjects;
+$canCreateProjects = $isFounder || staff_can(db(), $staffId, 'projects', 'create') || $canManageProjects;
+$canDeleteProjects = $isFounder || staff_can(db(), $staffId, 'projects', 'delete') || $canManageProjects;
 
 $pdo = db();
 $projectId = max(0, (int)($_GET['id'] ?? 0));
@@ -34,7 +42,12 @@ if ($projectId > 0) {
 
 if (request_is_post()) {
     csrf_check();
-    foreach (['title', 'developer', 'category', 'project_status', 'location', 'address', 'description', 'amenities', 'nearby_places', 'map_url', 'contact_name', 'phone', 'line_id'] as $field) {
+    if ($projectId > 0 && !$canEditProjects) {
+        $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์แก้ไขโครงการ กรุณาติดต่อ Founder & CEO';
+    } elseif ($projectId === 0 && !$canCreateProjects) {
+        $errors[] = 'สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์เพิ่มโครงการใหม่ กรุณาติดต่อ Founder & CEO';
+    } else {
+        foreach (['title', 'developer', 'category', 'project_status', 'location', 'address', 'description', 'amenities', 'nearby_places', 'map_url', 'contact_name', 'phone', 'line_id'] as $field) {
         $project[$field] = trim((string)($_POST[$field] ?? ''));
     }
     foreach (['completion_year', 'unit_count', 'price_from', 'price_to'] as $field) {
@@ -138,6 +151,7 @@ if (request_is_post()) {
             $errors[] = 'บันทึกโครงการไม่สำเร็จ กรุณาตรวจสอบข้อมูลและลองใหม่';
         }
     }
+    }
     $units = $unitRows;
 }
 
@@ -156,10 +170,9 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
     .project-admin-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(280px,.75fr);gap:22px;align-items:start}.project-admin-card{background:#fff;border:1px solid #e2e8f0;border-radius:18px;padding:24px;box-shadow:0 8px 24px #2b21500b}.project-admin-card h1,.project-admin-card h2{margin-top:0}.project-admin-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.project-admin-form .wide{grid-column:1/-1}.project-admin-form label{display:grid;gap:6px;font-weight:700;color:#334155}.project-admin-form input,.project-admin-form textarea,.project-admin-form select{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:11px 12px;font:inherit;background:#fff}.project-admin-form textarea{min-height:110px;resize:vertical}.project-admin-hint{font-size:12px;color:#64748b;font-weight:400}.project-unit-admin{border:1px solid #e2e8f0;border-radius:14px;padding:14px;margin:10px 0}.project-unit-admin .unit-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.project-unit-admin .unit-fields label{font-size:12px}.project-admin-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:9px;margin-top:12px}.project-admin-images img{width:100%;height:85px;object-fit:cover;border-radius:9px}.project-admin-list{display:grid;gap:10px}.project-admin-list a{display:block;padding:14px;border:1px solid #e2e8f0;border-radius:12px;color:#2b2150;text-decoration:none}.project-admin-list a:hover{border-color:#7955d9}.project-admin-list small{display:block;color:#64748b;margin-top:4px}.project-publish-row{display:flex;gap:10px;align-items:center;font-weight:600}.project-publish-row input{width:auto}.project-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.project-actions button,.project-actions a,.add-unit-button{border:0;border-radius:999px;padding:11px 17px;font-weight:800;text-decoration:none;cursor:pointer}.project-actions button,.add-unit-button{background:#7955d9;color:#fff}.project-actions a{background:#f1f5f9;color:#2b2150}.project-save-message{padding:12px 14px;border-radius:10px;background:#ecfdf5;color:#047857;margin-bottom:16px}@media(max-width:920px){.project-admin-grid{grid-template-columns:1fr}}@media(max-width:620px){.project-admin-card{padding:16px}.project-admin-form,.project-unit-admin .unit-fields{grid-template-columns:1fr 1fr}}
   </style>
 </head>
-<body class="admin-body">
+<body class="has-admin-sidebar">
 <?php require __DIR__ . '/_sidebar.php'; ?>
-<div class="topbar"><strong>🏙️ จัดการโครงการ</strong><nav><a href="index.php">← หลังบ้าน</a><a href="../project.php" target="_blank">ดูหน้าโครงการ</a><a href="../logout.php">ออกจากระบบ</a></nav></div>
-<div class="wrap">
+<div class="wrap" style="margin-top:20px;">
   <div class="project-admin-grid">
     <section class="project-admin-card">
       <h1><?= $projectId ? 'แก้ไขโครงการ' : 'เพิ่มโครงการใหม่' ?></h1>
@@ -195,8 +208,12 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
         <div class="project-admin-images wide" id="projectImagePreview">
           <?php foreach ($images as $image): ?><img src="../uploads/<?= e($image['filename']) ?>" alt="รูปโครงการเดิม" loading="lazy"><?php endforeach; ?>
         </div>
-        <label class="project-publish-row wide"><input type="checkbox" name="is_published" value="1" <?= !empty($project['is_published'])?'checked':'' ?>> เผยแพร่หน้าโครงการ</label>
-        <div class="project-actions wide"><button type="submit">บันทึกโครงการ</button><a href="projects.php">เริ่มเพิ่มโครงการใหม่</a></div>
+        <?php if (($projectId > 0 && $canEditProjects) || ($projectId === 0 && $canCreateProjects)): ?>
+          <label class="project-publish-row wide"><input type="checkbox" name="is_published" value="1" <?= !empty($project['is_published'])?'checked':'' ?>> เผยแพร่หน้าโครงการ</label>
+          <div class="project-actions wide"><button type="submit">บันทึกโครงการ</button><a href="projects.php">เริ่มเพิ่มโครงการใหม่</a></div>
+        <?php else: ?>
+          <div class="wide" style="font-size:13px;color:#64748B;font-style:italic;padding:12px;background:#F9F9FB;border-radius:10px;">👁 ดูข้อมูลโครงการได้อย่างเดียว (สิทธิ์สร้าง/แก้ไขโครงการสงวนไว้สำหรับผู้ที่ได้รับมอบหมายจาก Founder &amp; CEO)</div>
+        <?php endif; ?>
       </form>
     </section>
     <aside class="project-admin-card"><h2>โครงการทั้งหมด</h2><div class="project-admin-list">

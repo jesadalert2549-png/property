@@ -22,7 +22,7 @@ try {
             sort_order INT UNSIGNED NOT NULL DEFAULT 0,
             enabled TINYINT(1) NOT NULL DEFAULT 1,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE KEY uq_featured_category (category)
+            KEY idx_featured_order (enabled, sort_order)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
     );
 
@@ -31,7 +31,7 @@ try {
          FROM featured_sections
          WHERE enabled = 1
          ORDER BY sort_order, id
-         LIMIT 4'
+         LIMIT 20'
     )->fetchAll();
 
     if (!$featuredSections) {
@@ -171,7 +171,6 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       padding: 0;
     }
     body {
-      overflow-x: hidden;
       width: 100%;
       background: #F9F9FB;
       font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif;
@@ -988,6 +987,277 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
   </div>
 </section>
 <?php endforeach; ?>
+
+<!-- ==========================================================================
+     Interactive Sticky Tools & Retention Engine (เครื่องมือคำนวณและลูกเล่นช่วยให้อยู่ในเว็บนานขึ้น)
+     ========================================================================== -->
+<section class="section" style="padding:48px 0; background:linear-gradient(180deg,#ffffff,#f8fafc); border-top:1px solid #eef2f6;">
+  <div class="container" style="max-width:1200px; margin:0 auto; padding:0 16px;">
+    
+    <div style="text-align:center; max-width:680px; margin:0 auto 36px;">
+      <span style="font-size:11px; font-weight:800; color:#8C6B32; background:rgba(197,160,89,.14); padding:4px 14px; border-radius:999px; letter-spacing:0.12em; text-transform:uppercase;">Interactive Property Suite</span>
+      <h2 style="font-size:clamp(22px, 3.2vw, 32px); font-weight:800; color:#0B1C33; margin:10px 0 8px;">เครื่องมือวิเคราะห์และตัวช่วยประเมินอสังหาฯ</h2>
+      <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0;">คำนวณค่างวดผ่อนบ้าน คอนโด หรือสำรวจผลตอบแทนการลงทุน (Rental Yield) ได้แบบเรียลไทม์ทันที</p>
+    </div>
+
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+      
+      <!-- Card 1: เครื่องมือคำนวณเงินผ่อนบ้าน-คอนโดแบบเรียลไทม์ -->
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,.15); color:#8C6B32; font-size:20px;">🧮</span>
+            <div>
+              <strong style="font-size:16px; color:#0B1C33; display:block;">คำนวณยอดผ่อนต่อเดือน</strong>
+              <small style="color:#64748B; font-size:11.5px;">ประเมินวงเงินและค่างวดอัตโนมัติ</small>
+            </div>
+          </div>
+          <span style="font-size:11px; font-weight:800; color:#15803d; background:#ecfdf5; padding:3px 8px; border-radius:6px;">LIVE CALC</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
+              <span>ราคาอสังหาริมทรัพย์:</span>
+              <strong style="color:#0B1C33; font-size:15px;" id="calcPriceDisplay">3,000,000 บาท</strong>
+            </div>
+            <input type="range" id="calcPriceRange" min="500000" max="25000000" step="100000" value="3000000" style="width:100%; accent-color:#C5A059; cursor:pointer;">
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8; margin-top:2px;">
+              <span>5 แสน</span>
+              <span>10 ล้าน</span>
+              <span>25 ล้าน</span>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div>
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">เงินดาวน์ (%)</label>
+              <select id="calcDownPercent" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff;">
+                <option value="0">0% (กู้เต็ม 100%)</option>
+                <option value="10" selected>10% (300,000 บ.)</option>
+                <option value="15">15% (450,000 บ.)</option>
+                <option value="20">20% (600,000 บ.)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">ระยะเวลากู้ (ปี)</label>
+              <select id="calcYears" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff;">
+                <option value="15">15 ปี</option>
+                <option value="20">20 ปี</option>
+                <option value="25">25 ปี</option>
+                <option value="30" selected>30 ปี</option>
+                <option value="35">35 ปี</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:linear-gradient(135deg, #0B1C33, #152c4d); border-radius:14px; padding:18px; color:#fff; text-align:center;">
+            <span style="font-size:12px; color:#cbd5e1; letter-spacing:0.04em;">ประมาณการยอดผ่อนต่อเดือน</span>
+            <div style="font-size:28px; font-weight:900; color:#C5A059; margin:4px 0 2px;" id="calcMonthlyResult">฿14,489</div>
+            <small style="font-size:11px; color:#94a3b8;">*คำนวณที่อัตราดอกเบี้ยเฉลี่ย 5.0% ต่อปี (ยอดจริงขึ้นกับสถาบันการเงิน)</small>
+          </div>
+          
+          <a href="search.php?type=sale" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; background:#f1f5f9; color:#0B1C33; font-weight:700; font-size:13px; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#0B1C33';this.style.color='#fff'" onmouseout="this.style.background='#f1f5f9';this.style.color='#0B1C33'">
+            <span>ค้นหาทรัพย์ในงบนี้</span> <span>›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: เครื่องมือจำลองผลตอบแทนการปล่อยเช่า (Rental Yield & Investment) -->
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(21,128,61,.12); color:#15803d; font-size:20px;">📈</span>
+            <div>
+              <strong style="font-size:16px; color:#0B1C33; display:block;">เครื่องมือประเมินผลตอบแทน (Rental Yield)</strong>
+              <small style="color:#64748B; font-size:11.5px;">วิเคราะห์ความคุ้มค่าก่อนซื้อลงทุน</small>
+            </div>
+          </div>
+          <span style="font-size:11px; font-weight:800; color:#8C6B32; background:rgba(197,160,89,.15); padding:3px 8px; border-radius:6px;">INVESTOR</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;">ราคาซื้ออสังหาริมทรัพย์ (บาท)</label>
+            <input type="number" id="yieldBuyPrice" value="2800000" step="50000" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;">ค่าเช่าที่คาดว่าจะได้รับ (บาท/เดือน)</label>
+            <input type="number" id="yieldRentPrice" value="14000" step="500" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:2px;">
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; text-align:center;">
+              <small style="color:#64748B; font-size:11px; display:block;">รายรับค่าเช่าต่อปี</small>
+              <strong style="font-size:18px; color:#0B1C33; display:block; margin-top:3px;" id="yieldAnnualRent">฿168,000</strong>
+            </div>
+            <div style="background:rgba(197,160,89,.1); border:1px solid rgba(197,160,89,.3); border-radius:12px; padding:14px; text-align:center;">
+              <small style="color:#8C6B32; font-size:11px; font-weight:700; display:block;">Gross Rental Yield</small>
+              <strong style="font-size:22px; color:#A8843F; display:block; margin-top:1px;" id="yieldPercentResult">6.00%</strong>
+            </div>
+          </div>
+
+          <div style="font-size:12px; color:#475569; line-height:1.5; background:#fafafa; border-radius:8px; padding:8px 12px;">
+            💡 <strong>คำแนะนำนักลงทุน:</strong> Yield ระดับ 5% - 7% ถือเป็นเกณฑ์ที่ดีมากสำหรับคอนโดย่าน CBD และแนวรถไฟฟ้า
+          </div>
+
+          <a href="category.php?page=condo" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; background:#0B1C33; color:#fff; font-weight:700; font-size:13px; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059';this.style.color='#0B1C33'" onmouseout="this.style.background='#0B1C33';this.style.color='#fff'">
+            <span>ดูคอนโดทำเลน่าลงทุน Yield สูง</span> <span>›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 3: ควิซด่วนค้นหาบ้าน/คอนโดที่ใช่คุณ (Property Matchmaker) -->
+      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(121,85,217,.12); color:#7955d9; font-size:20px;">🧭</span>
+            <div>
+              <strong style="font-size:16px; color:#0B1C33; display:block;">ค้นหาอสังหาฯ ใน 10 วินาที</strong>
+              <small style="color:#64748B; font-size:11.5px;">ระบบจับคู่ทำเลและประเภทที่ตรงใจคุณ</small>
+            </div>
+          </div>
+          <span style="font-size:11px; font-weight:800; color:#7955d9; background:#f5f3ff; padding:3px 8px; border-radius:6px;">SMART MATCH</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:12px;" id="quizContainer">
+          <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">1. จุดประสงค์หลักของคุณ:</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <button type="button" class="quiz-btn active" data-type="sale" onclick="selectQuizOption(this, 'type')">ซื้อเพื่ออยู่อาศัย</button>
+              <button type="button" class="quiz-btn" data-type="rent" onclick="selectQuizOption(this, 'type')">เช่าระยะยาว</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">2. ประเภทที่ต้องการ:</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
+              <button type="button" class="quiz-btn active" data-cat="condo" onclick="selectQuizOption(this, 'cat')">🏢 คอนโด</button>
+              <button type="button" class="quiz-btn" data-cat="house" onclick="selectQuizOption(this, 'cat')">🏠 บ้าน</button>
+              <button type="button" class="quiz-btn" data-cat="townhouse" onclick="selectQuizOption(this, 'cat')">🏘️ ทาวน์โฮม</button>
+            </div>
+          </div>
+
+          <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">3. สไตล์ทำเลที่ชอบ:</label>
+            <select id="quizZoneSelect" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff; font-weight:600;">
+              <option value="สุขุมวิท">🚇 ติดรถไฟฟ้า BTS/MRT ใจกลางเมือง (สุขุมวิท/อโศก)</option>
+              <option value="สาทร">💼 ย่านธุรกิจและการเงิน (สาทร/สีลม)</option>
+              <option value="อารีย์">☕ ย่านคาเฟ่ ไลฟ์สไตล์ชิคๆ (อารีย์/พหลโยธิน)</option>
+              <option value="บางนา">🏡 บ้านเดี่ยวบรรยากาศเงียบสงบ (บางนา/ศรีนครินทร์)</option>
+              <option value="เชียงใหม่">🌄 ต่างจังหวัดบรรยากาศร่มรื่น (เชียงใหม่)</option>
+              <option value="หัวหิน">🏖️ ตากอากาศติดชายหาด (หัวหิน/ชะอำ)</option>
+            </select>
+          </div>
+
+          <button type="button" onclick="goToMatchedProperties()" style="margin-top:4px; width:100%; padding:12px; border:0; border-radius:10px; background:linear-gradient(135deg, #C5A059, #A8843F); color:#0B1C33; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(197,160,89,.35); transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+            ⚡ แสดงทรัพย์ที่ตรงกับคุณทันที
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .quiz-btn {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #475569;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  .quiz-btn:hover {
+    border-color: #C5A059;
+    color: #0B1C33;
+  }
+  .quiz-btn.active {
+    background: #0B1C33;
+    border-color: #0B1C33;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(11,28,51,.2);
+  }
+</style>
+
+<script>
+  // 1. Script คำนวณค่างวดผ่อนบ้าน
+  (function initMortgageCalc() {
+    const range = document.getElementById('calcPriceRange');
+    const display = document.getElementById('calcPriceDisplay');
+    const downSelect = document.getElementById('calcDownPercent');
+    const yearsSelect = document.getElementById('calcYears');
+    const result = document.getElementById('calcMonthlyResult');
+
+    function calculate() {
+      const price = parseFloat(range.value) || 3000000;
+      const downPct = parseFloat(downSelect.value) || 0;
+      const years = parseFloat(yearsSelect.value) || 30;
+      display.textContent = Number(price).toLocaleString('th-TH') + ' บาท';
+
+      const loanAmount = price * (1 - (downPct / 100));
+      const annualRate = 0.05; // 5% ต่อปี
+      const monthlyRate = annualRate / 12;
+      const totalMonths = years * 12;
+
+      // สูตรคำนวณ PMT: P * [ r(1+r)^n ] / [ (1+r)^n - 1 ]
+      const factor = Math.pow(1 + monthlyRate, totalMonths);
+      const monthlyPayment = loanAmount * (monthlyRate * factor) / (factor - 1);
+      result.textContent = '฿' + Math.round(monthlyPayment).toLocaleString('th-TH');
+    }
+
+    if (range) {
+      range.addEventListener('input', calculate);
+      downSelect.addEventListener('change', calculate);
+      yearsSelect.addEventListener('change', calculate);
+      calculate();
+    }
+  })();
+
+  // 2. Script คำนวณ Rental Yield
+  (function initYieldCalc() {
+    const buyInput = document.getElementById('yieldBuyPrice');
+    const rentInput = document.getElementById('yieldRentPrice');
+    const annualDisplay = document.getElementById('yieldAnnualRent');
+    const yieldDisplay = document.getElementById('yieldPercentResult');
+
+    function calculateYield() {
+      const buyPrice = parseFloat(buyInput.value) || 1;
+      const rentPrice = parseFloat(rentInput.value) || 0;
+      const annualRent = rentPrice * 12;
+      const yieldPct = (annualRent / buyPrice) * 100;
+
+      annualDisplay.textContent = '฿' + Math.round(annualRent).toLocaleString('th-TH');
+      yieldDisplay.textContent = yieldPct.toFixed(2) + '%';
+    }
+
+    if (buyInput && rentInput) {
+      buyInput.addEventListener('input', calculateYield);
+      rentInput.addEventListener('input', calculateYield);
+      calculateYield();
+    }
+  })();
+
+  // 3. Script Smart Matchmaker
+  let matchQuizState = { type: 'sale', cat: 'condo' };
+  function selectQuizOption(btn, field) {
+    const group = btn.closest('div');
+    group.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (field === 'type') matchQuizState.type = btn.getAttribute('data-type');
+    if (field === 'cat') matchQuizState.cat = btn.getAttribute('data-cat');
+  }
+
+  function goToMatchedProperties() {
+    const zone = document.getElementById('quizZoneSelect').value;
+    const url = 'search.php?type=' + encodeURIComponent(matchQuizState.type) + '&category=' + encodeURIComponent(matchQuizState.cat) + '&q=' + encodeURIComponent(zone);
+    window.location.href = url;
+  }
+</script>
 
 <!-- ส่วนติดต่อ -->
 

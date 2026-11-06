@@ -1,6 +1,11 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_once __DIR__ . '/../includes/staff.php';
+require_admin('marketing', 'view');
+
+$isFounder = ($_SESSION['role'] ?? '') === 'admin';
+$staffId = (int)($_SESSION['staff_id'] ?? 0);
+$canManageMarketing = $isFounder || staff_can(db(), $staffId, 'marketing', 'edit') || staff_can(db(), $staffId, 'marketing', 'manage');
 
 $pdo = db();
 $pdo->exec(
@@ -11,34 +16,96 @@ $pdo->exec(
         sort_order INT UNSIGNED NOT NULL DEFAULT 0,
         enabled TINYINT(1) NOT NULL DEFAULT 1,
         created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE KEY uq_featured_category (category)
+        KEY idx_featured_order (enabled, sort_order)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
 );
 
+// ปลดล็อก index เก่าที่จำกัด 1 หมวด 1 อันออกอย่างปลอดภัย
+try {
+    $pdo->exec("ALTER TABLE featured_sections DROP INDEX uq_featured_category");
+} catch (Throwable $ignore) {
+}
+
+$editId = (int)($_GET['edit'] ?? 0);
+$editing = null;
+
 if (request_is_post()) {
     csrf_check();
+    if (!$canManageMarketing) {
+        set_flash('สิทธิ์ถูกจำกัด: คุณไม่ได้รับสิทธิ์จัดการหมวดแนะนำ กรุณาติดต่อ Founder & CEO');
+        redirect('featured.php');
+    }
     $action = $_POST['action'] ?? '';
 
+    // ── 1. บันทึก (เพิ่มใหม่ หรือ แก้ไขของเดิม) ──
     if ($action === 'save') {
-        $category = trim($_POST['category'] ?? '');
-        $title = trim($_POST['title'] ?? '');
+        $id = (int)($_POST['id'] ?? 0);
+        $category = trim((string)($_POST['category'] ?? ''));
+        $title = trim((string)($_POST['title'] ?? ''));
         $sortOrder = max(0, (int)($_POST['sort_order'] ?? 0));
         $enabled = isset($_POST['enabled']) ? 1 : 0;
 
         if (!array_key_exists($category, PROPERTY_CATEGORIES) || mb_strlen($title) < 2) {
-            set_flash('กรุณาเลือกหมวดและกรอกชื่อหัวข้อให้ครบ');
+            set_flash('กรุณาเลือกประเภทอสังหาฯ และกรอกชื่อหัวข้อให้ครบถ้วน');
         } else {
-            $stmt = $pdo->prepare(
-                'INSERT INTO featured_sections (category, title, sort_order, enabled)
-                 VALUES (?, ?, ?, ?)
-                 ON DUPLICATE KEY UPDATE title = VALUES(title), sort_order = VALUES(sort_order), enabled = VALUES(enabled)'
-            );
-            $stmt->execute([$category, $title, $sortOrder, $enabled]);
-            set_flash('บันทึกหมวดแนะนำเรียบร้อยแล้ว');
+            if ($id > 0) {
+                // แก้ไขรายการเดิม
+                $stmt = $pdo->prepare('UPDATE featured_sections SET category = ?, title = ?, sort_order = ?, enabled = ? WHERE id = ?');
+                $stmt->execute([$category, $title, $sortOrder, $enabled, $id]);
+                set_flash('อัปเดตหมวดแนะนำ "' . $title . '" เรียบร้อยแล้ว');
+            } else {
+                // เพิ่มรายการใหม่ (สามารถเพิ่มได้หลายหมวดได้ไม่จำกัด!)
+                $stmt = $pdo->prepare('INSERT INTO featured_sections (category, title, sort_order, enabled) VALUES (?, ?, ?, ?)');
+                $stmt->execute([$category, $title, $sortOrder, $enabled]);
+                set_flash('เพิ่มหมวดแนะนำใหม่ "' . $title . '" เรียบร้อยแล้ว (สามารถเพิ่มหลายหมวดได้อย่างอิสระ)');
+            }
         }
         redirect('featured.php');
     }
 
+    // ── 1.1 บันทึกหลายหมวดพร้อมกัน (Multi-Add Bulk Mode) ──
+    if ($action === 'save_bulk') {
+        $bulkCategories = $_POST['bulk_category'] ?? [];
+        $bulkTitles = $_POST['bulk_title'] ?? [];
+        $bulkSorts = $_POST['bulk_sort'] ?? [];
+        $addedCount = 0;
+        $stmt = $pdo->prepare('INSERT INTO featured_sections (category, title, sort_order, enabled) VALUES (?, ?, ?, 1)');
+        foreach ($bulkCategories as $idx => $cat) {
+            $cat = trim((string)$cat);
+            $title = trim((string)($bulkTitles[$idx] ?? ''));
+            $sort = max(0, (int)($bulkSorts[$idx] ?? 0));
+            if (array_key_exists($cat, PROPERTY_CATEGORIES) && mb_strlen($title) >= 2) {
+                $stmt->execute([$cat, $title, $sort]);
+                $addedCount++;
+            }
+        }
+        if ($addedCount > 0) {
+            set_flash("เพิ่มหมวดแนะนำใหม่พร้อมกันเรียบร้อยแล้ว $addedCount หมวด");
+        } else {
+            set_flash("กรุณากรอกข้อมูลหมวดหมู่และชื่อหัวข้ออย่างน้อย 1 รายการ");
+        }
+        redirect('featured.php');
+    }
+
+    // ── 2. เปิด-ปิด การแสดงผล ──
+    if ($action === 'toggle') {
+        $id = (int)($_POST['id'] ?? 0);
+        $pdo->prepare('UPDATE featured_sections SET enabled = 1 - enabled WHERE id = ?')->execute([$id]);
+        set_flash('เปลี่ยนสถานะการแสดงผลแล้ว');
+        redirect('featured.php');
+    }
+
+    // ── 3. จัดลำดับ เลื่อนขึ้น/ลง ──
+    if ($action === 'sort') {
+        $id = (int)($_POST['id'] ?? 0);
+        $dir = ($_POST['dir'] ?? 'up') === 'down' ? 1 : -1;
+        $pdo->prepare('UPDATE featured_sections SET sort_order = GREATEST(0, sort_order + ?) WHERE id = ?')
+            ->execute([$dir, $id]);
+        set_flash('ปรับลำดับเรียบร้อยแล้ว');
+        redirect('featured.php');
+    }
+
+    // ── 4. ลบหมวดแนะนำ ──
     if ($action === 'delete') {
         $id = (int)($_POST['id'] ?? 0);
         $pdo->prepare('DELETE FROM featured_sections WHERE id = ?')->execute([$id]);
@@ -47,11 +114,24 @@ if (request_is_post()) {
     }
 }
 
+if ($editId > 0) {
+    $stmt = $pdo->prepare('SELECT * FROM featured_sections WHERE id = ? LIMIT 1');
+    $stmt->execute([$editId]);
+    $editing = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
 $sections = $pdo->query(
-    'SELECT id, category, title, sort_order, enabled
+    'SELECT id, category, title, sort_order, enabled, created_at,
+            (SELECT COUNT(*) FROM properties p WHERE p.property_category = featured_sections.category AND p.approval = "approved" AND p.status = "available") AS active_count
      FROM featured_sections
      ORDER BY sort_order, id'
-)->fetchAll();
+)->fetchAll(PDO::FETCH_ASSOC);
+
+$categoryIcons = [
+    'condo' => '🏢', 'house' => '🏠', 'townhouse' => '🏘️',
+    'land' => '🌳', 'commercial' => '🏬', 'warehouse' => '🏭', 'other' => '🏡',
+];
+
 $token = csrf_token();
 $flash = get_flash();
 ?>
@@ -60,100 +140,279 @@ $flash = get_flash();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการหมวดแนะนำหน้าแรก | หลังบ้าน</title>
+  <title>จัดการหมวดแนะนำหน้าแรก | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
-    :root { --primary:#2b2150; --line:#e5e9ee; --muted:#697586; }
-    body { margin:0; background:#f8fafc; font-family:system-ui,sans-serif; color:#334155; }
-    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:16px 24px; background:var(--primary); color:#fff; }
-    .topbar a { color:#cbd5e1; text-decoration:none; margin-left:14px; }
-    .wrap { max-width:1000px; margin:28px auto; padding:0 20px; }
-    .box { background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px; margin-bottom:20px; }
-    .box h2 { margin:0 0 6px; font-size:20px; color:var(--primary); }
-    .intro { color:var(--muted); margin:0 0 20px; }
-    .section-form { display:grid; grid-template-columns:minmax(160px,1fr) minmax(220px,2fr) 110px auto auto; gap:12px; align-items:end; }
-    label { display:grid; gap:6px; font-size:13px; font-weight:600; }
-    input, select { width:100%; height:42px; padding:8px 10px; border:1px solid #cbd5e1; border-radius:7px; font:inherit; }
-    .check { display:flex; height:42px; align-items:center; gap:8px; white-space:nowrap; }
-    .check input { width:18px; height:18px; }
-    .btn { height:42px; border:0; border-radius:8px; padding:0 18px; background:#7955d9; color:#fff; font-weight:700; cursor:pointer; }
-    .list { width:100%; border-collapse:collapse; }
-    th, td { padding:14px 12px; border-bottom:1px solid var(--line); text-align:left; }
-    th { color:var(--muted); font-size:13px; }
-    .pill { display:inline-block; padding:3px 8px; border-radius:999px; font-size:12px; background:#dcfce7; color:#166534; }
-    .pill.off { background:#e2e8f0; color:#475569; }
-    .delete { border:0; background:none; color:#c64e42; cursor:pointer; font-weight:700; }
-    .flash { background:#dcfce7; color:#166534; border:1px solid #bbf7d0; padding:12px 16px; border-radius:8px; margin-bottom:16px; }
-    @media (max-width:760px) {
-      .topbar { align-items:flex-start; flex-direction:column; }
-      .topbar nav { display:flex; flex-wrap:wrap; gap:10px; }
-      .topbar a { margin:0; }
-      .section-form { grid-template-columns:1fr; }
-      .table-wrap { overflow-x:auto; }
-      .list { min-width:620px; }
+    .feat-hero { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px; padding:26px 30px; border-radius:20px; background:linear-gradient(120deg,#0B1C33,#182C48); color:#fff; border:1px solid rgba(197,160,89,.35); margin-bottom:24px; box-shadow:0 12px 32px rgba(11,28,51,.12); }
+    .feat-hero .eyebrow { color:#C5A059; font-size:11px; font-weight:800; letter-spacing:.16em; }
+    .feat-hero h1 { margin:6px 0 2px; color:#fff; font-size:clamp(22px,3vw,30px); }
+
+    .feat-card { background:#fff; border:1px solid #e3e9ef; border-radius:20px; padding:28px 30px; margin-bottom:24px; box-shadow:0 10px 28px rgba(11,28,51,.06); }
+    .feat-card h2 { margin:0 0 6px; color:#0B1C33; font-size:19px; }
+    .feat-card .intro { margin:0 0 20px; color:#64748b; font-size:13.5px; line-height:1.6; }
+
+    .feat-form-grid { display:grid; grid-template-columns:minmax(180px,1.2fr) minmax(240px,2fr) 110px auto; gap:14px; align-items:end; }
+    .field { display:grid; gap:6px; font-size:13px; font-weight:700; color:#34495d; }
+    .field input, .field select { width:100%; min-height:46px; padding:10px 14px; border:1px solid #cbd5e1; border-radius:10px; font:inherit; font-size:14px; background:#fff; box-sizing:border-box; }
+    .field input:focus, .field select:focus { outline:none; border-color:#C5A059; box-shadow:0 0 0 3px rgba(197,160,89,.2); }
+
+    .check-label { display:inline-flex; align-items:center; gap:8px; height:46px; font-size:13px; font-weight:700; color:#34495d; cursor:pointer; white-space:nowrap; }
+    .check-label input { width:18px; height:18px; accent-color:#0B1C33; cursor:pointer; }
+
+    .btn-submit-feat { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:46px; padding:0 24px; border:0; border-radius:10px; background:linear-gradient(135deg,#C5A059,#A8843F); color:#0B1C33; font:inherit; font-size:15px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(197,160,89,.35); transition:transform .18s, box-shadow .18s; white-space:nowrap; }
+    .btn-submit-feat:hover { transform:translateY(-1px); box-shadow:0 8px 22px rgba(197,160,89,.45); }
+
+    .feat-table { width:100%; border-collapse:collapse; font-size:13.5px; }
+    .feat-table th, .feat-table td { padding:13px 14px; border-bottom:1px solid #eef2f6; text-align:left; vertical-align:middle; }
+    .feat-table th { background:#F8FAFC; color:#475569; font-size:12.5px; font-weight:700; }
+
+    .pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:800; }
+    .pill.on { background:#E8FDF0; color:#04A747; border:1px solid #06C755; }
+    .pill.off { background:#F1F5F9; color:#64748B; border:1px solid #CBD5E1; }
+    .pill.cat { background:rgba(197,160,89,.14); color:#8C6B32; border:1px solid rgba(197,160,89,.4); }
+
+    .mini { border:0; border-radius:8px; padding:6px 12px; font:inherit; font-size:12px; font-weight:700; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:4px; }
+    .mini.edit { background:#EBF3FE; color:#1A73E8; }
+    .mini.gray { background:#F1F5F9; color:#475569; border:1px solid #E2E8F0; }
+    .mini.del { background:#FFF1F1; color:#ae3333; }
+    .mini.live { background:rgba(197,160,89,.15); color:#8C6B32; border:1px solid rgba(197,160,89,.4); }
+
+    .flash { background:#effaf3; color:#187243; border:1px solid #bbebcd; padding:14px 18px; border-radius:12px; margin-bottom:20px; font-weight:600; font-size:14px; }
+
+    @media (max-width:960px) {
+      .feat-form-grid { grid-template-columns:1fr; }
+      .check-label { height:auto; }
     }
   </style>
 </head>
-<body>
+<body class="has-admin-sidebar">
 <?php require __DIR__ . '/_sidebar.php'; ?>
-<div class="topbar">
-  <strong>🏠 หมวดแนะนำหน้าแรก</strong>
-  <nav>
-    <a href="index.php">จัดการประกาศ</a>
-    <a href="analytics.php">สถิติ</a>
-    <a href="../index.php">ดูหน้าเว็บไซต์</a>
-  </nav>
-</div>
-<div class="wrap">
-  <?php if ($flash): ?><div class="flash"><?= e($flash) ?></div><?php endif; ?>
+<main style="width:min(100% - 48px, 1140px); margin:38px auto 70px;">
+  <div class="feat-hero">
+    <div>
+      <span class="eyebrow">HOMEPAGE CONTENT &amp; PROMOTION</span>
+      <h1>หมวดหมู่แนะนำหน้าแรก (Featured Categories)</h1>
+      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">สร้างหมวดหมู่แนะนำได้หลายหมวดอย่างอิสระ ไม่จำกัดจำนวน แต่ละหมวดจะดึงประกาศ 4 ชิ้นมาแสดงบนหน้าแรกทันที</p>
+    </div>
+    <a href="../index.php" target="_blank" rel="noopener" style="padding:10px 18px;border-radius:999px;background:rgba(197,160,89,.18);border:1px solid rgba(197,160,89,.45);color:#E5CB96;font-size:13px;font-weight:700;text-decoration:none;">👁️ ดูผลบนหน้าแรก ↗</a>
+  </div>
 
-  <section class="box">
-    <h2>เพิ่มหรือแก้ไขหมวด</h2>
-    <p class="intro">แต่ละหมวดแสดง 4 ประกาศล่าสุดที่อนุมัติหน้าแรก และลิงก์ดูประกาศทั้งหมดไปยังค้นหาตามหมวด</p>
-    <form method="post" class="section-form">
-      <input type="hidden" name="csrf" value="<?= e($token) ?>">
-      <input type="hidden" name="action" value="save">
-      <label>หมวดอสังหาฯ
-        <select name="category" required>
-          <?php foreach (PROPERTY_CATEGORIES as $key => $label): ?>
-            <?php if ($key !== 'other'): ?><option value="<?= e($key) ?>"><?= e($label) ?></option><?php endif; ?>
-          <?php endforeach; ?>
-        </select>
-      </label>
-      <label>ชื่อหัวข้อบนหน้าแรก
-        <input type="text" name="title" maxlength="120" placeholder="เช่น คอนโดแนะนำ" required>
-      </label>
-      <label>ลำดับ
-        <input type="number" name="sort_order" min="0" value="0">
-      </label>
-      <label class="check"><input type="checkbox" name="enabled" checked>เปิดแสดง</label>
-      <button type="submit" class="btn">บันทึกหมวด</button>
-    </form>
+  <?php if ($flash): ?><div class="flash">✅ <?= e($flash) ?></div><?php endif; ?>
+
+  <!-- ฟอร์มเพิ่ม / แก้ไขหมวดแนะนำ -->
+  <section class="feat-card">
+    <h2><?= $editing ? '✏️ แก้ไขหมวดแนะนำ: ' . e($editing['title']) : '➕ เพิ่มหมวดแนะนำใหม่' ?></h2>
+    <p class="intro">
+      <?= $editing ? 'ปรับปรุงประเภทอสังหาฯ ชื่อหัวข้อ หรือลำดับการแสดงผล' : 'คุณสามารถสร้างได้หลายหมวด เช่น "คอนโดแนะนำ", "บ้านเดี่ยวแนะนำ", "คอนโดหรูสุขุมวิท" หรือ "ที่ดินทำเลทอง" ระบบจะนำไปจัดแสดงบนหน้าแรกตามลำดับที่ตั้งไว้' ?>
+    </p>
+
+    <?php if ($canManageMarketing): ?>
+      <form method="post" class="feat-form-grid">
+        <input type="hidden" name="csrf" value="<?= e($token) ?>">
+        <input type="hidden" name="action" value="save">
+        <?php if ($editing): ?><input type="hidden" name="id" value="<?= (int)$editing['id'] ?>"><?php endif; ?>
+
+        <label class="field">ประเภทอสังหาฯ
+          <select name="category" required>
+            <?php foreach (PROPERTY_CATEGORIES as $key => $label): if ($key === 'other') continue; ?>
+              <option value="<?= e($key) ?>" <?= ($editing['category'] ?? '') === $key ? 'selected' : '' ?>>
+                <?= e(($categoryIcons[$key] ?? '🏡') . ' ' . $label) ?>
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </label>
+
+        <label class="field">ชื่อหัวข้อที่ต้องการแสดงบนหน้าแรก
+          <input type="text" name="title" maxlength="120" value="<?= e($editing['title'] ?? '') ?>" placeholder="เช่น คอนโดแนะนำ หรือ บ้านเดี่ยวพร้อมอยู่" required>
+        </label>
+
+        <label class="field">ลำดับการแสดง
+          <input type="number" name="sort_order" min="0" value="<?= (int)($editing['sort_order'] ?? count($sections)) ?>">
+        </label>
+
+        <label class="check-label">
+          <input type="checkbox" name="enabled" value="1" <?= (!isset($editing['enabled']) || !empty($editing['enabled'])) ? 'checked' : '' ?>>
+          เปิดแสดงบนหน้าแรก
+        </label>
+
+        <div style="grid-column:1/-1; display:flex; gap:10px; margin-top:8px;">
+          <button type="submit" class="btn-submit-feat"><?= $editing ? '💾 บันทึกการแก้ไข' : '➕ เพิ่มหมวดนี้ลงหน้าแรก' ?></button>
+          <?php if ($editing): ?>
+            <a href="featured.php" class="mini gray" style="padding:12px 20px;border-radius:10px;">✕ ยกเลิกการแก้ไข</a>
+          <?php endif; ?>
+        </div>
+      </form>
+
+      <?php if (!$editing): ?>
+        <!-- ส่วนเพิ่มหลายหมวดพร้อมกัน (Multi-Add Bulk Mode) -->
+        <div style="margin-top:28px; padding-top:24px; border-top:1px dashed #cbd5e1;">
+          <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+            <div>
+              <strong style="font-size:15px; color:#0B1C33;">⚡ เพิ่มทีละหลายหมวดพร้อมกัน (Multi-Add Mode)</strong>
+              <p style="margin:2px 0 0; font-size:12.5px; color:#64748B;">เพิ่มหมวดแนะนำ 3, 5 หรือ 10 หมวดได้พร้อมกันในคลิกเดียว</p>
+            </div>
+            <button type="button" id="btnPrefill5" style="border:1px solid #C5A059; background:rgba(197,160,89,.12); color:#8C6B32; font-weight:700; font-size:12.5px; padding:7px 14px; border-radius:8px; cursor:pointer;">⚡ เติม 5 หมวดหลักอัตโนมัติ</button>
+          </div>
+
+          <form method="post" id="bulkForm">
+            <input type="hidden" name="csrf" value="<?= e($token) ?>">
+            <input type="hidden" name="action" value="save_bulk">
+            
+            <div id="bulkRowsContainer" style="display:grid; gap:10px;">
+              <!-- แถวที่ 1 -->
+              <div class="bulk-row" style="display:grid; grid-template-columns:minmax(180px,1.2fr) minmax(240px,2fr) 100px 40px; gap:10px; align-items:center;">
+                <select name="bulk_category[]" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                  <?php foreach (PROPERTY_CATEGORIES as $key => $label): if ($key === 'other') continue; ?>
+                    <option value="<?= e($key) ?>"><?= e(($categoryIcons[$key] ?? '🏡') . ' ' . $label) ?></option>
+                  <?php endforeach; ?>
+                </select>
+                <input type="text" name="bulk_title[]" placeholder="เช่น คอนโดแนะนำ" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                <input type="number" name="bulk_sort[]" value="1" placeholder="ลำดับ" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                <button type="button" onclick="this.closest('.bulk-row').remove()" style="min-height:42px; border:0; background:#FFF1F1; color:#c00; font-weight:bold; border-radius:8px; cursor:pointer;" title="ลบแถวนี้">✕</button>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:14px; align-items:center;">
+              <button type="button" id="btnAddRow" style="border:1px solid #cbd5e1; background:#fff; color:#475569; font-weight:700; font-size:13px; padding:8px 16px; border-radius:8px; cursor:pointer;">➕ เพิ่มอีก 1 แถว</button>
+              <button type="submit" class="btn-submit-feat" style="padding:0 22px; min-height:42px;">💾 บันทึกทุกหมวดพร้อมกัน</button>
+            </div>
+          </form>
+
+          <script>
+            (function() {
+              const container = document.getElementById('bulkRowsContainer');
+              const btnAdd = document.getElementById('btnAddRow');
+              const btnPrefill = document.getElementById('btnPrefill5');
+
+              function createRow(cat, title, sort) {
+                const div = document.createElement('div');
+                div.className = 'bulk-row';
+                div.style.cssText = 'display:grid; grid-template-columns:minmax(180px,1.2fr) minmax(240px,2fr) 100px 40px; gap:10px; align-items:center;';
+                div.innerHTML = `
+                  <select name="bulk_category[]" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                    <option value="condo" ${cat==='condo'?'selected':''}>🏢 คอนโด</option>
+                    <option value="house" ${cat==='house'?'selected':''}>🏠 บ้านเดี่ยว</option>
+                    <option value="townhouse" ${cat==='townhouse'?'selected':''}>🏘️ ทาวน์เฮ้าส์ / ทาวน์โฮม</option>
+                    <option value="land" ${cat==='land'?'selected':''}>🌳 ที่ดิน</option>
+                    <option value="commercial" ${cat==='commercial'?'selected':''}>🏬 อาคารพาณิชย์</option>
+                    <option value="warehouse" ${cat==='warehouse'?'selected':''}>🏭 โกดัง / โรงงาน</option>
+                  </select>
+                  <input type="text" name="bulk_title[]" value="${title||''}" placeholder="เช่น คอนโดแนะนำ" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                  <input type="number" name="bulk_sort[]" value="${sort||0}" placeholder="ลำดับ" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
+                  <button type="button" onclick="this.closest('.bulk-row').remove()" style="min-height:42px; border:0; background:#FFF1F1; color:#c00; font-weight:bold; border-radius:8px; cursor:pointer;" title="ลบแถวนี้">✕</button>
+                `;
+                return div;
+              }
+
+              if (btnAdd) {
+                btnAdd.addEventListener('click', function() {
+                  const currentCount = container.querySelectorAll('.bulk-row').length;
+                  container.appendChild(createRow('house', '', currentCount + 1));
+                });
+              }
+
+              if (btnPrefill) {
+                btnPrefill.addEventListener('click', function() {
+                  container.innerHTML = '';
+                  const presets = [
+                    { cat: 'condo', title: 'คอนโดมิเนียมยอดนิยม', sort: 1 },
+                    { cat: 'house', title: 'บ้านเดี่ยวพร้อมอยู่ ทำเลดี', sort: 2 },
+                    { cat: 'townhouse', title: 'ทาวน์โฮมราคาคุ้มค่า', sort: 3 },
+                    { cat: 'land', title: 'ที่ดินแปลงสวย เหมาะลงทุน', sort: 4 },
+                    { cat: 'commercial', title: 'อาคารพาณิชย์ทำเลค้าขาย', sort: 5 }
+                  ];
+                  presets.forEach(p => container.appendChild(createRow(p.cat, p.title, p.sort)));
+                });
+              }
+            })();
+          </script>
+        </div>
+      <?php endif; ?>
+    <?php else: ?>
+      <div style="font-size:13px;color:#64748B;font-style:italic;padding:14px;background:#F9F9FB;border-radius:12px;">
+        🔒 ดูข้อมูลได้อย่างเดียว (ต้องได้รับสิทธิ์จาก Founder &amp; CEO เพื่อเพิ่มหรือแก้ไขหมวดแนะนำ)
+      </div>
+    <?php endif; ?>
   </section>
 
-  <section class="box">
-    <h2>หมวดที่ตั้งไว้</h2>
+  <!-- ตารางหมวดแนะนำทั้งหมดที่ตั้งไว้ -->
+  <section class="feat-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:12px;">
+      <h2>📋 หมวดหมู่แนะนำทั้งหมดในระบบ (<?= count($sections) ?> หมวด)</h2>
+      <span style="font-size:12.5px;color:#64748B;">แสดงผลบนหน้าแรกตามลำดับ</span>
+    </div>
+    <p class="intro">จัดลำดับ เลื่อนขึ้น/ลง หรือเปิด-ปิดการแสดงผลได้ทันที ทุกหมวดที่เปิดจะดึงประกาศที่เกี่ยวข้องมาแสดงบนหน้าแรก</p>
+
     <?php if (!$sections): ?>
-      <p class="intro" style="margin-top:16px">ยังไม่มีหมวด แนะนำให้เพิ่มอย่างน้อย 4 หมวดจากแบบฟอร์มด้านบน</p>
+      <p class="intro" style="font-style:italic;padding:24px;text-align:center;background:#F9F9FB;border-radius:14px;">
+        ยังไม่มีหมวดแนะนำที่ตั้งไว้ — เริ่มเพิ่มหมวดแรกของคุณจากแบบฟอร์มด้านบนได้เลยครับ
+      </p>
     <?php else: ?>
-      <div class="table-wrap">
-        <table class="list">
-          <thead><tr><th>ลำดับ</th><th>หมวด</th><th>ชื่อหัวข้อ</th><th>สถานะ</th><th></th></tr></thead>
+      <div style="overflow-x:auto;">
+        <table class="feat-table">
+          <thead>
+            <tr>
+              <th style="width:70px;">ลำดับ</th>
+              <th>ประเภท</th>
+              <th>ชื่อหัวข้อที่แสดงหน้าแรก</th>
+              <th>ประกาศพร้อมขาย/เช่า</th>
+              <th>สถานะ</th>
+              <th style="text-align:right;">จัดการ</th>
+            </tr>
+          </thead>
           <tbody>
-            <?php foreach ($sections as $section): ?>
+            <?php foreach ($sections as $sec): ?>
               <tr>
-                <td><?= (int)$section['sort_order'] ?></td>
-                <td><?= e(PROPERTY_CATEGORIES[$section['category']] ?? $section['category']) ?></td>
-                <td><strong><?= e($section['title']) ?></strong></td>
-                <td><span class="pill <?= $section['enabled'] ? '' : 'off' ?>"><?= $section['enabled'] ? 'เปิดแสดง' : 'ปิด' ?></span></td>
+                <td><strong>#<?= (int)$sec['sort_order'] ?></strong></td>
                 <td>
-                  <form method="post" onsubmit="return confirm('ลบหมวดนี้หรือไม่?')">
-                    <input type="hidden" name="csrf" value="<?= e($token) ?>">
-                    <input type="hidden" name="action" value="delete">
-                    <input type="hidden" name="id" value="<?= (int)$section['id'] ?>">
-                    <button class="delete" type="submit">ลบ</button>
-                  </form>
+                  <span class="pill cat">
+                    <?= e(($categoryIcons[$sec['category']] ?? '🏡') . ' ' . (PROPERTY_CATEGORIES[$sec['category']] ?? $sec['category'])) ?>
+                  </span>
+                </td>
+                <td>
+                  <strong style="font-size:14.5px;color:#0B1C33;"><?= e($sec['title']) ?></strong>
+                </td>
+                <td>
+                  <span style="font-weight:700;color:#0B1C33;"><?= number_format((int)$sec['active_count']) ?></span> รายการ
+                </td>
+                <td>
+                  <span class="pill <?= !empty($sec['enabled']) ? 'on' : 'off' ?>">
+                    <?= !empty($sec['enabled']) ? '● กำลังแสดง' : '○ ปิดการแสดง' ?>
+                  </span>
+                </td>
+                <td style="text-align:right; white-space:nowrap;">
+                  <?php if ($canManageMarketing): ?>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="toggle">
+                      <input type="hidden" name="id" value="<?= (int)$sec['id'] ?>">
+                      <button type="submit" class="mini gray" title="เปิด/ปิด"><?= !empty($sec['enabled']) ? '⏸ ซ่อน' : '▶ แสดง' ?></button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="sort">
+                      <input type="hidden" name="id" value="<?= (int)$sec['id'] ?>">
+                      <input type="hidden" name="dir" value="up">
+                      <button type="submit" class="mini gray" title="เลื่อนขึ้น">▲</button>
+                    </form>
+                    <form method="post" style="display:inline;">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="sort">
+                      <input type="hidden" name="id" value="<?= (int)$sec['id'] ?>">
+                      <input type="hidden" name="dir" value="down">
+                      <button type="submit" class="mini gray" title="เลื่อนลง">▼</button>
+                    </form>
+                    <a href="featured.php?edit=<?= (int)$sec['id'] ?>" class="mini edit">✏️ แก้ไข</a>
+                    <form method="post" style="display:inline;" onsubmit="return confirm('ยืนยันลบหมวดแนะนำนี้?');">
+                      <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="id" value="<?= (int)$sec['id'] ?>">
+                      <button type="submit" class="mini del">🗑 ลบ</button>
+                    </form>
+                  <?php else: ?>
+                    <span style="color:#94a3b8;font-size:12px;">(ดูอย่างเดียว)</span>
+                  <?php endif; ?>
                 </td>
               </tr>
             <?php endforeach; ?>
@@ -162,7 +421,6 @@ $flash = get_flash();
       </div>
     <?php endif; ?>
   </section>
-</div>
+</main>
 </body>
 </html>
-

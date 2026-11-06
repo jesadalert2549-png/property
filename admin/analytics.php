@@ -1,6 +1,6 @@
 ﻿<?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_admin('analytics', 'view');
 $pdo = db();
 
 // ช่วงเวลาที่เลือก: 1 / 7 / 30 วัน
@@ -233,20 +233,8 @@ $categoryStats = $st->fetchAll();
     @media (max-width:600px) { .wrap { padding:20px 14px 42px; } .analytics-hero { align-items:flex-start; flex-direction:column; padding:24px 20px; } .analytics-controls { align-items:flex-start; flex-direction:column; } .stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; } .stat { padding:16px 14px; } .stat .num { font-size:25px; } .stat .lbl { font-size:11px; } .box { padding:18px 15px; border-radius:15px; } .range { max-width:100%; } .range a { padding:8px 12px; font-size:12px; } .bars { gap:5px; } .bar-wrap { min-width:28px; } .topbar nav { gap:2px; } .topbar nav a { padding:7px; font-size:11px; } }
   </style>
 </head>
-<body>
+<body class="has-admin-sidebar">
 <?php require __DIR__ . '/_sidebar.php'; ?>
-
-<div class="topbar">
-  <strong>📊 ระบบวิเคราะห์ข้อมูลเชิงลึก (Comprehensive Analytics)</strong>
-  <nav>
-    <a href="index.php">← จัดการประกาศ</a>
-    <a href="../dashboard.php">แดชบอร์ด</a>
-    <a href="featured.php">🏷️ หมวดแนะนำหน้าแรก</a>
-    <a href="category-images.php">🖼️ ภาพหมวดหมู่</a>
-    <a href="../index.php" target="_blank">ดูหน้าเว็บไซต์</a>
-    <a href="../logout.php">ออกจากระบบ</a>
-  </nav>
-</div>
 
 <div class="wrap">
 

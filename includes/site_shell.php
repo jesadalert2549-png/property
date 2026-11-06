@@ -309,6 +309,86 @@ function render_site_footer(): void
           </nav>
         <?php endforeach; ?>
       </div>
+      <div class="seo-footer-provinces" style="max-width:1240px; margin:24px auto 0; padding:20px 16px 0; border-top:1px solid rgba(255,255,255,0.08); font-size:12px;">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
+          <strong style="color:#C5A059; letter-spacing:0.04em;">🏢 ทำเลเศรษฐกิจชั้นนำ Prime CBD &amp; รถไฟฟ้า BTS/MRT</strong>
+          <span style="color:#94a3b8; font-size:11px;">ย่านการอยู่อาศัยและการลงทุนอสังหาฯ ผลตอบแทนสูง</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px 12px; line-height:2; margin-bottom:14px;">
+          <?php
+          $footerCbdHotspots = [
+              'สุขุมวิท'     => 'สุขุมวิท',
+              'ทองหล่อ'      => 'ทองหล่อ',
+              'เอกมัย'       => 'เอกมัย',
+              'พร้อมพงษ์'    => 'พร้อมพงษ์',
+              'สาทร'         => 'สาทร',
+              'สีลม'         => 'สีลม',
+              'พระราม 9'     => 'พระราม 9 (New CBD)',
+              'รัชดาภิเษก'   => 'รัชดาฯ - ห้วยขวาง',
+              'อารีย์'        => 'อารีย์ - พญาไท',
+              'ลาดพร้าว'     => 'ห้าแยกลาดพร้าว',
+              'บางนา'        => 'บางนา - EEC',
+              'เจริญกรุง'    => 'ริมน้ำเจ้าพระยา',
+              'นิมมาน'       => 'นิมมานฯ (เชียงใหม่)',
+              'พัทยา'        => 'พัทยา - จอมเทียน',
+              'หัวหิน'        => 'หัวหิน - ชะอำ',
+              'บางเทา'       => 'บางเทา - ลากูน่า (ภูเก็ต)',
+          ];
+          foreach ($footerCbdHotspots as $cbdSlug => $cbdTxt):
+          ?>
+            <a href="category.php?page=<?= urlencode('คอนโด' . $cbdSlug) ?>" style="color:#f1f5f9; font-weight:700; text-decoration:none; transition:color .15s;" onmouseover="this.style.color='#C5A059'" onmouseout="this.style.color='#f1f5f9'"><?= e($cbdTxt) ?></a>
+            <span style="color:rgba(197,160,89,0.3);">|</span>
+          <?php endforeach; ?>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px; border-top:1px dashed rgba(255,255,255,0.06); padding-top:12px;">
+          <strong style="color:#C5A059; letter-spacing:0.04em;">📍 <?= e(t('อสังหาริมทรัพย์รายจังหวัดยอดนิยมทั่วไทย (77 จังหวัด)', 'Popular Property Locations by Province Across Thailand')) ?></strong>
+          <span style="color:#94a3b8; font-size:11px;"><?= e(t('ค้นหา ซื้อ-ขาย-เช่า บ้าน คอนโด ที่ดิน ทั่วทุกภูมิภาค', 'Search Buy-Sell-Rent Houses, Condos, Land nationwide')) ?></span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px 10px; line-height:1.9;">
+          <?php
+          $seoFooterHotspots = [
+              'กรุงเทพมหานคร' => 'กรุงเทพฯ',
+              'เชียงใหม่'     => 'เชียงใหม่',
+              'ภูเก็ต'        => 'ภูเก็ต',
+              'ชลบุรี'        => 'ชลบุรี (พัทยา)',
+              'นนทบุรี'       => 'นนทบุรี',
+              'สมุทรปราการ'   => 'สมุทรปราการ',
+              'ปทุมธานี'       => 'ปทุมธานี',
+              'ระยอง'         => 'ระยอง',
+              'ประจวบคีรีขันธ์' => 'ประจวบฯ (หัวหิน)',
+              'นครราชสีมา'     => 'โคราช (เขาใหญ่)',
+              'ขอนแก่น'       => 'ขอนแก่น',
+              'สุราษฎร์ธานี'    => 'สุราษฎร์ฯ (สมุย)',
+              'สงขลา'         => 'สงขลา (หาดใหญ่)',
+              'เชียงราย'       => 'เชียงราย',
+              'พระนครศรีอยุธยา'=> 'อยุธยา',
+              'นครปฐม'        => 'นครปฐม',
+              'กระบี่'         => 'กระบี่',
+              'เพชรบุรี'       => 'เพชรบุรี (ชะอำ)',
+              'กาญจนบุรี'      => 'กาญจนบุรี',
+              'อุดรธานี'       => 'อุดรธานี',
+              'อุบลราชธานี'    => 'อุบลราชธานี',
+              'พิษณุโลก'      => 'พิษณุโลก',
+              'ฉะเชิงเทรา'     => 'ฉะเชิงเทรา',
+              'สระบุรี'        => 'สระบุรี',
+              'ลำปาง'         => 'ลำปาง',
+              'นครศรีธรรมราช' => 'นครศรีธรรมราช',
+              'พังงา'         => 'พังงา',
+              'ตรัง'          => 'ตรัง',
+              'สมุทรสาคร'     => 'สมุทรสาคร',
+              'ลพบุรี'        => 'ลพบุรี',
+              'ราชบุรี'       => 'ราชบุรี',
+              'บุรีรัมย์'      => 'บุรีรัมย์'
+          ];
+          foreach ($seoFooterHotspots as $provFull => $provName):
+          ?>
+            <a href="category.php?page=<?= urlencode('ขายบ้าน' . $provFull) ?>" style="color:#cbd5e1; text-decoration:none; transition:color .15s;" onmouseover="this.style.color='#C5A059'" onmouseout="this.style.color='#cbd5e1'"><?= e($provName) ?></a>
+            <span style="color:rgba(255,255,255,0.18);">•</span>
+          <?php endforeach; ?>
+          <a href="search.php" style="color:#C5A059; font-weight:700; text-decoration:none;"><?= e(t('ดูทั้งหมด 77 จังหวัด ›', 'View all 77 provinces ›')) ?></a>
+        </div>
+      </div>
       <div class="seo-footer-bottom">
         <div class="seo-footer-legal">
           <p class="seo-footer-copy">&copy; <?= date('Y') ?> <?= e(SITE_NAME) ?>. <?= e(t('สงวนลิขสิทธิ์ทุกประการ', 'All rights reserved.')) ?></p>

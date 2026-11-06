@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/oauth.php';
-require_admin();
+require_admin('settings', 'manage');
 
 $configFile = dirname(__DIR__) . '/oauth_config.json';
 $message = '';

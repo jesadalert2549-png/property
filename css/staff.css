@@ -1,0 +1,147 @@
+/* =========================================================
+   PropertyGO — Staff Portal Styles (Add-on)
+   ========================================================= */
+
+.staff-body {
+  margin: 0;
+  background: #F9F9FB;
+  color: #1E293B;
+  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Navbar ── */
+.staff-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 24px;
+  background: #0B1C33;
+  border-bottom: 1px solid rgba(197, 160, 89, 0.25);
+  box-shadow: 0 4px 18px rgba(6, 15, 28, 0.28);
+}
+.staff-nav-left, .staff-nav-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.staff-nav-badge {
+  padding: 3px 9px; border-radius: 999px; font-size: 10px; font-weight: 800; letter-spacing: .12em;
+  background: rgba(197, 160, 89, 0.16); border: 1px solid rgba(197, 160, 89, 0.4); color: #E5CB96;
+}
+.staff-nav-role {
+  padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.16); color: #E2E8F0;
+}
+.staff-nav-link {
+  padding: 8px 14px; border-radius: 10px; color: #E2E8F0; text-decoration: none;
+  font-size: 13.5px; font-weight: 700; transition: all .2s ease;
+}
+.staff-nav-link:hover, .staff-nav-link.active { background: rgba(255, 255, 255, 0.12); color: #C5A059; }
+.staff-nav-user {
+  display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff; font-size: 13px; font-weight: 700;
+}
+.staff-nav-avatar {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  background: #C5A059; color: #0B1C33; font-weight: 900; font-size: 13px;
+}
+.staff-nav-logout {
+  padding: 8px 14px; border-radius: 10px; text-decoration: none; font-size: 13px; font-weight: 800;
+  background: rgba(220, 38, 38, 0.16); border: 1px solid rgba(220, 38, 38, 0.38); color: #FCA5A5;
+  transition: all .2s ease;
+}
+.staff-nav-logout:hover { background: #DC2626; color: #fff; border-color: #DC2626; }
+
+/* ── Layout ── */
+.staff-main { width: min(100% - 40px, 1180px); margin: 28px auto 70px; }
+
+.staff-hero {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;
+  padding: 28px 32px; border-radius: 20px; margin-bottom: 22px;
+  background: linear-gradient(120deg, #0B1C33, #182C48);
+  border: 1px solid rgba(197, 160, 89, 0.28); color: #fff;
+  box-shadow: 0 12px 32px rgba(11, 28, 51, 0.12);
+}
+.staff-eyebrow { color: #C5A059; font-size: 11px; font-weight: 800; letter-spacing: .16em; }
+.staff-hero h1 { margin: 6px 0 6px; color: #fff; font-size: clamp(22px, 3vw, 30px); }
+.staff-hero p { margin: 0; color: #CBD5E1; font-size: 14px; }
+.staff-hero-meta { display: flex; flex-direction: column; gap: 8px; }
+.staff-chip {
+  padding: 7px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 700;
+  background: rgba(197, 160, 89, 0.14); border: 1px solid rgba(197, 160, 89, 0.4); color: #E5CB96;
+  white-space: nowrap;
+}
+
+/* ── Stats ── */
+.staff-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 24px;
+}
+.staff-stat {
+  display: flex; align-items: center; gap: 14px; padding: 18px 20px;
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(11, 28, 51, 0.04);
+}
+.staff-stat-icon {
+  width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center;
+  font-size: 19px; font-weight: 800; flex: 0 0 44px;
+}
+.staff-stat-icon.navy { background: #0B1C33; color: #C5A059; }
+.staff-stat-icon.blue { background: #EBF3FE; color: #1A73E8; }
+.staff-stat-icon.green { background: #E8FDF0; color: #04A747; }
+.staff-stat-icon.amber { background: #FFF8E6; color: #A8843F; }
+.staff-stat small { display: block; font-size: 12px; color: #64748B; font-weight: 600; }
+.staff-stat strong { display: block; font-size: 23px; font-weight: 800; color: #0B1C33; line-height: 1.2; }
+
+/* ── Panels ── */
+.staff-panel {
+  background: #fff; border: 1px solid #E2E8F0; border-radius: 20px;
+  padding: 26px 28px; margin-bottom: 22px; box-shadow: 0 6px 20px rgba(11, 28, 51, 0.04);
+}
+.staff-panel-head { margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #F1F5F9; }
+.staff-panel-head h2 { margin: 0; font-size: 19px; color: #0B1C33; }
+.staff-panel-head p { margin: 4px 0 0; font-size: 13px; color: #64748B; }
+
+.staff-tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.staff-tool {
+  display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+  border: 1px solid #E2E8F0; border-radius: 14px; background: #fff; text-decoration: none; color: inherit;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.staff-tool:hover {
+  transform: translateY(-3px); border-color: rgba(197, 160, 89, 0.55);
+  box-shadow: 0 10px 24px rgba(11, 28, 51, 0.1);
+}
+.staff-tool-icon {
+  width: 42px; height: 42px; flex: 0 0 42px; border-radius: 12px; display: grid; place-items: center;
+  background: #F9F5EC; color: #A8843F; font-size: 19px; font-weight: 800;
+}
+.staff-tool-text { flex: 1; min-width: 0; }
+.staff-tool-text strong { display: block; font-size: 14.5px; color: #0B1C33; }
+.staff-tool-text small { display: block; font-size: 12px; color: #64748B; margin-top: 2px; line-height: 1.45; }
+.staff-tool-arrow { color: #C5A059; font-weight: 900; font-size: 16px; }
+
+.staff-empty {
+  padding: 26px; text-align: center; color: #64748B; font-size: 13.5px;
+  background: #F9F9FB; border: 1px dashed #CBD5E1; border-radius: 14px;
+}
+
+/* ── Permission table ── */
+.staff-perm-table-wrap { overflow-x: auto; }
+.staff-perm-table { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 560px; }
+.staff-perm-table th, .staff-perm-table td { padding: 11px 12px; border-bottom: 1px solid #F1F5F9; text-align: center; }
+.staff-perm-table th:first-child, .staff-perm-table td:first-child { text-align: left; }
+.staff-perm-table th { background: #F8FAFC; color: #475569; font-weight: 700; font-size: 12.5px; }
+.perm-yes { color: #04A747; font-weight: 900; }
+.perm-no { color: #CBD5E1; }
+
+@media (max-width: 720px) {
+  .staff-navbar { padding: 10px 14px; }
+  .staff-nav-right { width: 100%; justify-content: space-between; }
+  .staff-main { width: calc(100% - 24px); margin-top: 18px; }
+  .staff-hero { padding: 22px; }
+  .staff-panel { padding: 20px 16px; }
+  .staff-tools { grid-template-columns: 1fr; }
+}

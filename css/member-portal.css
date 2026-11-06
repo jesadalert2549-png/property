@@ -762,3 +762,14 @@ body.member-portal-body > header.portal-navbar + * { margin-top: 0; }
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* Member portal mobile zoom accessibility */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+body.member-portal-body {
+  touch-action: pan-x pan-y pinch-zoom;
+}

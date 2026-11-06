@@ -1,6 +1,6 @@
 ﻿<?php
 require_once __DIR__ . '/../includes/auth.php';
-require_admin();
+require_admin('listings', 'edit');
 $pdo = db();
 
 $id = (int)($_GET['id'] ?? 0);

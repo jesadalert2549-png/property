@@ -39,6 +39,8 @@ if (request_is_post()) {
             $_SESSION['role'] = $user['role'];
 
             if ($user['role'] === 'admin') {
+                $_SESSION['is_founder'] = true;
+                $_SESSION['partner_title'] = 'FOUNDER & CEO';
                 setcookie('no_track', '1', [
                     'expires' => time() + 60 * 60 * 24 * 30,
                     'path' => '/',
@@ -62,6 +64,45 @@ if (request_is_post()) {
                     : 'dashboard.php');
             header('Location: ' . $destination);
             exit;
+        }
+
+        // ตรวจสอบบัญชีหุ้นส่วนและผู้จัดการ (Partners & Management)
+        require_once __DIR__ . '/includes/staff.php';
+        ensure_staff_schema($pdo);
+        $partnerStmt = $pdo->prepare('SELECT * FROM staff_accounts WHERE username = ? OR email = ? LIMIT 1');
+        $partnerStmt->execute([$username, $username]);
+        $partner = $partnerStmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($partner && password_verify($password, $partner['password_hash'])) {
+            if ($partner['status'] !== 'active') {
+                $error = t('บัญชีผู้บริหาร/หุ้นส่วนนี้ถูกระงับการใช้งาน กรุณาติดต่อ Founder & CEO', 'This account has been suspended. Please contact Founder & CEO.');
+            } else {
+                $pdo->prepare('UPDATE staff_accounts SET last_login_at = CURRENT_TIMESTAMP, last_login_ip = ? WHERE id = ?')
+                    ->execute([substr((string)($_SERVER['REMOTE_ADDR'] ?? ''), 0, 45), (int)$partner['id']]);
+                staff_log($pdo, (int)$partner['id'], $partner['username'], 'partner_login', 'role: ' . $partner['role_slug']);
+
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = (int)$partner['id'];
+                $_SESSION['staff_id'] = (int)$partner['id'];
+                $_SESSION['username'] = $partner['username'];
+                $_SESSION['role'] = 'partner';
+                $_SESSION['is_founder'] = false;
+
+                $roleInfo = staff_role_by_slug($pdo, (string)$partner['role_slug']);
+                $_SESSION['partner_title'] = $roleInfo['name_th'] ?? 'หุ้นส่วน / ผู้จัดการ';
+                $_SESSION['partner_role_slug'] = $partner['role_slug'];
+
+                setcookie('no_track', '1', [
+                    'expires' => time() + 60 * 60 * 24 * 30,
+                    'path' => '/',
+                    'secure' => request_is_https(),
+                    'httponly' => true,
+                    'samesite' => 'Lax',
+                ]);
+
+                header('Location: admin/index.php');
+                exit;
+            }
         } else {
             $error = t('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', 'Incorrect username or password.');
         }

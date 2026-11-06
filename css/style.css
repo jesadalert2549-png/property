@@ -1619,3 +1619,17 @@ body:has(.dd-hero) .site-controls {
   }
   .site-nav a, .dd-menu-item, .nav-dropdown-toggle { padding: 10px 12px; }
 }
+
+
+/* =========================================================
+   Pinch-to-zoom / Mobile Zoom Accessibility Guarantee
+   ========================================================= */
+html {
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  touch-action: pan-x pan-y pinch-zoom;
+}
