@@ -1,3 +1,4 @@
 .andromity/
 oauth_config.json
 .uploads/
+.includes/config.json
