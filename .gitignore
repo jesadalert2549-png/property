@@ -1,4 +1,4 @@
 .andromity/
 oauth_config.json
-includes/config.php
-uploads/
+#includes/config.php
+#uploads/
