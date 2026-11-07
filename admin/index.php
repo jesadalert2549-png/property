@@ -210,7 +210,7 @@ $approvalLabel = [
       <?php if ($isFounder): ?>
         <span class="dash-eyebrow">👑 FOUNDER &amp; CEO · MASTER COMMAND</span>
         <h1><?= e(t('ยินดีต้อนรับ Founder & CEO คุณ ', 'Welcome Founder & CEO ')) ?><?= e($adminDisplayName) ?></h1>
-        <p><?= e(t('ศูนย์รวมอำนาจการบริหารจัดการสูงสุดของเว็บไซต์ KASA Property — อัปเดต ณ', 'Master administrative authority of KASA Property — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
+        <p><?= e(t('ศูนย์รวมอำนาจการบริหารจัดการสูงสุดของเว็บไซต์ PropertyGO — อัปเดต ณ', 'Master administrative authority of PropertyGO — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
       <?php else: ?>
         <span class="dash-eyebrow">💼 <?= strtoupper(e($roleDisplayName)) ?> · WORKSPACE</span>
         <h1><?= e(t('ยินดีต้อนรับ ', 'Welcome ')) ?><?= e($roleDisplayName) ?> <?= e(t('คุณ ', '')) ?><?= e($adminDisplayName) ?></h1>
@@ -236,7 +236,7 @@ $approvalLabel = [
         <h2 style="margin:0; font-size:17px; color:#0B1C33; font-weight:800; display:flex; align-items:center; gap:8px;">
           <span>⚡</span> <?= e(t('ศูนย์รวมเครื่องมือบริหาร (Executive Launchpad)', 'Executive Launchpad')) ?>
         </h2>
-        <p style="margin:3px 0 0; font-size:12px; color:#64748B;">คลิกเปิดเครื่องมือในหมวดหมู่งานที่ต้องการได้ทันที</p>
+        <p style="margin:3px 0 0; font-size:12px; color:#64748B;"><?= e(t('คลิกเปิดเครื่องมือในหมวดหมู่งานที่ต้องการได้ทันที', 'Directly access your required administrative tools.')) ?></p>
       </div>
       <span style="font-size:11px; font-weight:700; color:#8C6B32; background:rgba(197,160,89,.15); padding:4px 12px; border-radius:999px;">
         <?= count($activeCatalog) ?> <?= e(t('หมวดหมู่งาน', 'Operational Modules')) ?>
@@ -251,7 +251,7 @@ $approvalLabel = [
               <span style="display:grid; place-items:center; width:32px; height:32px; border-radius:9px; background:rgba(197,160,89,.12); color:#8C6B32; font-size:16px;"><?= e($catData['icon']) ?></span>
               <strong style="font-size:14px; color:#0B1C33;"><?= e($catData['title']) ?></strong>
             </div>
-            <small style="color:#94a3b8; font-size:11px; font-weight:700;"><?= count($catData['items']) ?> รายการ</small>
+            <small style="color:#94a3b8; font-size:11px; font-weight:700;"><?= count($catData['items']) ?> <?= e(t('รายการ', 'items')) ?></small>
           </div>
           <div style="display:flex; flex-direction:column; gap:6px;">
             <?php foreach ($catData['items'] as [$href, $icon, $label, $desc]): ?>
@@ -364,11 +364,11 @@ $approvalLabel = [
                 </td>
                 <td>
                   <span class="tag <?= e($p['approval']) ?>"><?= $approvalLabel[$p['approval']] ?? $p['approval'] ?></span>
-                  <?php if (($p['verification_status'] ?? 'passed') === 'flagged'): ?><small style="display:block;max-width:220px;margin-top:6px;color:#b45309;">⚠ <?= e($p['verification_notes'] ?: 'ระบบพบข้อมูลที่ควรตรวจซ้ำ') ?></small><?php endif; ?>
+                  <?php if (($p['verification_status'] ?? 'passed') === 'flagged'): ?><small style="display:block;max-width:220px;margin-top:6px;color:#b45309;">⚠ <?= e($p['verification_notes'] ?: t('ระบบพบข้อมูลที่ควรตรวจซ้ำ', 'System detected data needing review')) ?></small><?php endif; ?>
                 </td>
                 <td>
                   <?php if ($p['status'] === 'done'): ?>
-                    <span class="tag done"><?= $p['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว' ?></span>
+                    <span class="tag done"><?= $p['type'] === 'rent' ? e(t('ปล่อยเช่าแล้ว', 'Rented')) : e(t('ขายแล้ว', 'Sold')) ?></span>
                   <?php else: ?>
                     <span class="tag open"><?= e(t('กำลังประกาศ', 'Active')) ?></span>
                   <?php endif; ?>

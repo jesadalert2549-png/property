@@ -163,7 +163,7 @@ $categoryStats = $st->fetchAll();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>วิเคราะห์ข้อมูลและสถิติเชิงลึก | หลังบ้าน</title>
+  <title><?= e(t('วิเคราะห์ข้อมูลและสถิติเชิงลึก', 'Analytics & Deep Insights')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -239,40 +239,40 @@ $categoryStats = $st->fetchAll();
 <div class="wrap">
 
   <section class="analytics-hero">
-    <div><span class="eyebrow">PROPERTY INSIGHTS</span><h1>วิเคราะห์ข้อมูลเว็บไซต์</h1><p>ภาพรวมประกาศ สมาชิก และพฤติกรรมการเข้าชมในที่เดียว</p></div>
-    <div class="hero-note">ข้อมูลตามช่วงเวลาที่เลือก · อัปเดตเมื่อเปิดหน้านี้</div>
+    <div><span class="eyebrow">PROPERTY INSIGHTS</span><h1><?= e(t('วิเคราะห์ข้อมูลเว็บไซต์', 'Website Analytics & Insights')) ?></h1><p><?= e(t('ภาพรวมประกาศ สมาชิก และพฤติกรรมการเข้าชมในที่เดียว', 'Overview of listings, members, and traffic behavior in one place.')) ?></p></div>
+    <div class="hero-note"><?= e(t('ข้อมูลตามช่วงเวลาที่เลือก · อัปเดตเมื่อเปิดหน้านี้', 'Data based on selected period · Updated in real-time')) ?></div>
   </section>
 
   <!-- ตัวเลือกช่วงเวลา -->
   <div class="analytics-controls">
   <div class="range">
-    <?php foreach ([1 => 'วันนี้', 7 => '7 วันย้อนหลัง', 30 => '30 วันย้อนหลัง'] as $r => $label): ?>
+    <?php foreach ([1 => t('วันนี้', 'Today'), 7 => t('7 วันย้อนหลัง', 'Last 7 Days'), 30 => t('30 วันย้อนหลัง', 'Last 30 Days')] as $r => $label): ?>
       <a href="?range=<?= $r ?>" class="<?= $range === $r ? 'on' : '' ?>"><?= e($label) ?></a>
     <?php endforeach; ?>
   </div>
-  <a class="pdf-report-link" href="pdf-report.php?range=<?= $range ?>" target="_blank" rel="noopener">▣ พิมพ์ / บันทึก PDF</a>
+  <a class="pdf-report-link" href="pdf-report.php?range=<?= $range ?>" target="_blank" rel="noopener">▣ <?= e(t('พิมพ์ / บันทึก PDF', 'Print / Export PDF')) ?></a>
   </div>
 
   <!-- ส่วนที่ 1: ภาพรวมฐานข้อมูลทรัพย์สินทั้งหมด -->
-  <h2 class="analytics-section-title">🏠 สรุปภาพรวมทรัพย์สินในระบบ</h2>
+  <h2 class="analytics-section-title">🏠 <?= e(t('สรุปภาพรวมทรัพย์สินในระบบ', 'Property Inventory Summary')) ?></h2>
   <div class="stats">
-    <div class="stat"><div class="num"><?= number_format($totalProps) ?></div><div class="lbl">ประกาศทั้งหมดในระบบ</div></div>
-    <div class="stat"><div class="num" style="color: #059669;"><?= number_format($activeProps) ?></div><div class="lbl">ประกาศพร้อมขาย/เช่าที่เผยแพร่แล้ว</div></div>
-    <div class="stat"><div class="num" style="color: #2563eb;"><?= number_format($saleProps) ?></div><div class="lbl">ประเภทขาย (Sale)</div></div>
-    <div class="stat"><div class="num" style="color: #7955d9;"><?= number_format($rentProps) ?></div><div class="lbl">ประเภทให้เช่า (Rent)</div></div>
-    <div class="stat"><div class="num"><?= number_format((int)$approvalCounts['pending']) ?></div><div class="lbl">รอตรวจสอบ</div></div>
-    <div class="stat"><div class="num"><?= number_format((int)$approvalCounts['rejected']) ?></div><div class="lbl">ไม่อนุมัติ</div></div>
+    <div class="stat"><div class="num"><?= number_format($totalProps) ?></div><div class="lbl"><?= e(t('ประกาศทั้งหมดในระบบ', 'Total Listings in System')) ?></div></div>
+    <div class="stat"><div class="num" style="color: #059669;"><?= number_format($activeProps) ?></div><div class="lbl"><?= e(t('ประกาศพร้อมขาย/เช่าที่เผยแพร่แล้ว', 'Active Published Listings')) ?></div></div>
+    <div class="stat"><div class="num" style="color: #2563eb;"><?= number_format($saleProps) ?></div><div class="lbl"><?= e(t('ประเภทขาย (Sale)', 'For Sale (Sale)')) ?></div></div>
+    <div class="stat"><div class="num" style="color: #7955d9;"><?= number_format($rentProps) ?></div><div class="lbl"><?= e(t('ประเภทให้เช่า (Rent)', 'For Rent (Rent)')) ?></div></div>
+    <div class="stat"><div class="num"><?= number_format((int)$approvalCounts['pending']) ?></div><div class="lbl"><?= e(t('รอตรวจสอบ', 'Pending Review')) ?></div></div>
+    <div class="stat"><div class="num"><?= number_format((int)$approvalCounts['rejected']) ?></div><div class="lbl"><?= e(t('ไม่อนุมัติ', 'Rejected')) ?></div></div>
   </div>
 
   <!-- ส่วนที่ 2: สถิติผู้เข้าชมเว็บไซต์ -->
-  <h2 class="analytics-section-title">📈 สถิติการเข้าชมเว็บไซต์ (ในช่วงเวลาที่เลือก)</h2>
+  <h2 class="analytics-section-title">📈 <?= e(t('สถิติการเข้าชมเว็บไซต์ (ในช่วงเวลาที่เลือก)', 'Traffic & Visitor Statistics (Selected Period)')) ?></h2>
   <div class="stats">
-    <div class="stat"><div class="num"><?= number_format((int)$totals['page_views']) ?></div><div class="lbl">ยอดเปิดหน้าเว็บทั้งหมด (PV)</div></div>
-    <div class="stat"><div class="num"><?= number_format((int)$totals['uv']) ?></div><div class="lbl">ผู้เข้าชมไม่ซ้ำกัน (UV)</div></div>
-    <div class="stat"><div class="num" style="color:#2563eb;"><?= number_format((int)$visitorStats['new_visitors']) ?></div><div class="lbl">ผู้เข้าชมใหม่ในช่วงที่เลือก</div></div>
-    <div class="stat"><div class="num" style="color:#7c3aed;"><?= number_format((int)$visitorStats['returning_visitors']) ?></div><div class="lbl">ผู้เข้าชมกลับมาอีก (เคยเข้าก่อนช่วงนี้)</div></div>
-    <div class="stat"><div class="num"><?= number_format($propViews) ?></div><div class="lbl">ยอดคลิกดูรายละเอียดประกาศ</div></div>
-    <div class="stat"><div class="num"><?= number_format($detailRate, 1) ?>%</div><div class="lbl">สัดส่วนดูรายละเอียดต่อการเปิดหน้า</div></div>
+    <div class="stat"><div class="num"><?= number_format((int)$totals['page_views']) ?></div><div class="lbl"><?= e(t('ยอดเปิดหน้าเว็บทั้งหมด (PV)', 'Total Page Views (PV)')) ?></div></div>
+    <div class="stat"><div class="num"><?= number_format((int)$totals['uv']) ?></div><div class="lbl"><?= e(t('ผู้เข้าชมไม่ซ้ำกัน (UV)', 'Unique Visitors (UV)')) ?></div></div>
+    <div class="stat"><div class="num" style="color:#2563eb;"><?= number_format((int)$visitorStats['new_visitors']) ?></div><div class="lbl"><?= e(t('ผู้เข้าชมใหม่ในช่วงที่เลือก', 'New Visitors')) ?></div></div>
+    <div class="stat"><div class="num" style="color:#7c3aed;"><?= number_format((int)$visitorStats['returning_visitors']) ?></div><div class="lbl"><?= e(t('ผู้เข้าชมกลับมาอีก (เคยเข้าก่อนช่วงนี้)', 'Returning Visitors')) ?></div></div>
+    <div class="stat"><div class="num"><?= number_format($propViews) ?></div><div class="lbl"><?= e(t('ยอดคลิกดูรายละเอียดประกาศ', 'Property Detail Clicks')) ?></div></div>
+    <div class="stat"><div class="num"><?= number_format($detailRate, 1) ?>%</div><div class="lbl"><?= e(t('สัดส่วนดูรายละเอียดต่อการเปิดหน้า', 'Detail View Conversion Rate')) ?></div></div>
   </div>
 
   <div class="box">

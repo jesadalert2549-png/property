@@ -252,7 +252,7 @@ function oauth_get_or_create_user(PDO $pdo, string $provider, string $subject, s
 
     // ถ้าไม่มีอีเมล (เช่น LINE บางบัญชีไม่ได้ผูกอีเมล) ให้สร้างเป็น unique identifier
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $email = strtolower($provider) . '_' . substr(md5($subject), 0, 12) . '@kasa.local';
+        $email = strtolower($provider) . '_' . substr(md5($subject), 0, 12) . '@propertygo.local';
     }
 
     $find = $pdo->prepare('SELECT u.id, u.username, u.role, u.full_name, u.line_id FROM oauth_identities oi JOIN users u ON u.id = oi.user_id WHERE oi.provider = ? AND oi.provider_subject = ? LIMIT 1');

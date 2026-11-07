@@ -110,7 +110,11 @@ $all_slugs = available_category_slugs();
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php
-    seo_head($page_title . ' | ' . SITE_NAME, $page_desc, $canonical, true, $categoryImage ? page_url($categoryImage) : '');
+    $display_h1 = is_en() ? (property_category_en_label($target_category ?? '') ? (property_category_en_label($target_category ?? '') . ' for ' . ($target_type === 'rent' ? 'Rent' : ($target_type === 'sale' ? 'Sale' : 'Sale & Rent'))) : $title_h1) : $title_h1;
+    $seo_title = is_en()
+        ? ($display_h1 . ' | ' . SITE_NAME)
+        : (str_contains($page_title, SITE_NAME) ? $page_title : $page_title . ' | ' . SITE_NAME);
+    seo_head($seo_title, $page_desc, $canonical, true, $categoryImage ? page_url($categoryImage) : '');
     json_ld([
       '@context' => 'https://schema.org',
       '@type' => 'BreadcrumbList',
@@ -149,7 +153,7 @@ $all_slugs = available_category_slugs();
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
 </head>
-<body class="bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Prompt','Inter',system-ui,sans-serif;">
+<body class="bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
 
 <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
   <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
@@ -187,18 +191,24 @@ $all_slugs = available_category_slugs();
       <img src="<?= e($categoryImage) ?>" alt="ภาพหมวด<?= e($title_h1) ?>" class="absolute inset-0 h-full w-full object-cover opacity-25" loading="eager">
     <?php endif; ?>
     <div class="relative">
+    <?php
+      $display_h1 = is_en() ? (property_category_en_label($target_category ?? '') ? (property_category_en_label($target_category ?? '') . ' for ' . ($target_type === 'rent' ? 'Rent' : ($target_type === 'sale' ? 'Sale' : 'Sale & Rent'))) : $title_h1) : $title_h1;
+    ?>
     <nav class="mb-5 flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="breadcrumb">
       <a href="index.php" class="hover:text-ink"><?= e(t('หน้าแรก', 'Home')) ?></a>
       <span>›</span>
-      <span class="text-slate-700"><?= e($title_h1) ?></span>
+      <span class="text-slate-700"><?= e($display_h1) ?></span>
     </nav>
 
     <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
       <div>
         <p class="text-xs font-extrabold uppercase tracking-[.18em] text-accent">Property listing</p>
-        <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl"><?= e($title_h1) ?></h1>
-        <?php if (!empty($page_intro)): ?>
-          <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600"><?= e($page_intro) ?></p>
+        <h1 class="mt-3 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl"><?= e($display_h1) ?></h1>
+        <?php
+          $display_intro = is_en() ? ('Discover verified ' . strtolower($display_h1) . ' with photos, detailed specs, maps and direct owner contacts.') : $page_intro;
+        ?>
+        <?php if (!empty($display_intro)): ?>
+          <p class="mt-3 max-w-3xl text-sm leading-relaxed text-slate-600"><?= e($display_intro) ?></p>
         <?php endif; ?>
       </div>
       <div class="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600">
@@ -224,7 +234,7 @@ $all_slugs = available_category_slugs();
 
   <?php if (empty($items)): ?>
     <div class="mt-8 rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-soft">
-      <p class="text-lg font-bold text-slate-600"><?= e(t('ยังไม่มีประกาศในหมวดหมู่ ' . $title_h1 . ' ในขณะนี้', 'No listings in ' . $title_h1 . ' yet')) ?></p>
+      <p class="text-lg font-bold text-slate-600"><?= e(t('ยังไม่มีประกาศในหมวดหมู่ ' . $title_h1 . ' ในขณะนี้', 'No listings in ' . $display_h1 . ' yet')) ?></p>
       <a href="submit.php" class="mt-5 inline-flex items-center rounded-full bg-accent px-6 py-3 text-sm font-extrabold text-white transition hover:bg-[#d86c26]"><?= e(t('ลงประกาศเป็นคนแรก', 'Be the first to post')) ?></a>
     </div>
   <?php else: ?>
@@ -294,8 +304,8 @@ $all_slugs = available_category_slugs();
   <section class="mt-8 rounded-3xl border border-slate-200 bg-gradient-to-r from-slate-50 via-white to-amber-50/20 p-6 shadow-soft sm:p-8">
     <div class="flex items-center justify-between">
       <div>
-        <h3 class="text-sm font-extrabold uppercase tracking-wider text-accentDark">🏢 ทำเลเศรษฐกิจ Prime CBD &amp; แนวรถไฟฟ้า BTS/MRT</h3>
-        <p class="mt-1 text-xs text-slate-500">ย่านศูนย์กลางธุรกิจและการอยู่อาศัยระดับพรีเมียมที่มีการค้นหาสูงสุด</p>
+        <h3 class="text-sm font-extrabold uppercase tracking-wider text-accentDark">🏢 <?= e(t('ทำเลเศรษฐกิจ Prime CBD & แนวรถไฟฟ้า BTS/MRT', 'Prime CBD & Transit Zones (BTS/MRT)')) ?></h3>
+        <p class="mt-1 text-xs text-slate-500"><?= e(t('ย่านศูนย์กลางธุรกิจและการอยู่อาศัยระดับพรีเมียมที่มีการค้นหาสูงสุด', 'Top-searched commercial and high-end residential hubs')) ?></p>
       </div>
       <a href="search.php" class="text-xs font-bold text-accent hover:underline"><?= e(t('ค้นหาตามทำเล ›', 'Search by zone ›')) ?></a>
     </div>
@@ -303,12 +313,26 @@ $all_slugs = available_category_slugs();
       <?php
       if (defined('PRIME_CBD_ZONES')) {
           foreach (PRIME_CBD_ZONES as $cbdKey => $cbd) {
-              $cbdTitle = $cbd['name_th'];
-              $cbdTarget = 'category.php?page=' . urlencode('คอนโด' . $cbdTitle);
+              $cbdTitle = is_en() ? ($cbd['name_en'] ?? $cbd['name_th']) : $cbd['name_th'];
+              $cbdTarget = 'category.php?page=' . urlencode('คอนโด' . $cbd['name_th']);
               echo '<a href="' . e($cbdTarget) . '" class="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-bold text-ink shadow-xs transition hover:border-accent hover:bg-accentSoft hover:text-accentDark">⚡ ' . e($cbdTitle) . '</a>';
+              $subEnMap = [
+                  'ทองหล่อ' => 'Thong Lo', 'เอกมัย' => 'Ekkamai', 'พร้อมพงษ์' => 'Phrom Phong',
+                  'สาทร' => 'Sathorn', 'สีลม' => 'Silom', 'ช่องนนทรี' => 'Chong Nonsi',
+                  'พระราม 9' => 'Rama 9', 'รัชดาภิเษก' => 'Ratchada', 'ห้วยขวาง' => 'Huai Khwang',
+                  'อารีย์' => 'Ari', 'สะพานควาย' => 'Saphan Khwai', 'พญาไท' => 'Phayathai',
+                  'ห้าแยกลาดพร้าว' => 'Ladprao Junction', 'รัชโยธิน' => 'Ratchayothin',
+                  'บางนา' => 'Bangna', 'เมกาบางนา' => 'Mega Bangna',
+                  'เจริญกรุง' => 'Charoen Krung', 'คลองสาน' => 'Khlong San',
+                  'นิมมาน' => 'Nimman', 'นิมมานเหมินท์' => 'Nimmanhaemin',
+                  'พัทยากลาง' => 'Central Pattaya', 'พัทยาเหนือ' => 'North Pattaya',
+                  'หัวหิน' => 'Hua Hin', 'เขาเต่า' => 'Khao Tao',
+                  'บางเทา' => 'Bang Tao', 'ลากูน่า' => 'Laguna',
+              ];
               foreach (array_slice($cbd['sub_districts'], 0, 2) as $subD) {
                   $subTarget = 'category.php?page=' . urlencode('คอนโด' . $subD);
-                  echo '<a href="' . e($subTarget) . '" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-accent hover:text-white">' . e($subD) . '</a>';
+                  $subLabel = is_en() ? ($subEnMap[$subD] ?? $subD) : $subD;
+                  echo '<a href="' . e($subTarget) . '" class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-accent hover:text-white">' . e($subLabel) . '</a>';
               }
           }
       }
@@ -324,12 +348,37 @@ $all_slugs = available_category_slugs();
     </div>
     <div class="mt-4 flex flex-wrap gap-2">
       <?php
-      $topProvList = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'ชลบุรี', 'นนทบุรี', 'สมุทรปราการ', 'ปทุมธานี', 'ระยอง', 'ประจวบคีรีขันธ์', 'นครราชสีมา', 'ขอนแก่น', 'สุราษฎร์ธานี', 'สงขลา', 'เชียงราย', 'พระนครศรีอยุธยา', 'นครปฐม', 'กระบี่', 'เพชรบุรี', 'กาญจนบุรี', 'อุดรธานี', 'อุบลราชธานี', 'พิษณุโลก', 'ฉะเชิงเทรา', 'สระบุรี'];
-      $activeCatLabel = $intent['category_label'] ?: 'บ้าน';
-      foreach ($topProvList as $pName):
+      $topProvList = [
+          'กรุงเทพมหานคร' => t('กรุงเทพมหานคร', 'Bangkok'),
+          'เชียงใหม่'     => t('เชียงใหม่', 'Chiang Mai'),
+          'ภูเก็ต'        => t('ภูเก็ต', 'Phuket'),
+          'ชลบุรี'        => t('ชลบุรี', 'Chonburi'),
+          'นนทบุรี'       => t('นนทบุรี', 'Nonthaburi'),
+          'สมุทรปราการ'   => t('สมุทรปราการ', 'Samut Prakan'),
+          'ปทุมธานี'       => t('ปทุมธานี', 'Pathum Thani'),
+          'ระยอง'         => t('ระยอง', 'Rayong'),
+          'ประจวบคีรีขันธ์' => t('ประจวบฯ', 'Prachuap Khiri Khan'),
+          'นครราชสีมา'     => t('นครราชสีมา', 'Nakhon Ratchasima'),
+          'ขอนแก่น'       => t('ขอนแก่น', 'Khon Kaen'),
+          'สุราษฎร์ธานี'    => t('สุราษฎร์ธานี', 'Surat Thani'),
+          'สงขลา'         => t('สงขลา', 'Songkhla'),
+          'เชียงราย'       => t('เชียงราย', 'Chiang Rai'),
+          'พระนครศรีอยุธยา'=> t('อยุธยา', 'Ayutthaya'),
+          'นครปฐม'        => t('นครปฐม', 'Nakhon Pathom'),
+          'กระบี่'         => t('กระบี่', 'Krabi'),
+          'เพชรบุรี'       => t('เพชรบุรี', 'Phetchaburi'),
+          'กาญจนบุรี'      => t('กาญจนบุรี', 'Kanchanaburi'),
+          'อุดรธานี'       => t('อุดรธานี', 'Udon Thani'),
+          'อุบลราชธานี'    => t('อุบลราชธานี', 'Ubon Ratchathani'),
+          'พิษณุโลก'      => t('พิษณุโลก', 'Phitsanulok'),
+          'ฉะเชิงเทรา'     => t('ฉะเชิงเทรา', 'Chachoengsao'),
+          'สระบุรี'        => t('สระบุรี', 'Saraburi')
+      ];
+      $activeCatLabel = is_en() ? (property_category_en_label($intent['category'] ?? '') ?? 'Properties') : ($intent['category_label'] ?: 'บ้าน');
+      foreach ($topProvList as $pKey => $pLabel):
       ?>
-        <a href="category.php?page=<?= urlencode('ขาย' . $activeCatLabel . $pName) ?>" class="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-accent hover:text-white">
-          <?= e($activeCatLabel . ' ' . $pName) ?>
+        <a href="category.php?page=<?= urlencode('ขาย' . ($intent['category_label'] ?: 'บ้าน') . $pKey) ?>" class="rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-accent hover:text-white">
+          <?= e($activeCatLabel . ' ' . $pLabel) ?>
         </a>
       <?php endforeach; ?>
     </div>

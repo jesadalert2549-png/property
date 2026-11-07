@@ -173,7 +173,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     body {
       width: 100%;
       background: #F9F9FB;
-      font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif;
+      font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif;
     }
     img {
       max-width: 100%;
@@ -185,15 +185,28 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
        1. ส่วน Navigation Bar แบบ Responsive & Hamburger Menu
        ========================================================================== */
     .dd-navbar {
-      background: #0B1C33;
+      background: transparent;
       padding: 12px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
+      position: absolute;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
       width: 100%;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      transition: background 0.32s cubic-bezier(.22, 1, .36, 1),
+                  border-color 0.32s ease,
+                  box-shadow 0.32s ease,
+                  transform 0.32s ease;
+    }
+    .dd-navbar.scrolled {
+      position: fixed;
+      background: #0B1C33;
+      border-bottom-color: rgba(197, 160, 89, 0.28);
+      box-shadow: 0 8px 26px rgba(6, 15, 28, 0.35);
     }
     .dd-nav-left, .dd-nav-right {
       display: flex;
@@ -325,7 +338,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     .mobile-drawer {
       position: fixed;
       top: 0;
-      right: -100%;
+      right: 0;
+      transform: translateX(105%);
       width: 310px;
       max-width: 85vw;
       height: 100vh;
@@ -335,10 +349,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      visibility: hidden;
     }
     .mobile-drawer.active {
-      right: 0;
+      transform: translateX(0);
+      visibility: visible;
     }
     .drawer-header {
       padding: 16px 20px;
@@ -409,12 +425,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
        ========================================================================== */
     .dd-hero {
       position: relative;
-      min-height: 460px;
+      min-height: 520px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 56px 16px 48px;
+      padding: 128px 16px 48px;
       width: 100%;
       isolation: isolate;
     }
@@ -857,7 +873,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <?php if ($heroBg['type'] === 'video'): ?>
       <video class="dd-hero-media" src="<?= e($heroBg['url']) ?>" autoplay muted loop playsinline preload="auto"></video>
     <?php else: ?>
-      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="KASA Hero Background" fetchpriority="high">
+      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="PropertyGO Hero Background" fetchpriority="high">
     <?php endif; ?>
     <div class="dd-hero-overlay" style="background: rgba(11, 28, 51, <?= (float)($heroBg['opacity'] ?? 0.45) ?>);"></div>
   </div>
@@ -924,30 +940,32 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <nav class="container featured-nav" aria-label="<?= e(t('หมวดอสังหาริมทรัพย์แนะนำ', 'Featured property categories')) ?>">
   <?php foreach ($featuredSections as $featuredSection): ?>
     <?php
-      // ใช้ภาพหมวดหมู่ที่แอดมินเลือกเอง ไม่ใช้รูปปกของประกาศสมาชิก
       $navCategory = (string)$featuredSection['category'];
       $navCategoryImage = $categoryIcons[$navCategory] ?? '';
       $navCategoryImageExists = $navCategoryImage !== '' && is_file(__DIR__ . '/' . $navCategoryImage);
+      $navTitle = is_en() ? (property_category_en_label($navCategory) ? 'Featured ' . property_category_en_label($navCategory) : $featuredSection['title']) : $featuredSection['title'];
   ?>
   <a class="featured-nav-item" href="search.php?category=<?= e(rawurlencode($featuredSection['category'])) ?>">
       <?php if ($navCategoryImageExists): ?>
-        <img src="<?= e($navCategoryImage) ?>" alt="<?= e($featuredSection['title']) ?>" loading="lazy" decoding="async">
+        <img src="<?= e($navCategoryImage) ?>" alt="<?= e($navTitle) ?>" loading="lazy" decoding="async">
       <?php else: ?>
         <span class="featured-nav-placeholder" aria-hidden="true"><span><?= e($categoryIconFallback[$navCategory] ?? '🏡') ?></span></span>
       <?php endif; ?>
-      <span class="featured-nav-title"><?= e($featuredSection['title']) ?></span>
+      <span class="featured-nav-title"><?= e($navTitle) ?></span>
     </a>
   <?php endforeach; ?>
 </nav>
 <?php endif; ?>
 
 <!-- หมวดประกาศแนะนำที่ผู้ดูแลตั้งค่า -->
-<?php foreach ($featuredSections as $featuredSection): ?>
+<?php foreach ($featuredSections as $featuredSection):
+  $sectionTitle = is_en() ? (property_category_en_label((string)$featuredSection['category']) ? 'Featured ' . property_category_en_label((string)$featuredSection['category']) : $featuredSection['title']) : $featuredSection['title'];
+?>
 <section class="section showcase-section">
   <div class="container">
     <div class="showcase-header">
       <div class="showcase-title-wrap">
-        <h2 class="showcase-title"><?= e($featuredSection['title']) ?></h2>
+        <h2 class="showcase-title"><?= e($sectionTitle) ?></h2>
       </div>
       <a href="search.php?category=<?= e(rawurlencode($featuredSection['category'])) ?>" class="showcase-more"><?= e(t('ดูประกาศทั้งหมด ›', 'View all ›')) ?></a>
     </div>
@@ -976,7 +994,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               <div class="showcase-card-title"><?= e($listing['title']) ?></div>
               <div class="showcase-card-loc"><?= e($listing['location'] ?: '-') ?></div>
               
-              <div class="showcase-price">฿<?= number_format((int)$listing['price']) ?><?= $listing['type'] === 'rent' ? '/เดือน' : '' ?></div>
+              <div class="showcase-price">฿<?= number_format((int)$listing['price']) ?><?= $listing['type'] === 'rent' ? (is_en() ? '/month' : '/เดือน') : '' ?></div>
             </div>
           </a>
         <?php endforeach; ?>
@@ -996,11 +1014,11 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     
     <div style="text-align:center; max-width:680px; margin:0 auto 36px;">
       <span style="font-size:11px; font-weight:800; color:#8C6B32; background:rgba(197,160,89,.14); padding:4px 14px; border-radius:999px; letter-spacing:0.12em; text-transform:uppercase;">Interactive Property Suite</span>
-      <h2 style="font-size:clamp(22px, 3.2vw, 32px); font-weight:800; color:#0B1C33; margin:10px 0 8px;">เครื่องมือวิเคราะห์และตัวช่วยประเมินอสังหาฯ</h2>
-      <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0;">คำนวณค่างวดผ่อนบ้าน คอนโด หรือสำรวจผลตอบแทนการลงทุน (Rental Yield) ได้แบบเรียลไทม์ทันที</p>
+      <h2 style="font-size:clamp(22px, 3.2vw, 32px); font-weight:800; color:#0B1C33; margin:10px 0 8px;"><?= e(t('เครื่องมือวิเคราะห์และตัวช่วยประเมินอสังหาฯ', 'Property Analytics & Valuation Tools')) ?></h2>
+      <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0;"><?= e(t('คำนวณค่างวดผ่อนบ้าน คอนโด หรือสำรวจผลตอบแทนการลงทุน (Rental Yield) ได้แบบเรียลไทม์ทันที', 'Estimate home or condo monthly installments and explore Rental Yield in real-time.')) ?></p>
     </div>
 
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:24px;">
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:24px;">
       
       <!-- Card 1: เครื่องมือคำนวณเงินผ่อนบ้าน-คอนโดแบบเรียลไทม์ -->
       <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
@@ -1008,8 +1026,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,.15); color:#8C6B32; font-size:20px;">🧮</span>
             <div>
-              <strong style="font-size:16px; color:#0B1C33; display:block;">คำนวณยอดผ่อนต่อเดือน</strong>
-              <small style="color:#64748B; font-size:11.5px;">ประเมินวงเงินและค่างวดอัตโนมัติ</small>
+              <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('คำนวณยอดผ่อนต่อเดือน', 'Monthly Payment Calculator')) ?></strong>
+              <small style="color:#64748B; font-size:11.5px;"><?= e(t('ประเมินวงเงินและค่างวดอัตโนมัติ', 'Automated loan amount and monthly estimates')) ?></small>
             </div>
           </div>
           <span style="font-size:11px; font-weight:800; color:#15803d; background:#ecfdf5; padding:3px 8px; border-radius:6px;">LIVE CALC</span>
@@ -1018,47 +1036,47 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div>
             <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
-              <span>ราคาอสังหาริมทรัพย์:</span>
-              <strong style="color:#0B1C33; font-size:15px;" id="calcPriceDisplay">3,000,000 บาท</strong>
+              <span><?= e(t('ราคาอสังหาริมทรัพย์:', 'Property price:')) ?></span>
+              <strong style="color:#0B1C33; font-size:15px;" id="calcPriceDisplay">3,000,000 <?= e(t('บาท', 'THB')) ?></strong>
             </div>
             <input type="range" id="calcPriceRange" min="500000" max="25000000" step="100000" value="3000000" style="width:100%; accent-color:#C5A059; cursor:pointer;">
             <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8; margin-top:2px;">
-              <span>5 แสน</span>
-              <span>10 ล้าน</span>
-              <span>25 ล้าน</span>
+              <span><?= e(t('5 แสน', '500K')) ?></span>
+              <span><?= e(t('10 ล้าน', '10M')) ?></span>
+              <span><?= e(t('25 ล้าน', '25M')) ?></span>
             </div>
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
             <div>
-              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">เงินดาวน์ (%)</label>
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('เงินดาวน์ (%)', 'Down payment (%)')) ?></label>
               <select id="calcDownPercent" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff;">
-                <option value="0">0% (กู้เต็ม 100%)</option>
-                <option value="10" selected>10% (300,000 บ.)</option>
-                <option value="15">15% (450,000 บ.)</option>
-                <option value="20">20% (600,000 บ.)</option>
+                <option value="0"><?= e(t('0% (กู้เต็ม 100%)', '0% (100% Loan)')) ?></option>
+                <option value="10" selected><?= e(t('10% (300,000 บ.)', '10% (300K THB)')) ?></option>
+                <option value="15"><?= e(t('15% (450,000 บ.)', '15% (450K THB)')) ?></option>
+                <option value="20"><?= e(t('20% (600,000 บ.)', '20% (600K THB)')) ?></option>
               </select>
             </div>
             <div>
-              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;">ระยะเวลากู้ (ปี)</label>
+              <label style="display:block; font-size:12px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('ระยะเวลากู้ (ปี)', 'Loan term (years)')) ?></label>
               <select id="calcYears" style="width:100%; padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff;">
-                <option value="15">15 ปี</option>
-                <option value="20">20 ปี</option>
-                <option value="25">25 ปี</option>
-                <option value="30" selected>30 ปี</option>
-                <option value="35">35 ปี</option>
+                <option value="15">15 <?= e(t('ปี', 'Years')) ?></option>
+                <option value="20">20 <?= e(t('ปี', 'Years')) ?></option>
+                <option value="25">25 <?= e(t('ปี', 'Years')) ?></option>
+                <option value="30" selected>30 <?= e(t('ปี', 'Years')) ?></option>
+                <option value="35">35 <?= e(t('ปี', 'Years')) ?></option>
               </select>
             </div>
           </div>
 
           <div style="background:linear-gradient(135deg, #0B1C33, #152c4d); border-radius:14px; padding:18px; color:#fff; text-align:center;">
-            <span style="font-size:12px; color:#cbd5e1; letter-spacing:0.04em;">ประมาณการยอดผ่อนต่อเดือน</span>
-            <div style="font-size:28px; font-weight:900; color:#C5A059; margin:4px 0 2px;" id="calcMonthlyResult">฿14,489</div>
-            <small style="font-size:11px; color:#94a3b8;">*คำนวณที่อัตราดอกเบี้ยเฉลี่ย 5.0% ต่อปี (ยอดจริงขึ้นกับสถาบันการเงิน)</small>
+            <span style="font-size:12px; color:#cbd5e1; letter-spacing:0.04em;"><?= e(t('ประมาณการยอดผ่อนต่อเดือน', 'Estimated monthly payment')) ?></span>
+            <div style="font-size:28px; font-weight:900; color:#C5A059; margin:4px 0 2px;" id="calcMonthlyResult"><?= e(t('฿', 'THB ')) ?>14,489</div>
+            <small style="font-size:11px; color:#94a3b8;"><?= e(t('*คำนวณที่อัตราดอกเบี้ยเฉลี่ย 5.0% ต่อปี (ยอดจริงขึ้นกับสถาบันการเงิน)', '*Calculated at an estimated 5.0% interest rate per year')) ?></small>
           </div>
           
           <a href="search.php?type=sale" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; background:#f1f5f9; color:#0B1C33; font-weight:700; font-size:13px; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#0B1C33';this.style.color='#fff'" onmouseout="this.style.background='#f1f5f9';this.style.color='#0B1C33'">
-            <span>ค้นหาทรัพย์ในงบนี้</span> <span>›</span>
+            <span><?= e(t('ค้นหาทรัพย์ในงบนี้', 'Find properties in this budget')) ?></span> <span>›</span>
           </a>
         </div>
       </div>
@@ -1069,8 +1087,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(21,128,61,.12); color:#15803d; font-size:20px;">📈</span>
             <div>
-              <strong style="font-size:16px; color:#0B1C33; display:block;">เครื่องมือประเมินผลตอบแทน (Rental Yield)</strong>
-              <small style="color:#64748B; font-size:11.5px;">วิเคราะห์ความคุ้มค่าก่อนซื้อลงทุน</small>
+              <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('เครื่องมือประเมินผลตอบแทน (Rental Yield)', 'Rental Yield Calculator')) ?></strong>
+              <small style="color:#64748B; font-size:11.5px;"><?= e(t('วิเคราะห์ความคุ้มค่าก่อนซื้อลงทุน', 'Analyze investment return before buying')) ?></small>
             </div>
           </div>
           <span style="font-size:11px; font-weight:800; color:#8C6B32; background:rgba(197,160,89,.15); padding:3px 8px; border-radius:6px;">INVESTOR</span>
@@ -1078,18 +1096,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;">ราคาซื้ออสังหาริมทรัพย์ (บาท)</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('ราคาซื้ออสังหาริมทรัพย์ (บาท)', 'Property purchase price (THB)')) ?></label>
             <input type="number" id="yieldBuyPrice" value="2800000" step="50000" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
           </div>
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;">ค่าเช่าที่คาดว่าจะได้รับ (บาท/เดือน)</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('ค่าเช่าที่คาดว่าจะได้รับ (บาท/เดือน)', 'Expected rental income (THB/month)')) ?></label>
             <input type="number" id="yieldRentPrice" value="14000" step="500" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:2px;">
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px; text-align:center;">
-              <small style="color:#64748B; font-size:11px; display:block;">รายรับค่าเช่าต่อปี</small>
-              <strong style="font-size:18px; color:#0B1C33; display:block; margin-top:3px;" id="yieldAnnualRent">฿168,000</strong>
+              <small style="color:#64748B; font-size:11px; display:block;"><?= e(t('รายรับค่าเช่าต่อปี', 'Annual rental income')) ?></small>
+              <strong style="font-size:18px; color:#0B1C33; display:block; margin-top:3px;" id="yieldAnnualRent"><?= e(t('฿', 'THB ')) ?>168,000</strong>
             </div>
             <div style="background:rgba(197,160,89,.1); border:1px solid rgba(197,160,89,.3); border-radius:12px; padding:14px; text-align:center;">
               <small style="color:#8C6B32; font-size:11px; font-weight:700; display:block;">Gross Rental Yield</small>
@@ -1098,11 +1116,11 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
           </div>
 
           <div style="font-size:12px; color:#475569; line-height:1.5; background:#fafafa; border-radius:8px; padding:8px 12px;">
-            💡 <strong>คำแนะนำนักลงทุน:</strong> Yield ระดับ 5% - 7% ถือเป็นเกณฑ์ที่ดีมากสำหรับคอนโดย่าน CBD และแนวรถไฟฟ้า
+            💡 <strong><?= e(t('คำแนะนำนักลงทุน:', 'Investor Tip:')) ?></strong> <?= e(t('Yield ระดับ 5% - 7% ถือเป็นเกณฑ์ที่ดีมากสำหรับคอนโดย่าน CBD และแนวรถไฟฟ้า', 'A 5% - 7% yield is considered excellent for CBD and transit-oriented condos.')) ?>
           </div>
 
           <a href="category.php?page=condo" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; background:#0B1C33; color:#fff; font-weight:700; font-size:13px; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059';this.style.color='#0B1C33'" onmouseout="this.style.background='#0B1C33';this.style.color='#fff'">
-            <span>ดูคอนโดทำเลน่าลงทุน Yield สูง</span> <span>›</span>
+            <span><?= e(t('ดูคอนโดทำเลน่าลงทุน Yield สูง', 'Explore high-yield investment condos')) ?></span> <span>›</span>
           </a>
         </div>
       </div>
@@ -1113,8 +1131,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(121,85,217,.12); color:#7955d9; font-size:20px;">🧭</span>
             <div>
-              <strong style="font-size:16px; color:#0B1C33; display:block;">ค้นหาอสังหาฯ ใน 10 วินาที</strong>
-              <small style="color:#64748B; font-size:11.5px;">ระบบจับคู่ทำเลและประเภทที่ตรงใจคุณ</small>
+              <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('ค้นหาอสังหาฯ ใน 10 วินาที', 'Find Properties in 10 Seconds')) ?></strong>
+              <small style="color:#64748B; font-size:11.5px;"><?= e(t('ระบบจับคู่ทำเลและประเภทที่ตรงใจคุณ', 'Smart matching for locations and property types')) ?></small>
             </div>
           </div>
           <span style="font-size:11px; font-weight:800; color:#7955d9; background:#f5f3ff; padding:3px 8px; border-radius:6px;">SMART MATCH</span>
@@ -1122,36 +1140,36 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
         <div style="display:flex; flex-direction:column; gap:12px;" id="quizContainer">
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">1. จุดประสงค์หลักของคุณ:</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;"><?= e(t('1. จุดประสงค์หลักของคุณ:', '1. Primary goal:')) ?></label>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-              <button type="button" class="quiz-btn active" data-type="sale" onclick="selectQuizOption(this, 'type')">ซื้อเพื่ออยู่อาศัย</button>
-              <button type="button" class="quiz-btn" data-type="rent" onclick="selectQuizOption(this, 'type')">เช่าระยะยาว</button>
+              <button type="button" class="quiz-btn active" data-type="sale" onclick="selectQuizOption(this, 'type')"><?= e(t('ซื้อเพื่ออยู่อาศัย', 'Buy for living')) ?></button>
+              <button type="button" class="quiz-btn" data-type="rent" onclick="selectQuizOption(this, 'type')"><?= e(t('เช่าระยะยาว', 'Long-term rent')) ?></button>
             </div>
           </div>
 
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">2. ประเภทที่ต้องการ:</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;"><?= e(t('2. ประเภทที่ต้องการ:', '2. Preferred type:')) ?></label>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-              <button type="button" class="quiz-btn active" data-cat="condo" onclick="selectQuizOption(this, 'cat')">🏢 คอนโด</button>
-              <button type="button" class="quiz-btn" data-cat="house" onclick="selectQuizOption(this, 'cat')">🏠 บ้าน</button>
-              <button type="button" class="quiz-btn" data-cat="townhouse" onclick="selectQuizOption(this, 'cat')">🏘️ ทาวน์โฮม</button>
+              <button type="button" class="quiz-btn active" data-cat="condo" onclick="selectQuizOption(this, 'cat')">🏢 <?= e(t('คอนโด', 'Condo')) ?></button>
+              <button type="button" class="quiz-btn" data-cat="house" onclick="selectQuizOption(this, 'cat')">🏠 <?= e(t('บ้าน', 'House')) ?></button>
+              <button type="button" class="quiz-btn" data-cat="townhouse" onclick="selectQuizOption(this, 'cat')">🏘️ <?= e(t('ทาวน์โฮม', 'Townhouse')) ?></button>
             </div>
           </div>
 
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;">3. สไตล์ทำเลที่ชอบ:</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;"><?= e(t('3. สไตล์ทำเลที่ชอบ:', '3. Location style:')) ?></label>
             <select id="quizZoneSelect" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff; font-weight:600;">
-              <option value="สุขุมวิท">🚇 ติดรถไฟฟ้า BTS/MRT ใจกลางเมือง (สุขุมวิท/อโศก)</option>
-              <option value="สาทร">💼 ย่านธุรกิจและการเงิน (สาทร/สีลม)</option>
-              <option value="อารีย์">☕ ย่านคาเฟ่ ไลฟ์สไตล์ชิคๆ (อารีย์/พหลโยธิน)</option>
-              <option value="บางนา">🏡 บ้านเดี่ยวบรรยากาศเงียบสงบ (บางนา/ศรีนครินทร์)</option>
-              <option value="เชียงใหม่">🌄 ต่างจังหวัดบรรยากาศร่มรื่น (เชียงใหม่)</option>
-              <option value="หัวหิน">🏖️ ตากอากาศติดชายหาด (หัวหิน/ชะอำ)</option>
+              <option value="สุขุมวิท">🚇 <?= e(t('ติดรถไฟฟ้า BTS/MRT ใจกลางเมือง (สุขุมวิท/อโศก)', 'Near BTS/MRT City Center (Sukhumvit/Asoke)')) ?></option>
+              <option value="สาทร">💼 <?= e(t('ย่านธุรกิจและการเงิน (สาทร/สีลม)', 'Business & Financial District (Sathorn/Silom)')) ?></option>
+              <option value="อารีย์">☕ <?= e(t('ย่านคาเฟ่ ไลฟ์สไตล์ชิคๆ (อารีย์/พหลโยธิน)', 'Chic Cafe & Lifestyle Hub (Ari/Phaholyothin)')) ?></option>
+              <option value="บางนา">🏡 <?= e(t('บ้านเดี่ยวบรรยากาศเงียบสงบ (บางนา/ศรีนครินทร์)', 'Quiet Residential Houses (Bangna/Srinakarin)')) ?></option>
+              <option value="เชียงใหม่">🌄 <?= e(t('ต่างจังหวัดบรรยากาศร่มรื่น (เชียงใหม่)', 'Scenic Northern Living (Chiang Mai)')) ?></option>
+              <option value="หัวหิน">🏖️ <?= e(t('ตากอากาศติดชายหาด (หัวหิน/ชะอำ)', 'Beachfront Getaways (Hua Hin/Cha-am)')) ?></option>
             </select>
           </div>
 
           <button type="button" onclick="goToMatchedProperties()" style="margin-top:4px; width:100%; padding:12px; border:0; border-radius:10px; background:linear-gradient(135deg, #C5A059, #A8843F); color:#0B1C33; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(197,160,89,.35); transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-            ⚡ แสดงทรัพย์ที่ตรงกับคุณทันที
+            ⚡ <?= e(t('แสดงทรัพย์ที่ตรงกับคุณทันที', 'Show Matching Properties Instantly')) ?>
           </button>
         </div>
       </div>
@@ -1207,7 +1225,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       // สูตรคำนวณ PMT: P * [ r(1+r)^n ] / [ (1+r)^n - 1 ]
       const factor = Math.pow(1 + monthlyRate, totalMonths);
       const monthlyPayment = loanAmount * (monthlyRate * factor) / (factor - 1);
-      result.textContent = '฿' + Math.round(monthlyPayment).toLocaleString('th-TH');
+      const currSym = <?= json_encode(t('฿', 'THB ')) ?>;
+      result.textContent = currSym + Math.round(monthlyPayment).toLocaleString('th-TH');
     }
 
     if (range) {
@@ -1231,7 +1250,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       const annualRent = rentPrice * 12;
       const yieldPct = (annualRent / buyPrice) * 100;
 
-      annualDisplay.textContent = '฿' + Math.round(annualRent).toLocaleString('th-TH');
+      const currSym = <?= json_encode(t('฿', 'THB ')) ?>;
+      annualDisplay.textContent = currSym + Math.round(annualRent).toLocaleString('th-TH');
       yieldDisplay.textContent = yieldPct.toFixed(2) + '%';
     }
 
@@ -1264,10 +1284,10 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <!-- Footer -->
 <?php
 render_page_cta([
-    'title'   => 'พร้อมประกาศขายหรือให้เช่าแล้วหรือยัง?',
-    'text'    => 'ลงประกาศฟรีบน ' . SITE_NAME . ' เข้าถึงผู้ซื้อและผู้เช่าทั่วไทย พร้อมเครื่องมือคำนวณเงินผ่อนและแผนที่ครบมือ',
-    'primary' => ['submit.php', 'ลงประกาศฟรี'],
-    'ghost'   => ['search.php', 'เริ่มค้นหาทรัพย์'],
+    'title'   => t('พร้อมประกาศขายหรือให้เช่าแล้วหรือยัง?', 'Ready to sell or rent out your property?'),
+    'text'    => t('ลงประกาศฟรีบน ' . SITE_NAME . ' เข้าถึงผู้ซื้อและผู้เช่าทั่วไทย พร้อมเครื่องมือคำนวณเงินผ่อนและแผนที่ครบมือ', 'Post for free on ' . SITE_NAME . ' and reach buyers and renters across Thailand, with mortgage calculator and maps included.'),
+    'primary' => ['submit.php', t('ลงประกาศฟรี', 'Post a free listing')],
+    'ghost'   => ['search.php', t('เริ่มค้นหาทรัพย์', 'Start searching properties')],
 ]);
 render_to_top(); render_ux_scripts();
 render_banner_slot('home_footer_above', 'compact');
@@ -1312,6 +1332,16 @@ render_site_footer(); ?>
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') closeDrawer();
   });
+
+  // Dynamic navbar scroll state (transparent at top, dark navy when scrolled)
+  const ddNavbar = document.querySelector('.dd-navbar');
+  if (ddNavbar) {
+    const onScroll = () => {
+      ddNavbar.classList.toggle('scrolled', window.scrollY > 20);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
 </script>
 <script src="js/app.js?v=<?= time() ?>"></script>
 </body>

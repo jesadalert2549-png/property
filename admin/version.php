@@ -7,19 +7,21 @@ $message = '';
 $errors = [];
 
 // ฟังก์ชันบันทึกเวอร์ชันและเคลียร์แคชในหน่วยความจำทันที
-function save_system_version(string $versionFile, string $newVersion): bool
-{
-    $payload = json_encode([
-        'version'    => $newVersion,
-        'updated_at' => date('Y-m-d H:i:s'),
-        'updated_by' => $_SESSION['username'] ?? 'admin',
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+if (!function_exists('save_system_version')) {
+    function save_system_version(string $versionFile, string $newVersion): bool
+    {
+        $payload = json_encode([
+            'version'    => $newVersion,
+            'updated_at' => date('Y-m-d H:i:s'),
+            'updated_by' => $_SESSION['username'] ?? 'admin',
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-    $ok = @file_put_contents($versionFile, $payload) !== false;
-    if ($ok && function_exists('current_site_version')) {
-        current_site_version(true);
+        $ok = @file_put_contents($versionFile, $payload) !== false;
+        if ($ok && function_exists('current_site_version')) {
+            current_site_version(true);
+        }
+        return $ok;
     }
-    return $ok;
 }
 
 if (request_is_post()) {
@@ -96,7 +98,7 @@ $token = csrf_token();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการเวอร์ชันระบบ | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('จัดการเวอร์ชันระบบ', 'Manage System Version')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -155,8 +157,8 @@ $token = csrf_token();
   <div class="version-hero">
     <div>
       <span class="eyebrow">SYSTEM BUILD CONTROL</span>
-      <h1>จัดการเวอร์ชันระบบ</h1>
-      <p style="margin:0;color:rgba(255,255,255,.75);font-size:13.5px;">เปลี่ยนเวอร์ชันแล้ว footer ทุกหน้าของเว็บไซต์ + แดชบอร์ดสมาชิก + หลังบ้านจะอัปเดตทันที</p>
+      <h1><?= e(t('จัดการเวอร์ชันระบบ', 'Manage System Version')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.75);font-size:13.5px;"><?= e(t('เปลี่ยนเวอร์ชันแล้ว footer ทุกหน้าของเว็บไซต์ + แดชบอร์ดสมาชิก + หลังบ้านจะอัปเดตทันที', 'Updating version stamps immediately syncs across all footers, dashboards, and admin.')) ?></p>
     </div>
     <div class="version-badge"><span class="dot"></span><strong><?= e($current) ?></strong></div>
   </div>
@@ -165,8 +167,8 @@ $token = csrf_token();
   <?php foreach ($errors as $err): ?><div class="alert-err">⚠️ <?= e($err) ?></div><?php endforeach; ?>
 
   <section class="v-card">
-    <h2>🎛️ ปรับตัวเลขเวอร์ชัน (อิสระทุกช่อง)</h2>
-    <p class="intro">ใส่แค่ตัวเลขลงในแต่ละช่องได้โดยตรง หรือกดปุ่ม ＋ / − เพื่อปรับทีละช่องได้อย่างอิสระโดยไม่กระทบช่องอื่น</p>
+    <h2>🎛️ <?= e(t('ปรับตัวเลขเวอร์ชัน (อิสระทุกช่อง)', 'Adjust Version Numbers (Independent Fields)')) ?></h2>
+    <p class="intro"><?= e(t('ใส่แค่ตัวเลขลงในแต่ละช่องได้โดยตรง หรือกดปุ่ม ＋ / − เพื่อปรับทีละช่องได้อย่างอิสระโดยไม่กระทบช่องอื่น', 'Enter numbers directly or use the ＋ / − stepper buttons.')) ?></p>
 
     <form method="post">
       <input type="hidden" name="csrf" value="<?= e($token) ?>">
@@ -208,11 +210,11 @@ $token = csrf_token();
         </div>
       </div>
 
-      <button type="submit" class="btn-save-main">💾 บันทึกเวอร์ชันนี้</button>
+      <button type="submit" class="btn-save-main">💾 <?= e(t('บันทึกเวอร์ชันนี้', 'Save Version')) ?></button>
     </form>
 
     <!-- Quick 1-Click Bumps -->
-    <div class="quick-bumps-title">⚡ หรือกดปุ่มลัด (เพิ่ม / ลด ทันทีในคลิกเดียว):</div>
+    <div class="quick-bumps-title">⚡ <?= e(t('หรือกดปุ่มลัด (เพิ่ม / ลด ทันทีในคลิกเดียว):', 'Or quick 1-click bumps:')) ?></div>
     <div class="quick-bumps-row">
       <form method="post" style="display:inline">
         <input type="hidden" name="csrf" value="<?= e($token) ?>">

@@ -129,7 +129,7 @@
 .seo-footer-about h2,
 .seo-footer-group h2 {
   color: #ffffff !important;
-  font-family: var(--font, 'Prompt', sans-serif);
+  font-family: var(--font, "Fenice Std", "Noto Serif Thai", sans-serif);
   letter-spacing: 0.5px;
 }
 .seo-footer-about p {
@@ -217,7 +217,7 @@
   gap: 12px;
 }
 .dashboard-footer-logo-text {
-  font-family: var(--font, 'Prompt', sans-serif);
+  font-family: var(--font, "Fenice Std", "Noto Serif Thai", sans-serif);
   font-size: 15px;
   font-weight: 800;
   color: #0B1C33;

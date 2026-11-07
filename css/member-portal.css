@@ -22,7 +22,7 @@ body.member-portal-body {
   margin: 0;
   background: var(--portal-bg);
   color: var(--portal-text);
-  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif;
+  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif;
   min-height: 100vh;
   padding-top: var(--portal-nav-h);
 }
@@ -359,8 +359,8 @@ body.member-portal-body {
   padding: 2px;
 }
 .portal-navbar .kasa-logo-img {
-  height: 40px;
-  max-width: 170px;
+  height: 48px;
+  max-width: 200px;
 }
 
 /* ── Force legacy site-header/logo rules off inside the portal ── */
@@ -772,4 +772,42 @@ html {
 }
 body.member-portal-body {
   touch-action: pan-x pan-y pinch-zoom;
+}
+
+
+/* Portal responsive guardrails for narrow phones and long user-generated content. */
+html { width:100%; max-width:100%; overflow-x:clip; }
+body.member-portal-body { width:100%; min-width:320px; max-width:100%; overflow-wrap:anywhere; }
+.portal-navbar, .portal-nav-left, .portal-nav-actions, .portal-workspace, .portal-hero,
+.portal-section-card, .portal-section-header, .portal-post-grid, .portal-form-grid { min-width:0; }
+.portal-workspace { width:auto; max-width:calc(100% - var(--portal-sidebar-w)); }
+.portal-post-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr)); }
+.portal-section-card, .portal-stat-card, .portal-post-item { overflow-wrap:anywhere; }
+.portal-form-grid > *, .portal-stats-grid > *, .portal-post-grid > * { min-width:0; }
+.portal-form-grid input, .portal-form-grid select, .portal-form-grid textarea, .portal-form-grid button { width:100%; max-width:100%; }
+@media (max-width:960px) {
+  .portal-workspace { width:100%; max-width:100%; }
+  .portal-navbar { padding-right:14px; padding-left:14px; }
+  .portal-nav-left { flex:1 1 auto; min-width:0; }
+  .portal-nav-actions { min-width:0; gap:8px; }
+  .portal-user-chip { max-width:42vw; overflow:hidden; }
+  .portal-user-chip > span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .portal-sidebar { max-width:calc(100vw - 48px); padding-bottom:max(22px,env(safe-area-inset-bottom)); }
+  .portal-post-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:560px) {
+  .portal-workspace { padding:16px 12px calc(32px + env(safe-area-inset-bottom)); }
+  .portal-navbar { padding-right:10px; padding-left:10px; }
+  .portal-nav-actions { gap:6px; }
+  .portal-btn-post { min-height:40px; padding:8px 12px; font-size:12px; }
+  .portal-user-chip { max-width:34vw; padding-right:8px; font-size:12px; }
+  .portal-hero-actions { align-items:stretch; flex-direction:column; }
+  .portal-section-card { padding:18px 14px; }
+  .portal-post-grid { grid-template-columns:minmax(0,1fr); }
+  .portal-stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:360px) {
+  .portal-badge { display:none; }
+  .portal-stats-grid { grid-template-columns:minmax(0,1fr); }
+  .portal-mobile-toggle { width:38px; height:38px; flex:0 0 38px; }
 }

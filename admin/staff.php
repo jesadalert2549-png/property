@@ -264,7 +264,7 @@ $token = csrf_token();
           <small>a-z, 0-9, จุด, ขีด 4-50 ตัวอักษร</small>
         </label>
         <label class="field">อีเมลทีมงาน
-          <input type="email" name="email" value="<?= e($editing['email'] ?? '') ?>" required placeholder="staff@kasa.co">
+          <input type="email" name="email" value="<?= e($editing['email'] ?? '') ?>" required placeholder="staff@propertygo.co">
         </label>
         <label class="field">ชื่อ-นามสกุล
           <input type="text" name="full_name" value="<?= e($editing['full_name'] ?? '') ?>" required maxlength="120" placeholder="เช่น สมชาย ใจดี">

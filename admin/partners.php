@@ -155,7 +155,7 @@ $token = csrf_token();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการหุ้นส่วนและผู้จัดการ (Executive Management) | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('จัดการหุ้นส่วนและผู้จัดการ', 'Executive Management')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -220,28 +220,28 @@ $token = csrf_token();
   <div class="partner-hero">
     <div>
       <span class="eyebrow">FOUNDER &amp; CEO · EXECUTIVE ACCESS CONTROL</span>
-      <h1>👑 จัดการบัญชีหุ้นส่วน &amp; ผู้จัดการ</h1>
-      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">กำหนดตำแหน่งงานและเลือกเปิดสิทธิ์การเข้าใช้งานระบบให้หุ้นส่วนหรือผู้จัดการแต่ละท่านได้อย่างอิสระ</p>
+      <h1>👑 <?= e(t('จัดการบัญชีหุ้นส่วน & ผู้จัดการ', 'Executive Partner & Manager Accounts')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;"><?= e(t('กำหนดตำแหน่งงานและเลือกเปิดสิทธิ์การเข้าใช้งานระบบให้หุ้นส่วนหรือผู้จัดการแต่ละท่านได้อย่างอิสระ', 'Assign executive roles and configure module permissions for each partner or manager.')) ?></p>
     </div>
-    <span class="partner-badge-top">👑 บัญชีสูงสุด: Founder &amp; CEO</span>
+    <span class="partner-badge-top">👑 <?= e(t('บัญชีสูงสุด: Founder & CEO', 'Master Account: Founder & CEO')) ?></span>
   </div>
 
   <?php if ($message): ?><div class="alert-ok">✅ <?= e($message) ?></div><?php endif; ?>
   <?php foreach ($errors as $err): ?><div class="alert-err">⚠️ <?= e($err) ?></div><?php endforeach; ?>
 
   <div class="stat-row">
-    <div class="stat-box"><small>หุ้นส่วน/ผู้จัดการทั้งหมด</small><strong><?= count($teamList) ?></strong></div>
-    <div class="stat-box"><small>เปิดใช้งานอยู่</small><strong style="color:#04A747;"><?= $activeCount ?></strong></div>
-    <div class="stat-box"><small>ระงับชั่วคราว</small><strong style="color:#ae3333;"><?= $suspendedCount ?></strong></div>
+    <div class="stat-box"><small><?= e(t('หุ้นส่วน/ผู้จัดการทั้งหมด', 'Total Executives')) ?></small><strong><?= count($teamList) ?></strong></div>
+    <div class="stat-box"><small><?= e(t('เปิดใช้งานอยู่', 'Active')) ?></small><strong style="color:#04A747;"><?= $activeCount ?></strong></div>
+    <div class="stat-box"><small><?= e(t('ระงับชั่วคราว', 'Suspended')) ?></small><strong style="color:#ae3333;"><?= $suspendedCount ?></strong></div>
   </div>
 
   <!-- ฟอร์มเพิ่ม / แก้ไขบัญชีหุ้นส่วนและผู้จัดการ -->
   <section class="partner-card">
-    <h2><?= $editing ? '✏️ แก้ไขข้อมูลและสิทธิ์: ' . e($editing['full_name'] ?: $editing['username']) : '➕ เพิ่มบัญชีหุ้นส่วน / ผู้จัดการใหม่' ?></h2>
+    <h2><?= $editing ? e(t('✏️ แก้ไขข้อมูลและสิทธิ์: ', '✏️ Edit Partner: ')) . e($editing['full_name'] ?: $editing['username']) : e(t('➕ เพิ่มบัญชีหุ้นส่วน / ผู้จัดการใหม่', '➕ Add New Partner / Manager')) ?></h2>
     <p class="intro">
       <?= $editing
-        ? 'ปรับปรุงตำแหน่ง สถานะการใช้งาน และติ๊กเลือกสิทธิ์ในแต่ละโมดูลที่ต้องการให้หุ้นส่วนหรือผู้จัดการท่านนี้เข้าถึงได้'
-        : 'สร้างบัญชีเข้าใช้งานระบบบริหารจัดการ โดยคุณ (Founder & CEO) จะเป็นผู้กำหนดตำแหน่งและเลือกสิทธิ์ได้เองอย่างอิสระ' ?>
+        ? e(t('ปรับปรุงตำแหน่ง สถานะการใช้งาน และติ๊กเลือกสิทธิ์ในแต่ละโมดูลที่ต้องการให้หุ้นส่วนหรือผู้จัดการท่านนี้เข้าถึงได้', 'Update executive role, status and permissions for this partner or manager.'))
+        : e(t('สร้างบัญชีเข้าใช้งานระบบบริหารจัดการ โดยคุณ (Founder & CEO) จะเป็นผู้กำหนดตำแหน่งและเลือกสิทธิ์ได้เองอย่างอิสระ', 'Create executive management accounts with customized roles and module permissions.')) ?>
     </p>
 
     <form method="post">
@@ -251,11 +251,11 @@ $token = csrf_token();
 
       <div class="grid2">
         <label class="field">ชื่อผู้ใช้สำหรับเข้าสู่ระบบ (Username)
-          <input type="text" name="username" value="<?= e($editing['username'] ?? '') ?>" <?= $editing ? 'readonly style="background:#F1F5F9;"' : 'required' ?> placeholder="เช่น partner.kasa หรือ gm.somchai">
+          <input type="text" name="username" value="<?= e($editing['username'] ?? '') ?>" <?= $editing ? 'readonly style="background:#F1F5F9;"' : 'required' ?> placeholder="เช่น partner.propertygo หรือ gm.somchai">
           <small>ใช้สำหรับเข้าสู่ระบบ</small>
         </label>
         <label class="field">อีเมล
-          <input type="email" name="email" value="<?= e($editing['email'] ?? '') ?>" required placeholder="partner@kasa.co">
+          <input type="email" name="email" value="<?= e($editing['email'] ?? '') ?>" required placeholder="partner@propertygo.co">
         </label>
         <label class="field">ชื่อ-นามสกุล / ชื่อผู้บริหาร
           <input type="text" name="full_name" value="<?= e($editing['full_name'] ?? '') ?>" required maxlength="120" placeholder="เช่น คุณวิชัย พัฒนพาณิชย์">

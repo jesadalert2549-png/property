@@ -163,7 +163,7 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการโครงการ | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('จัดการโครงการ', 'Manage Projects')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -175,19 +175,34 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
 <div class="wrap" style="margin-top:20px;">
   <div class="project-admin-grid">
     <section class="project-admin-card">
-      <h1><?= $projectId ? 'แก้ไขโครงการ' : 'เพิ่มโครงการใหม่' ?></h1>
-      <p class="muted">กรอกเฉพาะข้อมูลที่มี ช่องเสริมเว้นว่างได้ โครงการจะยังไม่แสดงหน้าเว็บจนกว่าจะเลือกเผยแพร่</p>
-      <?php if (isset($_GET['saved'])): ?><div class="project-save-message">บันทึกโครงการเรียบร้อยแล้ว</div><?php endif; ?>
+      <h1><?= $projectId ? e(t('แก้ไขโครงการ', 'Edit Project')) : e(t('เพิ่มโครงการใหม่', 'Add New Project')) ?></h1>
+      <p class="muted"><?= e(t('กรอกเฉพาะข้อมูลที่มี ช่องเสริมเว้นว่างได้ โครงการจะยังไม่แสดงหน้าเว็บจนกว่าจะเลือกเผยแพร่', 'Fill in available details. Optional fields can be left blank. Projects will not appear publicly until published.')) ?></p>
+      <?php if (isset($_GET['saved'])): ?><div class="project-save-message"><?= e(t('บันทึกโครงการเรียบร้อยแล้ว', 'Project saved successfully.')) ?></div><?php endif; ?>
       <?php if ($errors): ?><div class="alert error" role="alert"><?php foreach ($errors as $error): ?><div><?= e($error) ?></div><?php endforeach; ?></div><?php endif; ?>
       <form method="post" enctype="multipart/form-data" class="project-admin-form" id="projectForm">
         <input type="hidden" name="csrf" value="<?= e($token) ?>">
-        <?php foreach (['title'=>'ชื่อโครงการ *','developer'=>'ผู้พัฒนาโครงการ','category'=>'ประเภทโครงการ','project_status'=>'สถานะโครงการ','completion_year'=>'ปีที่คาดว่าจะแล้วเสร็จ','unit_count'=>'จำนวนยูนิต','price_from'=>'ราคาเริ่มต้น (บาท)','price_to'=>'ราคาสูงสุด (บาท)','location'=>'ทำเล *','address'=>'ที่อยู่ / จุดสังเกต','contact_name'=>'ชื่อผู้ติดต่อ','phone'=>'เบอร์โทรศัพท์','line_id'=>'LINE ID','map_url'=>'ลิงก์ Google Maps'] as $field=>$label): ?>
+        <?php foreach ([
+          'title' => t('ชื่อโครงการ *', 'Project Name *'),
+          'developer' => t('ผู้พัฒนาโครงการ', 'Developer'),
+          'category' => t('ประเภทโครงการ', 'Project Type'),
+          'project_status' => t('สถานะโครงการ', 'Project Status'),
+          'completion_year' => t('ปีที่คาดว่าจะแล้วเสร็จ', 'Estimated Completion Year'),
+          'unit_count' => t('จำนวนยูนิต', 'Unit Count'),
+          'price_from' => t('ราคาเริ่มต้น (บาท)', 'Starting Price (THB)'),
+          'price_to' => t('ราคาสูงสุด (บาท)', 'Maximum Price (THB)'),
+          'location' => t('ทำเล *', 'Location *'),
+          'address' => t('ที่อยู่ / จุดสังเกต', 'Address / Landmark'),
+          'contact_name' => t('ชื่อผู้ติดต่อ', 'Contact Name'),
+          'phone' => t('เบอร์โทรศัพท์', 'Phone Number'),
+          'line_id' => 'LINE ID',
+          'map_url' => t('ลิงก์ Google Maps', 'Google Maps Link')
+        ] as $field=>$label): ?>
           <label class="<?= in_array($field,['title','location','address','map_url'],true)?'wide':'' ?>"><?= e($label) ?><input name="<?= e($field) ?>" value="<?= e($project[$field] ?? '') ?>" <?= in_array($field,['title','location'],true)?'required':'' ?> <?= $field==='map_url'?'type="url"':'' ?>></label>
         <?php endforeach; ?>
-        <label class="wide">รายละเอียดโครงการ<textarea name="description" rows="6" placeholder="จุดเด่น แนวคิดโครงการ รูปแบบการอยู่อาศัย และข้อมูลที่ผู้สนใจควรรู้"><?= e($project['description']) ?></textarea></label>
-        <label class="wide">สิ่งอำนวยความสะดวก <span class="project-admin-hint">ใส่หนึ่งรายการต่อบรรทัด หรือคั่นด้วยจุลภาค</span><textarea name="amenities" placeholder="คลับเฮาส์&#10;สระว่ายน้ำ&#10;ระบบรักษาความปลอดภัย"><?= e($project['amenities']) ?></textarea></label>
-        <label class="wide">สถานที่ใกล้เคียง <span class="project-admin-hint">ใส่ชื่อสถานที่และระยะทางตามข้อมูลจริง</span><textarea name="nearby_places" placeholder="สถานีรถไฟฟ้า 800 เมตร&#10;โรงเรียน..."><?= e($project['nearby_places']) ?></textarea></label>
-        <div class="wide"><h2>แบบบ้าน / รูปแบบยูนิต</h2><p class="project-admin-hint">เพิ่มได้หลายแบบ กรอกเฉพาะข้อมูลที่มี</p>
+        <label class="wide"><?= e(t('รายละเอียดโครงการ', 'Project Description')) ?><textarea name="description" rows="6" placeholder="<?= e(t('จุดเด่น แนวคิดโครงการ รูปแบบการอยู่อาศัย และข้อมูลที่ผู้สนใจควรรู้', 'Project highlights, living concept, and key information.')) ?>"><?= e($project['description']) ?></textarea></label>
+        <label class="wide"><?= e(t('สิ่งอำนวยความสะดวก', 'Amenities')) ?> <span class="project-admin-hint"><?= e(t('ใส่หนึ่งรายการต่อบรรทัด หรือคั่นด้วยจุลภาค', 'One item per line or comma-separated')) ?></span><textarea name="amenities" placeholder="<?= e(t('คลับเฮาส์&#10;สระว่ายน้ำ&#10;ระบบรักษาความปลอดภัย', 'Clubhouse&#10;Swimming Pool&#10;Security System')) ?>"><?= e($project['amenities']) ?></textarea></label>
+        <label class="wide"><?= e(t('สถานที่ใกล้เคียง', 'Nearby Places')) ?> <span class="project-admin-hint"><?= e(t('ใส่ชื่อสถานที่และระยะทางตามข้อมูลจริง', 'Add nearby landmarks and distances')) ?></span><textarea name="nearby_places" placeholder="<?= e(t('สถานีรถไฟฟ้า 800 เมตร&#10;โรงเรียน...', 'BTS Station 800m&#10;School...')) ?>"><?= e($project['nearby_places']) ?></textarea></label>
+        <div class="wide"><h2><?= e(t('แบบบ้าน / รูปแบบยูนิต', 'House Designs / Unit Types')) ?></h2><p class="project-admin-hint"><?= e(t('เพิ่มได้หลายแบบ กรอกเฉพาะข้อมูลที่มี', 'You can add multiple unit types')) ?></p>
           <div id="projectUnits">
             <?php foreach ($units as $unit): ?>
               <div class="project-unit-admin"><div class="unit-fields">
@@ -209,16 +224,16 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
           <?php foreach ($images as $image): ?><img src="../uploads/<?= e($image['filename']) ?>" alt="รูปโครงการเดิม" loading="lazy"><?php endforeach; ?>
         </div>
         <?php if (($projectId > 0 && $canEditProjects) || ($projectId === 0 && $canCreateProjects)): ?>
-          <label class="project-publish-row wide"><input type="checkbox" name="is_published" value="1" <?= !empty($project['is_published'])?'checked':'' ?>> เผยแพร่หน้าโครงการ</label>
-          <div class="project-actions wide"><button type="submit">บันทึกโครงการ</button><a href="projects.php">เริ่มเพิ่มโครงการใหม่</a></div>
+          <label class="project-publish-row wide"><input type="checkbox" name="is_published" value="1" <?= !empty($project['is_published'])?'checked':'' ?>> <?= e(t('เผยแพร่หน้าโครงการ', 'Publish on project page')) ?></label>
+          <div class="project-actions wide"><button type="submit"><?= e(t('บันทึกโครงการ', 'Save Project')) ?></button><a href="projects.php"><?= e(t('เริ่มเพิ่มโครงการใหม่', 'Start New Project')) ?></a></div>
         <?php else: ?>
-          <div class="wide" style="font-size:13px;color:#64748B;font-style:italic;padding:12px;background:#F9F9FB;border-radius:10px;">👁 ดูข้อมูลโครงการได้อย่างเดียว (สิทธิ์สร้าง/แก้ไขโครงการสงวนไว้สำหรับผู้ที่ได้รับมอบหมายจาก Founder &amp; CEO)</div>
+          <div class="wide" style="font-size:13px;color:#64748B;font-style:italic;padding:12px;background:#F9F9FB;border-radius:10px;">👁 <?= e(t('ดูข้อมูลโครงการได้อย่างเดียว', 'View-only mode')) ?></div>
         <?php endif; ?>
       </form>
     </section>
-    <aside class="project-admin-card"><h2>โครงการทั้งหมด</h2><div class="project-admin-list">
-      <?php if (!$allProjects): ?><p class="muted">ยังไม่มีโครงการ</p><?php endif; ?>
-      <?php foreach ($allProjects as $row): ?><a href="projects.php?id=<?= (int)$row['id'] ?>"><strong><?= e($row['title']) ?></strong><small><?= e($row['location']) ?> · <?= !empty($row['is_published'])?'เผยแพร่แล้ว':'ฉบับร่าง' ?></small></a><?php endforeach; ?>
+    <aside class="project-admin-card"><h2><?= e(t('โครงการทั้งหมด', 'All Projects')) ?></h2><div class="project-admin-list">
+      <?php if (!$allProjects): ?><p class="muted"><?= e(t('ยังไม่มีโครงการ', 'No projects yet')) ?></p><?php endif; ?>
+      <?php foreach ($allProjects as $row): ?><a href="projects.php?id=<?= (int)$row['id'] ?>"><strong><?= e($row['title']) ?></strong><small><?= e($row['location']) ?> · <?= !empty($row['is_published']) ? e(t('เผยแพร่แล้ว', 'Published')) : e(t('ฉบับร่าง', 'Draft')) ?></small></a><?php endforeach; ?>
     </div></aside>
   </div>
 </div>

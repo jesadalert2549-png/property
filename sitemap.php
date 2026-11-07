@@ -76,8 +76,25 @@ $pageDescription = is_en() ? 'Links to main pages, property categories and publi
         <li><a href="category.php?page=<?= e(rawurlencode((string)$saleSlug)) ?>"><?= e(t('ขาย ', 'For sale: ') . category_label_bi($category)) ?></a></li>
         <li><a href="category.php?page=<?= e(rawurlencode((string)$rentSlug)) ?>"><?= e(t('เช่า ', 'For rent: ') . category_label_bi($category)) ?></a></li>
       <?php endforeach; ?>
-      <?php foreach (SEO_CATEGORIES as $slug => $config): ?>
-        <li><a href="<?= e(category_url($slug)) ?>"><?= e($config['h1']) ?></a></li>
+      <?php
+      $zoneEnMap = [
+          'สุขุมวิท' => 'Sukhumvit',
+          'ลาดพร้าว' => 'Lat Phrao',
+          'รามอินทรา' => 'Ram Inthra',
+          'รัชดา' => 'Ratchada',
+          'เชียงใหม่' => 'Chiang Mai',
+      ];
+      foreach (SEO_CATEGORIES as $slug => $config):
+        $catEn = property_category_en_label($config['category'] ?? '') ?? 'Properties';
+        $typeEn = ($config['type'] ?? '') === 'rent' ? 'for Rent' : 'for Sale';
+        $extraEn = !empty($config['max_price']) ? ' under ' . number_format((int)$config['max_price'] / 1000000) . 'M' : '';
+        if (!empty($config['q'])) {
+          $qEn = $zoneEnMap[$config['q']] ?? $config['q'];
+          $extraEn .= ' in ' . $qEn;
+        }
+        $seoTitle = is_en() ? ($catEn . ' ' . $typeEn . $extraEn) : $config['h1'];
+      ?>
+        <li><a href="<?= e(category_url($slug)) ?>"><?= e($seoTitle) ?></a></li>
       <?php endforeach; ?>
     </ul>
   </section>
@@ -116,10 +133,10 @@ $pageDescription = is_en() ? 'Links to main pages, property categories and publi
 
 <?php
 render_page_cta([
-    'title'   => 'หาลิงก์ไม่เจอ? แผนผังนี้มีครบทุกหน้า',
-    'text'    => 'รวมทุกหมวด ทุกประกาศ และทุกบริการของ ' . SITE_NAME . ' ไว้ในหน้าเดียว',
-    'primary' => ['submit.php', 'ลงประกาศฟรี'],
-    'ghost'   => ['index.php', 'กลับหน้าแรก'],
+    'title'   => t('หาลิงก์ไม่เจอ? แผนผังนี้มีครบทุกหน้า', "Can't find a link? This sitemap covers all pages"),
+    'text'    => t('รวมทุกหมวด ทุกประกาศ และทุกบริการของ ' . SITE_NAME . ' ไว้ในหน้าเดียว', 'All categories, listings and services of ' . SITE_NAME . ' in one place.'),
+    'primary' => ['submit.php', t('ลงประกาศฟรี', 'Post a free listing')],
+    'ghost'   => ['index.php', t('กลับหน้าแรก', 'Back to home')],
 ]);
 render_to_top();
 render_ux_scripts();

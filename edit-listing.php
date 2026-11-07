@@ -37,7 +37,7 @@ if (request_is_post()) {
     $errorMessages = array_merge($inputErrors, listing_completeness_errors($data, $_POST));
     $status = (string)($_POST['status'] ?? 'available');
     if (!in_array($status, ['available', 'done'], true)) {
-        $errorMessages[] = 'สถานะประกาศไม่ถูกต้อง';
+        $errorMessages[] = t('สถานะประกาศไม่ถูกต้อง', 'Invalid listing status.');
         $status = (string)$property['status'];
     }
 
@@ -135,8 +135,8 @@ if (request_is_post()) {
 
                 foreach ($deletedImages as $filename) delete_image_file($filename);
                 $_SESSION['listing_edit_notice'] = $approval === 'pending'
-                    ? 'บันทึกการแก้ไขแล้ว ส่งประกาศกลับไปให้ผู้ดูแลตรวจสอบ'
-                    : 'บันทึกการแก้ไขประกาศเรียบร้อยแล้ว';
+                    ? t('บันทึกการแก้ไขแล้ว ส่งประกาศกลับไปให้ผู้ดูแลตรวจสอบ', 'Changes saved and sent for administrator review.')
+                    : t('บันทึกการแก้ไขประกาศเรียบร้อยแล้ว', 'Listing changes saved successfully.');
                 redirect('edit-listing.php?id=' . $id . '&saved=1');
             }
         } catch (Throwable $exception) {

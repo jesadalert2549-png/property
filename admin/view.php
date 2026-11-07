@@ -10,7 +10,7 @@ $stmt->execute([$id]);
 $property = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$property) {
-    die('ไม่พบรายการประกาศนี้ในระบบ');
+    die(t('ไม่พบรายการประกาศนี้ในระบบ', 'Listing not found in the system'));
 }
 
 $img_stmt = $pdo->prepare("SELECT filename FROM property_images WHERE property_id = ? ORDER BY sort_order, id");
@@ -22,7 +22,7 @@ $images = $img_stmt->fetchAll(PDO::FETCH_COLUMN);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>รายละเอียดประกาศ #<?= (int)$property['id'] ?> | Admin</title>
+  <title><?= e(t('รายละเอียดประกาศ #', 'Listing Details #')) . (int)$property['id'] ?> | Admin</title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -39,35 +39,35 @@ $images = $img_stmt->fetchAll(PDO::FETCH_COLUMN);
   <div class="view-page-box">
     
     <div class="view-page-top">
-      <h1>📄 รายละเอียดประกาศ #<?= (int)$property['id'] ?></h1>
+      <h1>📄 <?= e(t('รายละเอียดประกาศ #', 'Listing Details #')) . (int)$property['id'] ?></h1>
       <div style="display: flex; gap: 8px; align-items: center;">
-        <a href="index.php" class="btn-action btn-gray">← กลับหน้ารายการ</a>
+        <a href="index.php" class="btn-action btn-gray"><?= e(t('← กลับหน้ารายการ', '← Back to Listings')) ?></a>
         <?php if ($property['approval'] === 'pending'): ?>
-          <a href="index.php?action=approve&id=<?= (int)$property['id'] ?>" class="btn-action btn-green">✅ อนุมัติประกาศนี้</a>
+          <a href="index.php?action=approve&id=<?= (int)$property['id'] ?>" class="btn-action btn-green">✅ <?= e(t('อนุมัติประกาศนี้', 'Approve Listing')) ?></a>
         <?php else: ?>
-          <span class="tag <?= $property['approval'] === 'approved' ? 'approved' : 'rejected' ?>">สถานะ: <?= e($property['approval']) ?></span>
+          <span class="tag <?= $property['approval'] === 'approved' ? 'approved' : 'rejected' ?>"><?= e(t('สถานะ: ', 'Status: ')) . e($property['approval']) ?></span>
         <?php endif; ?>
       </div>
     </div>
 
     <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
-      <tr><td style="padding: 8px; font-weight: bold; width: 140px; color: #64748b;">หัวข้อประกาศ:</td><td style="padding: 8px; font-size: 18px; font-weight: bold; color: #2b2150;"><?= e($property['title']) ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">ประเภท / หมวดหมู่:</td><td style="padding: 8px;"><?= e(type_label($property['type'])) ?> / <?= e(PROPERTY_CATEGORIES[$property['category']] ?? $property['category']) ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">ราคา:</td><td style="padding: 8px; color: #c62828; font-weight: bold; font-size: 18px;"><?= e(price_label($property['type'], (int)$property['price'])) ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">ทำเล / สถานที่:</td><td style="padding: 8px;">📍 <?= e($property['location']) ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">ชื่อผู้ติดต่อ:</td><td style="padding: 8px;"><?= e($property['contact_name'] ?? 'ไม่ระบุ') ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">เบอร์โทร / ไลน์:</td><td style="padding: 8px; color: #1565c0; font-weight: bold;"><?= e($property['contact_phone'] ?? 'ไม่ระบุ') ?></td></tr>
-      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;">วันที่ลงประกาศ:</td><td style="padding: 8px;"><?= e($property['created_at']) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; width: 140px; color: #64748b;"><?= e(t('หัวข้อประกาศ:', 'Listing Title:')) ?></td><td style="padding: 8px; font-size: 18px; font-weight: bold; color: #2b2150;"><?= e($property['title']) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('ประเภท / หมวดหมู่:', 'Type / Category:')) ?></td><td style="padding: 8px;"><?= e(type_label($property['type'])) ?> / <?= e(category_label_bi($property['category'])) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('ราคา:', 'Price:')) ?></td><td style="padding: 8px; color: #c62828; font-weight: bold; font-size: 18px;"><?= e(price_label($property['type'], (int)$property['price'])) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('ทำเล / สถานที่:', 'Location:')) ?></td><td style="padding: 8px;">📍 <?= e($property['location']) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('ชื่อผู้ติดต่อ:', 'Contact Name:')) ?></td><td style="padding: 8px;"><?= e($property['contact_name'] ?? t('ไม่ระบุ', 'Not specified')) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('เบอร์โทร / ไลน์:', 'Phone / LINE:')) ?></td><td style="padding: 8px; color: #1565c0; font-weight: bold;"><?= e($property['contact_phone'] ?? t('ไม่ระบุ', 'Not specified')) ?></td></tr>
+      <tr><td style="padding: 8px; font-weight: bold; color: #64748b;"><?= e(t('วันที่ลงประกาศ:', 'Posted Date:')) ?></td><td style="padding: 8px;"><?= e($property['created_at']) ?></td></tr>
     </table>
 
-    <h3 style="font-size: 16px; color: #2b2150; margin-bottom: 8px;">รายละเอียดอสังหาริมทรัพย์</h3>
+    <h3 style="font-size: 16px; color: #2b2150; margin-bottom: 8px;"><?= e(t('รายละเอียดอสังหาริมทรัพย์', 'Property Description')) ?></h3>
     <div style="white-space: pre-line; background: #f8fafc; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 24px; line-height: 1.7;">
       <?= e($property['description']) ?>
     </div>
 
-    <h3 style="font-size: 16px; color: #2b2150; margin-bottom: 12px;">รูปภาพทั้งหมด (<?= count($images) ?> รูป)</h3>
+    <h3 style="font-size: 16px; color: #2b2150; margin-bottom: 12px;"><?= e(t('รูปภาพทั้งหมด (', 'All Photos (')) . count($images) . e(t(' รูป)', ' photos)')) ?></h3>
     <?php if (empty($images)): ?>
-      <p style="color: #94a3b8;">ไม่มีรูปภาพแนบในประกาศนี้</p>
+      <p style="color: #94a3b8;"><?= e(t('ไม่มีรูปภาพแนบในประกาศนี้', 'No photos attached')) ?></p>
     <?php else: ?>
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px;">
         <?php foreach ($images as $img): ?>
@@ -79,8 +79,8 @@ $images = $img_stmt->fetchAll(PDO::FETCH_COLUMN);
     <?php endif; ?>
 
     <div style="text-align: center; margin-top: 24px;">
-      <a href="index.php" class="btn" style="background: #64748b;">← กลับหน้ารายการทั้งหมด</a>
-      <a href="edit.php?id=<?= (int)$property['id'] ?>" class="btn" style="background: #7955d9; margin-left: 8px;">✏️ แก้ไขข้อมูลนี้</a>
+      <a href="index.php" class="btn" style="background: #64748b;"><?= e(t('← กลับหน้ารายการทั้งหมด', '← Back to All Listings')) ?></a>
+      <a href="edit.php?id=<?= (int)$property['id'] ?>" class="btn" style="background: #7955d9; margin-left: 8px;"><?= e(t('✏️ แก้ไขข้อมูลนี้', '✏️ Edit This Listing')) ?></a>
     </div>
 
   </div>

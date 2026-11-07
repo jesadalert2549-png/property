@@ -7,7 +7,7 @@ define('DB_NAME', 'property_test');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 
-define('SITE_NAME', 'KASA Property');
+define('SITE_NAME', 'PropertyGO');
 define('SITE_VERSION_FILE', dirname(__DIR__) . '/version.json');   // จัดการเวอร์ชันจากหลังบ้าน
 
 // ── อ่านเวอร์ชันปัจจุบัน (เก็บใน version.json เพื่อให้หลังบ้านแก้ได้แบบไม่ต้องแก้โค้ด) ──

@@ -130,61 +130,7 @@ function render_site_header(): void
       <div class="site-shell-left">
         <?= render_logo_html('index.php') ?>
         <nav class="site-shell-menu" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
-          <div class="nav-dropdown">
-            <a href="search.php?type=sale" class="nav-dropdown-toggle"><?= e(t('ซื้อ', 'Buy')) ?><span class="nav-caret" aria-hidden="true"></span></a>
-            <div class="nav-dropdown-panel" role="menu">
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ตามประเภททรัพย์</p>
-                <?php foreach (['condo' => 'คอนโด', 'house' => 'บ้านเดี่ยว', 'townhouse' => 'ทาวน์เฮ้าส์', 'land' => 'ที่ดิน', 'commercial' => 'อาคารพาณิชย์'] as $catKey => $catLabel): ?>
-                  <a href="search.php?type=sale&category=<?= e($catKey) ?>"><?= e($catLabel) ?></a>
-                <?php endforeach; ?>
-                <a href="search.php?type=sale">ดูประกาศขายทั้งหมด</a>
-              </div>
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ติดรถไฟฟ้า</p>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดติดบีทีเอส')) ?>">คอนโดติด BTS</a>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดติดเอ็มอาร์ที')) ?>">คอนโดติด MRT</a>
-                <p class="nav-dropdown-heading">ตามงบประมาณ</p>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดราคาไม่เกินหนึ่งล้าน')) ?>">คอนโดไม่เกิน 1 ล้าน</a>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดราคาไม่เกินสามล้าน')) ?>">คอนโดไม่เกิน 3 ล้าน</a>
-                <a href="category.php?page=<?= e(rawurlencode('บ้านราคาไม่เกินสองล้าน')) ?>">บ้านไม่เกิน 2 ล้าน</a>
-                <a href="category.php?page=<?= e(rawurlencode('ที่ดินราคาถูก')) ?>">ที่ดินราคาถูก</a>
-              </div>
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ย่านยอดนิยม</p>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดย่านสุขุมวิท')) ?>">ย่านสุขุมวิท</a>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดย่านลาดพร้าว')) ?>">ย่านลาดพร้าว</a>
-                <a href="category.php?page=<?= e(rawurlencode('บ้านย่านรามอินทรา')) ?>">ย่านรามอินทรา</a>
-                <a href="search.php?type=sale&q=<?= rawurlencode('กรุงเทพ') ?>">กรุงเทพฯ ทั้งหมด</a>
-              </div>
-            </div>
-          </div>
-          <div class="nav-dropdown">
-            <a href="search.php?type=rent" class="nav-dropdown-toggle"><?= e(t('เช่า', 'Rent')) ?><span class="nav-caret" aria-hidden="true"></span></a>
-            <div class="nav-dropdown-panel" role="menu">
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ตามประเภททรัพย์</p>
-                <?php foreach (['condo' => 'คอนโด', 'house' => 'บ้านเดี่ยว', 'townhouse' => 'ทาวน์เฮ้าส์', 'commercial' => 'อาคารพาณิชย์'] as $catKey => $catLabel): ?>
-                  <a href="search.php?type=rent&category=<?= e($catKey) ?>"><?= e($catLabel) ?></a>
-                <?php endforeach; ?>
-                <a href="search.php?type=rent">ดูประกาศเช่าทั้งหมด</a>
-              </div>
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ราคาถูก</p>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดให้เช่าราคาถูก')) ?>">คอนโดเช่าไม่เกิน 10,000</a>
-                <a href="category.php?page=<?= e(rawurlencode('บ้านให้เช่าราคาถูก')) ?>">บ้านเช่าไม่เกิน 15,000</a>
-                <p class="nav-dropdown-heading">ติดรถไฟฟ้า</p>
-                <a href="category.php?page=<?= e(rawurlencode('คอนโดให้เช่าติดบีทีเอส')) ?>">เช่าคอนโดติด BTS</a>
-              </div>
-              <div class="nav-dropdown-col">
-                <p class="nav-dropdown-heading">ย่านยอดนิยม</p>
-                <a href="search.php?type=rent&q=<?= rawurlencode('สุขุมวิท') ?>">สุขุมวิท</a>
-                <a href="search.php?type=rent&q=<?= rawurlencode('ลาดพร้าว') ?>">ลาดพร้าว</a>
-                <a href="search.php?type=rent&q=<?= rawurlencode('รัชดา') ?>">รัชดาภิเษก</a>
-                <a href="search.php?type=rent&q=<?= rawurlencode('เชียงใหม่') ?>">เชียงใหม่</a>
-              </div>
-            </div>
-          </div>
+          <?php render_nav_dropdowns(); ?>
           <a href="project.php"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
           <a href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
           <a href="submit.php"><?= e(t('ลงประกาศกับเรา', 'List with us')) ?></a>
@@ -311,28 +257,28 @@ function render_site_footer(): void
       </div>
       <div class="seo-footer-provinces" style="max-width:1240px; margin:24px auto 0; padding:20px 16px 0; border-top:1px solid rgba(255,255,255,0.08); font-size:12px;">
         <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:10px; margin-bottom:8px;">
-          <strong style="color:#C5A059; letter-spacing:0.04em;">🏢 ทำเลเศรษฐกิจชั้นนำ Prime CBD &amp; รถไฟฟ้า BTS/MRT</strong>
-          <span style="color:#94a3b8; font-size:11px;">ย่านการอยู่อาศัยและการลงทุนอสังหาฯ ผลตอบแทนสูง</span>
+          <strong style="color:#C5A059; letter-spacing:0.04em;">🏢 <?= e(t('ทำเลเศรษฐกิจชั้นนำ Prime CBD & รถไฟฟ้า BTS/MRT', 'Prime CBD & Transit-Oriented Hotspots (BTS/MRT)')) ?></strong>
+          <span style="color:#94a3b8; font-size:11px;"><?= e(t('ย่านการอยู่อาศัยและการลงทุนอสังหาฯ ผลตอบแทนสูง', 'High-demand residential and high-yield investment zones')) ?></span>
         </div>
         <div style="display:flex; flex-wrap:wrap; gap:6px 12px; line-height:2; margin-bottom:14px;">
           <?php
           $footerCbdHotspots = [
-              'สุขุมวิท'     => 'สุขุมวิท',
-              'ทองหล่อ'      => 'ทองหล่อ',
-              'เอกมัย'       => 'เอกมัย',
-              'พร้อมพงษ์'    => 'พร้อมพงษ์',
-              'สาทร'         => 'สาทร',
-              'สีลม'         => 'สีลม',
-              'พระราม 9'     => 'พระราม 9 (New CBD)',
-              'รัชดาภิเษก'   => 'รัชดาฯ - ห้วยขวาง',
-              'อารีย์'        => 'อารีย์ - พญาไท',
-              'ลาดพร้าว'     => 'ห้าแยกลาดพร้าว',
-              'บางนา'        => 'บางนา - EEC',
-              'เจริญกรุง'    => 'ริมน้ำเจ้าพระยา',
-              'นิมมาน'       => 'นิมมานฯ (เชียงใหม่)',
-              'พัทยา'        => 'พัทยา - จอมเทียน',
-              'หัวหิน'        => 'หัวหิน - ชะอำ',
-              'บางเทา'       => 'บางเทา - ลากูน่า (ภูเก็ต)',
+              'สุขุมวิท'     => t('สุขุมวิท', 'Sukhumvit'),
+              'ทองหล่อ'      => t('ทองหล่อ', 'Thong Lo'),
+              'เอกมัย'       => t('เอกมัย', 'Ekkamai'),
+              'พร้อมพงษ์'    => t('พร้อมพงษ์', 'Phrom Phong'),
+              'สาทร'         => t('สาทร', 'Sathorn'),
+              'สีลม'         => t('สีลม', 'Silom'),
+              'พระราม 9'     => t('พระราม 9 (New CBD)', 'Rama 9 (New CBD)'),
+              'รัชดาภิเษก'   => t('รัชดาฯ - ห้วยขวาง', 'Ratchada - Huai Khwang'),
+              'อารีย์'        => t('อารีย์ - พญาไท', 'Ari - Phayathai'),
+              'ลาดพร้าว'     => t('ห้าแยกลาดพร้าว', 'Ladprao Junction'),
+              'บางนา'        => t('บางนา - EEC', 'Bangna - EEC'),
+              'เจริญกรุง'    => t('ริมน้ำเจ้าพระยา', 'Riverside (Charoen Krung)'),
+              'นิมมาน'       => t('นิมมานฯ (เชียงใหม่)', 'Nimman (Chiang Mai)'),
+              'พัทยา'        => t('พัทยา - จอมเทียน', 'Pattaya - Jomtien'),
+              'หัวหิน'        => t('หัวหิน - ชะอำ', 'Hua Hin - Cha-am'),
+              'บางเทา'       => t('บางเทา - ลากูน่า (ภูเก็ต)', 'Bang Tao - Laguna (Phuket)'),
           ];
           foreach ($footerCbdHotspots as $cbdSlug => $cbdTxt):
           ?>
@@ -348,38 +294,38 @@ function render_site_footer(): void
         <div style="display:flex; flex-wrap:wrap; gap:6px 10px; line-height:1.9;">
           <?php
           $seoFooterHotspots = [
-              'กรุงเทพมหานคร' => 'กรุงเทพฯ',
-              'เชียงใหม่'     => 'เชียงใหม่',
-              'ภูเก็ต'        => 'ภูเก็ต',
-              'ชลบุรี'        => 'ชลบุรี (พัทยา)',
-              'นนทบุรี'       => 'นนทบุรี',
-              'สมุทรปราการ'   => 'สมุทรปราการ',
-              'ปทุมธานี'       => 'ปทุมธานี',
-              'ระยอง'         => 'ระยอง',
-              'ประจวบคีรีขันธ์' => 'ประจวบฯ (หัวหิน)',
-              'นครราชสีมา'     => 'โคราช (เขาใหญ่)',
-              'ขอนแก่น'       => 'ขอนแก่น',
-              'สุราษฎร์ธานี'    => 'สุราษฎร์ฯ (สมุย)',
-              'สงขลา'         => 'สงขลา (หาดใหญ่)',
-              'เชียงราย'       => 'เชียงราย',
-              'พระนครศรีอยุธยา'=> 'อยุธยา',
-              'นครปฐม'        => 'นครปฐม',
-              'กระบี่'         => 'กระบี่',
-              'เพชรบุรี'       => 'เพชรบุรี (ชะอำ)',
-              'กาญจนบุรี'      => 'กาญจนบุรี',
-              'อุดรธานี'       => 'อุดรธานี',
-              'อุบลราชธานี'    => 'อุบลราชธานี',
-              'พิษณุโลก'      => 'พิษณุโลก',
-              'ฉะเชิงเทรา'     => 'ฉะเชิงเทรา',
-              'สระบุรี'        => 'สระบุรี',
-              'ลำปาง'         => 'ลำปาง',
-              'นครศรีธรรมราช' => 'นครศรีธรรมราช',
-              'พังงา'         => 'พังงา',
-              'ตรัง'          => 'ตรัง',
-              'สมุทรสาคร'     => 'สมุทรสาคร',
-              'ลพบุรี'        => 'ลพบุรี',
-              'ราชบุรี'       => 'ราชบุรี',
-              'บุรีรัมย์'      => 'บุรีรัมย์'
+              'กรุงเทพมหานคร' => t('กรุงเทพฯ', 'Bangkok'),
+              'เชียงใหม่'     => t('เชียงใหม่', 'Chiang Mai'),
+              'ภูเก็ต'        => t('ภูเก็ต', 'Phuket'),
+              'ชลบุรี'        => t('ชลบุรี (พัทยา)', 'Chonburi (Pattaya)'),
+              'นนทบุรี'       => t('นนทบุรี', 'Nonthaburi'),
+              'สมุทรปราการ'   => t('สมุทรปราการ', 'Samut Prakan'),
+              'ปทุมธานี'       => t('ปทุมธานี', 'Pathum Thani'),
+              'ระยอง'         => t('ระยอง', 'Rayong'),
+              'ประจวบคีรีขันธ์' => t('ประจวบฯ (หัวหิน)', 'Prachuap (Hua Hin)'),
+              'นครราชสีมา'     => t('โคราช (เขาใหญ่)', 'Korat (Khao Yai)'),
+              'ขอนแก่น'       => t('ขอนแก่น', 'Khon Kaen'),
+              'สุราษฎร์ธานี'    => t('สุราษฎร์ฯ (สมุย)', 'Surat Thani (Samui)'),
+              'สงขลา'         => t('สงขลา (หาดใหญ่)', 'Songkhla (Hat Yai)'),
+              'เชียงราย'       => t('เชียงราย', 'Chiang Rai'),
+              'พระนครศรีอยุธยา'=> t('อยุธยา', 'Ayutthaya'),
+              'นครปฐม'        => t('นครปฐม', 'Nakhon Pathom'),
+              'กระบี่'         => t('กระบี่', 'Krabi'),
+              'เพชรบุรี'       => t('เพชรบุรี (ชะอำ)', 'Phetchaburi (Cha-am)'),
+              'กาญจนบุรี'      => t('กาญจนบุรี', 'Kanchanaburi'),
+              'อุดรธานี'       => t('อุดรธานี', 'Udon Thani'),
+              'อุบลราชธานี'    => t('อุบลราชธานี', 'Ubon Ratchathani'),
+              'พิษณุโลก'      => t('พิษณุโลก', 'Phitsanulok'),
+              'ฉะเชิงเทรา'     => t('ฉะเชิงเทรา', 'Chachoengsao'),
+              'สระบุรี'        => t('สระบุรี', 'Saraburi'),
+              'ลำปาง'         => t('ลำปาง', 'Lampang'),
+              'นครศรีธรรมราช' => t('นครศรีธรรมราช', 'Nakhon Si Thammarat'),
+              'พังงา'         => t('พังงา', 'Phang Nga'),
+              'ตรัง'          => t('ตรัง', 'Trang'),
+              'สมุทรสาคร'     => t('สมุทรสาคร', 'Samut Sakhon'),
+              'ลพบุรี'        => t('ลพบุรี', 'Lopburi'),
+              'ราชบุรี'       => t('ราชบุรี', 'Ratchaburi'),
+              'บุรีรัมย์'      => t('บุรีรัมย์', 'Buriram'),
           ];
           foreach ($seoFooterHotspots as $provFull => $provName):
           ?>

@@ -14,7 +14,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: "Prompt", "Inter", system-ui, sans-serif;
+  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", system-ui, serif;
   background: var(--bg);
   color: #1E293B;
   font-size: 15px;
@@ -259,7 +259,12 @@ input:focus, select:focus, textarea:focus {
 body.has-admin-sidebar { min-height:100vh; padding:68px 0 0 !important; }
 body.has-admin-sidebar .topbar { top:68px; }
 body.has-admin-sidebar .topbar nav { display:none; }
-.admin-desktop-navbar { position:fixed; inset:0 0 auto; z-index:125; display:flex; align-items:center; justify-content:space-between; gap:16px; height:68px; padding:0 24px; border-bottom:1px solid rgba(197, 160, 89, 0.28); background:#0B1C33; color:#fff; box-shadow:0 6px 22px rgba(6, 15, 28, 0.45); }
+.admin-desktop-navbar { position:fixed; inset:0 0 auto; z-index:125; display:flex; align-items:center; justify-content:space-between; gap:8px; height:68px; padding:0 18px; border-bottom:1px solid rgba(197, 160, 89, 0.28); background:#0B1C33; color:#fff; box-shadow:0 6px 22px rgba(6, 15, 28, 0.45); }
+/* โลโก้ + ป้ายตำแหน่ง: ไม่ให้ถูกบีบหรือตัด */
+.admin-desktop-navbar > .kasa-logo,
+.admin-desktop-navbar > .sp-logo { flex:0 0 auto; overflow:visible; min-width:0; }
+.admin-desktop-navbar .kasa-logo-img { height:36px; width:auto; max-width:150px; object-fit:contain; }
+.admin-desktop-navbar .admin-brand-admin-label { flex:0 0 auto; white-space:nowrap; }
 .admin-navbar-brand { display:flex; align-items:center; flex:0 0 auto; gap:9px; color:#fff; text-decoration:none; }
 .admin-navbar-brand .admin-brand-mark { width:36px; height:36px; border-radius:11px; background:#C5A059; color:#0B1C33; }
 .admin-navbar-brand strong,.admin-navbar-brand small { display:block; white-space:nowrap; }
@@ -267,11 +272,35 @@ body.has-admin-sidebar .topbar nav { display:none; }
 .admin-navbar-brand small { margin-top:2px; color:#C5A059; font-size:9px; font-weight:850; letter-spacing:1px; }
 
 /* ── CEO Desktop Navigation Dropdowns ── */
-.admin-navbar-links { display:flex; align-items:center; flex:1 1 auto; gap:4px; min-width:0; margin:0 12px; overflow-x:auto; overflow-y:visible; scrollbar-width:none; -ms-overflow-style:none; }
+/* flex:1 1 0 + min-width:0 → เมนูยอมหดตัวก่อน ไม่ดันกล่องบัญชีไปทับกัน
+   overflow-x:auto → เลื่อนเมนูได้อิสระเมื่อจอไม่พอ (ล้อเมาส์/ลาก/ปัด) */
+.admin-navbar-links {
+  display:flex; align-items:center; flex:1 1 auto; gap:3px; min-width:0; margin:0 2px;
+  overflow-x:auto; overflow-y:hidden; scrollbar-width:none; -ms-overflow-style:none;
+  overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth; padding:6px 2px; touch-action:pan-x; cursor:grab;
+}
+.admin-navbar-links.is-dragging { cursor:grabbing; user-select:none; scroll-behavior:auto; }
 .admin-navbar-links::-webkit-scrollbar { display:none; }
+.admin-nav-scroll-btn {
+  display:grid; place-items:center; flex:0 0 28px; width:28px; height:34px; padding:0;
+  border:1px solid rgba(197,160,89,0.35); border-radius:9px; background:#142b48; color:#E5CB96;
+  font:700 23px/1 Arial,sans-serif; cursor:pointer; transition:background .18s,color .18s,opacity .18s;
+}
+.admin-nav-scroll-btn:hover:not(:disabled) { background:#C5A059; color:#0B1C33; }
+.admin-nav-scroll-btn:disabled { opacity:.35; cursor:default; }
+.admin-nav-scroll-btn[hidden] { display:none; }
+.admin-navbar-links > * { flex:0 0 auto; }
+/* เงาจางบอกว่ายังมีเมนูต่อทางขวา */
+.admin-navbar-links.is-scrollable:not(:hover) { mask-image:linear-gradient(to right, #000 calc(100% - 12px), transparent); -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 12px), transparent); }
+/* โลโก้ใน navbar: ต้องไม่ถูก overflow:hidden ของ .kasa-logo ตัดขอบ */
+.admin-desktop-navbar .kasa-logo,
+.admin-desktop-navbar .sp-logo { overflow:visible !important; padding:0; }
+.admin-desktop-navbar .kasa-logo::after,
+.admin-desktop-navbar .sp-logo::after { display:none; }
 .admin-nav-item-link, .admin-nav-dropdown-btn {
-  display:inline-flex; align-items:center; gap:6px; min-height:38px; padding:0 11px; border:1px solid transparent; border-radius:10px;
-  background:transparent; color:#e2e8f0; font-family:inherit; font-size:12px; font-weight:700; text-decoration:none; white-space:nowrap;
+  display:inline-flex; align-items:center; gap:5px; min-height:36px; padding:0 9px; border:1px solid transparent; border-radius:10px;
+  background:transparent; color:#e2e8f0; font-family:inherit; font-size:11.5px; font-weight:700; text-decoration:none; white-space:nowrap;
   cursor:pointer; transition:all .18s cubic-bezier(.2,.8,.4,1);
 }
 .admin-nav-item-link:hover, .admin-nav-dropdown-btn:hover {
@@ -282,21 +311,57 @@ body.has-admin-sidebar .topbar nav { display:none; }
   border-color:#C5A059; color:#fff; box-shadow:0 3px 10px rgba(197,160,89,0.18);
 }
 .admin-nav-caret { font-size:8px; opacity:0.6; transition:transform .2s ease; margin-left:2px; }
-.admin-nav-dropdown:hover .admin-nav-caret, .admin-nav-dropdown:focus-within .admin-nav-caret { transform:rotate(180deg); opacity:1; color:#C5A059; }
+.admin-nav-dropdown:hover .admin-nav-caret, .admin-nav-dropdown:focus-within .admin-nav-caret, .admin-nav-dropdown.open .admin-nav-caret { transform:rotate(180deg); opacity:1; color:#C5A059; }
+
+/* เปิดเมนูแบบคลิก (รองรับมือถือ/แท็บเล็ต) — ปุ่มไฮไลต์ทองชัดเจน */
+.admin-nav-dropdown.open { z-index:160; }
+.admin-nav-dropdown.open > .admin-nav-dropdown-btn {
+  background:linear-gradient(135deg, rgba(197,160,89,0.32), rgba(197,160,89,0.12));
+  border-color:#C5A059; color:#fff;
+  box-shadow:0 4px 14px rgba(197,160,89,0.28), inset 0 -2px 0 rgba(197,160,89,0.55);
+}
 
 /* Mega Dropdown Panel */
 .admin-nav-dropdown { position:relative; }
 .admin-nav-dropdown-menu {
-  position:absolute; top:calc(100% + 8px); left:0; min-width:260px; max-width:340px; padding:8px;
+  position:absolute; top:calc(100% + 8px); left:0; min-width:260px; max-width:min(340px, calc(100vw - 24px)); padding:8px;
   background:#0e223d; border:1px solid rgba(197,160,89,0.35); border-radius:14px;
   box-shadow:0 18px 45px rgba(5,12,24,0.65), 0 0 0 1px rgba(255,255,255,0.04);
   opacity:0; visibility:hidden; transform:translateY(8px) scale(0.98);
   transition:opacity .18s cubic-bezier(.2,.8,.4,1), transform .18s cubic-bezier(.2,.8,.4,1), visibility .18s;
   pointer-events:none; z-index:150;
 }
+/* จอแคบ: ชิดขอบขวาให้พอดีจอ ไม่โดนตัด */
+@media (max-width:640px) {
+  .admin-nav-dropdown-menu { left:auto; right:-8px; }
+  .admin-nav-scroll-btn { flex-basis:24px; width:24px; height:32px; }
+  .admin-navbar-links { margin-right:3px; margin-left:3px; }
+}
 .admin-nav-dropdown:hover .admin-nav-dropdown-menu,
-.admin-nav-dropdown:focus-within .admin-nav-dropdown-menu {
+.admin-nav-dropdown:focus-within .admin-nav-dropdown-menu,
+.admin-nav-dropdown.open .admin-nav-dropdown-menu {
   opacity:1; visibility:visible; transform:translateY(0) scale(1); pointer-events:auto;
+}
+
+/* แผงเมนูต้องไม่ถูกตัดโดย container ที่มี overflow (navbar-links) */
+.admin-desktop-navbar { overflow:visible; }
+.admin-nav-dropdown-menu { isolation:isolate; }
+/* Dropdown ลอยอิสระ ไม่ถูก overflow ตัด และวางตำแหน่งตรงใต้ปุ่มหัวข้อเมนู */
+.admin-desktop-navbar .admin-nav-dropdown-menu {
+  position:fixed;
+  top:var(--dd-top, 72px);
+  left:var(--dd-left, 12px);
+  right:auto;
+  max-width:min(340px, calc(100vw - 24px));
+}
+
+/* จอแคบ: เมนูแบบ dropdown ใน navbar กลายเป็นแผงเต็มความกว้าง อ่านง่าย แตะสะดวก */
+@media (max-width:900px) {
+  .admin-nav-dropdown-menu {
+    position:fixed; top:auto; left:12px; right:12px; width:auto; min-width:0; max-width:none;
+    max-height:min(70vh, 520px); overflow-y:auto; -webkit-overflow-scrolling:touch;
+  }
+  .admin-nav-dropdown.open .admin-nav-dropdown-menu { top:auto; }
 }
 .admin-dropdown-header {
   display:flex; justify-content:space-between; align-items:center; padding:8px 10px 10px; margin-bottom:4px;
@@ -322,31 +387,43 @@ body.has-admin-sidebar .topbar nav { display:none; }
 .admin-dropdown-desc { display:block; font-size:10.5px; color:#94a3b8; margin-top:2px; line-height:1.3; }
 
 /* ── Account cluster (avatar + name + actions) ── */
+/* ให้เมนูใช้พื้นที่ก่อน และย่อเฉพาะส่วนชื่อบัญชีเมื่อหน้าจอแคบ */
 .admin-navbar-account {
-  display:flex; align-items:center; flex:0 0 auto; gap:10px;
-  padding-left:16px; margin-left:8px;
+  display:flex; align-items:center; flex:0 1 auto; gap:7px;
+  padding-left:12px; margin-left:0;
   border-left:1px solid rgba(255,255,255,0.15);
   font-size:12px; line-height:1;
+  white-space:nowrap;
+  min-width:0;
+  position:relative; z-index:3;
+  background:#0B1C33;
+  box-shadow:-14px 0 18px -10px rgba(11,28,51,0.95);
 }
+.admin-navbar-account > * { flex:0 0 auto; }
+.admin-navbar-account > .admin-navbar-user-info { flex:0 1 auto; }
+/* จัดกลุ่มบัญชีให้อยู่ชิดขวา โดยไม่บีบแถบเมนูเพิ่ม */
+.admin-desktop-navbar > .admin-navbar-account { margin-left:0; }
+.admin-navbar-account .admin-navbar-avatar { flex:0 0 26px; width:26px; height:26px; }
 .admin-navbar-user-info {
-  display:inline-flex; align-items:center; gap:9px;
-  min-width:0; max-width:190px;
-  padding:4px 10px 4px 4px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:7px;
+  min-width:0; max-width:150px; flex:0 1 auto;
+  padding:3px 9px 3px 3px; border-radius:999px;
   background:rgba(255,255,255,0.05);
   border:1px solid rgba(255,255,255,0.08);
+  overflow:hidden;
 }
 .admin-navbar-user-name {
-  display:block; min-width:0; max-width:130px;
+  display:block; min-width:0; max-width:96px;
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
-  color:#e5e7f5; font-weight:750; font-size:12.5px; line-height:1.2;
+  color:#e5e7f5; font-weight:750; font-size:12px; line-height:1.2;
 }
 .admin-navbar-account a { color:#C5A059; text-decoration:none; white-space:nowrap; }
 .admin-navbar-account a:last-child { color:#ff998a; font-weight:700; }
 .admin-view-site-btn {
-  display:inline-flex; align-items:center; gap:5px; flex:0 0 auto;
-  padding:6px 12px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:4px; flex:0 0 auto;
+  padding:6px 10px; border-radius:999px;
   background:rgba(197,160,89,0.15); border:1px solid rgba(197,160,89,0.35);
-  font-weight:750; font-size:12px; line-height:1.2;
+  font-weight:750; font-size:11.5px; line-height:1.2; white-space:nowrap;
   transition:all .15s; color:#E5CB96 !important;
 }
 .admin-view-site-btn:hover { background:#C5A059; color:#0B1C33 !important; }
@@ -354,10 +431,10 @@ body.has-admin-sidebar .topbar nav { display:none; }
 /* Language toggle inside the dark navbar — keep it compact and aligned */
 .admin-navbar-lang { display:inline-flex; align-items:center; flex:0 0 auto; }
 .admin-navbar-account .lang-toggle {
-  display:inline-flex; align-items:center; gap:5px; flex:0 0 auto;
-  padding:6px 12px; border-radius:999px;
+  display:inline-flex; align-items:center; gap:4px; flex:0 0 auto;
+  padding:6px 10px; border-radius:999px;
   background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22);
-  color:#e5e7f5; font-size:12px; font-weight:750; line-height:1.2;
+  color:#e5e7f5; font-size:11.5px; font-weight:750; line-height:1.2;
   white-space:nowrap;
 }
 .admin-navbar-account .lang-toggle:hover {
@@ -366,22 +443,30 @@ body.has-admin-sidebar .topbar nav { display:none; }
 .admin-navbar-account .lang-toggle .lang-globe-icon { font-size:13px; line-height:1; }
 .admin-navbar-logout {
   display:inline-flex; align-items:center; flex:0 0 auto;
-  padding:6px 12px; border-radius:999px;
+  padding:6px 10px; border-radius:999px;
   border:1px solid rgba(255,153,138,0.35); background:rgba(255,153,138,0.1);
-  font-size:12px; font-weight:750; line-height:1.2; white-space:nowrap;
+  font-size:11.5px; font-weight:750; line-height:1.2; white-space:nowrap;
 }
 .admin-navbar-logout:hover { background:rgba(255,153,138,0.22); color:#ffd3cb !important; }
 
 /* Responsive: hide the name label first, then the site button, to avoid crowding */
+@media (max-width:1440px) {
+  .admin-navbar-user-name { max-width:110px; }
+  .admin-navbar-account { gap:7px; padding-left:12px; }
+}
 @media (max-width:1280px) {
-  .admin-navbar-user-name { max-width:90px; }
+  .admin-navbar-user-name { max-width:80px; }
+  .admin-navbar-account .lang-toggle { padding:6px 9px; }
+  .admin-navbar-logout { padding:6px 10px; }
 }
 @media (max-width:1120px) {
   .admin-navbar-user-name { display:none; }
-  .admin-navbar-user-info { padding:4px; }
+  .admin-navbar-user-info { padding:4px; max-width:44px; }
+  .admin-view-site-btn { padding:6px 10px; }
 }
 @media (max-width:980px) {
   .admin-view-site-btn { display:none; }
+  .admin-desktop-navbar .admin-brand-admin-label { display:none; }
 }
 
 /* ── CEO Sidebar Groupings ── */
@@ -540,34 +625,23 @@ body .btn-hero { background:linear-gradient(135deg,#f5a36c,#e27a43); }
   display: inline-flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
   text-decoration: none;
-  border-radius: 8px;
-  transition: transform .28s cubic-bezier(.22,1,.36,1), filter .28s ease;
+  border-radius: 0;
+  transition: opacity .2s ease;
 }
 .kasa-logo:hover, .sp-logo:hover, .admin-navbar-brand:hover, .admin-sidebar-brand:hover {
-  transform: translateY(-2px) scale(1.03);
-  filter: drop-shadow(0 6px 18px rgba(200, 162, 89, 0.55));
+  opacity: .92;
 }
 
 .kasa-logo::after, .sp-logo::after, .admin-navbar-brand::after, .admin-sidebar-brand::after {
-  content: '';
-  position: absolute;
-  top: -20%;
-  left: 0;
-  width: 45%;
-  height: 140%;
-  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.45) 50%, transparent 100%);
-  transform: translateX(-120%) skewX(-20deg);
-  pointer-events: none;
-  animation: kasa-admin-shimmer 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  display: none !important;
 }
 
 .kasa-logo-img {
   display: block;
-  height: 38px;
+  height: 44px;
   width: auto;
-  max-width: 165px;
+  max-width: 190px;
   object-fit: contain;
 }
 
@@ -582,16 +656,20 @@ body .btn-hero { background:linear-gradient(135deg,#f5a36c,#e27a43); }
 }
 
 .admin-brand-admin-label {
+  display:inline-block;
+  flex:0 0 auto;
   font-size: 9px;
   font-weight: 800;
-  letter-spacing: 2.5px;
+  letter-spacing: 1.4px;
   text-transform: uppercase;
   color: #f0d080;
   margin-left: 6px;
   background: rgba(200, 162, 89, 0.15);
   border: 1px solid rgba(200, 162, 89, 0.35);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
 /* =========================================================
@@ -675,4 +753,36 @@ body .btn-hero { background:linear-gradient(135deg,#f5a36c,#e27a43); }
   align-items: center;
   justify-content: center;
   gap: 4px;
+}
+
+
+/* Admin: prevent viewport-edge clipping; wide data tables remain locally scrollable. */
+html { width:100%; max-width:100%; overflow-x:clip; }
+body { width:100%; min-width:320px; max-width:100%; overflow-wrap:anywhere; }
+.wrap, .box, .stats, .two, .form-grid, .admin-profile-page, .agent-review-page { min-width:0; }
+.wrap { width:min(100%,1200px); }
+.table-wrap { max-width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.form-grid > *, .two > *, .stats > *, .box > * { min-width:0; }
+input, select, textarea, button { max-width:100%; }
+img, video, iframe { max-width:100%; }
+.admin-navbar-links { overscroll-behavior-x:contain; }
+/* เลื่อนแถบเมนูด้วยล้อเมาส์แนวตั้ง (ไม่ต้องกด Shift) */
+.admin-navbar-links { scrollbar-gutter:auto; }
+@media (max-width:900px) {
+  body.has-admin-sidebar .wrap { width:100%; padding-right:14px; padding-left:14px; }
+  .admin-sidebar { padding-bottom:max(20px,env(safe-area-inset-bottom)); }
+  .admin-profile-page, .agent-review-page { width:calc(100% - 28px); }
+}
+@media (max-width:600px) {
+  .wrap { margin-top:14px; }
+  .box { padding:14px; border-radius:12px; }
+  .stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .admin-profile-page, .agent-review-page { width:calc(100% - 24px); }
+  .admin-profile-actions { flex-wrap:wrap; }
+  .admin-profile-avatar-row { max-width:100%; }
+}
+@media (max-width:360px) {
+  body { min-width:0; }
+  .stats { grid-template-columns:minmax(0,1fr); }
+  body.has-admin-sidebar .wrap { padding-right:10px; padding-left:10px; }
 }

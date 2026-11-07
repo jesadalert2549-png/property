@@ -140,7 +140,7 @@ $flash = get_flash();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการหมวดแนะนำหน้าแรก | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('จัดการหมวดแนะนำหน้าแรก', 'Manage Homepage Featured Categories')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -192,19 +192,19 @@ $flash = get_flash();
   <div class="feat-hero">
     <div>
       <span class="eyebrow">HOMEPAGE CONTENT &amp; PROMOTION</span>
-      <h1>หมวดหมู่แนะนำหน้าแรก (Featured Categories)</h1>
-      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">สร้างหมวดหมู่แนะนำได้หลายหมวดอย่างอิสระ ไม่จำกัดจำนวน แต่ละหมวดจะดึงประกาศ 4 ชิ้นมาแสดงบนหน้าแรกทันที</p>
+      <h1><?= e(t('หมวดหมู่แนะนำหน้าแรก (Featured Categories)', 'Homepage Featured Categories')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;"><?= e(t('สร้างหมวดหมู่แนะนำได้หลายหมวดอย่างอิสระ ไม่จำกัดจำนวน แต่ละหมวดจะดึงประกาศ 4 ชิ้นมาแสดงบนหน้าแรกทันที', 'Create unlimited custom featured categories on the homepage. Each section displays 4 matching property listings.')) ?></p>
     </div>
-    <a href="../index.php" target="_blank" rel="noopener" style="padding:10px 18px;border-radius:999px;background:rgba(197,160,89,.18);border:1px solid rgba(197,160,89,.45);color:#E5CB96;font-size:13px;font-weight:700;text-decoration:none;">👁️ ดูผลบนหน้าแรก ↗</a>
+    <a href="../index.php" target="_blank" rel="noopener" style="padding:10px 18px;border-radius:999px;background:rgba(197,160,89,.18);border:1px solid rgba(197,160,89,.45);color:#E5CB96;font-size:13px;font-weight:700;text-decoration:none;">👁️ <?= e(t('ดูผลบนหน้าแรก ↗', 'View on Homepage ↗')) ?></a>
   </div>
 
   <?php if ($flash): ?><div class="flash">✅ <?= e($flash) ?></div><?php endif; ?>
 
   <!-- ฟอร์มเพิ่ม / แก้ไขหมวดแนะนำ -->
   <section class="feat-card">
-    <h2><?= $editing ? '✏️ แก้ไขหมวดแนะนำ: ' . e($editing['title']) : '➕ เพิ่มหมวดแนะนำใหม่' ?></h2>
+    <h2><?= $editing ? e(t('✏️ แก้ไขหมวดแนะนำ: ', '✏️ Edit Featured Section: ')) . e($editing['title']) : e(t('➕ เพิ่มหมวดแนะนำใหม่', '➕ Add New Featured Section')) ?></h2>
     <p class="intro">
-      <?= $editing ? 'ปรับปรุงประเภทอสังหาฯ ชื่อหัวข้อ หรือลำดับการแสดงผล' : 'คุณสามารถสร้างได้หลายหมวด เช่น "คอนโดแนะนำ", "บ้านเดี่ยวแนะนำ", "คอนโดหรูสุขุมวิท" หรือ "ที่ดินทำเลทอง" ระบบจะนำไปจัดแสดงบนหน้าแรกตามลำดับที่ตั้งไว้' ?>
+      <?= $editing ? e(t('ปรับปรุงประเภทอสังหาฯ ชื่อหัวข้อ หรือลำดับการแสดงผล', 'Update property category, display title or sort order.')) : e(t('คุณสามารถสร้างได้หลายหมวด เช่น "คอนโดแนะนำ", "บ้านเดี่ยวแนะนำ", "คอนโดหรูสุขุมวิท" หรือ "ที่ดินทำเลทอง" ระบบจะนำไปจัดแสดงบนหน้าแรกตามลำดับที่ตั้งไว้', 'Create custom highlighted categories such as "Featured Condos", "Sukhumvit Luxury", or "Prime Land".')) ?>
     </p>
 
     <?php if ($canManageMarketing): ?>
@@ -213,33 +213,33 @@ $flash = get_flash();
         <input type="hidden" name="action" value="save">
         <?php if ($editing): ?><input type="hidden" name="id" value="<?= (int)$editing['id'] ?>"><?php endif; ?>
 
-        <label class="field">ประเภทอสังหาฯ
+        <label class="field"><?= e(t('ประเภทอสังหาฯ', 'Property Category')) ?>
           <select name="category" required>
             <?php foreach (PROPERTY_CATEGORIES as $key => $label): if ($key === 'other') continue; ?>
               <option value="<?= e($key) ?>" <?= ($editing['category'] ?? '') === $key ? 'selected' : '' ?>>
-                <?= e(($categoryIcons[$key] ?? '🏡') . ' ' . $label) ?>
+                <?= e(($categoryIcons[$key] ?? '🏡') . ' ' . category_label_bi($key)) ?>
               </option>
             <?php endforeach; ?>
           </select>
         </label>
 
-        <label class="field">ชื่อหัวข้อที่ต้องการแสดงบนหน้าแรก
-          <input type="text" name="title" maxlength="120" value="<?= e($editing['title'] ?? '') ?>" placeholder="เช่น คอนโดแนะนำ หรือ บ้านเดี่ยวพร้อมอยู่" required>
+        <label class="field"><?= e(t('ชื่อหัวข้อที่ต้องการแสดงบนหน้าแรก', 'Display Title on Homepage')) ?>
+          <input type="text" name="title" maxlength="120" value="<?= e($editing['title'] ?? '') ?>" placeholder="<?= e(t('เช่น คอนโดแนะนำ หรือ บ้านเดี่ยวพร้อมอยู่', 'e.g. Featured Condos or Move-in Ready Houses')) ?>" required>
         </label>
 
-        <label class="field">ลำดับการแสดง
+        <label class="field"><?= e(t('ลำดับการแสดง', 'Sort Order')) ?>
           <input type="number" name="sort_order" min="0" value="<?= (int)($editing['sort_order'] ?? count($sections)) ?>">
         </label>
 
         <label class="check-label">
           <input type="checkbox" name="enabled" value="1" <?= (!isset($editing['enabled']) || !empty($editing['enabled'])) ? 'checked' : '' ?>>
-          เปิดแสดงบนหน้าแรก
+          <?= e(t('เปิดแสดงบนหน้าแรก', 'Visible on Homepage')) ?>
         </label>
 
         <div style="grid-column:1/-1; display:flex; gap:10px; margin-top:8px;">
-          <button type="submit" class="btn-submit-feat"><?= $editing ? '💾 บันทึกการแก้ไข' : '➕ เพิ่มหมวดนี้ลงหน้าแรก' ?></button>
+          <button type="submit" class="btn-submit-feat"><?= $editing ? e(t('💾 บันทึกการแก้ไข', '💾 Save Changes')) : e(t('➕ เพิ่มหมวดนี้ลงหน้าแรก', '➕ Add Section to Homepage')) ?></button>
           <?php if ($editing): ?>
-            <a href="featured.php" class="mini gray" style="padding:12px 20px;border-radius:10px;">✕ ยกเลิกการแก้ไข</a>
+            <a href="featured.php" class="mini gray" style="padding:12px 20px;border-radius:10px;">✕ <?= e(t('ยกเลิกการแก้ไข', 'Cancel')) ?></a>
           <?php endif; ?>
         </div>
       </form>

@@ -86,7 +86,7 @@ if (!empty($_GET['sandbox']) || !empty($_POST['sandbox_login'])) {
               <?php if ($provider === 'line'): ?>
                 <div class="sandbox-field">
                   <span>LINE ID (สำหรับผู้สนใจติดต่อกลับ)</span>
-                  <input type="text" name="mock_line_id" value="somchai_kasa" placeholder="เช่น somchai_kasa">
+                  <input type="text" name="mock_line_id" value="somchai_propertygo" placeholder="เช่น somchai_propertygo">
                 </div>
               <?php endif; ?>
 

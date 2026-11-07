@@ -14,12 +14,13 @@ $staffCurrentPage = basename((string)($_SERVER['SCRIPT_NAME'] ?? 'index.php'));
     <?php endif; ?>
   </div>
   <div class="staff-nav-right">
-    <a href="index.php" class="staff-nav-link <?= $staffCurrentPage === 'index.php' ? 'active' : '' ?>">▦ แดชบอร์ด</a>
-    <a href="../index.php" target="_blank" rel="noopener" class="staff-nav-link">↗ ดูเว็บไซต์</a>
+    <a href="index.php" class="staff-nav-link <?= $staffCurrentPage === 'index.php' ? 'active' : '' ?>"><?= e(t('▦ แดชบอร์ด', '▦ Dashboard')) ?></a>
+    <a href="../index.php" target="_blank" rel="noopener" class="staff-nav-link"><?= e(t('↗ ดูเว็บไซต์', '↗ View Site')) ?></a>
     <span class="staff-nav-user">
       <span class="staff-nav-avatar"><?= e($staffNavInitial) ?></span>
       <span><?= e($staffNavName) ?></span>
     </span>
-    <a href="logout.php" class="staff-nav-logout">⇥ ออกจากระบบ</a>
+    <?php render_lang_toggle(); ?>
+    <a href="logout.php" class="staff-nav-logout"><?= e(t('⇥ ออกจากระบบ', '⇥ Log out')) ?></a>
   </div>
 </header>

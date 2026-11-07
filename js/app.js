@@ -33,6 +33,9 @@
 
   // ส่งสถิติการเข้าชมไปที่ api/track.php
   function track(data) {
+    if (!document.cookie.split('; ').some((c) => c.startsWith('sp_analytics_consent=accepted'))) {
+      return;
+    }
     if (data.event === 'page') {
       const current = new URL(window.location.href);
       const allowed = ['page', 'category', 'type'];

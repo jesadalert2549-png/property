@@ -104,7 +104,7 @@ if (request_is_post()) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>เพิ่มประกาศใหม่ | ระบบหลังบ้าน</title>
+  <title><?= e(t('เพิ่มประกาศใหม่', 'Add New Listing')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -120,8 +120,8 @@ if (request_is_post()) {
 <div class="add-page-wrap">
   <div class="add-page-box">
     <div class="add-page-header">
-      <h1>➕ เพิ่มประกาศทรัพย์สินใหม่</h1>
-      <a href="index.php" class="btn-action btn-gray">← กลับหน้ารายการ</a>
+      <h1><?= e(t('➕ เพิ่มประกาศทรัพย์สินใหม่', '➕ Add New Property Listing')) ?></h1>
+      <a href="index.php" class="btn-action btn-gray"><?= e(t('← กลับหน้ารายการ', '← Back to Listings')) ?></a>
     </div>
     
     <?php if (!empty($errors)): ?>
@@ -138,24 +138,24 @@ if (request_is_post()) {
       <input type="hidden" name="csrf" value="<?= e($token) ?>">
       
       <div class="form-group">
-        <label for="title">หัวข้อประกาศ *</label>
-        <input type="text" id="title" name="title" class="form-control" value="<?= e($title) ?>" placeholder="เช่น ขายคอนโดหรู ใจกลางเมือง สุขุมวิท" required>
+        <label for="title"><?= e(t('หัวข้อประกาศ *', 'Listing Title *')) ?></label>
+        <input type="text" id="title" name="title" class="form-control" value="<?= e($title) ?>" placeholder="<?= e(t('เช่น ขายคอนโดหรู ใจกลางเมือง สุขุมวิท', 'e.g. Luxury Condo in Sukhumvit')) ?>" required>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="type">ประเภทการทำธุรกรรม *</label>
+          <label for="type"><?= e(t('ประเภทการทำธุรกรรม *', 'Transaction Type *')) ?></label>
           <select id="type" name="type" class="form-control">
-            <option value="sale" <?= $type === 'sale' ? 'selected' : '' ?>>ขาย (Sale)</option>
-            <option value="rent" <?= $type === 'rent' ? 'selected' : '' ?>>ให้เช่า (Rent)</option>
+            <option value="sale" <?= $type === 'sale' ? 'selected' : '' ?>><?= e(t('ขาย (Sale)', 'For Sale (Sale)')) ?></option>
+            <option value="rent" <?= $type === 'rent' ? 'selected' : '' ?>><?= e(t('ให้เช่า (Rent)', 'For Rent (Rent)')) ?></option>
           </select>
         </div>
 
         <div class="form-group">
-          <label for="category">ประเภทอสังหาริมทรัพย์ *</label>
+          <label for="category"><?= e(t('ประเภทอสังหาริมทรัพย์ *', 'Property Category *')) ?></label>
           <select id="category" name="category" class="form-control">
             <?php foreach (PROPERTY_CATEGORIES as $slug => $label): ?>
-              <option value="<?= e($slug) ?>" <?= $category === $slug ? 'selected' : '' ?>><?= e($label) ?></option>
+              <option value="<?= e($slug) ?>" <?= $category === $slug ? 'selected' : '' ?>><?= e(category_label_bi($slug)) ?></option>
             <?php endforeach; ?>
           </select>
         </div>
@@ -163,70 +163,70 @@ if (request_is_post()) {
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="price">ราคา (บาท) *</label>
-          <input type="number" id="price" name="price" class="form-control" value="<?= e($price) ?>" placeholder="เช่น 2500000" required>
+          <label for="price"><?= e(t('ราคา (บาท) *', 'Price (THB) *')) ?></label>
+          <input type="number" id="price" name="price" class="form-control" value="<?= e($price) ?>" placeholder="e.g. 2500000" required>
         </div>
 
         <div class="form-group">
-          <label for="status">สถานะทรัพย์สิน *</label>
+          <label for="status"><?= e(t('สถานะทรัพย์สิน *', 'Property Status *')) ?></label>
           <select id="status" name="status" class="form-control">
-            <option value="available" <?= $status === 'available' ? 'selected' : '' ?>>กำลังประกาศ (Available)</option>
-            <option value="done" <?= $status === 'done' ? 'selected' : '' ?>>ขาย/ปล่อยเช่าแล้ว (Done)</option>
+            <option value="available" <?= $status === 'available' ? 'selected' : '' ?>><?= e(t('กำลังประกาศ (Available)', 'Available (Active)')) ?></option>
+            <option value="done" <?= $status === 'done' ? 'selected' : '' ?>><?= e(t('ขาย/ปล่อยเช่าแล้ว (Done)', 'Sold / Rented (Closed)')) ?></option>
           </select>
         </div>
       </div>
 
       <div class="form-group">
-        <label for="location">ทำเลที่ตั้ง / โซน *</label>
-        <input type="text" id="location" name="location" class="form-control" value="<?= e($location) ?>" placeholder="เช่น ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ" required>
+        <label for="location"><?= e(t('ทำเลที่ตั้ง / โซน *', 'Location / Area *')) ?></label>
+        <input type="text" id="location" name="location" class="form-control" value="<?= e($location) ?>" placeholder="<?= e(t('เช่น ถ.สุขุมวิท แขวงคลองเตย กรุงเทพฯ', 'e.g. Sukhumvit Rd, Khlong Toei, Bangkok')) ?>" required>
       </div>
 
       <div class="form-group">
-        <label for="map_url">ลิงก์ Google Maps (ไม่บังคับ)</label>
-        <input type="url" id="map_url" name="map_url" class="form-control" value="<?= e($mapUrl) ?>" placeholder="วางลิงก์ Google Maps ที่ปักหมุดทรัพย์แล้ว">
+        <label for="map_url"><?= e(t('ลิงก์ Google Maps (ไม่บังคับ)', 'Google Maps Link (Optional)')) ?></label>
+        <input type="url" id="map_url" name="map_url" class="form-control" value="<?= e($mapUrl) ?>" placeholder="<?= e(t('วางลิงก์ Google Maps ที่ปักหมุดทรัพย์แล้ว', 'Paste Google Maps pin link here')) ?>">
       </div>
 
       <div class="grid-2">
-        <div class="form-group"><label for="bedrooms">ห้องนอน</label><input type="number" min="0" name="bedrooms" id="bedrooms" class="form-control" value="<?= e($bedrooms) ?>"></div>
-        <div class="form-group"><label for="bathrooms">ห้องน้ำ</label><input type="number" min="0" name="bathrooms" id="bathrooms" class="form-control" value="<?= e($bathrooms) ?>"></div>
-        <div class="form-group"><label for="area_sqm">พื้นที่ใช้สอย (ตร.ม.)</label><input type="number" min="0" step="0.01" name="area_sqm" id="area_sqm" class="form-control" value="<?= e($area_sqm) ?>"></div>
-        <div class="form-group"><label for="land_area">พื้นที่ดิน (ตร.ว.)</label><input type="number" min="0" step="0.01" name="land_area" id="land_area" class="form-control" value="<?= e($land_area) ?>"></div>
-        <div class="form-group"><label for="parking_spaces">ที่จอดรถ (คัน)</label><input type="number" min="0" name="parking_spaces" id="parking_spaces" class="form-control" value="<?= e($parking_spaces) ?>"></div>
-        <div class="form-group"><label for="floor_number">ชั้น</label><input type="text" name="floor_number" id="floor_number" class="form-control" value="<?= e($floor_number) ?>"></div>
-        <div class="form-group"><label for="furnished">เฟอร์นิเจอร์</label><input type="text" name="furnished" id="furnished" class="form-control" value="<?= e($furnished) ?>"></div>
+        <div class="form-group"><label for="bedrooms"><?= e(t('ห้องนอน', 'Bedrooms')) ?></label><input type="number" min="0" name="bedrooms" id="bedrooms" class="form-control" value="<?= e($bedrooms) ?>"></div>
+        <div class="form-group"><label for="bathrooms"><?= e(t('ห้องน้ำ', 'Bathrooms')) ?></label><input type="number" min="0" name="bathrooms" id="bathrooms" class="form-control" value="<?= e($bathrooms) ?>"></div>
+        <div class="form-group"><label for="area_sqm"><?= e(t('พื้นที่ใช้สอย (ตร.ม.)', 'Floor Area (sq.m.)')) ?></label><input type="number" min="0" step="0.01" name="area_sqm" id="area_sqm" class="form-control" value="<?= e($area_sqm) ?>"></div>
+        <div class="form-group"><label for="land_area"><?= e(t('พื้นที่ดิน (ตร.ว.)', 'Land Area (sq.wa)')) ?></label><input type="number" min="0" step="0.01" name="land_area" id="land_area" class="form-control" value="<?= e($land_area) ?>"></div>
+        <div class="form-group"><label for="parking_spaces"><?= e(t('ที่จอดรถ (คัน)', 'Parking Spaces')) ?></label><input type="number" min="0" name="parking_spaces" id="parking_spaces" class="form-control" value="<?= e($parking_spaces) ?>"></div>
+        <div class="form-group"><label for="floor_number"><?= e(t('ชั้น', 'Floor Number')) ?></label><input type="text" name="floor_number" id="floor_number" class="form-control" value="<?= e($floor_number) ?>"></div>
+        <div class="form-group"><label for="furnished"><?= e(t('เฟอร์นิเจอร์', 'Furnishing')) ?></label><input type="text" name="furnished" id="furnished" class="form-control" value="<?= e($furnished) ?>"></div>
       </div>
-      <div class="form-group"><label for="amenities">สิ่งอำนวยความสะดวก (คั่นด้วยจุลภาค)</label><textarea name="amenities" id="amenities" class="form-control" rows="3"><?= e($amenities) ?></textarea></div>
-      <div class="form-group"><label for="nearby_places">สถานที่ใกล้เคียง (คั่นด้วยจุลภาคหรือขึ้นบรรทัดใหม่)</label><textarea name="nearby_places" id="nearby_places" class="form-control" rows="3"><?= e($nearby_places) ?></textarea></div>
+      <div class="form-group"><label for="amenities"><?= e(t('สิ่งอำนวยความสะดวก (คั่นด้วยจุลภาค)', 'Amenities (comma-separated)')) ?></label><textarea name="amenities" id="amenities" class="form-control" rows="3"><?= e($amenities) ?></textarea></div>
+      <div class="form-group"><label for="nearby_places"><?= e(t('สถานที่ใกล้เคียง (คั่นด้วยจุลภาคหรือขึ้นบรรทัดใหม่)', 'Nearby Places (comma-separated or one per line)')) ?></label><textarea name="nearby_places" id="nearby_places" class="form-control" rows="3"><?= e($nearby_places) ?></textarea></div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="contact_name">ชื่อผู้ติดต่อ</label>
-          <input type="text" id="contact_name" name="contact_name" class="form-control" value="<?= e($contact_name) ?>" placeholder="ชื่อเจ้าหน้าที่ หรือ เจ้าของทรัพย์">
+          <label for="contact_name"><?= e(t('ชื่อผู้ติดต่อ', 'Contact Name')) ?></label>
+          <input type="text" id="contact_name" name="contact_name" class="form-control" value="<?= e($contact_name) ?>" placeholder="<?= e(t('ชื่อเจ้าหน้าที่ หรือ เจ้าของทรัพย์', 'Staff or property owner name')) ?>">
         </div>
 
         <div class="form-group">
-          <label for="phone">เบอร์โทรศัพท์ติดต่อ</label>
-          <input type="text" id="phone" name="phone" class="form-control" value="<?= e($phone) ?>" placeholder="เช่น 095-906-5867">
+          <label for="phone"><?= e(t('เบอร์โทรศัพท์ติดต่อ', 'Contact Phone')) ?></label>
+          <input type="text" id="phone" name="phone" class="form-control" value="<?= e($phone) ?>" placeholder="e.g. 095-906-5867">
         </div>
         <div class="form-group">
-          <label for="line_id">LINE ID (ไม่บังคับ)</label>
-          <input type="text" id="line_id" name="line_id" maxlength="20" class="form-control" value="<?= e($lineId) ?>" placeholder="เช่น yourlineid">
+          <label for="line_id">LINE ID (<?= e(t('ไม่บังคับ', 'Optional')) ?>)</label>
+          <input type="text" id="line_id" name="line_id" maxlength="20" class="form-control" value="<?= e($lineId) ?>" placeholder="e.g. yourlineid">
         </div>
       </div>
 
       <div class="form-group">
-        <label for="description">รายละเอียดเพิ่มเติม</label>
-        <textarea id="description" name="description" class="form-control" rows="6" placeholder="ระบุรายละเอียด จุดเด่น สิ่งอำนวยความสะดวก ของอสังหาริมทรัพย์..."><?= e($description) ?></textarea>
+        <label for="description"><?= e(t('รายละเอียดเพิ่มเติม', 'Additional Description')) ?></label>
+        <textarea id="description" name="description" class="form-control" rows="6" placeholder="<?= e(t('ระบุรายละเอียด จุดเด่น สิ่งอำนวยความสะดวก ของอสังหาริมทรัพย์...', 'Property highlights, features, and key information...')) ?>"><?= e($description) ?></textarea>
       </div>
 
       <div class="form-group">
-        <label for="images">อัปโหลดรูปภาพประกาศ (เลือกได้หลายรูป)</label>
+        <label for="images"><?= e(t('อัปโหลดรูปภาพประกาศ (เลือกได้หลายรูป)', 'Upload Listing Photos (multiple allowed)')) ?></label>
         <input type="file" id="images" name="images[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple style="padding: 10px;">
-        <span style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;">รองรับไฟล์ JPG, JPEG, PNG, WEBP</span>
+        <span style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;"><?= e(t('รองรับไฟล์ JPG, JPEG, PNG, WEBP', 'Supported formats: JPG, JPEG, PNG, WEBP')) ?></span>
       </div>
 
       <div style="margin-top: 32px;">
-        <button type="submit" class="btn-submit">🚀 บันทึกและเผยแพร่ประกาศทันที</button>
+        <button type="submit" class="btn-submit"><?= e(t('🚀 บันทึกและเผยแพร่ประกาศทันที', '🚀 Save & Publish Listing Instantly')) ?></button>
       </div>
 
     </form>

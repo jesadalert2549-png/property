@@ -6,7 +6,7 @@
   margin: 0;
   background: #F9F9FB;
   color: #1E293B;
-  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif;
+  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif;
   min-height: 100vh;
 }
 
@@ -144,4 +144,28 @@
   .staff-hero { padding: 22px; }
   .staff-panel { padding: 20px 16px; }
   .staff-tools { grid-template-columns: 1fr; }
+}
+
+
+/* Staff portal mobile boundary and content sizing safeguards. */
+html { width:100%; max-width:100%; overflow-x:clip; }
+.staff-body { width:100%; min-width:320px; max-width:100%; overflow-wrap:anywhere; }
+.staff-main, .staff-hero, .staff-panel, .staff-tools, .staff-tool, .staff-nav-left, .staff-nav-right { min-width:0; }
+.staff-main { max-width:calc(100% - 40px); }
+.staff-tool-text { overflow-wrap:anywhere; }
+img, video, iframe { max-width:100%; }
+input, select, textarea, button { max-width:100%; }
+@media (max-width:720px) {
+  .staff-navbar { align-items:flex-start; }
+  .staff-nav-left, .staff-nav-right { min-width:0; }
+  .staff-nav-right { justify-content:flex-start; }
+  .staff-main { width:calc(100% - 24px); max-width:none; }
+  .staff-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:420px) {
+  .staff-main { width:calc(100% - 20px); }
+  .staff-stats { grid-template-columns:minmax(0,1fr); }
+  .staff-hero { padding:18px; }
+  .staff-panel { padding:16px 12px; }
+  .staff-nav-left, .staff-nav-right { gap:8px; }
 }

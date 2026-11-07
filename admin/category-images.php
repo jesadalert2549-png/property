@@ -93,7 +93,7 @@ $token = csrf_token();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>จัดการภาพหมวดหมู่ | หลังบ้าน</title>
+  <title><?= e(t('จัดการภาพหมวดหมู่', 'Manage Category Images')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
@@ -114,7 +114,7 @@ $token = csrf_token();
 <main class="wrap" style="margin-top:20px;">
   <?php if ($message): ?><div class="alert success"><?= e($message) ?></div><?php endif; ?>
   <?php foreach ($errors as $error): ?><div class="alert error"><?= e($error) ?></div><?php endforeach; ?>
-  <p class="muted">อัปโหลดภาพ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB ภาพจะแสดงเป็น <strong>ไอคอนหมวดหมู่บนหน้าแรก</strong> (วงกลมมุมขวาล่างของตัวอย่าง) และส่วนหัวของหน้าหมวดหมู่นั้น</p>
+  <p class="muted"><?= e(t('อัปโหลดภาพ JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB ภาพจะแสดงเป็น ไอคอนหมวดหมู่บนหน้าแรก และส่วนหัวของหน้าหมวดหมู่นั้น', 'Upload JPG, PNG or WebP images up to 5 MB. These will appear as homepage category icons and headers.')) ?></p>
   <div class="category-grid">
     <?php foreach (PROPERTY_CATEGORIES as $category => $label): if ($category === 'other') continue; ?>
       <?php $filename = $images[$category] ?? ''; $validImage = $filename !== '' && is_file($imageDirectory . basename($filename)); ?>
@@ -127,7 +127,7 @@ $token = csrf_token();
           </div>
         <?php else: ?>
           <div class="category-preview-wrap">
-            <div class="category-preview-empty">ยังไม่มีภาพหมวดหมู่</div>
+            <div class="category-preview-empty"><?= e(t('ยังไม่มีภาพหมวดหมู่', 'No category image yet')) ?></div>
           </div>
         <?php endif; ?>
         <?php if ($canEditCategoryImages): ?>
@@ -135,21 +135,21 @@ $token = csrf_token();
           <input type="hidden" name="csrf" value="<?= e($token) ?>">
           <input type="hidden" name="category" value="<?= e($category) ?>">
           <input type="hidden" name="action" value="save">
-          <label>เลือกรูปภาพใหม่
+          <label><?= e(t('เลือกรูปภาพใหม่', 'Select new photo')) ?>
             <input type="file" name="image" accept="image/jpeg,image/png,image/webp" required>
           </label>
-          <button type="submit" class="btn-action btn-accent">บันทึกภาพ</button>
+          <button type="submit" class="btn-action btn-accent"><?= e(t('บันทึกภาพ', 'Save Image')) ?></button>
         </form>
         <?php if ($validImage): ?>
-          <form method="post" class="category-actions" style="margin-top:10px">
+          <form method="post" class="category-actions" style="margin-top:10px" onsubmit="return confirm('<?= e(t('ต้องการลบภาพหมวดหมู่นี้หรือไม่?', 'Delete this category image?')) ?>');">
             <input type="hidden" name="csrf" value="<?= e($token) ?>">
             <input type="hidden" name="category" value="<?= e($category) ?>">
             <input type="hidden" name="action" value="delete">
-            <button type="submit" class="btn-action btn-red">ลบภาพ</button>
+            <button type="submit" class="btn-action btn-red"><?= e(t('ลบภาพ', 'Delete Image')) ?></button>
           </form>
         <?php endif; ?>
         <?php else: ?>
-          <div style="font-size:12px;color:#64748B;font-style:italic;margin-top:8px;">👁 ดูได้อย่างเดียว (ต้องได้รับสิทธิ์จาก Founder &amp; CEO เพื่อเปลี่ยนภาพ)</div>
+          <div style="font-size:12px;color:#64748B;font-style:italic;margin-top:8px;">👁 <?= e(t('ดูได้อย่างเดียว (ต้องได้รับสิทธิ์จาก Founder & CEO เพื่อเปลี่ยนภาพ)', 'View-only mode (requires manage permission)')) ?></div>
         <?php endif; ?>
       </section>
     <?php endforeach; ?>

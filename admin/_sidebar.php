@@ -143,7 +143,8 @@ $currentAdminPage = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
 ?>
 <header class="admin-desktop-navbar">
   <?= render_logo_html('index.php', 'sp-logo--dark') ?><span class="admin-brand-admin-label"><?= e($badgeBrand) ?></span>
-  <nav class="admin-navbar-links" aria-label="<?= e(t('เมนูผู้ดูแล', 'Admin menu')) ?>">
+  <button class="admin-nav-scroll-btn admin-nav-scroll-prev" type="button" aria-label="<?= e(t('เลื่อนเมนูไปทางซ้าย', 'Scroll menu left')) ?>" aria-controls="adminNavbarLinks" hidden>‹</button>
+  <nav class="admin-navbar-links" id="adminNavbarLinks" tabindex="0" aria-label="<?= e(t('เมนูผู้ดูแล', 'Admin menu')) ?>">
     <?php foreach ($activeCatalog as $catKey => $catData): ?>
       <?php
       $items = $catData['items'];
@@ -195,6 +196,7 @@ $currentAdminPage = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
       </a>
     <?php endif; ?>
   </nav>
+  <button class="admin-nav-scroll-btn admin-nav-scroll-next" type="button" aria-label="<?= e(t('เลื่อนเมนูไปทางขวา', 'Scroll menu right')) ?>" aria-controls="adminNavbarLinks" hidden>›</button>
   <div class="admin-navbar-account">
     <div class="admin-navbar-user-info">
       <?php if (!empty($adminProfile['avatar_path']) && is_file(__DIR__ . '/../uploads/avatars/' . basename($adminProfile['avatar_path']))): ?>
@@ -296,5 +298,144 @@ $currentAdminPage = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
   backdrop.addEventListener('click', close);
   document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
   window.addEventListener('resize', () => { if (window.innerWidth > 900) close(); });
+})();
+
+/* ── CEO Navbar Dropdowns: คลิกเปิด-ปิด (รองรับมือถือ/แท็บเล็ตและคีย์บอร์ด) ── */
+(() => {
+  'use strict';
+  const dropdowns = Array.from(document.querySelectorAll('.admin-nav-dropdown'));
+  if (!dropdowns.length) return;
+
+  const closeAll = (except) => {
+    dropdowns.forEach(d => {
+      if (d !== except) {
+        d.classList.remove('open');
+        const btn = d.querySelector('.admin-nav-dropdown-btn');
+        if (btn) btn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  };
+
+  dropdowns.forEach(dropdown => {
+    const btn = dropdown.querySelector('.admin-nav-dropdown-btn');
+    if (!btn) return;
+
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-haspopup', 'true');
+
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const willOpen = !dropdown.classList.contains('open');
+      closeAll(dropdown);
+      dropdown.classList.toggle('open', willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
+      window.dispatchEvent(new CustomEvent('admin-nav-dropdown-change', { detail: { dropdown: willOpen ? dropdown : null } }));
+    });
+
+    // แตะ/คลิกรายการในเมนูแล้วปิด dropdown ทันที (กันสะดุดตอนนำทาง)
+    dropdown.querySelectorAll('.admin-dropdown-item').forEach(item => {
+      item.addEventListener('click', () => closeAll(null));
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!event.target.closest('.admin-nav-dropdown')) closeAll(null);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeAll(null);
+  });
+
+  // เปลี่ยนหน้า/ย้าย focus ออกนอกเมนู → ปิดให้เอง
+  window.addEventListener('pagehide', () => closeAll(null));
+  document.addEventListener('focusin', (event) => {
+    if (!event.target.closest('.admin-nav-dropdown')) closeAll(null);
+  });
+})();
+
+/* ── Horizontal navigation controls: buttons, wheel, touch and mouse drag ── */
+(() => {
+  const nav = document.getElementById('adminNavbarLinks');
+  if (!nav) return;
+  const previous = document.querySelector('.admin-nav-scroll-prev');
+  const next = document.querySelector('.admin-nav-scroll-next');
+  const update = () => {
+    const maxScroll = nav.scrollWidth - nav.clientWidth;
+    const scrollable = maxScroll > 2;
+    nav.classList.toggle('is-scrollable', scrollable);
+    if (previous) {
+      previous.hidden = !scrollable;
+      previous.disabled = nav.scrollLeft <= 2;
+    }
+    if (next) {
+      next.hidden = !scrollable;
+      next.disabled = nav.scrollLeft >= maxScroll - 2;
+    }
+    positionDropdown();
+  };
+  const positionDropdown = (targetDropdown) => {
+    if (window.innerWidth <= 900) return;
+    const dropdown = targetDropdown || nav.querySelector('.admin-nav-dropdown.open');
+    if (!dropdown) return;
+    const button = dropdown.querySelector('.admin-nav-dropdown-btn');
+    const panel = dropdown.querySelector('.admin-nav-dropdown-menu');
+    if (!button || !panel) return;
+    const rect = button.getBoundingClientRect();
+    const panelWidth = Math.min(340, window.innerWidth - 24);
+    // วางตรงกับหัวข้อพอดี (ชิดซ้ายของปุ่มหัวข้อ) โดยไม่หลุดขอบซ้าย/ขวาของหน้าจอ
+    const left = Math.max(12, Math.min(rect.left, window.innerWidth - panelWidth - 12));
+    const navbarBottom = nav.closest('.admin-desktop-navbar')?.getBoundingClientRect().bottom || 68;
+    const top = Math.max(rect.bottom + 6, navbarBottom + 4);
+    panel.style.setProperty('--dd-left', `${left}px`);
+    panel.style.setProperty('--dd-top', `${top}px`);
+  };
+  previous && previous.addEventListener('click', () => nav.scrollBy({ left: -Math.max(180, nav.clientWidth * 0.7), behavior: 'smooth' }));
+  next && next.addEventListener('click', () => nav.scrollBy({ left: Math.max(180, nav.clientWidth * 0.7), behavior: 'smooth' }));
+  nav.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', () => update());
+  window.addEventListener('admin-nav-dropdown-change', (event) => positionDropdown(event.detail?.dropdown));
+  nav.addEventListener('wheel', event => {
+    if (nav.scrollWidth > nav.clientWidth && Math.abs(event.deltaY) > Math.abs(event.deltaX)) {
+      nav.scrollLeft += event.deltaY;
+      event.preventDefault();
+    }
+  }, { passive: false });
+
+  let pointerStart = null;
+  let suppressClick = false;
+  nav.addEventListener('pointerdown', event => {
+    if (event.pointerType !== 'mouse' || event.button !== 0 || event.target.closest('a, button')) return;
+    pointerStart = { x: event.clientX, left: nav.scrollLeft, moved: false };
+    nav.setPointerCapture(event.pointerId);
+  });
+  nav.addEventListener('pointermove', event => {
+    if (!pointerStart) return;
+    const distance = event.clientX - pointerStart.x;
+    if (Math.abs(distance) > 4) pointerStart.moved = true;
+    if (pointerStart.moved) {
+      nav.scrollLeft = pointerStart.left - distance;
+      nav.classList.add('is-dragging');
+    }
+  });
+  const endDrag = () => {
+    if (pointerStart && pointerStart.moved) {
+      suppressClick = true;
+      window.setTimeout(() => { suppressClick = false; }, 0);
+    }
+    pointerStart = null;
+    nav.classList.remove('is-dragging');
+  };
+  nav.addEventListener('pointerup', endDrag);
+  nav.addEventListener('pointercancel', endDrag);
+  nav.addEventListener('click', event => {
+    if (suppressClick) {
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClick = false;
+    }
+  }, true);
+  update();
+  requestAnimationFrame(update);
 })();
 </script>

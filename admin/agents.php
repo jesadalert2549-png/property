@@ -32,7 +32,7 @@ $token = csrf_token();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ตรวจรับรอง Agent | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('ตรวจรับรอง Agent', 'Verify Agents')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string)filemtime(__DIR__ . '/admin.css')) ?>">
   <?php site_controls_head(); ?>
 </head>
@@ -41,14 +41,14 @@ $token = csrf_token();
 <main class="agent-review-page">
   <header>
     <span>TRUST &amp; SAFETY</span>
-    <h1>ตรวจรับรอง Agent</h1>
-    <p>ตรวจหลักฐานและข้อมูลใบอนุญาตก่อนอนุมัติเครื่องหมายที่แสดงต่อผู้ใช้</p>
+    <h1><?= e(t('ตรวจรับรอง Agent', 'Verify Real Estate Agents')) ?></h1>
+    <p><?= e(t('ตรวจหลักฐานและข้อมูลใบอนุญาตก่อนอนุมัติเครื่องหมายที่แสดงต่อผู้ใช้', 'Review credentials and license evidence before granting verified badge.')) ?></p>
   </header>
   <?php if ($flash): ?><div class="admin-profile-alert success"><?= e($flash) ?></div><?php endif; ?>
   <?php if (!$pending): ?>
     <section class="agent-review-empty">
-      <strong>ไม่มีคำขอที่รอตรวจ</strong>
-      <p>คำขอใหม่จากสมาชิกจะแสดงในหน้านี้</p>
+      <strong><?= e(t('ไม่มีคำขอที่รอตรวจ', 'No pending agent applications')) ?></strong>
+      <p><?= e(t('คำขอใหม่จากสมาชิกจะแสดงในหน้านี้', 'New applications from members will appear here.')) ?></p>
     </section>
   <?php else: ?>
     <div class="agent-review-list">
@@ -56,28 +56,28 @@ $token = csrf_token();
         <article class="agent-review-card">
           <div class="agent-review-card-head">
             <div>
-              <small>คำขอจาก <?= e($agent['username']) ?> · <?= e(date('d/m/Y', strtotime($agent['created_at']))) ?></small>
+              <small><?= e(t('คำขอจาก ', 'Application from ')) . e($agent['username']) ?> · <?= e(date('d/m/Y', strtotime($agent['created_at']))) ?></small>
               <h2><?= e($agent['full_name'] ?: $agent['username']) ?></h2>
             </div>
-            <span class="agent-status-label pending">รอตรวจสอบ</span>
+            <span class="agent-status-label pending"><?= e(t('รอตรวจสอบ', 'Pending Review')) ?></span>
           </div>
           <dl>
-            <div><dt>บริษัท/สังกัด</dt><dd><?= e($agent['agent_agency']) ?></dd></div>
-            <div><dt>เลขใบอนุญาต/ทะเบียน</dt><dd><?= e($agent['agent_license']) ?></dd></div>
-            <div><dt>อีเมลและโทรศัพท์</dt><dd><?= e($agent['email']) ?><?= $agent['phone'] ? ' · ' . e($agent['phone']) : '' ?></dd></div>
+            <div><dt><?= e(t('บริษัท/สังกัด', 'Company / Agency')) ?></dt><dd><?= e($agent['agent_agency']) ?></dd></div>
+            <div><dt><?= e(t('เลขใบอนุญาต/ทะเบียน', 'License / Registration No.')) ?></dt><dd><?= e($agent['agent_license']) ?></dd></div>
+            <div><dt><?= e(t('อีเมลและโทรศัพท์', 'Email & Phone')) ?></dt><dd><?= e($agent['email']) ?><?= $agent['phone'] ? ' · ' . e($agent['phone']) : '' ?></dd></div>
           </dl>
           <?php if (!empty($agent['agent_document'])): ?>
-            <a class="agent-document-link" href="agent-document.php?id=<?= (int)$agent['id'] ?>" target="_blank" rel="noopener">เปิดดูหลักฐานที่แนบ ↗</a>
+            <a class="agent-document-link" href="agent-document.php?id=<?= (int)$agent['id'] ?>" target="_blank" rel="noopener"><?= e(t('เปิดดูหลักฐานที่แนบ ↗', 'View attached document ↗')) ?></a>
           <?php endif; ?>
           <?php if ($canVerifyAgents): ?>
             <form method="post" class="agent-review-actions">
               <input type="hidden" name="csrf" value="<?= e($token) ?>">
               <input type="hidden" name="user_id" value="<?= (int)$agent['id'] ?>">
-              <button name="decision" value="approve" class="agent-approve">✓ รับรอง Agent</button>
-              <button name="decision" value="reject" class="agent-reject">ไม่รับรอง</button>
+              <button name="decision" value="approve" class="agent-approve">✓ <?= e(t('รับรอง Agent', 'Approve Badge')) ?></button>
+              <button name="decision" value="reject" class="agent-reject"><?= e(t('ไม่รับรอง', 'Reject')) ?></button>
             </form>
           <?php else: ?>
-            <div style="font-size:12px;color:#64748B;font-style:italic;padding:8px 0;">👁 ดูข้อมูลได้อย่างเดียว (ต้องได้รับสิทธิ์อนุมัติจาก Founder &amp; CEO)</div>
+            <div style="font-size:12px;color:#64748B;font-style:italic;padding:8px 0;">👁 <?= e(t('ดูข้อมูลได้อย่างเดียว (ต้องได้รับสิทธิ์อนุมัติจาก Founder & CEO)', 'View-only mode (requires admin authorization)')) ?></div>
           <?php endif; ?>
         </article>
       <?php endforeach; ?>

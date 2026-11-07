@@ -22,7 +22,7 @@ $p = $st->fetch();
 if (!$p) {
     render_not_found();
 }
-$publisherName = trim((string)($p['owner_full_name'] ?? '')) ?: (trim((string)$p['contact_name']) ?: 'ผู้ประกาศ');
+$publisherName = trim((string)($p['owner_full_name'] ?? '')) ?: (trim((string)$p['contact_name']) ?: t('ผู้ประกาศ', 'Lister'));
 $publisherAvatar = basename((string)($p['owner_avatar_path'] ?? ''));
 $publisherAvatarExists = $publisherAvatar !== '' && is_file(__DIR__ . '/uploads/avatars/' . $publisherAvatar);
 
@@ -125,7 +125,7 @@ json_ld([
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif; background-color: #F9F9FB; }
+    body { font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif; background-color: #F9F9FB; }
     .map-grid {
       background:
         linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)),
@@ -313,10 +313,20 @@ json_ld([
           'floor_number' => [t('ชั้น', 'Floor'), ''],
           'furnished' => [t('เฟอร์นิเจอร์', 'Furnishing'), ''],
         ] as $field => [$label, $unit]): ?>
-          <?php if ($p[$field] !== null && $p[$field] !== ''): ?>
+          <?php if ($p[$field] !== null && $p[$field] !== ''):
+            $fieldVal = (string)$p[$field];
+            if ($field === 'furnished') {
+              $fieldVal = match (trim($fieldVal)) {
+                'เฟอร์นิเจอร์ครบ', 'ตกแต่งครบ' => t('เฟอร์นิเจอร์ครบ', 'Fully furnished'),
+                'ไม่มีเฟอร์นิเจอร์', 'ห้องเปล่า' => t('ไม่มีเฟอร์นิเจอร์', 'Unfurnished'),
+                'มีบางส่วน' => t('มีบางส่วน', 'Partially furnished'),
+                default => $fieldVal,
+              };
+            }
+          ?>
             <div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
               <p class="text-xs uppercase tracking-[.15em] text-slate-500"><?= e($label) ?></p>
-              <p class="mt-2 text-base font-extrabold text-ink"><?= e($p[$field]) ?><?= e($unit) ?></p>
+              <p class="mt-2 text-base font-extrabold text-ink"><?= e($fieldVal) ?><?= e($unit) ?></p>
             </div>
           <?php endif; ?>
         <?php endforeach; ?>

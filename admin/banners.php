@@ -222,10 +222,10 @@ $heroBg = get_hero_background();
   <div class="promo-hero">
     <div>
       <span class="eyebrow">PORTAL ADS & DECORATION SYSTEM</span>
-      <h1>จัดการแบนเนอร์และสื่อโปรโมชันเว็บ</h1>
-      <p style="margin:0;color:rgba(255,255,255,.78);font-size:13.5px;">เลือกตำแหน่งลงโฆษณาได้อิสระทุกส่วนของเว็บ รองรับรูปภาพ โปสเตอร์ และวิดีโอลูป พร้อมระบบจำลองตำแหน่งสด</p>
+      <h1><?= e(t('จัดการแบนเนอร์และสื่อโปรโมชันเว็บ', 'Manage Banners & Promotion Media')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.78);font-size:13.5px;"><?= e(t('เลือกตำแหน่งลงโฆษณาได้อิสระทุกส่วนของเว็บ รองรับรูปภาพ โปสเตอร์ และวิดีโอลูป พร้อมระบบจำลองตำแหน่งสด', 'Select advertising slots freely across the site. Supports images, posters, and looping video with live wireframe preview.')) ?></p>
     </div>
-    <span style="display:inline-flex;padding:10px 18px;border-radius:999px;background:rgba(197,160,89,.18);border:1px solid rgba(197,160,89,.45);color:#E5CB96;font-size:13px;font-weight:700;">🎬 ภาพนิ่ง · GIF · MP4 วนลูป</span>
+    <span style="display:inline-flex;padding:10px 18px;border-radius:999px;background:rgba(197,160,89,.18);border:1px solid rgba(197,160,89,.45);color:#E5CB96;font-size:13px;font-weight:700;">🎬 <?= e(t('ภาพนิ่ง · GIF · MP4 วนลูป', 'Static Images · GIF · Looping MP4')) ?></span>
   </div>
 
   <?php if ($message): ?><div class="alert-ok">✅ <?= e($message) ?></div><?php endif; ?>
@@ -234,11 +234,11 @@ $heroBg = get_hero_background();
   <!-- 0. จัดการภาพหรือวิดีโอพื้นหลังหลัก Hero Section หน้าแรก -->
   <section class="promo-card" id="heroBgSection">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:8px;">
-      <h2>🌄 สื่อพื้นหลังหลักหน้าแรก (Main Hero Background Media)</h2>
-      <a href="../index.php" target="_blank" rel="noopener" class="mini-btn live">👁️ ดูบนหน้าแรกจริง ↗</a>
+      <h2>🌄 <?= e(t('สื่อพื้นหลังหลักหน้าแรก (Main Hero Background Media)', 'Main Hero Background Media')) ?></h2>
+      <a href="../index.php" target="_blank" rel="noopener" class="mini-btn live">👁️ <?= e(t('ดูบนหน้าแรกจริง ↗', 'View Live Homepage ↗')) ?></a>
     </div>
     <p class="intro">
-      อัปเดตรูปภาพหรือคลิปวิดีโอวนลูปในส่วนหัวของหน้าแรก (Hero Section) โดยตรง เว็บไซต์จะปรับขนาดให้เต็มพื้นที่อัตโนมัติทั้งบนคอมพิวเตอร์และมือถือ ไม่ต้องเปิดโค้ดแก้เองอีกต่อไป
+      <?= e(t('อัปเดตรูปภาพหรือคลิปวิดีโอวนลูปในส่วนหัวของหน้าแรก (Hero Section) โดยตรง เว็บไซต์จะปรับขนาดให้เต็มพื้นที่อัตโนมัติทั้งบนคอมพิวเตอร์และมือถือ ไม่ต้องเปิดโค้ดแก้เองอีกต่อไป', 'Directly update hero background image or looping video. Auto-scales to fit all screen sizes on desktop and mobile.')) ?>
     </p>
 
     <!-- กล่องแสดงสถานะพื้นหลังปัจจุบัน -->
@@ -304,7 +304,7 @@ $heroBg = get_hero_background();
           <div style="position:absolute;bottom:10px;left:14px;color:#fff;font-size:12px;font-weight:700;z-index:2;" id="heroPreviewLabel"></div>
         </div>
 
-        <button type="submit" class="btn-add" style="grid-column:1/-1;">💾 บันทึกและเปลี่ยนพื้นหลังหน้าแรกทันที</button>
+        <button type="submit" class="btn-add" style="grid-column:1/-1;">💾 <?= e(t('บันทึกและเปลี่ยนพื้นหลังหน้าแรกทันที', 'Save & Update Background Immediately')) ?></button>
       </form>
     <?php else: ?>
       <div style="font-size:12.5px;color:#64748B;font-style:italic;padding:10px 0;">👁 สิทธิ์การเปลี่ยนภาพ/วิดีโอพื้นหลังหลักสงวนเฉพาะ Founder &amp; CEO หรือผู้ที่ได้รับมอบหมาย</div>
@@ -313,8 +313,8 @@ $heroBg = get_hero_background();
 
   <!-- 1. แผนผังจำลองตำแหน่งบนหน้าเว็บ (Interactive Slot Blueprint) -->
   <section class="promo-card">
-    <h2>🗺️ แผนผังตำแหน่งบนหน้าเว็บ (คลิกเพื่อเลือกตำแหน่งลงแบนเนอร์)</h2>
-    <p class="intro">คลิกที่แถบสีทองด้านล่างเพื่อเลือกตำแหน่งที่ต้องการลงโฆษณา ระบบจะเลือกสล็อตและแสดงรายละเอียดให้ทันที</p>
+    <h2>🗺️ <?= e(t('แผนผังตำแหน่งบนหน้าเว็บ (คลิกเพื่อเลือกตำแหน่งลงแบนเนอร์)', 'Visual Slot Blueprint (Click to select slot)')) ?></h2>
+    <p class="intro"><?= e(t('คลิกที่แถบสีทองด้านล่างเพื่อเลือกตำแหน่งที่ต้องการลงโฆษณา ระบบจะเลือกสล็อตและแสดงรายละเอียดให้ทันที', 'Click any slot below to choose your ad placement. The system will auto-select and display slot details.')) ?></p>
 
     <div class="wireframe-container">
       <!-- 1.1 หน้าแรก Blueprint -->

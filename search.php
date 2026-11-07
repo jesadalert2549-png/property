@@ -115,32 +115,41 @@ $items = $st->fetchAll();
     </form>
 
     <div class="search-hot-provinces" style="display:flex; flex-wrap:wrap; gap:6px; margin:14px 0 24px; align-items:center;">
-      <span style="font-size:12px; font-weight:700; color:#C5A059;">🏢 ย่าน CBD &amp; รถไฟฟ้า:</span>
+      <span style="font-size:12px; font-weight:700; color:#C5A059;">🏢 <?= e(t('ย่าน CBD & รถไฟฟ้า:', 'Prime CBD & Transit:')) ?></span>
       <?php
       $cbdFastTags = [
-          'สุขุมวิท' => 'สุขุมวิท',
-          'ทองหล่อ'  => 'ทองหล่อ',
-          'เอกมัย'   => 'เอกมัย',
-          'สาทร'     => 'สาทร',
-          'สีลม'     => 'สีลม',
-          'พระราม 9' => 'พระราม 9',
-          'อารีย์'    => 'อารีย์',
-          'ลาดพร้าว' => 'ลาดพร้าว',
-          'บางนา'    => 'บางนา',
-          'นิมมาน'   => 'นิมมานฯ (เชียงใหม่)',
-          'พัทยา'    => 'พัทยา',
-          'หัวหิน'    => 'หัวหิน'
+          'สุขุมวิท' => t('สุขุมวิท', 'Sukhumvit'),
+          'ทองหล่อ'  => t('ทองหล่อ', 'Thong Lo'),
+          'เอกมัย'   => t('เอกมัย', 'Ekkamai'),
+          'สาทร'     => t('สาทร', 'Sathorn'),
+          'สีลม'     => t('สีลม', 'Silom'),
+          'พระราม 9' => t('พระราม 9', 'Rama 9'),
+          'อารีย์'    => t('อารีย์', 'Ari'),
+          'ลาดพร้าว' => t('ลาดพร้าว', 'Ladprao'),
+          'บางนา'    => t('บางนา', 'Bangna'),
+          'นิมมาน'   => t('นิมมานฯ (เชียงใหม่)', 'Nimman (Chiang Mai)'),
+          'พัทยา'    => t('พัทยา', 'Pattaya'),
+          'หัวหิน'    => t('หัวหิน', 'Hua Hin')
       ];
       foreach ($cbdFastTags as $kw => $lbl):
       ?>
         <a href="search.php?q=<?= urlencode($kw) ?>" style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:#0B1C33; color:#fff; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#0B1C33'"><?= e($lbl) ?></a>
       <?php endforeach; ?>
-      <span style="font-size:12px; font-weight:700; color:#64748B; margin-left:8px;">📍 จังหวัดยอดนิยม:</span>
+      <span style="font-size:12px; font-weight:700; color:#64748B; margin-left:8px;">📍 <?= e(t('จังหวัดยอดนิยม:', 'Popular Provinces:')) ?></span>
       <?php
-      $hotProvs = ['กรุงเทพมหานคร', 'เชียงใหม่', 'ภูเก็ต', 'ชลบุรี', 'นนทบุรี', 'สมุทรปราการ', 'ปทุมธานี', 'ระยอง'];
-      foreach ($hotProvs as $hp):
+      $hotProvs = [
+          'กรุงเทพมหานคร' => t('กรุงเทพฯ', 'Bangkok'),
+          'เชียงใหม่'     => t('เชียงใหม่', 'Chiang Mai'),
+          'ภูเก็ต'        => t('ภูเก็ต', 'Phuket'),
+          'ชลบุรี'        => t('ชลบุรี (พัทยา)', 'Chonburi (Pattaya)'),
+          'นนทบุรี'       => t('นนทบุรี', 'Nonthaburi'),
+          'สมุทรปราการ'   => t('สมุทรปราการ', 'Samut Prakan'),
+          'ปทุมธานี'       => t('ปทุมธานี', 'Pathum Thani'),
+          'ระยอง'         => t('ระยอง', 'Rayong'),
+      ];
+      foreach ($hotProvs as $hpKw => $hpLbl):
       ?>
-        <a href="search.php?q=<?= urlencode($hp) ?>" style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:#fff; border:1px solid #e2e8f0; color:#0B1C33; text-decoration:none;" onmouseover="this.style.borderColor='#C5A059';this.style.color='#C5A059'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#0B1C33'"><?= e($hp) ?></a>
+        <a href="search.php?q=<?= urlencode($hpKw) ?>" style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:#fff; border:1px solid #e2e8f0; color:#0B1C33; text-decoration:none;" onmouseover="this.style.borderColor='#C5A059';this.style.color='#C5A059'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#0B1C33'"><?= e($hpLbl) ?></a>
       <?php endforeach; ?>
     </div>
 

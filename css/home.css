@@ -12,7 +12,7 @@
 body {
   color: var(--home-ink);
   background: #F9F9FB;
-  font-family: "Prompt", "Inter", system-ui, sans-serif;
+  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", system-ui, serif;
 }
 
 .container {
@@ -21,10 +21,7 @@ body {
 
 .dd-navbar {
   min-height: 76px;
-  background: #0B1C33 !important;
-  border-bottom: 1px solid rgba(197, 160, 89, 0.22);
   padding: 10px max(24px, calc((100vw - 1240px) / 2));
-  box-shadow: 0 4px 20px rgba(11, 28, 51, 0.18);
 }
 
 .dd-nav-left,
@@ -111,8 +108,8 @@ body {
   position: relative;
   overflow: hidden;
   width: 100%;
-  min-height: 480px;
-  padding: 56px 20px 48px;
+  min-height: 520px;
+  padding: 128px 20px 48px;
   background-color: #0B1C33;
   display: flex;
   flex-direction: column;
@@ -874,20 +871,68 @@ body {
   .showcase-card:hover .showcase-img { transform: none; }
 }
 
-/* Index navbar contrast fix: dark brand bar with readable Buy/Rent dropdowns */
+/* Index navbar: transparent overlay on hero at top, sticky dark navy when scrolled */
 .dd-navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.08) 60%, transparent 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.32s cubic-bezier(.22, 1, .36, 1),
+              border-color 0.32s ease,
+              box-shadow 0.32s ease,
+              padding 0.25s ease;
+}
+.dd-navbar.scrolled {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 24px;
   background: #0B1C33 !important;
-  border-bottom: 1px solid rgba(197, 160, 89, 0.28);
+  border-bottom: 1px solid rgba(197, 160, 89, 0.28) !important;
+  box-shadow: 0 8px 26px rgba(6, 15, 28, 0.35);
 }
-.dd-navbar .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle,
-.dd-navbar .dd-desktop-menu > .dd-menu-item {
+
+/* Menu items: dark navy text at top over transparent hero, white text when scrolled */
+.dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle,
+.dd-navbar:not(.scrolled) .dd-desktop-menu > .dd-menu-item {
+  color: #0B1C33 !important;
+  font-weight: 800;
+  font-size: 14.5px;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+  transition: color 0.2s ease;
+}
+.dd-navbar.scrolled .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle,
+.dd-navbar.scrolled .dd-desktop-menu > .dd-menu-item {
   color: #FFFFFF !important;
+  font-weight: 600;
+  font-size: 14px;
+  text-shadow: none;
 }
-.dd-navbar .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle:hover,
-.dd-navbar .dd-desktop-menu > .dd-menu-item:hover {
+.dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle:hover,
+.dd-navbar:not(.scrolled) .dd-desktop-menu > .dd-menu-item:hover {
+  color: #8C6B32 !important;
+}
+.dd-navbar.scrolled .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle:hover,
+.dd-navbar.scrolled .dd-desktop-menu > .dd-menu-item:hover {
   color: #C5A059 !important;
 }
-.dd-navbar .nav-caret { border-color: currentColor; }
+
+.dd-navbar:not(.scrolled) .nav-caret {
+  border-color: #0B1C33 !important;
+}
+.dd-navbar.scrolled .nav-caret {
+  border-color: #FFFFFF !important;
+}
+
 .dd-navbar .nav-dropdown-panel {
   background: #FFFFFF;
   border-color: #E2E8F0;
@@ -896,10 +941,124 @@ body {
 .dd-navbar .nav-dropdown-heading { color: #A8843F; }
 .dd-navbar .nav-dropdown-col > a { color: #0B1C33 !important; }
 .dd-navbar .nav-dropdown-col > a:hover { background: #F9F5EC; color: #8C6B32 !important; }
-.dd-navbar .mobile-hamburger-btn { color: #FFFFFF !important; }
-.dd-navbar .dd-icon-btn { color: #FFFFFF; }
-.dd-navbar .dd-logo-img--light { display: none !important; }
-.dd-navbar .dd-logo-img--dark { display: block !important; }
+
+/* Buttons & hamburger */
+.dd-navbar:not(.scrolled) .mobile-hamburger-btn {
+  color: #0B1C33 !important;
+}
+.dd-navbar.scrolled .mobile-hamburger-btn {
+  color: #FFFFFF !important;
+}
+
+/* Translucent pill buttons at top (.dd-icon-btn) - matches user's design */
+.dd-navbar:not(.scrolled) .dd-icon-btn {
+  color: #0B1C33 !important;
+  border: 1px solid rgba(11, 28, 51, 0.35) !important;
+  background: rgba(0, 0, 0, 0.18) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-weight: 700;
+  font-size: 13.5px;
+  border-radius: 9999px;
+  padding: 7px 18px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: all .2s ease;
+}
+.dd-navbar:not(.scrolled) .dd-icon-btn:hover {
+  background: rgba(0, 0, 0, 0.28) !important;
+  border-color: #0B1C33 !important;
+  color: #0B1C33 !important;
+}
+.dd-navbar.scrolled .dd-icon-btn {
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-radius: 9999px;
+  padding: 7px 18px;
+  font-size: 13.5px;
+}
+.dd-navbar.scrolled .dd-icon-btn:hover {
+  background: rgba(197, 160, 89, 0.16) !important;
+  border-color: #C5A059 !important;
+  color: #E4C688 !important;
+}
+
+/* Gold CTA pill button at top (.dd-btn-login) - matches user's design */
+.dd-navbar:not(.scrolled) .dd-btn-login {
+  background: #C5A059 !important;
+  color: #0B1C33 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  border-radius: 9999px !important;
+  padding: 8px 22px !important;
+  transition: all .2s ease;
+}
+.dd-navbar:not(.scrolled) .dd-btn-login:hover {
+  background: #B58F48 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25) !important;
+}
+.dd-navbar.scrolled .dd-btn-login {
+  background: linear-gradient(135deg, #C5A059, #A8843F) !important;
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  border-radius: 9999px !important;
+  padding: 8px 22px !important;
+  box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35) !important;
+}
+
+/* White pill language toggle (.lang-toggle) - matches user's design */
+.dd-navbar:not(.scrolled) .lang-toggle {
+  background: #FFFFFF !important;
+  color: #0B1C33 !important;
+  border: 1px solid #CBD5E1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  border-radius: 9999px !important;
+  padding: 7px 15px !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+}
+.dd-navbar:not(.scrolled) .lang-toggle .lang-globe-icon {
+  color: #0284c7;
+}
+.dd-navbar.scrolled .lang-toggle {
+  background: #FFFFFF !important;
+  color: #2b2150 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 9999px !important;
+  padding: 7px 15px !important;
+}
+
+/* Logo: dark text logo at top, white text logo when scrolled */
+.dd-navbar:not(.scrolled) .kasa-logo-img--light {
+  display: block !important;
+}
+.dd-navbar:not(.scrolled) .kasa-logo-img--dark {
+  display: none !important;
+}
+.dd-navbar.scrolled .kasa-logo-img--light {
+  display: none !important;
+}
+.dd-navbar.scrolled .kasa-logo-img--dark {
+  display: block !important;
+}
+
+/* Logo: dark text logo at top, white text logo when scrolled */
+.dd-navbar:not(.scrolled) .kasa-logo-img--light {
+  display: block !important;
+}
+.dd-navbar:not(.scrolled) .kasa-logo-img--dark {
+  display: none !important;
+}
+.dd-navbar.scrolled .kasa-logo-img--light {
+  display: none !important;
+}
+.dd-navbar.scrolled .kasa-logo-img--dark {
+  display: block !important;
+}
 
 /* Search controls remain high-contrast and easy to operate */
 .dd-search-container { color: #0B1C33; }

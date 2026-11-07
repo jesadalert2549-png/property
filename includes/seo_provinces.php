@@ -1,6 +1,6 @@
 <?php
 /**
- * KASA PROPERTY — Nationwide Province, Prime CBD Zones & AI Search (GEO) Knowledge Engine
+ * PropertyGO — Nationwide Province, Prime CBD Zones & AI Search (GEO) Knowledge Engine
  * ---------------------------------------------------------------------------------------
  * ครอบคลุม 77 จังหวัดทั่วไทย + ย่าน CBD ทำเลเศรษฐกิจ แนวรถไฟฟ้า BTS/MRT และทำเลทองที่มีการค้นหาสูงสุด
  * รองรับทั้ง Google SERP (SEO) และ Generative Engine Optimization (GEO) สำหรับ AI Search (SearchGPT, Claude, Perplexity, Gemini)
@@ -428,6 +428,41 @@ function resolve_seo_intent(string $slug, array $get = []): array
 // ── สร้าง FAQ Schema (JSON-LD) เจาะจงสำหรับ Google AI Overviews & ChatGPT Search ──
 function generate_geo_faq_schema(array $intent): array
 {
+    if (is_en()) {
+        $catEn = !empty($intent['category']) ? (property_category_en_label($intent['category']) ?? 'properties') : 'properties';
+        $typeEn = ($intent['type'] ?? '') === 'rent' ? 'renting' : 'buying';
+        return [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name' => "How do I find {$catEn} listings for {$typeEn} on " . SITE_NAME . "?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => "You can easily browse, search and filter verified {$catEn} listings on " . SITE_NAME . " with high-resolution photos, detailed specifications, pricing, and direct contact details for owners and agents with zero hidden fees."
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => "What factors should I consider when evaluating {$catEn} properties?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => "Key factors include location convenience (proximity to BTS/MRT transit stations or main expressways), neighborhood amenities, building facilities, estimated rental yield, and resale potential."
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name' => "Is it free to list my property on " . SITE_NAME . "?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text' => "Yes! Property owners and verified real estate agents can register for free and list residential or commercial properties with photo galleries, interactive maps, and direct LINE/phone contact."
+                    ]
+                ],
+            ]
+        ];
+    }
+
     $locationName = $intent['hot_zone'] ?: ($intent['province'] ?: 'ประเทศไทย');
     $cat = $intent['category_label'];
     $type = $intent['type_label'];

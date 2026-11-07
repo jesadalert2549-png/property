@@ -223,13 +223,13 @@ $keywords = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // จัดกลุ่ม 77 จังหวัดตามภูมิภาค
 $provincesByRegion = [
-    'bangkok' => ['title' => 'กรุงเทพฯ และปริมณฑล', 'list' => []],
-    'central' => ['title' => 'ภาคกลาง', 'list' => []],
-    'north'   => ['title' => 'ภาคเหนือ', 'list' => []],
-    'northeast' => ['title' => 'ภาคตะวันออกเฉียงเหนือ (อีสาน)', 'list' => []],
-    'east'    => ['title' => 'ภาคตะวันออก', 'list' => []],
-    'west'    => ['title' => 'ภาคตะวันตก', 'list' => []],
-    'south'   => ['title' => 'ภาคใต้', 'list' => []],
+    'bangkok' => ['title' => t('กรุงเทพฯ และปริมณฑล', 'Bangkok & Greater Bangkok'), 'list' => []],
+    'central' => ['title' => t('ภาคกลาง', 'Central Region'), 'list' => []],
+    'north'   => ['title' => t('ภาคเหนือ', 'Northern Region'), 'list' => []],
+    'northeast' => ['title' => t('ภาคตะวันออกเฉียงเหนือ (อีสาน)', 'Northeastern Region (Isan)'), 'list' => []],
+    'east'    => ['title' => t('ภาคตะวันออก', 'Eastern Region'), 'list' => []],
+    'west'    => ['title' => t('ภาคตะวันตก', 'Western Region'), 'list' => []],
+    'south'   => ['title' => t('ภาคใต้', 'Southern Region'), 'list' => []],
 ];
 
 foreach (THAI_PROVINCES as $provName => $p) {
@@ -248,7 +248,7 @@ $flash = get_flash();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ระบบ SEO & GEO AI เจาะ 77 จังหวัด | <?= e(SITE_NAME) ?></title>
+  <title><?= e(t('ระบบ SEO & GEO AI เจาะ 77 จังหวัด', 'SEO & GEO AI 77 Provinces Engine')) ?> | <?= e(SITE_NAME) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
   <style>
