@@ -1,0 +1,57 @@
+import fs from 'fs';
+export default async function run(page) {
+  const buf = fs.readFileSync('images/PROPERTYGO.png');
+  const base64 = buf.toString('base64');
+  const dataUrl = `data:image/png;base64,${base64}`;
+
+  const info = await page.evaluate(async (src) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.width;
+        c.height = img.height;
+        const ctx = c.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const data = ctx.getImageData(0, 0, img.width, img.height).data;
+
+        // Sample corner pixel (0,0)
+        const cornerAlpha = data[3];
+        const cornerR = data[0];
+        const cornerG = data[1];
+        const cornerB = data[2];
+
+        // Find non-white / non-transparent bounding box
+        let minX = img.width, minY = img.height, maxX = 0, maxY = 0;
+        for (let y = 0; y < img.height; y++) {
+          for (let x = 0; x < img.width; x++) {
+            const idx = (y * img.width + x) * 4;
+            const r = data[idx];
+            const g = data[idx + 1];
+            const b = data[idx + 2];
+            const a = data[idx + 3];
+
+            // If not pure white and not transparent
+            const isWhiteOrTrans = (a === 0) || (r > 240 && g > 240 && b > 240);
+            if (!isWhiteOrTrans) {
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+
+        resolve({
+          w: img.width,
+          h: img.height,
+          corner: { r: cornerR, g: cornerG, b: cornerB, a: cornerAlpha },
+          bounds: { minX, minY, maxX, maxY, contentW: maxX - minX + 1, contentH: maxY - minY + 1 }
+        });
+      };
+      img.src = src;
+    });
+  }, dataUrl);
+
+  return info;
+}
