@@ -1,7 +1,0 @@
-# ห้ามรันไฟล์ PHP ในโฟลเดอร์รูป เพื่อป้องกันการแอบอัปโหลดโค้ด
-<FilesMatch "\.(php|phtml|phar|pl|py|cgi|sh)$">
-    Require all denied
-</FilesMatch>
-
-# อนุญาตให้เปิดดูรูปได้ตามปกติ
-Options -Indexes
