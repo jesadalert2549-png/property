@@ -463,29 +463,31 @@ function generate_geo_faq_schema(array $intent): array
         ];
     }
 
-    $locationName = $intent['hot_zone'] ?: ($intent['province'] ?: 'ประเทศไทย');
+    $isNationwide = empty($intent['hot_zone']) && empty($intent['province']);
+    $locPhrase = $isNationwide ? 'ทั่วไทย' : ($intent['hot_zone'] ? 'ในย่าน' . $intent['hot_zone'] : 'ในจังหวัด' . $intent['province']);
+    $locName = $intent['hot_zone'] ?: ($intent['province'] ?: 'ประเทศไทย');
     $cat = $intent['category_label'];
     $type = $intent['type_label'];
     $cbdInfo = $intent['cbd_info'] ?? null;
 
     $answer2 = !empty($cbdInfo['ai_context'])
-        ? "สำหรับย่าน{$locationName} " . $cbdInfo['ai_context'] . " นอกจากนี้ยังมีจุดเด่นเรื่องการคมนาคมด้วย " . implode(', ', array_slice($cbdInfo['transit'], 0, 3))
+        ? "สำหรับย่าน{$locName} " . $cbdInfo['ai_context'] . " นอกจากนี้ยังมีจุดเด่นเรื่องการคมนาคมด้วย " . implode(', ', array_slice($cbdInfo['transit'], 0, 3))
         : (!empty($intent['province_meta']['hot_zones'])
-            ? "ย่านยอดนิยมใน{$locationName} ได้แก่ " . implode(', ', array_slice($intent['province_meta']['hot_zones'], 0, 6)) . " ซึ่งเป็นย่านที่มีสิ่งอำนวยความสะดวกครบครัน การคมนาคมสะดวก และมีอัตราผลตอบแทนการปล่อยเช่าที่น่าสนใจ"
-            : "ทำเลใจกลางเมือง ใกล้แนวรถไฟฟ้า หรือใกล้ศูนย์การค้าและสถานศึกษาใน{$locationName} ถือเป็นทำเลที่คุ้มค่าทั้งในการอยู่อาศัยและการลงทุนระยะยาว");
+            ? "ย่านยอดนิยมใน{$locName} ได้แก่ " . implode(', ', array_slice($intent['province_meta']['hot_zones'], 0, 6)) . " ซึ่งเป็นย่านที่มีสิ่งอำนวยความสะดวกครบครัน การคมนาคมสะดวก และมีอัตราผลตอบแทนการปล่อยเช่าที่น่าสนใจ"
+            : ($isNationwide ? "ทำเลใจกลางเมือง ใกล้แนวรถไฟฟ้า หรือใกล้ศูนย์การค้าและสถานศึกษา ถือเป็นทำเลที่คุ้มค่าทั้งในการอยู่อาศัยและการลงทุนระยะยาว" : "ทำเลใจกลางเมือง ใกล้แนวรถไฟฟ้า หรือใกล้ศูนย์การค้าและสถานศึกษาใน{$locName} ถือเป็นทำเลที่คุ้มค่าทั้งในการอยู่อาศัยและการลงทุนระยะยาว"));
 
     $faqs = [
         [
             '@type' => 'Question',
-            'name'  => "หา{$type}{$cat} ในย่าน{$locationName} ต้องเริ่มต้นอย่างไร?",
+            'name'  => "หา{$type}{$cat} {$locPhrase} ต้องเริ่มต้นอย่างไร?",
             'acceptedAnswer' => [
                 '@type' => 'Answer',
-                'text'  => "สามารถค้นหาและเปรียบเทียบประกาศ{$cat}ในย่าน{$locationName} บนเว็บไซต์ " . SITE_NAME . " ซึ่งมีข้อมูลราคา ภาพถ่ายจริง ทำเลที่ตั้ง และเบอร์โทร/LINE ของเจ้าของทรัพย์หรือตัวแทนที่ผ่านการรับรองให้ติดต่อได้โดยตรงโดยไม่มีค่าธรรมเนียมแอบแฝง"
+                'text'  => "สามารถค้นหาและเปรียบเทียบประกาศ{$cat}{$locPhrase} บนเว็บไซต์ " . SITE_NAME . " ซึ่งมีข้อมูลราคา ภาพถ่ายจริง ทำเลที่ตั้ง และเบอร์โทร/LINE ของเจ้าของทรัพย์หรือตัวแทนที่ผ่านการรับรองให้ติดต่อได้โดยตรงโดยไม่มีค่าธรรมเนียมแอบแฝง"
             ]
         ],
         [
             '@type' => 'Question',
-            'name'  => "ทำเลเด่นและจุดเด่นของการเลือก{$cat}ในย่าน{$locationName} มีอะไรบ้าง?",
+            'name'  => "ทำเลเด่นและจุดเด่นของการเลือก{$cat}{$locPhrase} มีอะไรบ้าง?",
             'acceptedAnswer' => [
                 '@type' => 'Answer',
                 'text'  => $answer2
@@ -493,7 +495,7 @@ function generate_geo_faq_schema(array $intent): array
         ],
         [
             '@type' => 'Question',
-            'name'  => "ลงประกาศ{$type}{$cat} ย่าน{$locationName} บน " . SITE_NAME . " มีค่าใช้จ่ายหรือไม่?",
+            'name'  => "ลงประกาศ{$type}{$cat} บน " . SITE_NAME . " มีค่าใช้จ่ายหรือไม่?",
             'acceptedAnswer' => [
                 '@type' => 'Answer',
                 'text'  => "เจ้าของทรัพย์และตัวแทนอสังหาริมทรัพย์สามารถสมัครสมาชิกและลงประกาศ{$cat}ได้ฟรี พร้อมเครื่องมือจัดการหลังบ้าน รองรับการใส่รูปภาพ แผนที่ปักหมุดพิกัด และช่องทางติดต่อ LINE แบบอัตโนมัติ"

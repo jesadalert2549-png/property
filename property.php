@@ -125,7 +125,11 @@ json_ld([
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif; background-color: #F9F9FB; }
+    body { font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; background-color: #F9F9FB; }
+    h1, h2, h3, h4, .text-3xl, .text-2xl, .text-xl {
+      font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      letter-spacing: -0.015em;
+    }
     .map-grid {
       background:
         linear-gradient(rgba(255,255,255,.55), rgba(255,255,255,.55)),
@@ -137,11 +141,13 @@ json_ld([
     .property-gallery-track { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:clamp(135px,19vw,230px); gap:10px; overflow:hidden; border-radius:24px; }
     .property-gallery-slide { position:relative; min-width:0; min-height:0; overflow:hidden; border:0; border-radius:18px; padding:0; background:#e2e8f0; cursor:zoom-in; }
     .property-gallery-slide:first-child { grid-column:span 2; grid-row:span 2; }
-    .property-gallery-slide img { width:100%; height:100%; object-fit:cover; }
+    .property-gallery-slide img { width:100%; height:100%; object-fit:cover; display:block; }
+    .gallery-desktop-hidden { display:none; }
     .property-gallery-arrow,.property-lightbox-arrow { position:absolute; z-index:2; top:50%; display:grid; place-items:center; width:44px; height:44px; transform:translateY(-50%); border:1px solid #ffffff90; border-radius:50%; background:#111827aa; color:#fff; font-size:26px; line-height:1; cursor:pointer; }
     .property-gallery-arrow.prev,.property-lightbox-arrow.prev { left:12px; }
     .property-gallery-arrow.next,.property-lightbox-arrow.next { right:12px; }
-    .property-gallery-count,.property-lightbox-count { position:absolute; z-index:2; right:14px; bottom:14px; padding:7px 11px; border-radius:999px; background:#111827b8; color:#fff; font-size:12px; font-weight:800; }
+    .property-gallery-count,.property-lightbox-count { position:absolute; z-index:2; right:14px; bottom:14px; padding:7px 11px; border-radius:999px; background:#111827b8; color:#fff; font-size:12px; font-weight:800; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); pointer-events:none; }
+    .property-gallery-dots { display:none; }
     #galleryDialog { max-width:94vw; max-height:92vh; }
     .property-lightbox-frame { position:relative; display:grid; place-items:center; background:#111827; }
     .property-lightbox-frame img { max-width:94vw; max-height:88vh; width:auto; }
@@ -154,10 +160,72 @@ json_ld([
     .publisher-profile-link { color:inherit;text-decoration:none;transition:border-color .18s,box-shadow .18s; }
     .publisher-profile-link:hover { border-color:#c8b7ed;box-shadow:0 8px 22px #38285d12; }
     .publisher-eyebrow { width:100%;margin:0;color:#728094;font-size:11px; }
-    @media(max-width:600px) { .property-gallery-track { grid-template-columns:repeat(2,minmax(0,1fr)); grid-auto-rows:clamp(120px,34vw,185px); gap:8px; } .property-gallery-slide,.property-gallery-slide:first-child { grid-column:auto; grid-row:auto; border-radius:14px; } .property-gallery-slide:first-child { grid-column:span 2; } .property-gallery-arrow,.property-lightbox-arrow { width:40px; height:40px; } }
+    @media(max-width:640px) {
+      .property-gallery-track {
+        display:flex !important;
+        flex-direction:row !important;
+        flex-wrap:nowrap !important;
+        overflow-x:auto !important;
+        overflow-y:hidden !important;
+        scroll-snap-type:x mandatory !important;
+        -webkit-overflow-scrolling:touch !important;
+        scrollbar-width:none !important;
+        gap:0 !important;
+        border-radius:20px !important;
+        height:270px !important;
+        background:#0b1c33;
+      }
+      .property-gallery-track::-webkit-scrollbar { display:none; }
+      .property-gallery-slide {
+        display:block !important;
+        flex:0 0 100% !important;
+        width:100% !important;
+        height:100% !important;
+        scroll-snap-align:start !important;
+        border-radius:0 !important;
+      }
+      .property-gallery-slide img {
+        width:100% !important;
+        height:100% !important;
+        object-fit:cover !important;
+      }
+      .property-gallery-dots {
+        display:flex;
+        position:absolute;
+        bottom:14px;
+        left:50%;
+        transform:translateX(-50%);
+        z-index:2;
+        gap:6px;
+        padding:4px 8px;
+        border-radius:999px;
+        background:rgba(11,28,51,0.55);
+        backdrop-filter:blur(4px);
+        -webkit-backdrop-filter:blur(4px);
+        pointer-events:none;
+      }
+      .gallery-dot {
+        width:6px;
+        height:6px;
+        border-radius:50%;
+        background:rgba(255,255,255,0.45);
+        transition:all .2s ease;
+      }
+      .gallery-dot.active {
+        width:16px;
+        border-radius:999px;
+        background:#C5A059;
+      }
+      .property-gallery-count {
+        right:10px !important;
+        bottom:10px !important;
+        padding:4px 9px !important;
+        font-size:11px !important;
+      }
+    }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased" data-back-url="category.php?page=<?= e(rawurlencode((string)$catSlug)) ?>">
+<body class="page-property bg-slate-50 text-slate-800 antialiased" data-back-url="category.php?page=<?= e(rawurlencode((string)$catSlug)) ?>">
 
 <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
   <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
@@ -199,18 +267,10 @@ json_ld([
     <span class="text-slate-700"><?= e($p['location']) ?></span>
   </nav>
 
-  <?php if (($p['verification_status'] ?? 'passed') === 'flagged'): ?>
-    <div class="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong><?= e(t('ควรตรวจสอบประกาศนี้เพิ่มเติม', 'This listing needs further review')) ?></strong><br><?= e($p['verification_notes'] ?: t('ระบบพบข้อมูลที่คล้ายกับประกาศอื่น', 'The system found data similar to another listing')) ?> <?= e(t('ก่อนตัดสินใจหรือติดต่อ โปรดตรวจสอบรายละเอียดและนัดดูทรัพย์ด้วยตนเอง', 'Before deciding or contacting, please verify the details and arrange a viewing yourself.')) ?> <a class="font-bold underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งปัญหาประกาศนี้', 'Report this listing')) ?></a></div>
-  <?php elseif (($p['verification_status'] ?? 'unchecked') === 'passed'): ?>
-    <div class="mb-5 rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600"><?= e(t('ข้อมูลผ่านการตรวจความครบถ้วนเบื้องต้นของระบบ ซึ่งไม่ใช่การยืนยันกรรมสิทธิ์หรือรับรองว่าทรัพย์มีอยู่จริง โปรดตรวจสอบและนัดดูทรัพย์ก่อนชำระเงิน', 'This listing passed the system\'s basic completeness check, which does not verify ownership or confirm the property exists. Please inspect and view the property before paying anything.')) ?> <a class="font-bold text-accent underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งประกาศนี้', 'Report this listing')) ?></a></div>
-  <?php else: ?>
-    <div class="mb-5 rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600"><?= e(t('ประกาศนี้ยังไม่ได้ผ่านการตรวจความครบถ้วนอัตโนมัติ โปรดตรวจสอบข้อมูลและนัดดูทรัพย์ก่อนตัดสินใจ', 'This listing has not passed the automatic completeness check yet. Please verify the information and arrange a viewing before deciding.')) ?> <a class="font-bold text-accent underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งประกาศนี้', 'Report this listing')) ?></a></div>
-  <?php endif; ?>
-
   <section class="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_380px]">
     <div class="space-y-5">
       <div class="relative" data-property-carousel>
-        <?php $gallery = $files ? array_map(fn($file) => 'uploads/' . e($file), array_slice($files, 0, 5)) : [
+        <?php $gallery = $files ? array_map(fn($file) => 'uploads/' . e($file), $files) : [
           'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',
           'https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=900&q=80',
           'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
@@ -219,13 +279,28 @@ json_ld([
         ]; ?>
         <div class="property-gallery-track" id="propertyGalleryTrack">
           <?php foreach ($gallery as $index => $image): ?>
-            <button type="button" class="property-gallery-slide" data-gallery-image="<?= $image ?>" aria-label="<?= e(t('เปิดดูรูปที่ ', 'Open photo ') . ($index + 1)) ?>">
+            <button type="button" class="property-gallery-slide <?= $index >= 5 ? 'gallery-desktop-hidden' : '' ?>" data-gallery-image="<?= $image ?>" data-gallery-index="<?= $index ?>" aria-label="<?= e(t('เปิดดูรูปที่ ', 'Open photo ') . ($index + 1)) ?>">
               <img src="<?= $image ?>" alt="<?= e($p['title'] . ' ' . t('ภาพที่', 'photo') . ' ' . ($index + 1)) ?>" decoding="async" <?= $index === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>>
             </button>
           <?php endforeach; ?>
         </div>
-        <?php if (count($gallery) > 1): ?><span class="property-gallery-count"><?= e(t(count($gallery) . ' รูป', count($gallery) . ' photos')) ?></span><?php endif; ?>
+        <?php if (count($gallery) > 1): ?>
+          <span class="property-gallery-count" id="propertyGalleryCount"><?= e(t(count($gallery) . ' รูป', count($gallery) . ' photos')) ?></span>
+          <div class="property-gallery-dots" id="propertyGalleryDots" aria-hidden="true">
+            <?php foreach ($gallery as $dotIdx => $dotImg): ?>
+              <span class="gallery-dot <?= $dotIdx === 0 ? 'active' : '' ?>" data-dot-index="<?= $dotIdx ?>"></span>
+            <?php endforeach; ?>
+          </div>
+        <?php endif; ?>
       </div>
+
+      <?php if (($p['verification_status'] ?? 'passed') === 'flagged'): ?>
+        <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"><strong><?= e(t('ควรตรวจสอบประกาศนี้เพิ่มเติม', 'This listing needs further review')) ?></strong><br><?= e($p['verification_notes'] ?: t('ระบบพบข้อมูลที่คล้ายกับประกาศอื่น', 'The system found data similar to another listing')) ?> <?= e(t('ก่อนตัดสินใจหรือติดต่อ โปรดตรวจสอบรายละเอียดและนัดดูทรัพย์ด้วยตนเอง', 'Before deciding or contacting, please verify the details and arrange a viewing yourself.')) ?> <a class="font-bold underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งปัญหาประกาศนี้', 'Report this listing')) ?></a></div>
+      <?php elseif (($p['verification_status'] ?? 'unchecked') === 'passed'): ?>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600"><?= e(t('ข้อมูลผ่านการตรวจความครบถ้วนเบื้องต้นของระบบ ซึ่งไม่ใช่การยืนยันกรรมสิทธิ์หรือรับรองว่าทรัพย์มีอยู่จริง โปรดตรวจสอบและนัดดูทรัพย์ก่อนชำระเงิน', 'This listing passed the system\'s basic completeness check, which does not verify ownership or confirm the property exists. Please inspect and view the property before paying anything.')) ?> <a class="font-bold text-accent underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งประกาศนี้', 'Report this listing')) ?></a></div>
+      <?php else: ?>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 text-sm leading-6 text-slate-600"><?= e(t('ประกาศนี้ยังไม่ได้ผ่านการตรวจความครบถ้วนอัตโนมัติ โปรดตรวจสอบข้อมูลและนัดดูทรัพย์ก่อนตัดสินใจ', 'This listing has not passed the automatic completeness check yet. Please verify the information and arrange a viewing before deciding.')) ?> <a class="font-bold text-accent underline" href="advertise.php?mode=report&amp;listing_id=<?= (int)$p['id'] ?>"><?= e(t('แจ้งประกาศนี้', 'Report this listing')) ?></a></div>
+      <?php endif; ?>
       <?php render_banner_slot('property_detail_top', 'medium'); ?>
     </div>
 
@@ -492,7 +567,7 @@ render_to_top();
   <div class="property-lightbox-frame">
     <button id="closeGallery" type="button" class="property-lightbox-close grid h-10 w-10 place-items-center rounded-full bg-black/60 text-2xl text-white" aria-label="<?= e(t('ปิดรูป', 'Close image')) ?>">×</button>
     <button type="button" class="property-lightbox-arrow prev" data-lightbox-prev aria-label="<?= e(t('รูปก่อนหน้า', 'Previous image')) ?>">‹</button>
-    <img id="galleryDialogImage" src="" alt="">
+    <img id="galleryDialogImage" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="">
     <button type="button" class="property-lightbox-arrow next" data-lightbox-next aria-label="<?= e(t('รูปถัดไป', 'Next image')) ?>">›</button>
     <span class="property-lightbox-count" data-lightbox-count></span>
   </div>
@@ -527,7 +602,11 @@ render_to_top();
 
   const gallerySlides = Array.from(document.querySelectorAll('[data-gallery-image]'));
   const lightboxCount = document.querySelector('[data-lightbox-count]');
+  const galleryTrack = document.getElementById('propertyGalleryTrack');
+  const galleryCount = document.getElementById('propertyGalleryCount');
+  const galleryDots = document.getElementById('propertyGalleryDots');
   let activeImage = 0;
+
   const showGalleryImage = (index, openDialog = false) => {
     if (!gallerySlides.length) return;
     activeImage = (index + gallerySlides.length) % gallerySlides.length;
@@ -539,6 +618,26 @@ render_to_top();
   gallerySlides.forEach((button, index) => button.addEventListener('click', () => showGalleryImage(index, true)));
   document.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => showGalleryImage(activeImage - 1));
   document.querySelector('[data-lightbox-next]')?.addEventListener('click', () => showGalleryImage(activeImage + 1));
+
+  // Sync mobile swipe on track with indicator dots & counter
+  if (galleryTrack && gallerySlides.length > 1) {
+    let scrollTimeout;
+    galleryTrack.addEventListener('scroll', () => {
+      clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const slideWidth = galleryTrack.offsetWidth;
+        if (!slideWidth) return;
+        const currentIdx = Math.round(galleryTrack.scrollLeft / slideWidth);
+        const dots = galleryDots?.querySelectorAll('.gallery-dot');
+        if (dots) {
+          dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
+        }
+        if (galleryCount) {
+          galleryCount.textContent = `${currentIdx + 1} / ${gallerySlides.length}`;
+        }
+      }, 50);
+    }, { passive: true });
+  }
   let touchStartX = 0;
   galleryDialog?.addEventListener('touchstart', event => { touchStartX = event.changedTouches[0]?.clientX ?? 0; }, { passive: true });
   galleryDialog?.addEventListener('touchend', event => {

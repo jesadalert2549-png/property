@@ -230,7 +230,53 @@ $categoryStats = $st->fetchAll();
     .topbar nav a { margin:0; padding:7px 9px; border-radius:8px; font-size:12px; }
     .topbar nav a:hover { background:rgba(255,255,255,.1); text-decoration:none; }
     @media (max-width:900px) { .topbar { position:static; align-items:flex-start; flex-direction:column; padding:14px 20px; } }
-    @media (max-width:600px) { .wrap { padding:20px 14px 42px; } .analytics-hero { align-items:flex-start; flex-direction:column; padding:24px 20px; } .analytics-controls { align-items:flex-start; flex-direction:column; } .stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; } .stat { padding:16px 14px; } .stat .num { font-size:25px; } .stat .lbl { font-size:11px; } .box { padding:18px 15px; border-radius:15px; } .range { max-width:100%; } .range a { padding:8px 12px; font-size:12px; } .bars { gap:5px; } .bar-wrap { min-width:28px; } .topbar nav { gap:2px; } .topbar nav a { padding:7px; font-size:11px; } }
+    @media (max-width:600px) {
+      .wrap { padding:14px 12px 36px; }
+      .analytics-hero {
+        align-items:flex-start;
+        flex-direction:column;
+        gap:14px;
+        padding:20px 16px;
+        border-radius:18px;
+        margin-top:14px;
+      }
+      .analytics-hero h1 { font-size:22px; line-height:1.3; }
+      .analytics-hero p { font-size:13px; line-height:1.5; }
+      .analytics-hero .hero-note { font-size:11.5px; padding:8px 12px; width:100%; text-align:center; }
+      .analytics-controls {
+        align-items:stretch;
+        flex-direction:column;
+        gap:10px;
+      }
+      .analytics-controls .range {
+        width:100%;
+        display:grid;
+        grid-template-columns:repeat(3, 1fr);
+        padding:4px;
+      }
+      .analytics-controls .range a {
+        text-align:center;
+        padding:8px 4px;
+        font-size:12px;
+      }
+      .pdf-report-link {
+        width:100%;
+        justify-content:center;
+        padding:10px 14px;
+      }
+      .analytics-section-title { font-size:16px !important; margin:22px 0 12px !important; }
+      .stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+      .stat { padding:14px 12px; border-radius:14px; }
+      .stat .num { font-size:24px; font-family:"Prompt","Inter",system-ui,sans-serif !important; }
+      .stat .lbl { font-size:11.5px; line-height:1.4; }
+      .box { padding:16px 14px; border-radius:16px; margin-bottom:18px; }
+      .box h2 { font-size:15px; margin-bottom:12px; padding-bottom:8px; line-height:1.4; }
+      .bars { gap:5px; height:160px; padding-top:14px; }
+      .bar-wrap { min-width:24px; }
+      .bar-val, .bar-lbl { font-size:10px; }
+      table { font-size:12px; }
+      th, td { padding:9px 10px; }
+    }
   </style>
 </head>
 <body class="has-admin-sidebar">
@@ -404,7 +450,7 @@ $categoryStats = $st->fetchAll();
       <?php if (!$sources): ?>
         <p class="muted">ยังไม่มีข้อมูลแหล่งที่มาในช่วงเวลานี้</p>
       <?php else: ?>
-        <table>
+        <div class="table-wrap"><table>
           <tr><th>แหล่งที่มา / เว็บไซต์อ้างอิง</th><th>จำนวนครั้ง</th></tr>
           <?php foreach ($sources as $s): ?>
             <tr>
@@ -412,7 +458,7 @@ $categoryStats = $st->fetchAll();
               <td><strong><?= number_format((int)$s['c']) ?></strong></td>
             </tr>
           <?php endforeach; ?>
-        </table>
+        </table></div>
       <?php endif; ?>
     </div>
 
@@ -425,7 +471,7 @@ $categoryStats = $st->fetchAll();
         $devices = $stDev->fetchAll(PDO::FETCH_KEY_PAIR);
         $totalDev = array_sum($devices) ?: 1;
       ?>
-      <table>
+      <div class="table-wrap"><table>
         <tr><th>อุปกรณ์</th><th>จำนวนครั้ง</th><th>สัดส่วน</th></tr>
         <tr>
           <td>📱 มือถือ (Mobile)</td>
@@ -437,7 +483,7 @@ $categoryStats = $st->fetchAll();
           <td><?= number_format($devices['desktop'] ?? 0) ?></td>
           <td><?= round(($devices['desktop'] ?? 0) / $totalDev * 100, 1) ?>%</td>
         </tr>
-      </table>
+      </table></div>
     </div>
   </div>
 
@@ -447,7 +493,7 @@ $categoryStats = $st->fetchAll();
     <?php if (!$topProps): ?>
       <p class="muted">ยังไม่มีข้อมูลการคลิกดูประกาศในช่วงเวลานี้</p>
     <?php else: ?>
-      <table>
+      <div class="table-wrap"><table>
         <tr><th>หัวข้อประกาศ</th><th>ประเภท</th><th>สถานะ</th><th>ยอดดู (Views)</th><th>ผู้เข้าชม (UV)</th></tr>
         <?php foreach ($topProps as $p): ?>
           <tr>
@@ -458,7 +504,7 @@ $categoryStats = $st->fetchAll();
             <td><?= number_format((int)$p['uv']) ?></td>
           </tr>
         <?php endforeach; ?>
-      </table>
+      </table></div>
     <?php endif; ?>
   </div>
 
@@ -469,7 +515,7 @@ $categoryStats = $st->fetchAll();
     <?php if (!$recentVisitors): ?>
       <p class="muted">ยังไม่มีประวัติการเข้าชมในช่วงเวลานี้</p>
     <?php else: ?>
-      <table>
+      <div class="table-wrap"><table>
         <tr>
           <th>เวลา</th>
           <th>รหัสผู้เข้าชม (Visitor Hash)</th>
@@ -498,7 +544,7 @@ $categoryStats = $st->fetchAll();
             </td>
           </tr>
         <?php endforeach; ?>
-      </table>
+      </table></div>
     <?php endif; ?>
   </div>
 

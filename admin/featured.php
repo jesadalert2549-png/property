@@ -167,6 +167,25 @@ $flash = get_flash();
     .feat-table th, .feat-table td { padding:13px 14px; border-bottom:1px solid #eef2f6; text-align:left; vertical-align:middle; }
     .feat-table th { background:#F8FAFC; color:#475569; font-size:12.5px; font-weight:700; }
 
+    .bulk-row {
+      display: grid;
+      grid-template-columns: minmax(140px, 1.2fr) minmax(180px, 2fr) 90px 42px;
+      gap: 10px;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .bulk-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+      }
+      .bulk-row select { grid-column: span 2; }
+      .bulk-row input[type="text"] { grid-column: span 2; }
+    }
+
     .pill { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:800; }
     .pill.on { background:#E8FDF0; color:#04A747; border:1px solid #06C755; }
     .pill.off { background:#F1F5F9; color:#64748B; border:1px solid #CBD5E1; }
@@ -261,7 +280,7 @@ $flash = get_flash();
             
             <div id="bulkRowsContainer" style="display:grid; gap:10px;">
               <!-- แถวที่ 1 -->
-              <div class="bulk-row" style="display:grid; grid-template-columns:minmax(180px,1.2fr) minmax(240px,2fr) 100px 40px; gap:10px; align-items:center;">
+              <div class="bulk-row">
                 <select name="bulk_category[]" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
                   <?php foreach (PROPERTY_CATEGORIES as $key => $label): if ($key === 'other') continue; ?>
                     <option value="<?= e($key) ?>"><?= e(($categoryIcons[$key] ?? '🏡') . ' ' . $label) ?></option>
@@ -288,7 +307,6 @@ $flash = get_flash();
               function createRow(cat, title, sort) {
                 const div = document.createElement('div');
                 div.className = 'bulk-row';
-                div.style.cssText = 'display:grid; grid-template-columns:minmax(180px,1.2fr) minmax(240px,2fr) 100px 40px; gap:10px; align-items:center;';
                 div.innerHTML = `
                   <select name="bulk_category[]" style="min-height:42px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
                     <option value="condo" ${cat==='condo'?'selected':''}>🏢 คอนโด</option>
@@ -349,7 +367,7 @@ $flash = get_flash();
         ยังไม่มีหมวดแนะนำที่ตั้งไว้ — เริ่มเพิ่มหมวดแรกของคุณจากแบบฟอร์มด้านบนได้เลยครับ
       </p>
     <?php else: ?>
-      <div style="overflow-x:auto;">
+      <div class="table-wrap" style="overflow-x:auto; -webkit-overflow-scrolling:touch;">
         <table class="feat-table">
           <thead>
             <tr>

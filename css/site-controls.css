@@ -44,9 +44,22 @@ h1, h2, h3, h4, h5, h6,
   letter-spacing: -0.015em;
 }
 
-/* Never display floating controls on home page */
+/* Never display floating controls on home page, search catalog, category listing, property detail, or admin workspace */
 body.home-page .site-controls,
 body.page-home .site-controls,
+body.search-page-body .site-controls,
+body:has(.search-page) .site-controls,
+body.page-category .site-controls,
+body.page-property .site-controls,
+body.page-project .site-controls,
+body.member-portal-body .site-controls,
+body:has(.portal-workspace) .site-controls,
+body:has(.project-main) .site-controls,
+body:has([data-property-carousel]) .site-controls,
+body:has(#propertyGalleryTrack) .site-controls,
+body.has-admin-sidebar .site-controls,
+body:has(.admin-sidebar) .site-controls,
+body:has(.admin-desktop-navbar) .site-controls,
 body:has(.dd-navbar) .site-controls,
 body:has(.dd-hero) .site-controls,
 .site-controls.home-hidden {

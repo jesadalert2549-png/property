@@ -151,9 +151,10 @@ $all_slugs = available_category_slugs();
     };
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
 </head>
-<body class="bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
+<body class="page-category bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
 
 <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
   <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
@@ -165,9 +166,7 @@ $all_slugs = available_category_slugs();
       <a class="transition hover:text-ink" href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
       <a class="transition hover:text-ink" href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <a class="transition hover:text-ink" href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a class="transition hover:text-ink" href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
-      <?php else: ?>
-        <a class="transition hover:text-ink" href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
+        <a class="transition hover:text-ink" href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
       <?php endif; ?>
     </nav>
     <div class="flex items-center gap-3">
@@ -218,11 +217,11 @@ $all_slugs = available_category_slugs();
     </div>
   </div>
 
-  <section class="mt-8">
-    <div class="flex flex-wrap gap-2 pb-4">
+  <section class="mt-6 sm:mt-8">
+    <div class="flex flex-nowrap overflow-x-auto gap-2 pb-3 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap scrollbar-none" style="-webkit-overflow-scrolling:touch;">
       <?php foreach (PROPERTY_CATEGORIES as $cat_slug => $cat_label): if ($cat_slug === 'other') continue; ?>
         <?php $chipIcon = $categoryIconsAll[$cat_slug] ?? ''; ?>
-        <a href="category.php?page=<?= e($cat_slug) ?>" class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition <?= $target_category === $cat_slug ? 'bg-ink text-white shadow-lg shadow-slate-200' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:text-ink' ?>">
+        <a href="category.php?page=<?= e($cat_slug) ?>" class="inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-2 text-sm font-bold transition <?= $target_category === $cat_slug ? 'bg-ink text-white shadow-lg shadow-slate-200' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:text-ink' ?>">
           <?php if ($chipIcon !== ''): ?>
             <img src="<?= e($chipIcon) ?>" alt="" class="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-slate-200" loading="lazy">
           <?php endif; ?>
@@ -238,13 +237,13 @@ $all_slugs = available_category_slugs();
       <a href="submit.php" class="mt-5 inline-flex items-center rounded-full bg-accent px-6 py-3 text-sm font-extrabold text-white transition hover:bg-[#d86c26]"><?= e(t('ลงประกาศเป็นคนแรก', 'Be the first to post')) ?></a>
     </div>
   <?php else: ?>
-    <section class="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+    <section class="category-listings-grid mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <?php foreach ($items as $row): ?>
         <?php $cover = basename((string)($row['cover'] ?? '')); $coverExists = $cover !== '' && is_file(UPLOAD_DIR . $cover); $img = $coverExists ? 'uploads/' . e($cover) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'; ?>
-        <article class="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl">
+        <article class="group overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl sm:rounded-[28px]">
           <a href="property.php?id=<?= (int)$row['id'] ?>" class="block no-underline text-inherit">
             <div class="relative overflow-hidden">
-              <img src="<?= $img ?>" alt="<?= e($row['title']) ?>" class="h-60 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" decoding="async" width="640" height="240">
+              <img src="<?= $img ?>" alt="<?= e($row['title']) ?>" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-60" loading="lazy" decoding="async" width="640" height="240">
               <span class="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-ink shadow-sm">
                 <?= e(is_en() ? ($row['type'] === 'rent' ? 'For rent' : 'For sale') : type_label($row['type'])) ?>
               </span>
@@ -254,20 +253,20 @@ $all_slugs = available_category_slugs();
                 </span>
               <?php else: ?><?php render_publisher_mini($row); ?><?php endif; ?>
             </div>
-            <div class="p-5">
+            <div class="p-4 sm:p-5">
               <div class="flex items-center justify-between gap-3">
                 <span class="rounded-full bg-accentSoft px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-accent"><?= e(category_label_bi($row['property_category'])) ?></span>
                 <span class="text-xs font-bold text-slate-500">#<?= (int)$row['id'] ?></span>
               </div>
-              <h2 class="mt-4 line-clamp-2 text-xl font-extrabold leading-7 text-ink"><?= e($row['title']) ?></h2>
-              <p class="mt-3 flex items-center gap-2 text-sm text-slate-500"><span>⌖</span><span><?= e($row['location']) ?></span></p>
+              <h2 class="mt-3.5 line-clamp-2 text-lg font-extrabold leading-6 text-ink sm:mt-4 sm:text-xl sm:leading-7 break-words"><?= e($row['title']) ?></h2>
+              <p class="mt-2.5 flex items-center gap-1.5 text-sm text-slate-500 sm:mt-3"><svg class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><span><?= e($row['location']) ?></span></p>
               
-              <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+              <div class="mt-3.5 flex items-center justify-between gap-3 border-t border-slate-200 pt-3.5 sm:mt-4 sm:pt-4">
                 <div>
                   <p class="text-[10px] font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('ราคา', 'Price')) ?></p>
-                  <p class="mt-1 text-lg font-black text-accent"><?= e(is_en() ? number_format((int)$row['price']) . ($row['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($row['type'], (int)$row['price'])) ?></p>
+                  <p class="mt-1 text-base font-black text-accent sm:text-lg"><?= e(is_en() ? number_format((int)$row['price']) . ($row['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($row['type'], (int)$row['price'])) ?></p>
                 </div>
-                <span class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700"><?= e(t('ดูรายละเอียด', 'View details')) ?></span>
+                <span class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"><?= e(t('ดูรายละเอียด', 'View details')) ?></span>
               </div>
             </div>
           </a>

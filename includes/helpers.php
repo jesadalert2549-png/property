@@ -41,12 +41,24 @@ function render_publisher_mini(array $post): void
     $avatarExists = $avatar !== '' && defined('UPLOAD_DIR') && is_file(UPLOAD_DIR . 'avatars/' . $avatar);
     $location = trim((string)($post['location'] ?? ''));
     $verified = ($post['publisher_agent_status'] ?? '') === 'verified';
+
+    // คำนวณตัวอักษรย่อสำหรับ Avatar โดยรองรับสระหน้าภาษาไทย (เ แ โ ใ ไ)
+    $initial = 'P';
+    if ($name !== '') {
+        $firstChar = mb_substr($name, 0, 1);
+        if (in_array($firstChar, ['เ', 'แ', 'โ', 'ใ', 'ไ'], true) && mb_strlen($name) > 1) {
+            $initial = mb_substr($name, 1, 1);
+        } else {
+            $initial = $firstChar;
+        }
+    }
+    $initial = mb_strtoupper($initial);
     ?>
     <div class="publisher-mini">
-      <span class="publisher-mini-avatar" aria-hidden="true"><?php if ($avatarExists): ?><img src="uploads/avatars/<?= e($avatar) ?>" alt=""><?php else: ?><?= e(mb_strtoupper(mb_substr($name, 0, 1))) ?><?php endif; ?></span>
+      <span class="publisher-mini-avatar" aria-hidden="true"><?php if ($avatarExists): ?><img src="uploads/avatars/<?= e($avatar) ?>" alt=""><?php else: ?><?= e($initial) ?><?php endif; ?></span>
       <span class="publisher-mini-text">
         <span class="publisher-mini-name"><?= e($name) ?><?php if ($verified): ?><i class="publisher-verified-dot" role="img" aria-label="Agent ผ่านการรับรอง" title="Agent ผ่านการรับรองจากผู้ดูแล">✓</i><?php endif; ?></span>
-        <?php if ($location !== ''): ?><span class="publisher-mini-loc">⌖ <?= e($location) ?></span><?php endif; ?>
+        <?php if ($location !== ''): ?><span class="publisher-mini-loc"><svg width="11" height="11" class="publisher-mini-pin" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block;width:11px;height:11px;max-width:11px;max-height:11px;vertical-align:-1px;flex-shrink:0;opacity:0.8;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg> <?= e($location) ?></span><?php endif; ?>
       </span>
     </div>
     <?php
@@ -414,4 +426,92 @@ function delete_image_file(string $filename): void
     if (is_file($path)) {
         unlink($path);
     }
+}
+
+/**
+ * บันทึกรูปที่อัปโหลดพร้อมจัดเรียงรูปภาพตาม order ที่ผู้ใช้เลือก
+ * โดย $coverIndex ระบุ index ของรูปที่จะให้เป็นหน้าปก (จะถูกย้ายมาอยู่อันดับ 0)
+ *
+ * @param array $files ตัวแปร $_FILES['images']
+ * @param int $limit จำนวนสูงสุด
+ * @param int $coverIndex ลำดับของรูปหน้าปก (0-based)
+ * @return array รายชื่อไฟล์รูปภาพที่บันทึกแล้ว โดยรูปปกจะอยู่ที่ index 0
+ */
+function save_uploaded_images_ordered(array $files, int $limit, int $coverIndex = 0): array
+{
+    $saved = [];
+    if (!isset($files['name'])) {
+        return $saved;
+    }
+
+    $names = $files['name'];
+    if (!is_array($names)) {
+        $names = [$names];
+    }
+
+    if (!is_dir(UPLOAD_DIR)) {
+        mkdir(UPLOAD_DIR, 0755, true);
+    }
+
+    $allowedMime = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/webp' => 'webp',
+    ];
+    $allowedExt = ['jpg', 'jpeg', 'png', 'webp'];
+    $finfo = class_exists('finfo') ? new finfo(FILEINFO_MIME_TYPE) : null;
+
+    $indexedFiles = [];
+    foreach (array_keys($names) as $i) {
+        if (count($indexedFiles) >= $limit) {
+            break;
+        }
+
+        $name = $names[$i] ?? '';
+        if (!is_string($name) || trim($name) === '') {
+            continue;
+        }
+
+        $error = $files['error'][$i] ?? UPLOAD_ERR_NO_FILE;
+        $size  = (int)($files['size'][$i] ?? 0);
+        $tmp   = $files['tmp_name'][$i] ?? '';
+        if ($error !== UPLOAD_ERR_OK || $size <= 0 || $size > MAX_IMAGE_BYTES || !is_string($tmp) || $tmp === '' || !is_file($tmp)) {
+            continue;
+        }
+
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $mime = $finfo instanceof finfo ? strtolower((string)$finfo->file($tmp)) : '';
+        $isValidExt = in_array($ext, $allowedExt, true);
+        if ($finfo instanceof finfo) {
+            if (!isset($allowedMime[$mime])) {
+                continue;
+            }
+            $chosenExt = $allowedMime[$mime];
+        } else {
+            if (!$isValidExt) {
+                continue;
+            }
+            $chosenExt = $ext === 'jpeg' ? 'jpg' : $ext;
+        }
+        $filename = date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $chosenExt;
+
+        if (move_uploaded_file($tmp, UPLOAD_DIR . $filename)) {
+            $indexedFiles[$i] = $filename;
+        }
+    }
+
+    if (empty($indexedFiles)) {
+        return [];
+    }
+
+    // จัดลำดับ: ถ้าระบุ $coverIndex และมีรูปนั้นอยู่ ให้เอารูปปกขึ้นอันดับ 1 (index 0)
+    $fileList = array_values($indexedFiles);
+    if (isset($indexedFiles[$coverIndex])) {
+        $coverFile = $indexedFiles[$coverIndex];
+        $remaining = array_values(array_filter($fileList, static fn($f) => $f !== $coverFile));
+        array_unshift($remaining, $coverFile);
+        return $remaining;
+    }
+
+    return $fileList;
 }

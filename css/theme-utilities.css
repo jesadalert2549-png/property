@@ -158,3 +158,112 @@
   .sp-mobile-menu>nav>a { padding:11px 12px; border-radius:9px; color:#34284f; font-size:14px; font-weight:700; text-decoration:none; }
   .sp-mobile-menu>nav>a:hover,.sp-mobile-menu>nav>a:focus-visible { background:#f4f0fb; }
 }
+
+/* ===== ชิปโปรไฟล์ผู้ประกาศบนมุมล่างซ้ายของการ์ด (Publisher Mini Chip) ===== */
+.publisher-mini {
+  position: absolute;
+  left: 9px;
+  bottom: 9px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: calc(100% - 18px);
+  padding: 3px 9px 3px 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .88);
+  border: 1px solid rgba(255, 255, 255, .65);
+  box-shadow: 0 2px 8px rgba(15, 30, 55, .16);
+  backdrop-filter: blur(6px) saturate(1.4);
+  -webkit-backdrop-filter: blur(6px) saturate(1.4);
+  transform-origin: left bottom;
+  transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, background .3s ease;
+}
+.publisher-mini-avatar {
+  display: grid;
+  flex: 0 0 20px;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#efe7fb,#e0d2f5);
+  color: #6044a6;
+  font-size: 9px;
+  font-weight: 900;
+  box-shadow: inset 0 0 0 1px rgba(96,68,166,.14);
+}
+.publisher-mini-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.publisher-mini-text { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.publisher-mini-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 130px;
+  color: #241d3e;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.publisher-mini-loc {
+  max-width: 130px;
+  color: #7a8699;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.publisher-verified-dot {
+  flex: 0 0 auto;
+  display: inline-grid;
+  place-items: center;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #12a15c;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.9);
+  color: #fff;
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+/* ===== Category listings responsive grid ===== */
+.category-listings-grid {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  gap: 1.25rem !important;
+}
+@media (min-width: 640px) {
+  .category-listings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .category-listings-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Hide floating controls on category listing view so it doesn't cover property cards */
+body.page-category .site-controls {
+  display: none !important;
+}
+
+/* Ensure clean sans-serif typography inside publisher mini chip */
+.publisher-mini {
+  font-family: 'Prompt', 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+.publisher-mini-avatar {
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  font-family: 'Prompt', 'Inter', system-ui, -apple-system, sans-serif !important;
+}
+.publisher-mini-loc svg {
+  display: inline-block;
+  vertical-align: -1px;
+}

@@ -166,7 +166,7 @@ $items = $st->fetchAll();
         <a href="search.php" class="btn"><?= e(t('ดูประกาศทั้งหมด', 'View all listings')) ?></a>
       </div>
     <?php else: ?>
-    <div class="grid search-results-grid">
+    <div class="search-results-grid">
       <?php foreach ($items as $row): ?>
         <a class="card<?= $row['status'] === 'done' ? ' done' : '' ?>"
            href="property.php?id=<?= (int)$row['id'] ?>" style="display:block;color:inherit;text-decoration:none">
@@ -189,7 +189,6 @@ $items = $st->fetchAll();
             <h2><?= e($row['title']) ?></h2>
             <p class="price"><?= e(is_en() ? number_format((int)$row['price']) . ($row['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($row['type'], (int)$row['price'])) ?></p>
             <p class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg> <?= e($row['location']) ?></p>
-            <?php render_publisher_mini($row); ?>
           </div>
         </a>
       <?php endforeach; ?>

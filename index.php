@@ -693,14 +693,14 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
     @media (max-width: 768px) {
       .dd-hero {
-        padding: 30px 16px;
+        padding: 96px 16px 36px;
         min-height: auto;
       }
       .dd-hero h1 {
-        font-size: 22px !important;
+        font-size: 24px !important;
       }
       .dd-hero p {
-        font-size: 13px !important;
+        font-size: 13.5px !important;
       }
       .dd-search-container {
         padding: 14px;

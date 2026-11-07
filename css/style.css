@@ -113,14 +113,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
   align-items: center;
   gap: 16px;
 }
-.site-nav a {
-  color: #CBD5E1;
+.site-nav a,
+.site-nav .nav-dropdown-toggle {
+  color: #E2E8F0;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 14px;
   transition: color 0.2s ease;
 }
-.site-nav a:hover {
+.site-nav a:hover,
+.site-nav .nav-dropdown-toggle:hover {
   color: #C5A059;
 }
 
@@ -401,7 +403,36 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .search-results-heading { display:flex; align-items:baseline; justify-content:space-between; gap:14px; margin:0 0 15px; }
 .search-results-heading h2 { margin:0; color:var(--primary-dark); font-size:20px; }
 .search-results-heading p { margin:0; color:var(--muted); font-size:13px; }
-.search-results-grid { grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr)); gap:18px; }
+.search-results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,280px),1fr)); gap:20px; }
+@media(max-width:640px) {
+  .search-results-grid {
+    grid-template-columns:minmax(0, 1fr) !important;
+    gap:18px !important;
+  }
+  .card .thumb {
+    height:220px !important;
+  }
+}
+.card .info h2,
+.card .info h3 {
+  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif !important;
+  font-size: 16.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+.card .info .price {
+  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif !important;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.card .info .loc {
+  font-family: "Prompt", "Inter", -apple-system, system-ui, sans-serif !important;
+  font-size: 13px;
+}
 .search-empty { display:grid; justify-items:center; gap:8px; padding:clamp(28px,6vw,58px) 20px; border:1px dashed #d9d6ee; border-radius:18px; background:#fff; text-align:center; }
 .search-empty-icon { display:grid; width:52px; height:52px; place-items:center; border-radius:16px; background:var(--accent-soft); color:var(--accent); font-size:30px; }
 .search-empty h2 { margin:6px 0 0; color:var(--primary-dark); font-size:19px; }
@@ -858,8 +889,98 @@ iframe { display: block; width: 100%; border: 0; border-radius: 10px; margin: 12
 .listing-upload strong, .listing-upload small { display: block; }
 .listing-upload strong { color: var(--primary); }
 .listing-upload small { margin-top: 4px; color: var(--muted); font-size: 12px; font-weight: 400; }
-.listing-image-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 9px; margin-top: 12px; }
-.listing-image-preview img { width: 100%; height: 86px; border-radius: 8px; object-fit: cover; }
+.listing-image-preview { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 14px; }
+.listing-cover-notice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #FFF8E7;
+  border: 1px solid #FFE4A3;
+  color: #7D5A0D;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+.listing-cover-notice .cover-icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #C5A059;
+  color: #fff;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.listing-preview-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #E2E8F0;
+  background: #F8FAFC;
+  cursor: pointer;
+  transition: all .2s cubic-bezier(.22,1,.36,1);
+  box-shadow: 0 2px 8px rgba(15, 30, 55, .06);
+}
+.listing-preview-card:hover {
+  transform: translateY(-2px);
+  border-color: #C5A059;
+  box-shadow: 0 6px 16px rgba(197, 160, 89, .22);
+}
+.listing-preview-card.is-cover {
+  border-color: #C5A059;
+  box-shadow: 0 0 0 3px rgba(197, 160, 89, .28), 0 6px 18px rgba(15, 30, 55, .12);
+}
+.listing-preview-card img {
+  width: 100%;
+  height: 105px;
+  object-fit: cover;
+  display: block;
+}
+.listing-preview-card .cover-badge {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(11, 28, 51, .75);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  letter-spacing: .02em;
+}
+.listing-preview-card.is-cover .cover-badge {
+  background: linear-gradient(135deg, #C5A059, #A8843F);
+  color: #0B1C33;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.listing-preview-card .set-cover-btn {
+  display: block;
+  width: 100%;
+  padding: 6px 4px;
+  border: 0;
+  background: #F1F5F9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: background .18s, color .18s;
+}
+.listing-preview-card:hover .set-cover-btn {
+  background: #E2E8F0;
+  color: #0B1C33;
+}
+.listing-preview-card.is-cover .set-cover-btn {
+  background: #0B1C33;
+  color: #C5A059;
+  font-weight: 800;
+}
 .listing-form .check { padding: 14px; border-radius: 9px; background: #f6f8fa; }
 .listing-form .check input { accent-color: var(--accent); }
 .listing-submit { min-height: 48px; margin-top: 0; }
@@ -1364,6 +1485,14 @@ a.chip:hover { transform: translateY(-1px); }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.publisher-mini-loc svg {
+  display: inline-block;
+  width: 11px !important;
+  height: 11px !important;
+  max-width: 11px !important;
+  max-height: 11px !important;
+  vertical-align: -1px;
+}
 .publisher-verified-dot {
   flex: 0 0 auto;
   display: inline-grid;
@@ -1466,15 +1595,14 @@ img { max-width: 100%; height: auto; }
 .card .thumb > .badge,
 .showcase-media > .badge { z-index: 4; }
 
-/* Publisher chip sits at bottom-RIGHT so it is in its own corner,
-   clear of the top-left "For sale / For rent" badge */
+/* Publisher chip sits at bottom-left aligned with card content */
 .card .thumb .publisher-mini,
 .showcase-media .publisher-mini {
-  left: auto;
-  right: 9px;
+  left: 9px;
+  right: auto;
   bottom: 9px;
-  transform-origin: right bottom;
-  max-width: min(210px, calc(100% - 18px));
+  transform-origin: left bottom;
+  max-width: min(240px, calc(100% - 18px));
   overflow: hidden;
 }
 .card .thumb .publisher-mini-text,

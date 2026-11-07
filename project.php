@@ -92,9 +92,41 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
     .publisher-profile p { width:100%;margin:0;color:#e1dceb; }
     .project-contact .publisher-profile-link { color:#fff;text-decoration:none; }
     .project-contact .publisher-profile-link:hover { opacity:.9; }
+    .publisher-mini { position:absolute; left:9px; bottom:9px; z-index:3; display:inline-flex; align-items:center; gap:6px; max-width:calc(100% - 18px); padding:3px 9px 3px 3px; border-radius:999px; background:rgba(255,255,255,.88); border:1px solid rgba(255,255,255,.65); box-shadow:0 2px 8px rgba(15,30,55,.16); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+    .publisher-mini-avatar { display:grid; flex:0 0 20px; width:20px; height:20px; place-items:center; overflow:hidden; border-radius:50%; background:linear-gradient(135deg,#efe7fb,#e0d2f5); color:#6044a6; font-size:9px; font-weight:900; }
+    .publisher-mini-avatar img { width:100%; height:100%; object-fit:cover; }
+    .publisher-mini-text { display:flex; flex-direction:column; min-width:0; line-height:1.25; }
+    .publisher-mini-name { display:inline-flex; align-items:center; gap:3px; max-width:130px; color:#241d3e; font-size:10.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .publisher-mini-loc { max-width:130px; color:#7a8699; font-size:9px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .publisher-verified-dot { flex:0 0 auto; display:inline-grid; place-items:center; width:11px; height:11px; border-radius:50%; background:#12a15c; box-shadow:0 0 0 2px rgba(255,255,255,.9); color:#fff; font-size:7px; font-style:normal; font-weight:900; }
+    body { font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; }
+    h1, h2, h3, h4, .project-hero h1, .project-kicker { font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; letter-spacing: -0.015em; }
+    .to-top {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 99;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #0B1C33;
+      color: #C5A059;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      box-shadow: 0 4px 14px rgba(11, 28, 51, 0.2);
+      cursor: pointer;
+      transition: opacity .2s, transform .2s;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .to-top.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
-<body>
+<body class="page-project">
 <header class="project-header"><div class="project-header-inner">
   <?= render_logo_html('index.php', 'kasa-logo--dark') ?>
   <nav class="project-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php?type=sale"><?= e(t('ซื้อ', 'Buy')) ?></a><a href="search.php?type=rent"><?= e(t('เช่า', 'Rent')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><?php endif; ?><a class="project-cta" href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a><a class="project-cta-project" href="submit-project.php"><span aria-hidden="true">＋</span> <?= e(t('ลงโครงการ', 'Submit a project')) ?></a><?php render_lang_toggle(); ?></nav>
@@ -170,7 +202,7 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
   <?php endif; ?>
 </main>
 
-<dialog class="project-lightbox" id="projectLightbox"><div class="project-lightbox-frame"><button type="button" id="projectLightboxClose" aria-label="<?= e(t('ปิด', 'Close')) ?>">×</button><button type="button" class="project-lightbox-arrow prev" data-project-lightbox-prev aria-label="<?= e(t('รูปก่อนหน้า', 'Previous image')) ?>">‹</button><img src="" alt="<?= e(t('ภาพโครงการขนาดใหญ่', 'Large project photo')) ?>" id="projectLightboxImage"><button type="button" class="project-lightbox-arrow next" data-project-lightbox-next aria-label="<?= e(t('รูปถัดไป', 'Next image')) ?>">›</button><span class="project-lightbox-count" data-project-lightbox-count></span></div></dialog>
+<dialog class="project-lightbox" id="projectLightbox"><div class="project-lightbox-frame"><button type="button" id="projectLightboxClose" aria-label="<?= e(t('ปิด', 'Close')) ?>">×</button><button type="button" class="project-lightbox-arrow prev" data-project-lightbox-prev aria-label="<?= e(t('รูปก่อนหน้า', 'Previous image')) ?>">‹</button><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E" alt="<?= e(t('ภาพโครงการขนาดใหญ่', 'Large project photo')) ?>" id="projectLightboxImage"><button type="button" class="project-lightbox-arrow next" data-project-lightbox-next aria-label="<?= e(t('รูปถัดไป', 'Next image')) ?>">›</button><span class="project-lightbox-count" data-project-lightbox-count></span></div></dialog>
 <script>
   const projectMenuButton = document.getElementById('projectMenuButton');
   const projectMobileMenu = document.getElementById('projectMobileMenu');

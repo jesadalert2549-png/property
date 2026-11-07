@@ -65,8 +65,9 @@ if (request_is_post()) {
     if (!$errors) {
         $uploadedImages = [];
         $stage = 'upload';
+        $coverIndex = max(0, min(MAX_IMAGES - 1, (int)($_POST['cover_index'] ?? 0)));
         try {
-            $uploadedImages = save_uploaded_images($_FILES['images'] ?? [], MAX_IMAGES);
+            $uploadedImages = save_uploaded_images_ordered($_FILES['images'] ?? [], MAX_IMAGES, $coverIndex);
             if (count($uploadedImages) < 1) {
                 foreach ($uploadedImages as $file) delete_image_file($file);
                 $uploadedImages = [];
@@ -313,6 +314,11 @@ $furnishedLabelsEn = [
                 <small><?= e(t('อย่างน้อย 1 รูป สูงสุด ', 'At least 1 photo, up to ')) ?><?= MAX_IMAGES ?><?= e(t(' รูป · JPG, PNG หรือ WebP · ไม่เกิน 5 MB ต่อรูป', ' · JPG, PNG or WebP · Max 5 MB each')) ?></small>
                 <input id="listingImages" type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple required>
               </label>
+              <input type="hidden" name="cover_index" id="listingCoverIndex" value="0">
+              <div id="listingCoverNotice" class="listing-cover-notice field-full" style="display:none;">
+                <span class="cover-icon">★</span>
+                <span><?= e(t('เลือกรูปภาพเป็นหน้าปกประกาศได้ โดยแตะที่ปุ่ม "ตั้งเป็นหน้าปก" บนรูปที่ต้องการ (ค่าเริ่มต้นคือรูปแรก)', 'Select a cover photo by tapping "Set as cover" on your chosen photo (default is first photo).')) ?></span>
+              </div>
               <div id="listingImagePreview" class="listing-image-preview field-full" aria-live="polite"></div>
               <label><?= e(t('ชื่อผู้ติดต่อ', 'Contact name')) ?> *
                 <input type="text" name="contact_name" value="<?= $v('contact_name') ?>" placeholder="<?= e(t('ชื่อที่ให้ผู้สนใจติดต่อ', 'Name for interested buyers to contact')) ?>" required>
@@ -354,23 +360,74 @@ render_page_cta([
 <script>
   const imageInput = document.getElementById('listingImages');
   const imagePreview = document.getElementById('listingImagePreview');
+  const coverIndexInput = document.getElementById('listingCoverIndex');
+  const coverNotice = document.getElementById('listingCoverNotice');
+
   if (imageInput && imagePreview) {
     let previewUrls = [];
-    imageInput.addEventListener('change', () => {
-      imageInput.setCustomValidity(imageInput.files.length < 1 ? '<?= e(t('กรุณาเลือกรูปทรัพย์อย่างน้อย 1 รูป', 'Please select at least 1 property photo.')) ?>' : '');
+    let selectedFiles = [];
+    let activeCoverIndex = 0;
+
+    const renderPreviews = () => {
       previewUrls.forEach(url => URL.revokeObjectURL(url));
       previewUrls = [];
       imagePreview.replaceChildren();
 
-      Array.from(imageInput.files || []).slice(0, <?= MAX_IMAGES ?>).forEach(file => {
-        if (!file.type.startsWith('image/')) return;
-        const image = document.createElement('img');
+      if (selectedFiles.length > 0 && coverNotice) {
+        coverNotice.style.display = 'flex';
+      } else if (coverNotice) {
+        coverNotice.style.display = 'none';
+      }
+
+      selectedFiles.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'listing-preview-card' + (index === activeCoverIndex ? ' is-cover' : '');
+        item.dataset.index = String(index);
+
+        const img = document.createElement('img');
         const url = URL.createObjectURL(file);
         previewUrls.push(url);
-        image.src = url;
-        image.alt = file.name;
-        imagePreview.append(image);
+        img.src = url;
+        img.alt = file.name;
+
+        // Badge หน้าปก
+        const badge = document.createElement('span');
+        badge.className = 'cover-badge';
+        badge.textContent = index === activeCoverIndex ? '★ <?= e(t('หน้าปก', 'Cover')) ?>' : (index + 1);
+
+        // ปุ่มเลือกเป็นหน้าปก
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'set-cover-btn';
+        btn.textContent = index === activeCoverIndex ? '✓ <?= e(t('หน้าปกปัจจุบัน', 'Current cover')) ?>' : '<?= e(t('ตั้งเป็นหน้าปก', 'Set as cover')) ?>';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          activeCoverIndex = index;
+          if (coverIndexInput) coverIndexInput.value = String(index);
+          renderPreviews();
+        });
+
+        item.addEventListener('click', () => {
+          activeCoverIndex = index;
+          if (coverIndexInput) coverIndexInput.value = String(index);
+          renderPreviews();
+        });
+
+        item.appendChild(img);
+        item.appendChild(badge);
+        item.appendChild(btn);
+        imagePreview.appendChild(item);
       });
+    };
+
+    imageInput.addEventListener('change', () => {
+      const files = Array.from(imageInput.files || []).slice(0, <?= MAX_IMAGES ?>).filter(f => f.type.startsWith('image/'));
+      imageInput.setCustomValidity(files.length < 1 ? '<?= e(t('กรุณาเลือกรูปทรัพย์อย่างน้อย 1 รูป', 'Please select at least 1 property photo.')) ?>' : '');
+      selectedFiles = files;
+      activeCoverIndex = 0;
+      if (coverIndexInput) coverIndexInput.value = '0';
+      renderPreviews();
     });
   }
   const propertyCategory = document.getElementById('propertyCategory');

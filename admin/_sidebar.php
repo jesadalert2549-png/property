@@ -212,8 +212,18 @@ $currentAdminPage = basename((string)($_SERVER['SCRIPT_NAME'] ?? ''));
   </div>
 </header>
 
-<button class="admin-sidebar-toggle" type="button" aria-label="<?= e(t('เปิดเมนูผู้ดูแล', 'Open admin menu')) ?>" aria-expanded="false" aria-controls="adminSidebar">☰</button>
-<div class="admin-sidebar-backdrop" data-admin-sidebar-close hidden></div>
+  <div class="admin-mobile-topbar" aria-label="<?= e(t('แถบเครื่องมือมือถือ', 'Mobile admin bar')) ?>">
+    <button class="admin-sidebar-toggle" type="button" aria-label="<?= e(t('เปิดเมนูผู้ดูแล', 'Open admin menu')) ?>" aria-expanded="false" aria-controls="adminSidebar">☰</button>
+    <div class="admin-mobile-brand">
+      <?= render_logo_html('index.php', 'sp-logo--dark') ?>
+      <span class="admin-mobile-badge"><?= e($badgeBrand) ?></span>
+    </div>
+    <div class="admin-mobile-actions">
+      <a href="../index.php" target="_blank" rel="noopener" class="admin-mobile-site-btn" title="<?= e(t('ดูหน้าเว็บไซต์', 'View public site')) ?>">🌐</a>
+      <a href="../logout.php" class="admin-mobile-logout-btn" title="<?= e(t('ออกจากระบบ', 'Log out')) ?>">✕</a>
+    </div>
+  </div>
+  <div class="admin-sidebar-backdrop" data-admin-sidebar-close hidden></div>
 
 <aside class="admin-sidebar" id="adminSidebar" aria-label="<?= e(t('เมนูผู้ดูแลระบบ', 'Admin sidebar')) ?>">
   <?= render_logo_html('index.php', 'sp-logo--dark') ?><span class="admin-brand-admin-label"><?= e($badgeBrand) ?></span>
