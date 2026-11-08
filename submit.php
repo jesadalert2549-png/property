@@ -55,10 +55,34 @@ if (request_is_post()) {
     }
 
     if (!$errors) {
+        $userCheck = db()->prepare('SELECT is_banned, ban_reason, tier, max_listings FROM users WHERE id = ? LIMIT 1');
+        $userCheck->execute([(int)$_SESSION['user_id']]);
+        $userQuota = $userCheck->fetch(PDO::FETCH_ASSOC);
+
+        if (!empty($userQuota['is_banned'])) {
+            $reason = !empty($userQuota['ban_reason']) ? ' (' . e($userQuota['ban_reason']) . ')' : '';
+            $errors[] = t('บัญชีของคุณถูกระงับสิทธิ์การลงประกาศ' . $reason . ' กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended from posting listings' . $reason . '. Please contact support.');
+        } else {
+            $maxAllowed = isset($userQuota['max_listings']) ? (int)$userQuota['max_listings'] : 5;
+            // ถ้าระบุ < 0 ถือว่า Unlimited
+            if ($maxAllowed >= 0) {
+                $currentCount = db()->prepare('SELECT COUNT(*) FROM properties WHERE user_id = ?');
+                $currentCount->execute([(int)$_SESSION['user_id']]);
+                $postedTotal = (int)$currentCount->fetchColumn();
+
+                if ($postedTotal >= $maxAllowed) {
+                    $errors[] = t(
+                        "บัญชีของคุณใช้สิทธิ์ลงประกาศครบตามโควตาแล้ว ({$postedTotal}/{$maxAllowed} รายการ) หากต้องการลงเพิ่มกรุณาติดต่อผู้ดูแลระบบเพื่อปรับเพิ่มสิทธิ์",
+                        "You have reached your listing quota ({$postedTotal}/{$maxAllowed} listings). Please contact the administrator to upgrade your plan."
+                    );
+                }
+            }
+        }
+
         $rateLimit = db()->prepare('SELECT COUNT(*) FROM properties WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)');
         $rateLimit->execute([(int)$_SESSION['user_id']]);
-        if ((int)$rateLimit->fetchColumn() >= 5) {
-            $errors[] = t('บัญชีนี้ลงประกาศครบ 5 รายการใน 1 ชั่วโมงแล้ว กรุณาลองใหม่ภายหลัง', 'This account has already posted 5 listings within 1 hour. Please try again later.');
+        if ((int)$rateLimit->fetchColumn() >= 10) {
+            $errors[] = t('บัญชีนี้ลงประกาศถี่เกินไป กรุณารอ 1 ชั่วโมงแล้วลองใหม่อีกครั้ง', 'You have posted too frequently. Please wait an hour before posting again.');
         }
     }
 

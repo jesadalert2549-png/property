@@ -58,9 +58,10 @@ $catalog = [
         ],
     ],
     'founder_only' => [
-        'title' => t('หุ้นส่วน & เอกสิทธิ์', 'Founder Suite'),
+        'title' => t('สมาชิก & เอกสิทธิ์', 'Members & Founder'),
         'icon'  => '👑',
         'items' => [
+            ['members.php', '👥', t('จัดการสมาชิก & โควตา', 'Member Governance'), t('ปรับสิทธิ์และจำกัดโควตาประกาศ', 'Quota, tiers & user permissions')],
             ['features.php', '🗺️', t('แผนที่ฟีเจอร์ทั้งหมด', 'Feature Map'), t('ตรวจสอบฟีเจอร์และนวัตกรรมทั้งหมดของระบบ', 'All active system features & audit')],
             ['partners.php', '👑', t('จัดการหุ้นส่วน & สิทธิ์', 'Partners & Access'), t('กำหนดสิทธิ์รายบุคคลตามตำแหน่ง', 'Role-based access control')],
         ],

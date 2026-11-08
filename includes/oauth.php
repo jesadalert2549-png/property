@@ -255,20 +255,28 @@ function oauth_get_or_create_user(PDO $pdo, string $provider, string $subject, s
         $email = strtolower($provider) . '_' . substr(md5($subject), 0, 12) . '@propertygo.local';
     }
 
-    $find = $pdo->prepare('SELECT u.id, u.username, u.role, u.full_name, u.line_id FROM oauth_identities oi JOIN users u ON u.id = oi.user_id WHERE oi.provider = ? AND oi.provider_subject = ? LIMIT 1');
+    $find = $pdo->prepare('SELECT u.id, u.username, u.role, u.full_name, u.line_id, u.is_banned, u.ban_reason FROM oauth_identities oi JOIN users u ON u.id = oi.user_id WHERE oi.provider = ? AND oi.provider_subject = ? LIMIT 1');
     $find->execute([$provider, $subject]);
     $user = $find->fetch(PDO::FETCH_ASSOC);
     if ($user) {
+        if (!empty($user['is_banned']) && $user['role'] !== 'admin') {
+            $_SESSION['oauth_error'] = t('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended. Please contact support.');
+            redirect('login.php');
+        }
         if ($lineId !== '' && empty($user['line_id'])) {
             $pdo->prepare('UPDATE users SET line_id = ? WHERE id = ?')->execute([$lineId, $user['id']]);
         }
         return $user;
     }
 
-    $existing = $pdo->prepare('SELECT id, username, role, line_id FROM users WHERE email = ? LIMIT 1');
+    $existing = $pdo->prepare('SELECT id, username, role, line_id, is_banned, ban_reason FROM users WHERE email = ? LIMIT 1');
     $existing->execute([$email]);
     $existingUser = $existing->fetch(PDO::FETCH_ASSOC);
     if ($existingUser) {
+        if (!empty($existingUser['is_banned']) && $existingUser['role'] !== 'admin') {
+            $_SESSION['oauth_error'] = t('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended. Please contact support.');
+            redirect('login.php');
+        }
         $link = $pdo->prepare('INSERT INTO oauth_identities (user_id, provider, provider_subject, email, display_name) VALUES (?, ?, ?, ?, ?)');
         $link->execute([(int)$existingUser['id'], $provider, $subject, $email, mb_substr($name, 0, 120)]);
         if ($lineId !== '' && empty($existingUser['line_id'])) {

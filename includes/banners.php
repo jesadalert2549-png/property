@@ -251,10 +251,33 @@ function get_hero_background(bool $forceRefresh = false): array
         'filename' => 'Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg',
     ];
 
-    $cfgFile = dirname(__DIR__) . '/hero_config.json';
-    if (!is_file($cfgFile)) return $cached = $default;
+    $cfg = null;
 
-    $cfg = json_decode((string)file_get_contents($cfgFile), true);
+    // 1. อ่านจากฐานข้อมูล (site_settings) ก่อนเสมอ — ป้องกันค่าหายเมื่อ deploy หรือ git pull
+    try {
+        $pdo = db();
+        $st = $pdo->prepare("SELECT setting_value FROM site_settings WHERE setting_key = 'hero_background' LIMIT 1");
+        $st->execute();
+        $dbVal = $st->fetchColumn();
+        if ($dbVal) {
+            $parsed = json_decode((string)$dbVal, true);
+            if (is_array($parsed)) {
+                $cfg = $parsed;
+            }
+        }
+    } catch (Throwable $e) {}
+
+    // 2. ถ้าใน DB ยังไม่มี ให้อ่านจาก hero_config.json เป็น Fallback
+    if (!$cfg) {
+        $cfgFile = dirname(__DIR__) . '/hero_config.json';
+        if (is_file($cfgFile)) {
+            $jsonParsed = json_decode((string)file_get_contents($cfgFile), true);
+            if (is_array($jsonParsed)) {
+                $cfg = $jsonParsed;
+            }
+        }
+    }
+
     if (!is_array($cfg)) return $cached = $default;
 
     $filename = basename((string)($cfg['media_file'] ?? ''));
@@ -271,15 +294,28 @@ function get_hero_background(bool $forceRefresh = false): array
         ];
     }
 
+    // ตรวจสอบทั้งใน uploads/hero/ และ images/hero/
     $uploadPath = UPLOAD_DIR . 'hero/' . $filename;
-    if ($filename !== '' && is_file($uploadPath)) {
-        return $cached = [
-            'type' => $type,
-            'url' => 'uploads/hero/' . $filename,
-            'is_default' => false,
-            'opacity' => $opacity,
-            'filename' => $filename,
-        ];
+    $imagesPath = dirname(__DIR__) . '/images/hero/' . $filename;
+
+    if ($filename !== '') {
+        if (is_file($uploadPath)) {
+            return $cached = [
+                'type' => $type,
+                'url' => 'uploads/hero/' . $filename,
+                'is_default' => false,
+                'opacity' => $opacity,
+                'filename' => $filename,
+            ];
+        } elseif (is_file($imagesPath)) {
+            return $cached = [
+                'type' => $type,
+                'url' => 'images/hero/' . $filename,
+                'is_default' => false,
+                'opacity' => $opacity,
+                'filename' => $filename,
+            ];
+        }
     }
 
     return $cached = $default;
@@ -309,30 +345,56 @@ function save_hero_background(array $file, float $opacity): array
         throw new RuntimeException('รองรับเฉพาะไฟล์ภาพ (JPG, PNG, WebP) หรือวิดีโอ (MP4, WebM)');
     }
 
-    $dir = UPLOAD_DIR . 'hero/';
-    if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
-        throw new RuntimeException('ไม่สามารถสร้างโฟลเดอร์เก็บสื่อพื้นหลังได้');
-    }
+    // เซฟลง 2 ที่: uploads/hero/ และ images/hero/ (ป้องกันไฟล์หายเวลา deploy หรือ git pull)
+    $dirUpload = UPLOAD_DIR . 'hero/';
+    $dirImages = dirname(__DIR__) . '/images/hero/';
+
+    if (!is_dir($dirUpload)) @mkdir($dirUpload, 0755, true);
+    if (!is_dir($dirImages)) @mkdir($dirImages, 0755, true);
 
     $current = get_hero_background();
     if (!$current['is_default'] && !empty($current['filename'])) {
-        $oldPath = $dir . basename($current['filename']);
-        if (is_file($oldPath)) { @unlink($oldPath); }
+        $oldFile = basename($current['filename']);
+        if (is_file($dirUpload . $oldFile)) { @unlink($dirUpload . $oldFile); }
+        if (is_file($dirImages . $oldFile)) { @unlink($dirImages . $oldFile); }
     }
 
     $filename = 'hero-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $ext;
-    if (!move_uploaded_file($file['tmp_name'], $dir . $filename)) {
+    $targetPathUpload = $dirUpload . $filename;
+    $targetPathImages = $dirImages . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $targetPathUpload)) {
         throw new RuntimeException('ไม่สามารถบันทึกไฟล์สื่อพื้นหลังได้');
     }
+    // ทำสำเนาไว้ที่ images/hero/ ด้วยเพื่อความคงทน
+    @copy($targetPathUpload, $targetPathImages);
 
-    $cfgFile = dirname(__DIR__) . '/hero_config.json';
-    file_put_contents($cfgFile, json_encode([
+    $configData = [
         'media_type' => $type,
         'media_file' => $filename,
         'is_default' => false,
         'overlay_opacity' => max(0.1, min(0.9, $opacity)),
         'updated_at' => date('Y-m-d H:i:s'),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    ];
+    $jsonString = json_encode($configData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    // 1. บันทึกลงฐานข้อมูล site_settings (ถาวร ไม่โดนไฟล์ทับ)
+    try {
+        $pdo = db();
+        $pdo->exec("CREATE TABLE IF NOT EXISTS site_settings (
+            setting_key VARCHAR(100) NOT NULL PRIMARY KEY,
+            setting_value LONGTEXT NULL,
+            updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $st = $pdo->prepare("INSERT INTO site_settings (setting_key, setting_value, updated_at) VALUES ('hero_background', ?, NOW())
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+        $st->execute([$jsonString]);
+    } catch (Throwable $e) {}
+
+    // 2. บันทึกลง hero_config.json ควบคู่ไปด้วย
+    $cfgFile = dirname(__DIR__) . '/hero_config.json';
+    file_put_contents($cfgFile, $jsonString);
 
     get_hero_background(true);
 
@@ -341,21 +403,34 @@ function save_hero_background(array $file, float $opacity): array
 
 function reset_hero_background(): void
 {
-    $dir = UPLOAD_DIR . 'hero/';
+    $dirUpload = UPLOAD_DIR . 'hero/';
+    $dirImages = dirname(__DIR__) . '/images/hero/';
+
     $current = get_hero_background();
     if (!$current['is_default'] && !empty($current['filename'])) {
-        $oldPath = $dir . basename($current['filename']);
-        if (is_file($oldPath)) { @unlink($oldPath); }
+        $oldFile = basename($current['filename']);
+        if (is_file($dirUpload . $oldFile)) { @unlink($dirUpload . $oldFile); }
+        if (is_file($dirImages . $oldFile)) { @unlink($dirImages . $oldFile); }
     }
 
-    $cfgFile = dirname(__DIR__) . '/hero_config.json';
-    file_put_contents($cfgFile, json_encode([
+    $configData = [
         'media_type' => 'image',
         'media_file' => 'images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg',
         'is_default' => true,
         'overlay_opacity' => 0.45,
         'updated_at' => date('Y-m-d H:i:s'),
-    ], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+    ];
+    $jsonString = json_encode($configData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+
+    try {
+        $pdo = db();
+        $st = $pdo->prepare("INSERT INTO site_settings (setting_key, setting_value, updated_at) VALUES ('hero_background', ?, NOW())
+            ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+        $st->execute([$jsonString]);
+    } catch (Throwable $e) {}
+
+    $cfgFile = dirname(__DIR__) . '/hero_config.json';
+    file_put_contents($cfgFile, $jsonString);
 
     get_hero_background(true);
 }

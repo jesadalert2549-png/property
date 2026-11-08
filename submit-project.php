@@ -8,11 +8,18 @@ $userId = (int)($_SESSION['user_id'] ?? 0);
 $isLoggedIn = $userId > 0;
 $currentUser = null;
 if ($isLoggedIn) {
-    $userStatement = $pdo->prepare('SELECT id, username, email, full_name, role FROM users WHERE id = ? LIMIT 1');
+    $userStatement = $pdo->prepare('SELECT id, username, email, full_name, role, is_banned, ban_reason, can_post_project FROM users WHERE id = ? LIMIT 1');
     $userStatement->execute([$userId]);
     $currentUser = $userStatement->fetch() ?: null;
     $isLoggedIn = $currentUser !== null;
     if (!$isLoggedIn) $userId = 0;
+    elseif (!empty($currentUser['is_banned'])) {
+        session_unset();
+        session_destroy();
+        session_start();
+        $_SESSION['flash_error'] = t('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended. Please contact support.');
+        redirect('login.php');
+    }
 }
 
 $errors = [];

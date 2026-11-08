@@ -70,7 +70,16 @@ $tables = [
         last_login_at DATETIME NULL,
         password_hash VARCHAR(255) NOT NULL,
         role ENUM('user','admin') NOT NULL DEFAULT 'user',
-        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        tier ENUM('free', 'pro', 'vip', 'unlimited') NOT NULL DEFAULT 'free',
+        max_listings INT NOT NULL DEFAULT 5,
+        can_post_featured TINYINT(1) NOT NULL DEFAULT 0,
+        can_post_project TINYINT(1) NOT NULL DEFAULT 0,
+        is_banned TINYINT(1) NOT NULL DEFAULT 0,
+        ban_reason VARCHAR(255) NULL,
+        admin_notes TEXT NULL,
+        created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_users_tier (tier),
+        INDEX idx_users_banned (is_banned)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
 
     "CREATE TABLE IF NOT EXISTS visits (

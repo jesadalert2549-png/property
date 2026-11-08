@@ -218,7 +218,8 @@ $approvalLabel = [
       <?php endif; ?>
       <div class="dash-hero-actions">
         <?php if ($isFounder): ?>
-          <a class="btn-hero" href="features.php" style="background:linear-gradient(135deg,#0B1C33,#1e3a8a); border:1px solid #C5A059; color:#E5CB96;">🗺️ <?= e(t('ดูฟีเจอร์ทั้งหมดของเว็บ', 'View All Features')) ?></a>
+          <a class="btn-hero" href="members.php" style="background:linear-gradient(135deg,#0B1C33,#1d4ed8); border:1px solid rgba(197,160,89,.6); color:#fff;">👥 <?= e(t('จัดการสมาชิก & โควตา', 'Manage Members & Quota')) ?></a>
+          <a class="btn-hero" href="features.php" style="background:rgba(255,255,255,.1); border:1px solid #C5A059; color:#E5CB96;">🗺️ <?= e(t('ดูฟีเจอร์ทั้งหมด', 'View All Features')) ?></a>
         <?php endif; ?>
         <?php if ($isFounder || !empty($perms['analytics']['view'])): ?>
           <a class="btn-hero" href="pdf-report.php">🧾 <?= e(t('สร้างรายงาน PDF สรุปสถิติ', 'Generate PDF Report')) ?></a>

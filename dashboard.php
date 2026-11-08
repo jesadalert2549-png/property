@@ -20,9 +20,18 @@ $passwordSuccess = '';
 $profileError = '';
 $profileSuccess = '';
 $csrf = csrf_token();
-$profileStatement = $pdo->prepare('SELECT id, username, email, full_name, phone, line_id, avatar_path, agent_status, agent_license, agent_agency, agent_document, created_at FROM users WHERE id = ? LIMIT 1');
+$profileStatement = $pdo->prepare('SELECT id, username, email, full_name, phone, line_id, avatar_path, agent_status, agent_license, agent_agency, agent_document, tier, max_listings, is_banned, ban_reason, created_at FROM users WHERE id = ? LIMIT 1');
 $profileStatement->execute([(int)$_SESSION['user_id']]);
 $memberProfile = $profileStatement->fetch() ?: ['username' => (string)($_SESSION['username'] ?? ''), 'email' => '', 'full_name' => '', 'phone' => '', 'line_id' => '', 'created_at' => null];
+
+// หากบัญชีถูกระงับสิทธิ์ (Banned) เตะออกจากระบบและแจ้งเตือนทันที
+if (!$isOwner && !empty($memberProfile['is_banned'])) {
+    session_unset();
+    session_destroy();
+    session_start();
+    $_SESSION['flash_error'] = t('บัญชีของคุณถูกระงับการใช้งาน กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended. Please contact support.');
+    redirect('login.php');
+}
 
 if (!$isOwner && request_is_post() && ($_POST['action'] ?? '') === 'save_profile') {
     csrf_check();
@@ -300,7 +309,18 @@ $agentStatus = $memberProfile['agent_status'] ?? 'none';
       </section>
 
       <section class="member-stat-grid" aria-label="<?= e(t('ภาพรวมพื้นที่ของฉัน', 'My space overview')) ?>">
-        <article><span class="member-stat-icon blue">▤</span><div><small><?= e(t('โพสต์ทั้งหมด', 'Total posts')) ?></small><strong><?= number_format($memberStats['posts']) ?></strong><span><?= e(t('ทรัพย์และโครงการของคุณ', 'your properties and projects')) ?></span></div></article>
+        <?php
+          $tier = $memberProfile['tier'] ?? 'free';
+          $maxListings = (int)($memberProfile['max_listings'] ?? 5);
+          $tierName = match($tier) {
+              'pro' => 'PRO MEMBER',
+              'vip' => 'VIP AGENT',
+              'unlimited' => 'UNLIMITED PARTNER',
+              default => 'FREE MEMBER'
+          };
+          $quotaDisplay = $maxListings < 0 ? '∞ ไม่จำกัด' : (count($myProperties) . " / " . $maxListings);
+        ?>
+        <article><span class="member-stat-icon blue">▤</span><div><small><?= e(t('โควตาลงประกาศ', 'Listing Quota')) ?> (<?= e($tierName) ?>)</small><strong><?= e($quotaDisplay) ?></strong><span><?= e(t('ประกาศที่ใช้ไปแล้ว', 'active listings posted')) ?></span></div></article>
         <article><span class="member-stat-icon green">✓</span><div><small><?= e(t('เผยแพร่แล้ว', 'Published')) ?></small><strong><?= number_format($memberStats['published']) ?></strong><span><?= e(t('มองเห็นได้บนเว็บไซต์', 'visible on the website')) ?></span></div></article>
         <article><span class="member-stat-icon amber">◷</span><div><small><?= e(t('รอตรวจสอบ', 'Pending review')) ?></small><strong><?= number_format($memberStats['pending']) ?></strong><span><?= e(t('ประกาศที่กำลังดำเนินการ', 'listings being processed')) ?></span></div></article>
         <article><span class="member-stat-icon violet">⌂</span><div><small><?= e(t('โครงการ', 'Projects')) ?></small><strong><?= number_format($memberStats['projects']) ?></strong><span><?= e(t('โครงการที่คุณลงไว้', 'projects you have submitted')) ?></span></div></article>

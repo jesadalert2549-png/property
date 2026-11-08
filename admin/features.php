@@ -175,6 +175,15 @@ $featureCatalog = [
         'color'    => '#8B5CF6',
         'items'    => [
             [
+                'title'       => 'ระบบบริหารจัดการสมาชิก & สิทธิ์โควตาประกาศ (Member Quota & Tier Command)',
+                'status'      => 'พร้อมใช้งาน 100%',
+                'status_type' => 'active',
+                'file'        => 'admin/members.php, submit.php, dashboard.php',
+                'desc'        => 'เครื่องมือควบคุมสิทธิ์รายบุคคล กำหนดระดับ Free, Pro, VIP และระบุโควตาจำนวนประกาศสูงสุด ป้องกันสแปมและรองรับผู้ใช้ปริมาณมาก',
+                'icon'        => '👥',
+                'test_url'    => 'members.php'
+            ],
+            [
                 'title'       => 'ระบบตรวจและรับรอง Agent (Verified Agent Badges & Documents)',
                 'status'      => 'พร้อมใช้งาน 100%',
                 'status_type' => 'active',

@@ -4,8 +4,8 @@ require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/oauth.php';
 current_lang();
 
-$error = $_SESSION['oauth_error'] ?? '';
-unset($_SESSION['oauth_error']);
+$error = $_SESSION['oauth_error'] ?? ($_SESSION['flash_error'] ?? '');
+unset($_SESSION['oauth_error'], $_SESSION['flash_error']);
 $requestedReturnTo = (string)($_GET['return_to'] ?? $_POST['return_to'] ?? '');
 $adminReturnTargets = array_map(
     static fn(string $page): string => 'admin/' . $page,
@@ -26,44 +26,50 @@ if (request_is_post()) {
         $error = t('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'Please enter your username and password.');
     } else {
         $pdo = db();
-        $stmt = $pdo->prepare('SELECT id, username, password_hash, role FROM users WHERE username = ? OR email = ? LIMIT 1');
+        $stmt = $pdo->prepare('SELECT id, username, password_hash, role, is_banned, ban_reason FROM users WHERE username = ? OR email = ? LIMIT 1');
         $stmt->execute([$username, $username]);
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            $pdo->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?')
-                ->execute([$user['id']]);
-            session_regenerate_id(true);
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role'];
-
-            if ($user['role'] === 'admin') {
-                $_SESSION['is_founder'] = true;
-                $_SESSION['partner_title'] = 'FOUNDER & CEO';
-                setcookie('no_track', '1', [
-                    'expires' => time() + 60 * 60 * 24 * 30,
-                    'path' => '/',
-                    'secure' => request_is_https(),
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]);
+            // ตรวจสอบสถานะการระงับบัญชี (Banned Status)
+            if (!empty($user['is_banned']) && $user['role'] !== 'admin') {
+                $reason = !empty($user['ban_reason']) ? ': ' . $user['ban_reason'] : '';
+                $error = t('บัญชีของคุณถูกระงับการใช้งาน' . $reason . ' กรุณาติดต่อผู้ดูแลระบบ', 'Your account has been suspended' . $reason . '. Please contact support.');
             } else {
-                setcookie('no_track', '', [
-                    'expires' => time() - 3600,
-                    'path' => '/',
-                    'secure' => request_is_https(),
-                    'httponly' => true,
-                    'samesite' => 'Lax',
-                ]);
+                $pdo->prepare('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?')
+                    ->execute([$user['id']]);
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                $_SESSION['role'] = $user['role'];
+
+                if ($user['role'] === 'admin') {
+                    $_SESSION['is_founder'] = true;
+                    $_SESSION['partner_title'] = 'FOUNDER & CEO';
+                    setcookie('no_track', '1', [
+                        'expires' => time() + 60 * 60 * 24 * 30,
+                        'path' => '/',
+                        'secure' => request_is_https(),
+                        'httponly' => true,
+                        'samesite' => 'Lax',
+                    ]);
+                } else {
+                    setcookie('no_track', '', [
+                        'expires' => time() - 3600,
+                        'path' => '/',
+                        'secure' => request_is_https(),
+                        'httponly' => true,
+                        'samesite' => 'Lax',
+                    ]);
+                }
+                $destination = $validMemberReturn
+                    ? $returnTo
+                    : ($user['role'] === 'admin'
+                        ? (str_starts_with($returnTo, 'admin/') ? $returnTo : 'admin/index.php')
+                        : 'dashboard.php');
+                header('Location: ' . $destination);
+                exit;
             }
-            $destination = $validMemberReturn
-                ? $returnTo
-                : ($user['role'] === 'admin'
-                    ? (str_starts_with($returnTo, 'admin/') ? $returnTo : 'admin/index.php')
-                    : 'dashboard.php');
-            header('Location: ' . $destination);
-            exit;
         }
 
         // ตรวจสอบบัญชีหุ้นส่วนและผู้จัดการ (Partners & Management)

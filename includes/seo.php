@@ -41,6 +41,8 @@ function seo_head(string $title, string $description, string $canonical, bool $i
     echo '<meta name="twitter:title" content="' . e($title) . "\">\n";
     echo '<meta name="twitter:description" content="' . e($description) . "\">\n";
     echo '<meta name="twitter:image" content="' . e($image) . "\">\n";
+    // Search Engine Site Verification (Bing Webmaster Tools / Copilot)
+    echo '<meta name="msvalidate.01" content="9699B7C40E9B6F2EF57A18C92D40D95B">' . "\n";
     // Typography: Modern Inter & Prompt font system
     site_controls_head();
 }
