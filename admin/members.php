@@ -182,15 +182,15 @@ $token = csrf_token();
   <!-- Hero Header -->
   <div class="member-hero">
     <div>
-      <span class="eyebrow">MEMBER GOVERNANCE &amp; QUOTA MANAGEMENT</span>
-      <h1>👥 ศูนย์บริหารจัดการสมาชิก &amp; สิทธิ์โควตา</h1>
+      <span class="eyebrow"><?= e(t('MEMBER GOVERNANCE & QUOTA MANAGEMENT', 'MEMBER GOVERNANCE & QUOTA MANAGEMENT')) ?></span>
+      <h1>👥 <?= e(t('ศูนย์บริหารจัดการสมาชิก & สิทธิ์โควตา', 'Member Command Center & Quota Governance')) ?></h1>
       <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">
-        ออกแบบเพื่อรองรับสมาชิกปริมาณมาก (Scalable) ควบคุมโควตาจำนวนประกาศสูงสุด กำหนดระดับสิทธิ์ (Free, Pro, VIP) และจัดการระงับ/เปิดใช้งานบัญชีได้แบบเบ็ดเสร็จ
+        <?= e(t('ออกแบบเพื่อรองรับสมาชิกปริมาณมาก (Scalable) ควบคุมโควตาจำนวนประกาศสูงสุด กำหนดระดับสิทธิ์ (Free, Pro, VIP) และจัดการระงับ/เปิดใช้งานบัญชีได้แบบเบ็ดเสร็จ', 'Engineered to scale for large member volumes — govern maximum listing quotas, membership tiers (Free, Pro, VIP), and moderate account status.')) ?>
       </p>
     </div>
     <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
       <span style="font-size:12px; color:#E5CB96; background:rgba(255,255,255,.08); padding:5px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.14);">
-        👑 เอกสิทธิ์การปรับสิทธิ์เฉพาะ Founder &amp; CEO
+        👑 <?= e(t('เอกสิทธิ์การปรับสิทธิ์เฉพาะ Founder & CEO', 'Founder & CEO Exclusive Authority')) ?>
       </span>
     </div>
   </div>
@@ -201,23 +201,23 @@ $token = csrf_token();
   <!-- แถบสถิติสมาชิก -->
   <div class="stat-row">
     <div class="stat-box">
-      <small>สมาชิกทั้งหมด</small>
-      <strong><?= number_format($statTotal) ?> <span style="font-size:14px; font-weight:normal;">คน</span></strong>
+      <small><?= e(t('สมาชิกทั้งหมด', 'Total Members')) ?></small>
+      <strong><?= number_format($statTotal) ?> <span style="font-size:14px; font-weight:normal;"><?= e(t('คน', 'users')) ?></span></strong>
     </div>
     <div class="stat-box">
-      <small>Free Members</small>
+      <small><?= e(t('Free Members (สมาชิกทั่วไป)', 'Free Members')) ?></small>
       <strong style="color:#475569;"><?= number_format($statFree) ?></strong>
     </div>
     <div class="stat-box">
-      <small>Pro Members (โควตาสูง)</small>
+      <small><?= e(t('Pro Members (โควตาสูง)', 'Pro Members')) ?></small>
       <strong style="color:#1d4ed8;"><?= number_format($statPro) ?></strong>
     </div>
     <div class="stat-box">
-      <small>VIP / Unlimited</small>
+      <small><?= e(t('VIP / Unlimited', 'VIP / Unlimited')) ?></small>
       <strong style="color:#A8843F;"><?= number_format($statVip) ?></strong>
     </div>
     <div class="stat-box">
-      <small>บัญชีถูกระงับ (Banned)</small>
+      <small><?= e(t('บัญชีถูกระงับ (Banned)', 'Suspended Accounts')) ?></small>
       <strong style="color:#b91c1c;"><?= number_format($statBanned) ?></strong>
     </div>
   </div>
@@ -226,51 +226,59 @@ $token = csrf_token();
   <section class="dash-card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px;">
       <div>
-        <h2 style="margin:0; font-size:18px; color:#0B1C33; font-weight:800;">รายชื่อสมาชิกในระบบ (พบ <?= number_format($totalMembers) ?> รายการ)</h2>
-        <span style="font-size:12.5px; color:#64748B;">คลิก "⚙️ ตั้งค่าสิทธิ์" เพื่อปรับโควตาประกาศ ระดับสมาชิก หรือระงับการใช้งาน</span>
+        <h2 style="margin:0; font-size:18px; color:#0B1C33; font-weight:800;">
+          <?= e(t('รายชื่อสมาชิกในระบบ (พบ ' . number_format($totalMembers) . ' รายการ)', 'System Member Directory (' . number_format($totalMembers) . ' users found)')) ?>
+        </h2>
+        <span style="font-size:12.5px; color:#64748B;">
+          <?= e(t('คลิก "⚙️ ปรับสิทธิ์" เพื่อปรับโควตาประกาศ ระดับสมาชิก หรือระงับการใช้งาน', 'Click "⚙️ Permissions" to adjust listing quotas, tiers, or moderate account status.')) ?>
+        </span>
       </div>
       <div style="font-size:12px; color:#64748B;">
-        หน้า <?= $page ?> จาก <?= $totalPages ?>
+        <?= e(t('หน้า', 'Page')) ?> <?= $page ?> <?= e(t('จาก', 'of')) ?> <?= $totalPages ?>
       </div>
     </div>
 
     <!-- ฟอร์มตัวกรองและค้นหา -->
     <form method="get" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
-      <input type="search" name="q" value="<?= e($search) ?>" placeholder="ค้นหาชื่อ, อีเมล, เบอร์โทร หรือ username..." style="min-height:38px; padding:6px 14px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:13px; min-width:260px;">
+      <input type="search" name="q" value="<?= e($search) ?>" placeholder="<?= e(t('ค้นหาชื่อ, อีเมล, เบอร์โทร หรือ username...', 'Search name, email, phone or username...')) ?>" style="min-height:38px; padding:6px 14px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:13px; min-width:260px;">
       <select name="tier" style="min-height:38px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:13px;">
-        <option value="">ทุกระดับ (Tier)</option>
+        <option value=""><?= e(t('ทุกระดับ (Tier)', 'All Tiers')) ?></option>
         <option value="free" <?= $filterTier==='free'?'selected':'' ?>>Free Member</option>
         <option value="pro" <?= $filterTier==='pro'?'selected':'' ?>>Pro Member</option>
         <option value="vip" <?= $filterTier==='vip'?'selected':'' ?>>VIP Agent</option>
         <option value="unlimited" <?= $filterTier==='unlimited'?'selected':'' ?>>Unlimited</option>
       </select>
       <select name="banned" style="min-height:38px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:13px;">
-        <option value="">ทุกสถานะบัญชี</option>
-        <option value="0" <?= $filterBanned==='0'?'selected':'' ?>>ปกติ (Active)</option>
-        <option value="1" <?= $filterBanned==='1'?'selected':'' ?>>ถูกระงับ (Banned)</option>
+        <option value=""><?= e(t('ทุกสถานะบัญชี', 'All Account Statuses')) ?></option>
+        <option value="0" <?= $filterBanned==='0'?'selected':'' ?>><?= e(t('ปกติ (Active)', 'Active')) ?></option>
+        <option value="1" <?= $filterBanned==='1'?'selected':'' ?>><?= e(t('ถูกระงับ (Banned)', 'Suspended (Banned)')) ?></option>
       </select>
-      <button type="submit" style="min-height:38px; padding:0 16px; border:1px solid #cbd5e1; background:#fff; border-radius:8px; font-weight:700; cursor:pointer;">⌕ ค้นหา</button>
+      <button type="submit" style="min-height:38px; padding:0 16px; border:1px solid #cbd5e1; background:#fff; border-radius:8px; font-weight:700; cursor:pointer;">
+        ⌕ <?= e(t('ค้นหา', 'Search')) ?>
+      </button>
       <?php if ($search !== '' || $filterTier !== '' || $filterBanned !== ''): ?>
-        <a href="members.php" class="btn" style="min-height:38px; padding:8px 14px; font-size:12.5px; background:#f1f5f9; border:1px solid #cbd5e1; text-decoration:none; color:#475569;">ล้างตัวกรอง</a>
+        <a href="members.php" class="btn" style="min-height:38px; padding:8px 14px; font-size:12.5px; background:#f1f5f9; border:1px solid #cbd5e1; text-decoration:none; color:#475569;">
+          <?= e(t('ล้างตัวกรอง', 'Clear filters')) ?>
+        </a>
       <?php endif; ?>
     </form>
 
     <!-- ตารางรายชื่อสมาชิก -->
     <?php if (!$members): ?>
       <p style="text-align:center; padding:36px; background:#f8fafc; border-radius:14px; color:#64748B;">
-        ไม่พบรายชื่อสมาชิกที่ตรงกับเงื่อนไขการค้นหา
+        <?= e(t('ไม่พบรายชื่อสมาชิกที่ตรงกับเงื่อนไขการค้นหา', 'No members matched your search criteria.')) ?>
       </p>
     <?php else: ?>
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="background:#f8fafc; text-align:left; border-bottom:2px solid #e2e8f0;">
-              <th style="padding:10px 12px;">สมาชิก</th>
-              <th style="padding:10px 12px;">ระดับ (Tier)</th>
-              <th style="padding:10px 12px; text-align:center;">โควตาประกาศ</th>
-              <th style="padding:10px 12px; text-align:center;">ลงจริง (ทรัพย์/โครงการ)</th>
-              <th style="padding:10px 12px;">สถานะบัญชี</th>
-              <th style="padding:10px 12px; text-align:right;">การบริหารสิทธิ์</th>
+              <th style="padding:10px 12px;"><?= e(t('สมาชิก', 'Member')) ?></th>
+              <th style="padding:10px 12px;"><?= e(t('ระดับ (Tier)', 'Tier')) ?></th>
+              <th style="padding:10px 12px; text-align:center;"><?= e(t('โควตาประกาศ', 'Quota')) ?></th>
+              <th style="padding:10px 12px; text-align:center;"><?= e(t('ลงจริง (ทรัพย์/โครงการ)', 'Posted (Props/Projects)')) ?></th>
+              <th style="padding:10px 12px;"><?= e(t('สถานะบัญชี', 'Status')) ?></th>
+              <th style="padding:10px 12px; text-align:right;"><?= e(t('การบริหารสิทธิ์', 'Actions')) ?></th>
             </tr>
           </thead>
           <tbody>
@@ -294,12 +302,14 @@ $token = csrf_token();
                     <?= e(strtoupper($m['tier'])) ?>
                   </span>
                   <?php if ($m['agent_status'] === 'verified'): ?>
-                    <span style="display:block; font-size:10.5px; color:#15803d; font-weight:700; margin-top:3px;">✓ Agent รับรอง</span>
+                    <span style="display:block; font-size:10.5px; color:#15803d; font-weight:700; margin-top:3px;">
+                      <?= e(t('✓ Agent รับรอง', '✓ Verified Agent')) ?>
+                    </span>
                   <?php endif; ?>
                 </td>
                 <td style="padding:12px; text-align:center;">
                   <strong style="font-size:14px; color:#0B1C33;">
-                    <?= $quota < 0 ? '∞ ไม่จำกัด' : number_format($quota) . ' ประกาศ' ?>
+                    <?= $quota < 0 ? e(t('∞ ไม่จำกัด', '∞ Unlimited')) : (number_format($quota) . ' ' . e(t('ประกาศ', 'listings'))) ?>
                   </strong>
                 </td>
                 <td style="padding:12px; text-align:center;">
@@ -308,33 +318,33 @@ $token = csrf_token();
                   </span>
                   <span style="font-size:11px; color:#64748B;">/ <?= $quota < 0 ? '∞' : $quota ?></span>
                   <?php if ($m['project_count'] > 0): ?>
-                    <span style="display:block; font-size:10px; color:#6366f1;">(<?= $m['project_count'] ?> โครงการ)</span>
+                    <span style="display:block; font-size:10px; color:#6366f1;">(<?= $m['project_count'] ?> <?= e(t('โครงการ', 'projects')) ?>)</span>
                   <?php endif; ?>
                 </td>
                 <td style="padding:12px;">
                   <?php if ($isBan): ?>
                     <span style="display:inline-block; padding:2px 8px; border-radius:999px; background:#fee2e2; color:#b91c1c; font-size:11px; font-weight:800;">
-                      🚫 ถูกระงับ
+                      🚫 <?= e(t('ถูกระงับ', 'Suspended')) ?>
                     </span>
                     <?php if (!empty($m['ban_reason'])): ?>
                       <span style="display:block; font-size:10.5px; color:#991b1b;"><?= e($m['ban_reason']) ?></span>
                     <?php endif; ?>
                   <?php else: ?>
-                    <span style="color:#15803d; font-weight:700; font-size:12px;">● ปกติ</span>
+                    <span style="color:#15803d; font-weight:700; font-size:12px;">● <?= e(t('ปกติ', 'Active')) ?></span>
                   <?php endif; ?>
                 </td>
                 <td style="padding:12px; text-align:right;">
                   <div style="display:inline-flex; gap:6px; align-items:center;">
                     <button type="button" onclick="openMemberModal(<?= htmlspecialchars(json_encode($m), ENT_QUOTES, 'UTF-8') ?>)" class="btn" style="padding:6px 12px; font-size:12px; background:#f8fafc; border:1px solid #cbd5e1; cursor:pointer;">
-                      ⚙️ ปรับสิทธิ์
+                      ⚙️ <?= e(t('ปรับสิทธิ์', 'Permissions')) ?>
                     </button>
                     <?php if ($canManageMembers): ?>
-                      <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('<?= $isBan ? 'ต้องการปลดระงับบัญชีนี้ใช่หรือไม่?' : 'ต้องการระงับการใช้งานบัญชีนี้ใช่หรือไม่?' ?>');">
+                      <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('<?= $isBan ? e(t('ต้องการปลดระงับบัญชีนี้ใช่หรือไม่?', 'Unsuspend this account?')) : e(t('ต้องการระงับการใช้งานบัญชีนี้ใช่หรือไม่?', 'Suspend this account?')) ?>');">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="action" value="toggle_ban">
                         <input type="hidden" name="user_id" value="<?= (int)$m['id'] ?>">
                         <button type="submit" class="btn" style="padding:6px 10px; font-size:12px; background:<?= $isBan ? '#dcfce7' : '#fee2e2' ?>; color:<?= $isBan ? '#15803d' : '#b91c1c' ?>; border:1px solid #fca5a5; cursor:pointer;">
-                          <?= $isBan ? 'ปลดแบน' : 'ระงับ' ?>
+                          <?= $isBan ? e(t('ปลดแบน', 'Unban')) : e(t('ระงับ', 'Suspend')) ?>
                         </button>
                       </form>
                     <?php endif; ?>
@@ -364,7 +374,7 @@ $token = csrf_token();
   <div class="modal-overlay" id="memberModal" onclick="if(event.target===this)closeMemberModal()">
     <div class="modal-card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h3 style="margin:0; font-size:17px; color:#0B1C33;" id="modalUserTitle">⚙️ ปรับสิทธิ์ &amp; โควตาสมาชิก</h3>
+        <h3 style="margin:0; font-size:17px; color:#0B1C33;" id="modalUserTitle">⚙️ <?= e(t('ปรับสิทธิ์ & โควตาสมาชิก', 'Member Quota & Permissions')) ?></h3>
         <button type="button" onclick="closeMemberModal()" style="border:0; background:none; font-size:20px; cursor:pointer; color:#64748B;">✕</button>
       </div>
 
@@ -375,48 +385,48 @@ $token = csrf_token();
 
         <div style="display:flex; flex-direction:column; gap:14px;">
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;">ระดับสมาชิก (Member Tier)</label>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;"><?= e(t('ระดับสมาชิก (Member Tier)', 'Member Tier')) ?></label>
             <select name="tier" id="modalTier" style="width:100%; min-height:40px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit;">
-              <option value="free">Free Member (สมาชิกทั่วไป)</option>
-              <option value="pro">Pro Member (ตัวแทนมืออาชีพ)</option>
-              <option value="vip">VIP Agent (โควตาสูงพิเศษ)</option>
-              <option value="unlimited">Unlimited (ไม่จำกัดจำนวน)</option>
+              <option value="free">Free Member (<?= e(t('สมาชิกทั่วไป', 'Standard user')) ?>)</option>
+              <option value="pro">Pro Member (<?= e(t('ตัวแทนมืออาชีพ', 'Professional agent')) ?>)</option>
+              <option value="vip">VIP Agent (<?= e(t('โควตาสูงพิเศษ', 'High quota')) ?>)</option>
+              <option value="unlimited">Unlimited (<?= e(t('ไม่จำกัดจำนวน', 'Unlimited')) ?>)</option>
             </select>
           </div>
 
           <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;">
-              โควตาลงประกาศสูงสุด (Max Listings)
+              <?= e(t('โควตาลงประกาศสูงสุด (Max Listings)', 'Maximum Listing Quota')) ?>
             </label>
             <input type="number" name="max_listings" id="modalMaxListings" min="-1" max="10000" style="width:100%; min-height:40px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; box-sizing:border-box;">
-            <small style="color:#64748B; font-size:11px; margin-top:3px; display:block;">💡 ใส่ตัวเลขที่ต้องการ เช่น 5, 20, 50 (หรือใส่ -1 หากต้องการให้ลงได้ไม่จำกัด)</small>
+            <small style="color:#64748B; font-size:11px; margin-top:3px; display:block;">💡 <?= e(t('ใส่ตัวเลขที่ต้องการ เช่น 5, 20, 50 (หรือใส่ -1 หากต้องการให้ลงได้ไม่จำกัด)', 'Enter number e.g. 5, 20, 50 (or enter -1 for unlimited)')) ?></small>
           </div>
 
           <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px;">
             <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#0B1C33; cursor:pointer;">
               <input type="checkbox" name="can_post_project" id="modalCanProject" value="1" style="accent-color:#0B1C33;">
-              อนุญาตให้ลง "โครงการใหม่" (Submit Development Project)
+              <?= e(t('อนุญาตให้ลง "โครงการใหม่" (Submit Development Project)', 'Authorize to submit Development Projects')) ?>
             </label>
           </div>
 
           <div style="border-top:1px solid #e2e8f0; padding-top:12px;">
             <label style="display:flex; align-items:center; gap:8px; font-size:13px; font-weight:700; color:#b91c1c; cursor:pointer;">
               <input type="checkbox" name="is_banned" id="modalIsBanned" value="1" style="accent-color:#b91c1c;" onchange="document.getElementById('banReasonBox').style.display=this.checked?'block':'none'">
-              ระงับสิทธิ์การใช้งานบัญชีนี้ (Ban User)
+              <?= e(t('ระงับสิทธิ์การใช้งานบัญชีนี้ (Ban User)', 'Suspend this user account (Ban)')) ?>
             </label>
             <div id="banReasonBox" style="display:none; margin-top:8px;">
-              <input type="text" name="ban_reason" id="modalBanReason" placeholder="ระบุเหตุผล เช่น โพสต์ประกาศขยะ, ข้อมูลเท็จ..." style="width:100%; min-height:38px; padding:6px 12px; border:1px solid #fca5a5; border-radius:8px; font:inherit; font-size:12.5px; box-sizing:border-box;">
+              <input type="text" name="ban_reason" id="modalBanReason" placeholder="<?= e(t('ระบุเหตุผล เช่น โพสต์ประกาศขยะ, ข้อมูลเท็จ...', 'State reason e.g. spam listings, fraudulent info...')) ?>" style="width:100%; min-height:38px; padding:6px 12px; border:1px solid #fca5a5; border-radius:8px; font:inherit; font-size:12.5px; box-sizing:border-box;">
             </div>
           </div>
 
           <div>
-            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;">บันทึกช่วยจำของผู้ดูแล (Admin Internal Notes)</label>
-            <textarea name="admin_notes" id="modalAdminNotes" rows="2" placeholder="บันทึกข้อความเฉพาะ Founder..." style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:12.5px; box-sizing:border-box;"></textarea>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;"><?= e(t('บันทึกช่วยจำของผู้ดูแล (Admin Internal Notes)', 'Admin Internal Notes')) ?></label>
+            <textarea name="admin_notes" id="modalAdminNotes" rows="2" placeholder="<?= e(t('บันทึกข้อความเฉพาะ Founder...', 'Private notes for Founder...')) ?>" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:12.5px; box-sizing:border-box;"></textarea>
           </div>
 
           <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
-            <button type="button" onclick="closeMemberModal()" style="padding:8px 16px; border:1px solid #cbd5e1; background:#fff; border-radius:8px; cursor:pointer;">ยกเลิก</button>
-            <button type="submit" class="btn-gold">💾 บันทึกสิทธิ์</button>
+            <button type="button" onclick="closeMemberModal()" style="padding:8px 16px; border:1px solid #cbd5e1; background:#fff; border-radius:8px; cursor:pointer;"><?= e(t('ยกเลิก', 'Cancel')) ?></button>
+            <button type="submit" class="btn-gold">💾 <?= e(t('บันทึกสิทธิ์', 'Save Permissions')) ?></button>
           </div>
         </div>
       </form>

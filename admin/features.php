@@ -28,6 +28,15 @@ $featureCatalog = [
         'color'    => '#C5A059',
         'items'    => [
             [
+                'title'       => 'ระบบส่งข้อความแจ้งเตือนอสังหาฯ (Smart Push Alerts Engine)',
+                'status'      => 'พร้อมใช้งาน 100%',
+                'status_type' => 'active',
+                'file'        => 'notifications.php, api/notifications.php, admin/notifications.php',
+                'desc'        => 'ระบบส่งข้อความแจ้งเตือนดีลพิเศษ ทรัพย์ลดราคา และโอกาสทำเลทอง เข้ากล่องข้อความของผู้ใช้ทุกคน พร้อมจุดแจ้งเตือนกระดิ่งแบบเรียลไทม์',
+                'icon'        => '📢',
+                'test_url'    => 'notifications.php'
+            ],
+            [
                 'title'       => 'Google Sitelinks Searchbox & Navigation Elements',
                 'status'      => 'พร้อมใช้งาน 100%',
                 'status_type' => 'active',
@@ -200,6 +209,15 @@ $featureCatalog = [
                 'desc'        => 'สมาชิกมีหน้าจัดการประกาศของตนเอง และหน้าโปรไฟล์สาธารณะ (Public Profile) รวมทรัพย์ทั้งหมดที่เผยแพร่',
                 'icon'        => '👤',
                 'test_url'    => '../dashboard.php'
+            ],
+            [
+                'title'       => 'ระบบบันทึก & กดใจทรัพย์ที่ชอบ (Favorites & Saved Properties Engine)',
+                'status'      => 'พร้อมใช้งาน 100%',
+                'status_type' => 'active',
+                'file'        => 'favorites.php, api/favorites.php, js/favorites.js',
+                'desc'        => 'ระบบกดหัวใจบันทึกทรัพย์ รองรับทั้งสมาชิก (Sync ลงฐานข้อมูล) และผู้เยี่ยมชมทั่วไป (Guest LocalStorage) พร้อมหน้ารวมทรัพย์ที่ชอบและป้ายตัวเลขนับแบบเรียลไทม์',
+                'icon'        => '❤️',
+                'test_url'    => '../favorites.php'
             ],
             [
                 'title'       => 'Social Login (Google, LINE, Facebook, Apple)',

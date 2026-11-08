@@ -90,4 +90,9 @@ db()->prepare(
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 )->execute([$visitorHash, !empty($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null, $event, $propertyId, $pagePath, $referrer, $browser, $device]);
 
+// อัปเดตนับยอดวิวสะสมในตาราง properties ทันทีเมื่อมีคนเปิดดูหน้ารายละเอียดทรัพย์
+if ($event === 'property' && $propertyId > 0) {
+    db()->prepare('UPDATE properties SET views_count = views_count + 1 WHERE id = ?')->execute([$propertyId]);
+}
+
 echo json_encode(['ok' => true]);

@@ -280,7 +280,7 @@ $heroBg = get_hero_background();
         <input type="hidden" name="action" value="save_hero">
 
         <label class="field">
-          <span>เลือกไฟล์สื่อพื้นหลังใหม่ (รูปภาพ JPG, PNG, WebP หรือ คลิป MP4, WebM ≤ 50MB)</span>
+          <span>เลือกไฟล์สื่อพื้นหลังใหม่ (รูปภาพ JPG, PNG, WebP หรือ คลิป MP4, WebM ≤ 100MB)</span>
           <input type="file" name="hero_media" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" onchange="previewHeroFile(this)" required>
           <small>💡 แนะนำขนาด: 1920 x 800 ถึง 1920 x 1080 px (สัดส่วน 16:9 แนวนอน) ระบบจะขยายครอบคลุมเต็มจอ 100% อัตโนมัติทั้งบนคอมและมือถือ</small>
         </label>

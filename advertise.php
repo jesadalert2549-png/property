@@ -51,10 +51,28 @@ $pageDescription = t('ติดต่อทีมงานเพื่อสอ�
   </style>
 </head>
 <body>
-<header class="site-header"><div class="container header-inner">
-  <?= render_logo_html('index.php') ?>
-  <nav class="site-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php"><?= e(t('ค้นหา', 'Search')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a><a href="advertise.php" aria-current="page"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><?php endif; ?><?php render_lang_toggle(); ?></nav>
-</div></header>
+<header class="site-header">
+  <div class="container header-inner">
+    <?= render_logo_html('index.php') ?>
+    <nav class="site-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
+      <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
+      <?php render_nav_dropdowns(); ?>
+      <a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search')) ?></a>
+      <a href="favorites.php">❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?> <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="notifications.php">🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?> <span class="sp-notif-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="project.php"><?= e(t('โครงการใหม่', 'Projects')) ?></a>
+      <a href="advertise.php" aria-current="page"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
+      <?php if (!empty($_SESSION['user_id'])): ?>
+        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
+        <a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
+      <?php else: ?>
+        <a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
+      <?php endif; ?>
+      <a href="submit.php" class="nav-cta"><?= e(t('ลงประกาศฟรี', 'Post free listing')) ?></a>
+      <?php render_lang_toggle(); ?>
+    </nav>
+  </div>
+</header>
 <main class="ad-page"><article class="ad-card">
   <span class="ad-kicker">STANDARD PROPERTY · PROMOTION</span>
   <?php if ($mode === 'report'): ?>

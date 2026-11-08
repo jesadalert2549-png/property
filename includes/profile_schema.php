@@ -21,4 +21,17 @@ function ensure_profile_schema(PDO $pdo): void
             $pdo->exec("ALTER TABLE users ADD COLUMN `$column` $definition");
         }
     }
+
+    // ตรวจสอบและสร้างคอลัมน์ original_price, views_count, clicks_count ใน properties อัตโนมัติ (กรณี deploy ขึ้นโฮสต์จริง)
+    try {
+        if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'original_price'")->fetch()) {
+            $pdo->exec("ALTER TABLE properties ADD COLUMN original_price INT UNSIGNED NULL DEFAULT NULL AFTER price");
+        }
+        if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'views_count'")->fetch()) {
+            $pdo->exec("ALTER TABLE properties ADD COLUMN views_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER original_price");
+        }
+        if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'clicks_count'")->fetch()) {
+            $pdo->exec("ALTER TABLE properties ADD COLUMN clicks_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER views_count");
+        }
+    } catch (Throwable $e) {}
 }

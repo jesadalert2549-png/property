@@ -71,6 +71,9 @@ if ($q !== '' && empty($_GET['no_log'])) {
     <nav class="site-nav search-site-nav" id="searchSiteNav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
       <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
       <?php render_nav_dropdowns(); ?>
+      <a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search')) ?></a>
+      <a href="favorites.php">❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?> <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="notifications.php">🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?> <span class="sp-notif-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
       <a href="project.php"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
       <a href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
       <?php if (!empty($_SESSION['user_id'])): ?>
@@ -195,10 +198,24 @@ if ($q !== '' && empty($_GET['no_log'])) {
             <?php if ($row['status'] === 'done'): ?>
               <div class="ribbon"><?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?></div>
             <?php else: ?><?php render_publisher_mini($row); ?><?php endif; ?>
+            <button type="button" class="sp-fav-card-btn card-fav-heart-btn" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+              <span class="fav-heart-icon">
+                <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+              </span>
+            </button>
+            <?php
+              require_once __DIR__ . '/includes/price_helpers.php';
+              echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
+            ?>
           </div>
           <div class="info">
             <h2><?= e($row['title']) ?></h2>
-            <p class="price"><?= e(is_en() ? number_format((int)$row['price']) . ($row['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($row['type'], (int)$row['price'])) ?></p>
+            <div class="price">
+              <?php
+                require_once __DIR__ . '/includes/price_helpers.php';
+                echo render_price_badge((int)$row['price'], !empty($row['original_price']) ? (int)$row['original_price'] : null, $row['type']);
+              ?>
+            </div>
             <p class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg> <?= e($row['location']) ?></p>
           </div>
         </a>

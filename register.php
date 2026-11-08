@@ -2,7 +2,10 @@
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/oauth.php';
+require_once __DIR__ . '/includes/auth_media.php';
 current_lang();
+
+$authBgUrl = get_auth_background();
 
 $error = '';
 $success = '';
@@ -63,8 +66,9 @@ if (request_is_post()) {
   <link rel="stylesheet" href="css/home.css?v=<?= e((string) filemtime(__DIR__ . '/css/home.css')) ?>">
   <?php site_controls_head(); lang_toggle_head(); ?>
 </head>
-<body>
-<div class="login-wrap">
+<body class="auth-page">
+<div class="login-wrap" style="background-image: linear-gradient(135deg, rgba(9, 24, 39, .84), rgba(24, 50, 75, .58)), url('<?= e($authBgUrl) ?>');">
+  <?php render_auth_background_media(); ?>
   <div class="login-box auth-card--register">
     <?= render_logo_html('index.php') ?>
     <h2><?= e(t('สมัครสมาชิกเพื่อลงประกาศ', 'Register to post listings')) ?></h2>

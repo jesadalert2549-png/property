@@ -250,13 +250,13 @@ $token = csrf_token();
   <!-- Hero Header -->
   <div class="brand-hero">
     <div>
-      <span class="eyebrow">GOOGLE SERP &amp; BROWSER IDENTITY</span>
-      <h1>🎨 จัดการ Favicon &amp; ไอคอนแสดงบน Google SEO</h1>
-      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">กำหนดรูปไอคอนประจำแบรนด์เพื่อให้ Google Search นำไปแสดงด้านหน้าชื่อเว็บในหน้าผลการค้นหา และบนแท็บเบราว์เซอร์</p>
+      <span class="eyebrow"><?= e(t('GOOGLE SERP & BROWSER IDENTITY', 'GOOGLE SERP & BROWSER IDENTITY')) ?></span>
+      <h1>🎨 <?= e(t('จัดการ Favicon & ไอคอนแสดงบน Google SEO', 'Favicon & Google SERP Brand Icon Manager')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;"><?= e(t('กำหนดรูปไอคอนประจำแบรนด์เพื่อให้ Google Search นำไปแสดงด้านหน้าชื่อเว็บในหน้าผลการค้นหา และบนแท็บเบราว์เซอร์', 'Manage your brand icon displayed alongside your website title in Google Search and browser tabs.')) ?></p>
     </div>
     <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
       <span style="font-size:12px; color:#E5CB96; background:rgba(255,255,255,.08); padding:5px 12px; border-radius:999px; border:1px solid rgba(255,255,255,.14);">
-        ✓ เกณฑ์ Google Search: ภาพสัดส่วน 1:1 ขนาด 48x48px ขึ้นไป
+        ✓ <?= e(t('เกณฑ์ Google Search: ภาพสัดส่วน 1:1 ขนาด 48x48px ขึ้นไป', 'Google Guidelines: 1:1 ratio, min 48x48px')) ?>
       </span>
     </div>
   </div>
@@ -266,8 +266,8 @@ $token = csrf_token();
 
   <!-- 1. ตัวอย่างผลลัพธ์บน Google Search จริง (Live SERP Preview) -->
   <section class="brand-card">
-    <h2>👁️ ตัวอย่างผลลัพธ์บนหน้า Google Search (จำลองขนาดจริง)</h2>
-    <p class="intro">เมื่อมีผู้ค้นหาชื่อแบรนด์หรือคีย์เวิร์ดอสังหาฯ ของคุณ Google Search จะดึงรูป Favicon นี้ไปวางด้านหน้าชื่อเว็บและ URL ตามรูปตัวอย่างด้านล่าง:</p>
+    <h2>👁️ <?= e(t('ตัวอย่างผลลัพธ์บนหน้า Google Search (จำลองขนาดจริง)', 'Google Search Simulation (Live SERP Preview)')) ?></h2>
+    <p class="intro"><?= e(t('เมื่อมีผู้ค้นหาชื่อแบรนด์หรือคีย์เวิร์ดอสังหาฯ ของคุณ Google Search จะดึงรูป Favicon นี้ไปวางด้านหน้าชื่อเว็บและ URL ตามรูปตัวอย่างด้านล่าง:', 'When visitors search your brand or real estate queries, Google SERP renders this icon next to your site title and URL:')) ?></p>
 
     <div class="google-serp-sim">
       <div class="google-serp-header">
@@ -280,18 +280,18 @@ $token = csrf_token();
         </div>
       </div>
       <div class="google-serp-title">
-        ซื้อขายบ้าน บ้านเดี่ยว คอนโด ที่ดิน ทาวน์เฮ้าส์ อาคารพาณิชย์ | <?= e(SITE_NAME) ?>
+        <?= e(t('ซื้อขายบ้าน บ้านเดี่ยว คอนโด ที่ดิน ทาวน์เฮ้าส์ อาคารพาณิชย์ | ' . SITE_NAME, 'Buy & Rent Houses, Condos, Land & Properties in Thailand | ' . SITE_NAME)) ?>
       </div>
       <div class="google-serp-snippet">
-        ศูนย์รวมประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ครบวงจร ทั้งบ้าน คอนโด ทาวน์โฮม ที่ดิน และอาคารพาณิชย์ ทั่วไทย ดูรูป ราคา และทำเล ติดต่อผู้ขายได้ทันที
+        <?= e(t('ศูนย์รวมประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ครบวงจร ทั้งบ้าน คอนโด ทาวน์โฮม ที่ดิน และอาคารพาณิชย์ ทั่วไทย ดูรูป ราคา และทำเล ติดต่อผู้ขายได้ทันที', 'Find verified houses, condos, townhouses and land for sale or rent across Thailand. Compare prices, view locations, or contact owners directly.')) ?>
       </div>
     </div>
   </section>
 
   <!-- 2. อัปโหลดภาพ Favicon ใหม่ -->
   <section class="brand-card">
-    <h2>📤 อัปโหลดภาพ Favicon ใหม่สำหรับแบรนด์ของคุณ</h2>
-    <p class="intro">แนะนำให้อัปโหลดภาพจัตุรัส (1:1) เช่น ขนาด <strong>512x512px</strong> หรือ <strong>192x192px</strong> เป็นไฟล์ PNG หรือ SVG เพื่อให้ไอคอนมีความคมชัดสูงสุดบนหน้าจอ Retina และ Google Search</p>
+    <h2>📤 <?= e(t('อัปโหลดภาพ Favicon ใหม่สำหรับแบรนด์ของคุณ', 'Upload New Brand Favicon')) ?></h2>
+    <p class="intro"><?= e(t('แนะนำให้อัปโหลดภาพจัตุรัส (1:1) เช่น ขนาด 512x512px หรือ 192x192px เป็นไฟล์ PNG หรือ SVG เพื่อให้ไอคอนมีความคมชัดสูงสุดบนหน้าจอ Retina และ Google Search', 'Recommended square 1:1 image (512x512px or 192x192px PNG/SVG) for maximum sharpness on Retina displays and Google SERP.')) ?></p>
 
     <?php if ($canManageBrand): ?>
       <form method="post" enctype="multipart/form-data" style="display:flex; flex-direction:column; gap:16px; max-width:540px;">
@@ -300,27 +300,27 @@ $token = csrf_token();
 
         <div>
           <label style="display:block; font-size:13px; font-weight:700; color:#334155; margin-bottom:6px;">
-            เลือกไฟล์รูปภาพ (PNG, JPG, WebP หรือ SVG) *
+            <?= e(t('เลือกไฟล์รูปภาพ (PNG, JPG, WebP หรือ SVG) *', 'Select Image File (PNG, JPG, WebP or SVG) *')) ?>
           </label>
           <input type="file" name="favicon_image" accept="image/png,image/jpeg,image/webp,image/svg+xml" required style="padding:10px; border:1px solid #cbd5e1; border-radius:10px; width:100%; box-sizing:border-box; background:#fafbfc;">
           <small style="color:#64748B; font-size:12px; margin-top:4px; display:block;">
-            💡 เมื่ออัปโหลดเสร็จ ระบบจะอัปเดตไฟล์ Favicon ทุกขนาด (16px, 32px, 48px, 96px, 192px, ICO, SVG) ให้พร้อมใช้งานทันที
+            💡 <?= e(t('เมื่ออัปโหลดเสร็จ ระบบจะอัปเดตไฟล์ Favicon ทุกขนาด (16px, 32px, 48px, 96px, 192px, ICO, SVG) ให้พร้อมใช้งานทันที', 'The system will generate all multi-resolution icon sizes automatically.')) ?>
           </small>
         </div>
 
         <div style="display:flex; gap:10px; align-items:center;">
-          <button type="submit" class="btn-gold">🚀 บันทึกและอัปเดต Favicon ทันที</button>
+          <button type="submit" class="btn-gold">🚀 <?= e(t('บันทึกและอัปเดต Favicon ทันที', 'Upload & Update Favicon Now')) ?></button>
         </div>
       </form>
     <?php else: ?>
-      <p style="color:#64748B; font-size:13px;">คุณมีสิทธิ์เข้าดูอย่างเดียว กรุณาติดต่อ Founder &amp; CEO หากต้องการแก้ไข</p>
+      <p style="color:#64748B; font-size:13px;"><?= e(t('คุณมีสิทธิ์เข้าดูอย่างเดียว กรุณาติดต่อ Founder & CEO หากต้องการแก้ไข', 'View-only access. Contact Founder & CEO to make updates.')) ?></p>
     <?php endif; ?>
   </section>
 
   <!-- 3. คลังไอคอนที่ระบบใช้งานอยู่ ณ ปัจจุบัน -->
   <section class="brand-card">
-    <h2>📁 ไฟล์ Favicon ที่ระบบนำไปใช้จริง</h2>
-    <p class="intro">ระบบส่งออกไอคอนเหล่านี้ใน `<head>` ของทุกหน้าเว็บ เพื่อรองรับทั้งเบราว์เซอร์บนเดสก์ท็อป สมาร์ตโฟน iOS/Android และ Google Search Bot:</p>
+    <h2>📁 <?= e(t('ไฟล์ Favicon ที่ระบบนำไปใช้จริง', 'Active System Favicon Package')) ?></h2>
+    <p class="intro"><?= e(t('ระบบส่งออกไอคอนเหล่านี้ใน <head> ของทุกหน้าเว็บ เพื่อรองรับทั้งเบราว์เซอร์บนเดสก์ท็อป สมาร์ตโฟน iOS/Android และ Google Search Bot:', 'Exported in the <head> of all public pages to support mobile, desktop, and Googlebot crawlers:')) ?></p>
 
     <div class="current-icons-row">
       <div class="icon-preview-box">

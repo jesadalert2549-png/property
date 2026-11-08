@@ -5,14 +5,18 @@ require_once __DIR__ . '/seo_config.php';
 require_once __DIR__ . '/site_shell.php';
 start_session();
 
-function site_url(): string
-{
-    return rtrim(defined('SITE_URL') ? SITE_URL : 'https://standardproperty.cloud', '/');
+if (!function_exists('site_url')) {
+    function site_url(): string
+    {
+        return rtrim(defined('SITE_URL') ? SITE_URL : 'https://standardproperty.cloud', '/');
+    }
 }
 
-function page_url(string $path = ''): string
-{
-    return site_url() . '/' . ltrim($path, '/');
+if (!function_exists('page_url')) {
+    function page_url(string $path = ''): string
+    {
+        return site_url() . '/' . ltrim($path, '/');
+    }
 }
 
 // สร้าง URL ที่ route จริงรองรับ ใช้กับ sitemap

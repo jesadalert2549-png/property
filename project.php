@@ -127,11 +127,27 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
   </style>
 </head>
 <body class="page-project">
-<header class="project-header"><div class="project-header-inner">
-  <?= render_logo_html('index.php', 'kasa-logo--dark') ?>
-  <nav class="project-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php?type=sale"><?= e(t('ซื้อ', 'Buy')) ?></a><a href="search.php?type=rent"><?= e(t('เช่า', 'Rent')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><?php endif; ?><a class="project-cta" href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a><a class="project-cta-project" href="submit-project.php"><span aria-hidden="true">＋</span> <?= e(t('ลงโครงการ', 'Submit a project')) ?></a><?php render_lang_toggle(); ?></nav>
-  <button class="project-menu" id="projectMenuButton" type="button" aria-label="<?= e(t('เปิดเมนู', 'Open menu')) ?>" aria-expanded="false">☰</button>
-</div><nav id="projectMobileMenu" hidden style="padding:12px 18px;border-top:1px solid var(--line);background:white"><div style="display:flex;gap:12px;flex-wrap:wrap;font-weight:700"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php?type=sale"><?= e(t('ซื้อ', 'Buy')) ?></a><a href="search.php?type=rent"><?= e(t('เช่า', 'Rent')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a><a href="submit-project.php"><?= e(t('ลงโครงการ', 'Submit a project')) ?></a><a href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><?php endif; ?></div></nav></header>
+<header class="site-header">
+  <div class="container header-inner">
+    <?= render_logo_html('index.php', 'kasa-logo--dark') ?>
+    <nav class="site-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
+      <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
+      <?php render_nav_dropdowns(); ?>
+      <a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search')) ?></a>
+      <a href="favorites.php">❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?> <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="notifications.php">🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?> <span class="sp-notif-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="project.php"><?= e(t('โครงการใหม่', 'Projects')) ?></a>
+      <?php if (!empty($_SESSION['user_id'])): ?>
+        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
+        <a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
+      <?php else: ?>
+        <a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
+      <?php endif; ?>
+      <a href="submit.php" class="nav-cta"><?= e(t('ลงประกาศฟรี', 'Post free listing')) ?></a>
+      <?php render_lang_toggle(); ?>
+    </nav>
+  </div>
+</header>
 
 <main class="project-main">
   <?php render_banner_slot('generic', 'compact'); ?>

@@ -156,31 +156,26 @@ $all_slugs = available_category_slugs();
 </head>
 <body class="page-category bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
 
-<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-  <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+<header class="site-header">
+  <div class="container header-inner">
     <?= render_logo_html('index.php') ?>
-    <nav class="hidden items-center gap-6 text-sm font-semibold text-slate-600 lg:flex">
-      <a class="transition hover:text-ink" href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
+    <nav class="site-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
+      <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
       <?php render_nav_dropdowns(); ?>
-      <a class="transition hover:text-ink" href="project.php"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
-      <a class="transition hover:text-ink" href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
-      <a class="transition hover:text-ink" href="submit.php"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
+      <a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search')) ?></a>
+      <a href="favorites.php">❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?> <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="notifications.php">🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?> <span class="sp-notif-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="project.php"><?= e(t('โครงการใหม่', 'Projects')) ?></a>
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <a class="transition hover:text-ink" href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
-      <?php endif; ?>
-    </nav>
-    <div class="flex items-center gap-3">
-      <a href="search.php" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink transition hover:border-ink sm:inline-flex"><?= e(t('ค้นหา', 'Search')) ?></a>
-      <?php if (!empty($_SESSION['user_id'])): ?>
-        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink sm:inline-flex"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
+        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
+        <a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
       <?php else: ?>
-        <a href="login.php" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink sm:inline-flex"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
+        <a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
       <?php endif; ?>
-      <a href="submit.php" class="inline-flex items-center rounded-full bg-accent px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-orange-200 transition hover:bg-[#d86c26]"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
+      <a href="submit.php" class="nav-cta"><?= e(t('ลงประกาศฟรี', 'Post free listing')) ?></a>
       <?php render_lang_toggle(); ?>
-    </div>
+    </nav>
   </div>
-  <details class="sp-mobile-menu"><summary aria-label="<?= e(t('เปิดเมนูเว็บไซต์', 'Open website menu')) ?>">☰ <span><?= e(t('เมนู', 'Menu')) ?></span></summary><nav aria-label="<?= e(t('เมนูมือถือ', 'Mobile menu')) ?>"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search properties')) ?></a><a href="search.php?type=sale"><?= e(t('ซื้อ', 'Buy')) ?></a><a href="search.php?type=rent"><?= e(t('เช่า', 'Rent')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="advertise.php"><?= e(t('ติดต่อเรา', 'Contact us')) ?></a><a href="submit.php"><?= e(t('ลงประกาศทรัพย์', 'Post a listing')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><?php if (($_SESSION['role'] ?? '') === 'admin'): ?><a href="admin/agents.php"><?= e(t('ตรวจรับรอง Agent', 'Verify agents')) ?></a><?php endif; ?><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><a href="register.php"><?= e(t('สมัครสมาชิก', 'Register')) ?></a><?php endif; ?><?php render_lang_toggle(); ?></nav></details>
 </header>
 
 <main class="mx-auto max-w-[1240px] px-4 pb-16 pt-8 sm:px-6">
@@ -252,6 +247,15 @@ $all_slugs = available_category_slugs();
                   <?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?>
                 </span>
               <?php else: ?><?php render_publisher_mini($row); ?><?php endif; ?>
+              <button type="button" class="sp-fav-card-btn absolute top-3.5 right-3.5 z-10" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+                <span class="fav-heart-icon">
+                  <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </span>
+              </button>
+              <?php
+                require_once __DIR__ . '/includes/price_helpers.php';
+                echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
+              ?>
             </div>
             <div class="p-4 sm:p-5">
               <div class="flex items-center justify-between gap-3">
@@ -264,7 +268,12 @@ $all_slugs = available_category_slugs();
               <div class="mt-3.5 flex items-center justify-between gap-3 border-t border-slate-200 pt-3.5 sm:mt-4 sm:pt-4">
                 <div>
                   <p class="text-[10px] font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('ราคา', 'Price')) ?></p>
-                  <p class="mt-1 text-base font-black text-accent sm:text-lg"><?= e(is_en() ? number_format((int)$row['price']) . ($row['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($row['type'], (int)$row['price'])) ?></p>
+                  <div class="mt-1 font-black text-accent">
+                    <?php
+                      require_once __DIR__ . '/includes/price_helpers.php';
+                      echo render_price_badge((int)$row['price'], !empty($row['original_price']) ? (int)$row['original_price'] : null, $row['type']);
+                    ?>
+                  </div>
                 </div>
                 <span class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"><?= e(t('ดูรายละเอียด', 'View details')) ?></span>
               </div>

@@ -8,7 +8,7 @@ ensure_profile_schema(db());
 
 $id = (int)($_GET['id'] ?? 0);
 $st = db()->prepare(
-    "SELECT id, title, type, property_category, status, verification_status, verification_notes, price, location, lat, lng, line_id,
+    "SELECT id, title, type, property_category, status, verification_status, verification_notes, price, original_price, location, lat, lng, line_id,
             description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, line_id,
             amenities, nearby_places, contact_name, phone,
             (SELECT u.id FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_user_id,
@@ -44,7 +44,7 @@ $listingStatusLabel = $p['status'] === 'done'
 
 // ประกาศแนะนำจากหมวดเดียวกัน (ไม่รวมประกาศนี้)
 $st = db()->prepare(
-    "SELECT p.id, p.title, p.type, p.property_category, p.price, p.location,
+    "SELECT p.id, p.title, p.type, p.property_category, p.price, p.original_price, p.location,
             (SELECT i.filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover
      FROM properties p
      WHERE p.approval = 'approved' AND p.id != ? AND p.property_category = ?
@@ -126,11 +126,12 @@ json_ld($propertyAiFaq);
   <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
   <script defer src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <style>
     html { scroll-behavior: smooth; }
-    body { font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important; background-color: #F9F9FB; }
+    body { font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif !important; background-color: #F9F9FB; }
     h1, h2, h3, h4, .text-3xl, .text-2xl, .text-xl {
-      font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+      font-family: "Fenice Std", "Noto Serif Thai", "Pridi", serif !important;
       letter-spacing: -0.015em;
     }
     .map-grid {
@@ -230,33 +231,26 @@ json_ld($propertyAiFaq);
 </head>
 <body class="page-property bg-slate-50 text-slate-800 antialiased" data-back-url="category.php?page=<?= e(rawurlencode((string)$catSlug)) ?>">
 
-<header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
-  <div class="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-4 py-4 sm:px-6">
+<header class="site-header">
+  <div class="container header-inner">
     <?= render_logo_html('index.php') ?>
-    <nav class="hidden items-center gap-6 text-sm font-semibold text-slate-600 lg:flex">
-      <a class="transition hover:text-ink" href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
+    <nav class="site-nav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
+      <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
       <?php render_nav_dropdowns(); ?>
-      <a class="transition hover:text-ink" href="project.php"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
-      <a class="transition hover:text-ink" href="advertise.php"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
-      <a class="transition hover:text-ink" href="#footer"><?= e(t('เกี่ยวกับเรา', 'About us')) ?></a>
+      <a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search')) ?></a>
+      <a href="favorites.php">❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?> <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="notifications.php">🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?> <span class="sp-notif-badge" style="display:none; background:#b91c1c; color:#fff; font-size:11px; padding:1px 6px; border-radius:999px;"></span></a>
+      <a href="project.php"><?= e(t('โครงการใหม่', 'Projects')) ?></a>
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <a class="transition hover:text-ink" href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><a class="transition hover:text-ink" href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
+        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
+        <a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
       <?php else: ?>
-        <a class="transition hover:text-ink" href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
+        <a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
       <?php endif; ?>
-    </nav>
-    <div class="flex items-center gap-3">
-      <a href="search.php" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink transition hover:border-ink sm:inline-flex"><?= e(t('ค้นหา', 'Search')) ?></a>
-      <?php if (!empty($_SESSION['user_id'])): ?>
-        <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink sm:inline-flex"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
-      <?php else: ?>
-        <a href="login.php" class="hidden rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink sm:inline-flex"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
-      <?php endif; ?>
-      <a href="submit.php" class="inline-flex items-center rounded-full bg-accent px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-orange-200 transition hover:bg-[#d86c26]"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
+      <a href="submit.php" class="nav-cta"><?= e(t('ลงประกาศฟรี', 'Post free listing')) ?></a>
       <?php render_lang_toggle(); ?>
-    </div>
+    </nav>
   </div>
-  <details class="sp-mobile-menu"><summary aria-label="<?= e(t('เปิดเมนูเว็บไซต์', 'Open website menu')) ?>">☰ <span><?= e(t('เมนู', 'Menu')) ?></span></summary><nav aria-label="<?= e(t('เมนูมือถือ', 'Mobile menu')) ?>"><a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a><a href="search.php"><?= e(t('ค้นหาทรัพย์', 'Search properties')) ?></a><a href="search.php?type=sale"><?= e(t('ซื้อ', 'Buy')) ?></a><a href="search.php?type=rent"><?= e(t('เช่า', 'Rent')) ?></a><a href="project.php"><?= e(t('โครงการ', 'Projects')) ?></a><a href="advertise.php"><?= e(t('ติดต่อเรา', 'Contact us')) ?></a><a href="submit.php"><?= e(t('ลงประกาศทรัพย์', 'Post a listing')) ?></a><?php if (!empty($_SESSION['user_id'])): ?><a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a><?php if (($_SESSION['role'] ?? '') === 'admin'): ?><a href="admin/agents.php"><?= e(t('ตรวจรับรอง Agent', 'Verify agents')) ?></a><?php endif; ?><a href="logout.php"><?= e(t('ออกจากระบบ', 'Log out')) ?></a><?php else: ?><a href="login.php"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a><a href="register.php"><?= e(t('สมัครสมาชิก', 'Register')) ?></a><?php endif; ?><?php render_lang_toggle(); ?></nav></details>
 </header>
 
 <main class="mx-auto max-w-[1240px] px-4 pb-16 pt-6 sm:px-6">
@@ -270,7 +264,7 @@ json_ld($propertyAiFaq);
     <span class="text-slate-700"><?= e($p['location']) ?></span>
   </nav>
 
-  <section class="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_380px]">
+  <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] grid-cols-1 items-start">
     <div class="space-y-5">
       <div class="relative" data-property-carousel>
         <?php $gallery = $files ? array_map(fn($file) => 'uploads/' . e($file), $files) : [
@@ -318,9 +312,20 @@ json_ld($propertyAiFaq);
           <?= e(t('แชร์', 'Share')) ?>
         </button>
       </div>
-      <div class="mt-5 rounded-2xl bg-slate-50 p-4">
-        <p class="text-xs font-semibold uppercase tracking-[.16em] text-slate-500"><?= e(t('ราคา', 'Price')) ?></p>
-        <p class="mt-2 text-3xl font-black tracking-tight text-accent"><?= e(is_en() ? number_format((int)$p['price']) . ($p['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($p['type'], (int)$p['price'])) ?></p>
+      <div class="mt-5 rounded-2xl bg-gradient-to-br from-slate-50 to-amber-50/20 p-5 border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-xs font-bold uppercase tracking-[.18em] text-slate-500"><?= e(t('ราคา', 'Price')) ?></p>
+          <?php
+            require_once __DIR__ . '/includes/price_helpers.php';
+            echo render_card_stats_badge((int)($p['views_count'] ?? 0), (int)($p['clicks_count'] ?? 0), 'detail');
+          ?>
+        </div>
+        <div class="mt-2">
+          <?php
+            require_once __DIR__ . '/includes/price_helpers.php';
+            echo render_price_badge((int)$p['price'], !empty($p['original_price']) ? (int)$p['original_price'] : null, $p['type'], 'large');
+          ?>
+        </div>
       </div>
       <div class="mt-5 space-y-3 text-sm text-slate-600">
         <div class="flex items-center gap-3 rounded-2xl border border-slate-200 p-3">
@@ -350,14 +355,19 @@ json_ld($propertyAiFaq);
         <?php endif; ?>
       </div>
       <div class="mt-4 flex gap-2">
-        <button type="button" class="flex-1 rounded-full border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-ink" id="saveProperty"><?= e(t('บันทึก', 'Save')) ?></button>
+        <button type="button" class="sp-btn-save-detail flex-1 rounded-full border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-ink inline-flex items-center justify-center gap-2 shadow-xs" id="saveProperty" data-fav-toggle data-fav-id="<?= (int)$p['id'] ?>">
+          <span class="fav-heart-icon">
+            <svg class="heart-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          </span>
+          <span class="fav-btn-text"><?= e(t('บันทึก', 'Save')) ?></span>
+        </button>
         <a href="submit.php" class="flex-1 rounded-full border border-slate-200 px-3 py-2 text-center text-sm font-bold text-slate-700 transition hover:border-ink"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
       </div>
       <?php render_banner_slot('property_sidebar', 'compact'); ?>
     </aside>
   </section>
 
-  <section class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_380px]">
+  <section class="mt-10 grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_380px] grid-cols-1">
     <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
       <div class="mb-6 flex items-center gap-3">
         <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accentSoft text-lg text-accent">★</span>
@@ -434,7 +444,7 @@ json_ld($propertyAiFaq);
       </div>
       <span class="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600"><?= e($p['location']) ?></span>
     </div>
-    <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-[1.2fr_0.8fr]">
       <div class="overflow-hidden rounded-3xl border border-slate-200">
         <?php if ($p['lat'] !== null && $p['lng'] !== null): ?>
           <div id="propertyMap" class="h-[340px] w-full" data-lat="<?= e((string)$p['lat']) ?>" data-lng="<?= e((string)$p['lng']) ?>" data-title="<?= e($p['title']) ?>"></div>
@@ -476,50 +486,55 @@ json_ld($propertyAiFaq);
     </div>
   </section>
 
-  <section class="mt-10 rounded-3xl bg-[#faf7ff] p-6 shadow-soft sm:p-8">
-    <div class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+  <section class="mt-10 rounded-2xl sm:rounded-3xl bg-[#faf7ff] p-4 sm:p-8 shadow-soft">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
       <div>
         <p class="text-xs font-bold uppercase tracking-[.18em] text-accent">Mortgage Calculator</p>
-        <h3 class="mt-2 text-3xl font-extrabold tracking-tight text-ink"><?= e(t('คำนวณผ่อนชำระต่อเดือน', 'Monthly payment calculator')) ?></h3>
-        <p class="mt-3 text-sm leading-6 text-slate-600"><?= e(t('ใช้ข้อมูลเบื้องต้นเพื่อประมาณการงบผ่อน รายการนี้เป็นการคำนวณแบบสรุป ไม่ใช่ข้อเสนอจากธนาคาร', 'Use basic figures to estimate your installment budget. This is a summary calculation, not a bank offer.')) ?></p>
+        <h3 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink"><?= e(t('คำนวณผ่อนชำระต่อเดือน', 'Monthly payment calculator')) ?></h3>
+        <p class="mt-2 sm:mt-3 text-xs sm:text-sm leading-relaxed text-slate-600"><?= e(t('ใช้ข้อมูลเบื้องต้นเพื่อประมาณการงบผ่อน รายการนี้เป็นการคำนวณแบบสรุป ไม่ใช่ข้อเสนอจากธนาคาร', 'Use basic figures to estimate your installment budget. This is a summary calculation, not a bank offer.')) ?></p>
       </div>
-      <div class="rounded-3xl bg-white p-5 shadow-soft">
+      <div class="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-5 shadow-soft">
         <div class="mb-5 flex items-end justify-between gap-3">
           <div>
             <p class="text-xs font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('ประมาณการ', 'Estimate')) ?></p>
-            <p class="mt-2 text-4xl font-black tracking-tight text-ink"><span id="monthlyPayment">0</span> <span class="text-lg text-slate-500"><?= e(t('บาท/เดือน', 'THB/month')) ?></span></p>
+            <p class="mt-2 text-2xl sm:text-4xl font-black tracking-tight text-ink"><span id="monthlyPayment">0</span> <span class="text-sm sm:text-lg text-slate-500 font-bold"><?= e(t('บาท/เดือน', 'THB/month')) ?></span></p>
           </div>
           <div class="rounded-2xl bg-slate-100 px-3 py-2 text-right">
             <p class="text-[10px] font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('วงเงินกู้', 'Loan ratio')) ?></p>
-            <p id="loanRatio" class="mt-1 text-lg font-extrabold text-ink">80%</p>
+            <p id="loanRatio" class="mt-1 text-base sm:text-lg font-extrabold text-ink">80%</p>
           </div>
         </div>
 
-        <div class="space-y-5">
+        <div class="space-y-4 sm:space-y-5">
           <div>
-            <div class="mb-2 flex items-center justify-between"><label for="homePrice" class="text-sm font-bold text-slate-700"><?= e(t('ราคาอสังหาริมทรัพย์', 'Property price')) ?></label>
-              <span class="flex items-center gap-1"><input id="priceNumber" class="h-9 w-36 rounded-lg border border-slate-200 bg-slate-50 px-2 text-right text-sm font-extrabold text-ink outline-none focus:border-accent" type="number" min="100000" max="50000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>"><span class="text-sm font-extrabold text-ink"><?= e(t('บาท', 'THB')) ?></span></span></div>
+            <div class="mb-2 flex items-center justify-between gap-2">
+              <label for="homePrice" class="text-xs sm:text-sm font-bold text-slate-700"><?= e(t('ราคาอสังหาริมทรัพย์', 'Property price')) ?></label>
+              <span class="flex items-center gap-1">
+                <input id="priceNumber" class="h-8 sm:h-9 w-28 sm:w-36 rounded-lg border border-slate-200 bg-slate-50 px-2 text-right text-xs sm:text-sm font-extrabold text-ink outline-none focus:border-accent" type="number" min="100000" max="50000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
+                <span class="text-xs sm:text-sm font-extrabold text-ink"><?= e(t('บาท', 'THB')) ?></span>
+              </span>
+            </div>
             <input id="homePrice" class="w-full accent-accent" type="range" min="100000" max="20000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
           </div>
           <div>
-            <div class="mb-2 flex items-center justify-between"><label for="loanPercent" class="text-sm font-bold text-slate-700"><?= e(t('วงเงินสินเชื่อ', 'Loan amount')) ?></label><span id="loanValue" class="text-sm font-extrabold text-ink">80%</span></div>
+            <div class="mb-2 flex items-center justify-between"><label for="loanPercent" class="text-xs sm:text-sm font-bold text-slate-700"><?= e(t('วงเงินสินเชื่อ', 'Loan amount')) ?></label><span id="loanValue" class="text-xs sm:text-sm font-extrabold text-ink">80%</span></div>
             <input id="loanPercent" class="w-full accent-accent" type="range" min="10" max="100" value="80">
           </div>
-          <div class="grid gap-4 sm:grid-cols-3">
-            <label class="block text-sm font-bold text-slate-700"><?= e(t('อัตราดอกเบี้ย / ปี (%)', 'Interest rate / year (%)')) ?>
-              <input id="interestRate" class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20" step="0.1" value="3.25">
+          <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('อัตราดอกเบี้ย / ปี (%)', 'Interest rate / year (%)')) ?>
+              <input id="interestRate" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20" step="0.1" value="3.25">
             </label>
-            <label class="block text-sm font-bold text-slate-700"><?= e(t('ระยะเวลากู้ (ปี)', 'Loan term (years)')) ?>
-              <input id="loanYears" class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-base font-bold outline-none focus:border-accent" type="number" min="1" max="40" step="1" value="30">
+            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('ระยะเวลากู้ (ปี)', 'Loan term (years)')) ?>
+              <input id="loanYears" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="1" max="40" step="1" value="30">
             </label>
-            <label class="block text-sm font-bold text-slate-700"><?= e(t('เงินกู้เพิ่มเติม (บาท)', 'Extra loan (THB)')) ?>
-              <input id="extraLoan" class="mt-2 h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20000000" step="10000" value="0">
+            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('เงินกู้เพิ่มเติม (บาท)', 'Extra loan (THB)')) ?>
+              <input id="extraLoan" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20000000" step="10000" value="0">
             </label>
           </div>
-          <div class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+          <div class="rounded-xl sm:rounded-2xl bg-slate-50 p-3.5 sm:p-4 text-xs sm:text-sm text-slate-600 space-y-1">
             <div class="flex justify-between"><span><?= e(t('เงินกู้รวม', 'Total loan')) ?></span><span id="loanSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
-            <div class="mt-1 flex justify-between"><span><?= e(t('ดอกเบี้ยรวมตลอดสัญญา', 'Total interest')) ?></span><span id="interestSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
-            <div class="mt-1 flex justify-between"><span><?= e(t('ยอดชำระรวมทั้งหมด', 'Total repayment')) ?></span><span id="totalSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
+            <div class="flex justify-between"><span><?= e(t('ดอกเบี้ยรวมตลอดสัญญา', 'Total interest')) ?></span><span id="interestSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
+            <div class="flex justify-between border-t border-slate-200 pt-1 mt-1 font-bold text-ink"><span><?= e(t('ยอดชำระรวมทั้งหมด', 'Total repayment')) ?></span><span id="totalSummary" class="font-extrabold text-accent">0 <?= e(t('บาท', 'THB')) ?></span></div>
           </div>
         </div>
       </div>
@@ -548,25 +563,30 @@ json_ld($propertyAiFaq);
     </div>
   </section>
 
-  <section class="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft">
-    <div class="mb-5 flex items-center justify-between gap-4">
+  <section class="mt-10 rounded-3xl border border-slate-200 bg-white p-4 sm:p-6 shadow-soft">
+    <div class="mb-5 flex items-center justify-between gap-3">
       <div>
         <p class="text-xs font-bold uppercase tracking-[.18em] text-accent"><?= e(t('ประกาศอื่น ๆ', 'More listings')) ?></p>
-        <h3 class="mt-2 text-2xl font-extrabold tracking-tight text-ink"><?= e(t('ประกาศแนะนำที่คล้ายกัน', 'Similar recommended listings')) ?></h3>
+        <h3 class="mt-1 text-xl sm:text-2xl font-extrabold tracking-tight text-ink leading-snug"><?= e(t('ประกาศแนะนำที่คล้ายกัน', 'Similar recommended listings')) ?></h3>
       </div>
-      <a href="search.php?type=<?= e($p['type']) ?>" class="rounded-full border border-slate-300 px-4 py-2 text-sm font-bold text-ink transition hover:border-ink"><?= e(t('ดูทั้งหมด', 'View all')) ?></a>
+      <a href="search.php?type=<?= e($p['type']) ?>" class="shrink-0 whitespace-nowrap rounded-full border border-slate-300 px-3.5 py-1.5 text-xs sm:text-sm font-bold text-ink transition hover:border-ink hover:bg-slate-50"><?= e(t('ดูทั้งหมด ›', 'View all ›')) ?></a>
     </div>
     <?php if ($related): ?>
-      <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="grid gap-3.5 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <?php foreach ($related as $r): ?>
-          <a href="property.php?id=<?= (int)$r['id'] ?>" class="group rounded-3xl border border-slate-200 bg-white p-3 shadow-soft transition hover:-translate-y-0.5 hover:border-accent">
-            <div class="overflow-hidden rounded-2xl bg-slate-100">
+          <a href="property.php?id=<?= (int)$r['id'] ?>" class="group rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 shadow-soft transition hover:-translate-y-0.5 hover:border-accent block">
+            <div class="overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 aspect-video sm:aspect-auto">
               <?php $cover = $r['cover'] && is_file(UPLOAD_DIR . basename($r['cover'])) ? 'uploads/' . rawurlencode(basename($r['cover'])) : 'images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg'; ?>
-              <img src="<?= e($cover) ?>" alt="<?= e($r['title']) ?>" class="h-44 w-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" decoding="async" width="640" height="176">
+              <img src="<?= e($cover) ?>" alt="<?= e($r['title']) ?>" class="h-44 sm:h-48 w-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" decoding="async" width="640" height="220">
             </div>
-            <p class="mt-3 truncate font-extrabold text-ink"><?= e($r['title']) ?></p>
-            <p class="mt-1 text-sm text-slate-500 truncate"><?= e(category_label_bi($r['property_category'])) ?> · <?= e($r['location']) ?></p>
-            <p class="mt-2 font-black text-accent"><?= e(is_en() ? number_format((int)$r['price']) . ($r['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($r['type'], (int)$r['price'])) ?></p>
+            <p class="mt-3 font-extrabold text-ink text-sm sm:text-base leading-snug line-clamp-2"><?= e($r['title']) ?></p>
+            <p class="mt-1 text-xs sm:text-sm text-slate-500 truncate">⌖ <?= e(category_label_bi($r['property_category'])) ?> · <?= e($r['location']) ?></p>
+            <div class="mt-2 font-black text-accent">
+              <?php
+                require_once __DIR__ . '/includes/price_helpers.php';
+                echo render_price_badge((int)$r['price'], !empty($r['original_price']) ? (int)$r['original_price'] : null, $r['type']);
+              ?>
+            </div>
           </a>
         <?php endforeach; ?>
       </div>
@@ -617,12 +637,6 @@ render_to_top();
       shareButton.textContent = '<?= e(t('คัดลอกแล้ว', 'Copied')) ?>';
       setTimeout(() => { shareButton.innerHTML = '<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.5 11 7.8-4.7M8.5 13.2l7.7 4.5"/></svg><?= e(t('แชร์', 'Share')) ?>'; }, 1500);
     }
-  });
-
-  saveButton?.addEventListener('click', () => {
-    const saved = saveButton.dataset.saved === 'true';
-    saveButton.dataset.saved = String(!saved);
-    saveButton.textContent = saved ? '<?= e(t('บันทึก', 'Save')) ?>' : '<?= e(t('บันทึกแล้ว', 'Saved')) ?>';
   });
 
   const gallerySlides = Array.from(document.querySelectorAll('[data-gallery-image]'));

@@ -73,6 +73,7 @@ if (request_is_post()) {
         'type' => $data['type'],
         'property_category' => $data['property_category'],
         'price' => $data['price'],
+        'original_price' => !empty($_POST['original_price']) ? (int)$_POST['original_price'] : null,
         'location' => $data['location'],
         'description' => $data['description'],
         'bedrooms' => $data['bedrooms'],
@@ -108,12 +109,26 @@ if (request_is_post()) {
                 $verificationNotes = $duplicateId ? t('พบประกาศที่มีหัวข้อและทำเลคล้ายกัน (#' . (int)$duplicateId . ') โปรดตรวจสอบข้อมูลอีกครั้ง', 'A listing with a similar title and location was found (#' . (int)$duplicateId . '). Please review the information again.') : null;
                 $approval = $property['approval'] === 'rejected' ? 'pending' : $property['approval'];
 
+                $oldPrice = (int)($property['price'] ?? 0);
+                $newPrice = (int)$data['price'];
+                $postedOrigPrice = (!empty($_POST['original_price']) && is_numeric($_POST['original_price'])) ? (int)$_POST['original_price'] : null;
+
+                // ตรวจจับการเปลี่ยนราคาอัตโนมัติ: ถ้ามีการแก้ราคา (ไม่ว่าจะลดลง หรือเพิ่มขึ้น) และไม่ได้กรอกราคาเดิมมาเอง ให้จำราคาเดิมก่อนแก้ไว้เป็น original_price ขีดฆ่าทันที
+                $finalOrigPrice = $postedOrigPrice;
+                if ($finalOrigPrice === null && $newPrice !== $oldPrice && $oldPrice > 0) {
+                    $finalOrigPrice = $oldPrice;
+                }
+                // ถ้าราคาใหม่เท่ากับราคาเดิมเป๊ะ ให้เคลียร์ขีดฆ่า
+                if ($finalOrigPrice !== null && $newPrice === $finalOrigPrice) {
+                    $finalOrigPrice = null;
+                }
+
                 $pdo->beginTransaction();
                 $update = $pdo->prepare(
-                    'UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?'
+                    'UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, original_price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?'
                 );
                 $update->execute([
-                    $data['title'], $data['type'], $data['property_category'], $data['property_category'], $data['price'], $data['location'],
+                    $data['title'], $data['type'], $data['property_category'], $data['property_category'], $data['price'], $finalOrigPrice, $data['location'],
                     $data['lat'], $data['lng'], $data['description'], $data['bedrooms'], $data['bathrooms'], $data['area_sqm'], $data['land_area'],
                     $data['parking_spaces'], $data['floor_number'], $data['furnished'], $data['amenities'], $data['nearby_places'],
                     $data['contact_name'], $data['phone'], $data['line_id'], $status, $approval, $verificationStatus, $verificationNotes, $id, $userId,
@@ -132,6 +147,33 @@ if (request_is_post()) {
                     foreach ($uploadedImages as $filename) $insertImage->execute([$id, $filename, $sortOrder++]);
                 }
                 $pdo->commit();
+
+                // ── ส่งการแจ้งเตือนลดราคาอัตโนมัติเข้ากล่องข้อความ (Price Drop Alert) ──
+                if ($finalOrigPrice !== null && $newPrice < $finalOrigPrice && $approval === 'approved') {
+                    require_once __DIR__ . '/includes/notifications.php';
+                    $dropDiff = $finalOrigPrice - $newPrice;
+                    $discountPct = round(($dropDiff / $finalOrigPrice) * 100);
+                    $dropTitle = '📉 ทรัพย์ปรับลดราคา! ' . mb_substr($data['title'], 0, 45) . ' (ลด ฿' . number_format($dropDiff) . ')';
+                    $dropMsg = 'ประกาศ "' . $data['title'] . '" ในทำเล ' . $data['location'] . ' ได้ปรับลดราคาลงจาก ฿' . number_format($finalOrigPrice) . ' เหลือเพียง ฿' . number_format($newPrice) . ' (-' . $discountPct . '%) โอกาสดีสำหรับผู้ที่กำลังเล็งทำเลนี้อยู่ รีบดูรายละเอียดก่อนปิดการขาย!';
+
+                    // 1) ส่ง Broadcast หาผู้ใช้ทุกคน
+                    send_user_notification(0, 'price_drop', $dropTitle, $dropMsg, 'property.php?id=' . $id, $id, '📉');
+
+                    // 2) ส่งตรงหาผู้ใช้ที่เคยกดหัวใจ ❤️ บันทึกทรัพย์นี้ไว้เป็นพิเศษ
+                    $favUsers = $pdo->prepare('SELECT user_id FROM property_favorites WHERE property_id = ? AND user_id <> ?');
+                    $favUsers->execute([$id, $userId]);
+                    foreach ($favUsers->fetchAll(PDO::FETCH_COLUMN) as $fUid) {
+                        send_user_notification(
+                            (int)$fUid,
+                            'price_drop',
+                            '❤️ ทรัพย์ที่คุณบันทึกไว้ปรับลดราคาพิเศษ!',
+                            'ทรัพย์ที่คุณเคยกดหัวใจไว้ "' . $data['title'] . '" ลดราคาลง ฿' . number_format($dropDiff) . ' เหลือ ฿' . number_format($newPrice) . ' รีบเข้าไปตรวจสอบด่วน!',
+                            'property.php?id=' . $id,
+                            $id,
+                            '🔥'
+                        );
+                    }
+                }
 
                 foreach ($deletedImages as $filename) delete_image_file($filename);
                 $_SESSION['listing_edit_notice'] = $approval === 'pending'
@@ -206,7 +248,8 @@ $mapLng = request_is_post() ? (string)($_POST['map_lng'] ?? '') : (string)($prop
       <label><?= e(t('หัวข้อประกาศ', 'Listing title')) ?> *<input name="title" required minlength="5" value="<?= e($property['title']) ?>"></label>
       <label><?= e(t('ประเภทประกาศ', 'Listing type')) ?> *<select name="type"><option value="sale" <?= $property['type'] === 'sale' ? 'selected' : '' ?>><?= e(t('ขาย', 'For sale')) ?></option><option value="rent" <?= $property['type'] === 'rent' ? 'selected' : '' ?>><?= e(t('ให้เช่า', 'For rent')) ?></option></select></label>
       <label><?= e(t('ประเภททรัพย์', 'Property type')) ?> *<select name="property_category" required><?php foreach (PROPERTY_CATEGORIES as $slug => $label): if ($slug === 'other') continue; ?><option value="<?= e($slug) ?>" <?= $propertyCategory === $slug ? 'selected' : '' ?>><?= e(category_label_bi($slug)) ?></option><?php endforeach; ?></select></label>
-      <label><?= e(t('ราคา (บาท)', 'Price (THB)')) ?> *<input name="price" type="number" min="1" step="1" required value="<?= e((string)$property['price']) ?>"></label>
+      <label><?= e(t('ราคาปัจจุบัน (บาท)', 'Current Price (THB)')) ?> *<input name="price" type="number" min="1" step="1" required value="<?= e((string)$property['price']) ?>"></label>
+      <label><?= e(t('ราคาเดิมก่อนลด / ขีดฆ่า (บาท - ไม่บังคับ)', 'Original Price / Strikethrough (Optional)')) ?><input name="original_price" type="number" min="1" step="1" placeholder="<?= e(t('เช่น ใส่ราคาเดิมที่สูงกว่าเพื่อแสดงขีดฆ่า', 'e.g. Higher original price to show strikethrough')) ?>" value="<?= e((string)($property['original_price'] ?? '')) ?>"><small class="member-edit-help"><?= e(t('ระบบจะสร้างราคาขีดฆ่าและคำนวณป้าย % ส่วนลดให้อัตโนมัติ', 'System will display strikethrough and discount % badge automatically.')) ?></small></label>
       <label class="wide"><?= e(t('ทำเล / ที่อยู่', 'Location / Address')) ?> *<input name="location" required value="<?= e($property['location']) ?>"></label>
       <label><?= e(t('สถานะประกาศ', 'Listing status')) ?><select name="status"><option value="available" <?= $property['status'] === 'available' ? 'selected' : '' ?>><?= e(t('กำลังประกาศ', 'Active')) ?></option><option value="done" <?= $property['status'] === 'done' ? 'selected' : '' ?>><?= e(t('ขาย/ให้เช่าแล้ว', 'Sold/Rented')) ?></option></select></label>
       <label><?= e(t('เบอร์โทรศัพท์', 'Phone number')) ?> *<input name="phone" type="tel" inputmode="numeric" required value="<?= e($property['phone']) ?>"></label>

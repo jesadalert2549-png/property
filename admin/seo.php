@@ -335,20 +335,20 @@ $flash = get_flash();
   <!-- Hero Header -->
   <div class="seo-hero">
     <div>
-      <span class="eyebrow">SEARCH ENGINE &amp; AI GEO OPTIMIZATION</span>
-      <h1>ศูนย์ควบคุม SEO &amp; AI เจาะจง 77 จังหวัด</h1>
-      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;">เพิ่มพลังติดหน้าแรก Google SERP และให้ผู้ช่วย AI (SearchGPT, Claude, Perplexity, Gemini) ดึงข้อมูลอสังหาฯ ของเราไปตอบทันที</p>
+      <span class="eyebrow"><?= e(t('SEARCH ENGINE & AI GEO OPTIMIZATION', 'SEARCH ENGINE & AI GEO OPTIMIZATION')) ?></span>
+      <h1><?= e(t('ศูนย์ควบคุม SEO & AI เจาะจง 77 จังหวัด', 'SEO & AI Geo Command Center (77 Provinces & CBD)')) ?></h1>
+      <p style="margin:0;color:rgba(255,255,255,.8);font-size:13.5px;"><?= e(t('เพิ่มพลังติดหน้าแรก Google SERP และให้ผู้ช่วย AI (SearchGPT, Claude, Perplexity, Gemini) ดึงข้อมูลอสังหาฯ ของเราไปตอบทันที', 'Boost Google SERP ranking and empower AI Search Engines (SearchGPT, Claude, Perplexity, Gemini) to cite our property data.')) ?></p>
     </div>
     <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
-      <span class="stat-badge">📍 77 จังหวัดครอบคลุมทั้งระบบ</span>
-      <span class="stat-badge">⚡ <?= number_format($totalKeywords) ?> คีย์เวิร์ดเป้าหมาย (เปิดใช้งาน <?= number_format($activeKeywords) ?>)</span>
-      <span class="stat-badge" style="background:rgba(197,160,89,.22); color:#FFF; font-weight:700;">🔍 <?= number_format($totalSearchQueries) ?> คำค้นพบใหม่ (ถูกค้นรวม <?= number_format($totalSearchHits) ?> ครั้ง)</span>
+      <span class="stat-badge">📍 <?= e(t('77 จังหวัดครอบคลุมทั้งระบบ', '77 Thai Provinces Covered')) ?></span>
+      <span class="stat-badge">⚡ <?= number_format($totalKeywords) ?> <?= e(t('คีย์เวิร์ดเป้าหมาย (เปิดใช้งาน ' . number_format($activeKeywords) . ')', 'Target Keywords (Active: ' . number_format($activeKeywords) . ')')) ?></span>
+      <span class="stat-badge" style="background:rgba(197,160,89,.22); color:#FFF; font-weight:700;">🔍 <?= number_format($totalSearchQueries) ?> <?= e(t('คำค้นพบใหม่ (ถูกค้นรวม ' . number_format($totalSearchHits) . ' ครั้ง)', 'New Queries Found (' . number_format($totalSearchHits) . ' hits)')) ?></span>
       <div style="display:flex; gap:8px; margin-top:4px;">
-        <a href="#search-insights" style="font-size:12px; color:#E5CB96; text-decoration:underline;">ดูคำค้นหาจากผู้ใช้จริง ↓</a>
+        <a href="#search-insights" style="font-size:12px; color:#E5CB96; text-decoration:underline;"><?= e(t('ดูคำค้นหาจากผู้ใช้จริง ↓', 'View User Search Insights ↓')) ?></a>
         <span style="color:rgba(255,255,255,.3);">|</span>
-        <a href="../sitemap.xml" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;">เปิด XML Sitemap ↗</a>
+        <a href="../sitemap.xml" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;"><?= e(t('เปิด XML Sitemap ↗', 'Open XML Sitemap ↗')) ?></a>
         <span style="color:rgba(255,255,255,.3);">|</span>
-        <a href="../robots.txt" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;">ตรวจสอบ robots.txt ↗</a>
+        <a href="../robots.txt" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;"><?= e(t('ตรวจสอบ robots.txt ↗', 'Check robots.txt ↗')) ?></a>
       </div>
     </div>
   </div>
@@ -357,8 +357,8 @@ $flash = get_flash();
 
   <!-- 1. ตัวจำลอง Google SERP & AI Overviews Snippet -->
   <section class="seo-card">
-    <h2>👁️ ตัวอย่างผลลัพธ์บน Google SERP &amp; คำตอบ AI</h2>
-    <p class="intro">เมื่อระบบเจาะคีย์เวิร์ดและสร้างหน้าหมวดหมู่อัตโนมัติ ผู้ใช้งานและบอทค้นหาจะเห็นโครงสร้างข้อมูลที่ถูกต้องตามมาตรฐาน Google Schema.org</p>
+    <h2>👁️ <?= e(t('ตัวอย่างผลลัพธ์บน Google SERP & คำตอบ AI', 'Google SERP & AI Overviews Simulation')) ?></h2>
+    <p class="intro"><?= e(t('เมื่อระบบเจาะคีย์เวิร์ดและสร้างหน้าหมวดหมู่อัตโนมัติ ผู้ใช้งานและบอทค้นหาจะเห็นโครงสร้างข้อมูลที่ถูกต้องตามมาตรฐาน Google Schema.org', 'Demonstrates how search crawlers and AI assistants interpret schema-structured landing pages.')) ?></p>
 
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
       <!-- Google SERP Card -->
@@ -547,14 +547,14 @@ $flash = get_flash();
   <section class="seo-card" id="search-insights" style="border:1.5px solid #2563eb; background:linear-gradient(180deg, #fff, #f8faff);">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
       <div>
-        <h2 style="color:#1e40af;">📡 คำค้นหาและพฤติกรรมจริงจากผู้เข้าชม (Search Intelligence)</h2>
-        <span style="font-size:13px; color:#64748B;">บันทึกทุกคำค้นหาใหม่ทันทีเมื่อมีคนค้นหาในเว็บ หรือคลิกเข้ามาจาก Google เพื่อให้คุณแปลงเป็นคีย์เวิร์ด SEO เพิ่มโอกาสติดหน้าแรกเรื่อย ๆ</span>
+        <h2 style="color:#1e40af;">📡 <?= e(t('คำค้นหาและพฤติกรรมจริงจากผู้เข้าชม (Search Intelligence)', 'Live Search Queries & User Behavior Intelligence')) ?></h2>
+        <span style="font-size:13px; color:#64748B;"><?= e(t('บันทึกทุกคำค้นหาใหม่ทันทีเมื่อมีคนค้นหาในเว็บ หรือคลิกเข้ามาจาก Google เพื่อให้คุณแปลงเป็นคีย์เวิร์ด SEO เพิ่มโอกาสติดหน้าแรกเรื่อย ๆ', 'Logs incoming user queries in real-time from site searches and Google referrals — convert them to active SEO landing pages in one click.')) ?></span>
       </div>
       <?php if ($canManageMarketing && $totalSearchQueries > 0): ?>
-        <form method="post" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติคำค้นหาทั้งหมด?');" style="margin:0;">
+        <form method="post" onsubmit="return confirm('<?= e(t('คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติคำค้นหาทั้งหมด?', 'Clear all recorded search queries?')) ?>');" style="margin:0;">
           <input type="hidden" name="csrf" value="<?= e($token) ?>">
           <input type="hidden" name="action" value="clear_all_queries">
-          <button type="submit" class="mini del" style="padding:6px 12px;">🗑️ ล้างประวัติคำค้นหา</button>
+          <button type="submit" class="mini del" style="padding:6px 12px;">🗑️ <?= e(t('ล้างประวัติคำค้นหา', 'Clear query logs')) ?></button>
         </form>
       <?php endif; ?>
     </div>
@@ -562,36 +562,36 @@ $flash = get_flash();
     <!-- สรุปสถิติคำค้น -->
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:18px;">
       <div style="padding:14px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px;">
-        <span style="font-size:11px; font-weight:800; color:#1d4ed8; text-transform:uppercase;">คำค้นไม่ซ้ำทั้งหมด</span>
-        <div style="font-size:24px; font-weight:800; color:#1e3a8a; margin-top:2px;"><?= number_format($totalSearchQueries) ?> <span style="font-size:13px; font-weight:normal;">คำ</span></div>
+        <span style="font-size:11px; font-weight:800; color:#1d4ed8; text-transform:uppercase;"><?= e(t('คำค้นไม่ซ้ำทั้งหมด', 'Unique Queries')) ?></span>
+        <div style="font-size:24px; font-weight:800; color:#1e3a8a; margin-top:2px;"><?= number_format($totalSearchQueries) ?> <span style="font-size:13px; font-weight:normal;"><?= e(t('คำ', 'keywords')) ?></span></div>
       </div>
       <div style="padding:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px;">
-        <span style="font-size:11px; font-weight:800; color:#15803d; text-transform:uppercase;">ยอดคลิกค้นหารวม</span>
-        <div style="font-size:24px; font-weight:800; color:#14532d; margin-top:2px;"><?= number_format($totalSearchHits) ?> <span style="font-size:13px; font-weight:normal;">ครั้ง</span></div>
+        <span style="font-size:11px; font-weight:800; color:#15803d; text-transform:uppercase;"><?= e(t('ยอดคลิกค้นหารวม', 'Total Search Hits')) ?></span>
+        <div style="font-size:24px; font-weight:800; color:#14532d; margin-top:2px;"><?= number_format($totalSearchHits) ?> <span style="font-size:13px; font-weight:normal;"><?= e(t('ครั้ง', 'hits')) ?></span></div>
       </div>
       <div style="padding:14px; background:#fefce8; border:1px solid #fef08a; border-radius:12px;">
-        <span style="font-size:11px; font-weight:800; color:#a16207; text-transform:uppercase;">ระบบทำงานอัตโนมัติ</span>
-        <div style="font-size:13.5px; font-weight:700; color:#713f12; margin-top:6px;">✓ บันทึกเรียลไทม์ 24 ชม.</div>
+        <span style="font-size:11px; font-weight:800; color:#a16207; text-transform:uppercase;"><?= e(t('ระบบทำงานอัตโนมัติ', 'Automation Engine')) ?></span>
+        <div style="font-size:13.5px; font-weight:700; color:#713f12; margin-top:6px;">✓ <?= e(t('บันทึกเรียลไทม์ 24 ชม.', 'Real-time 24/7 logging')) ?></div>
       </div>
     </div>
 
     <?php if (!$recentSearchQueries): ?>
       <div style="text-align:center; padding:32px 20px; background:#f8fafc; border-radius:14px; color:#64748B;">
         <div style="font-size:28px; margin-bottom:6px;">🔍</div>
-        <p style="margin:0; font-size:14px; font-weight:600;">ระบบกำลังเฝ้ารอคำค้นหาใหม่อยู่ครับ</p>
-        <span style="font-size:12.5px;">เมื่อผู้ใช้พิมพ์คำค้นหาในหน้าแรก หรือหน้าค้นหา (`search.php`) ระบบจะบันทึกคำและความถี่ลงในตารางนี้ทันที</span>
+        <p style="margin:0; font-size:14px; font-weight:600;"><?= e(t('ระบบกำลังเฝ้ารอคำค้นหาใหม่อยู่ครับ', 'Awaiting new search queries')) ?></p>
+        <span style="font-size:12.5px;"><?= e(t('เมื่อผู้ใช้พิมพ์คำค้นหาในหน้าแรก หรือหน้าค้นหา (`search.php`) ระบบจะบันทึกคำและความถี่ลงในตารางนี้ทันที', 'When visitors search properties or locations, queries and frequency counts will automatically appear here.')) ?></span>
       </div>
     <?php else: ?>
       <div style="overflow-x:auto;">
         <table style="width:100%; border-collapse:collapse; font-size:13px;">
           <thead>
             <tr style="background:#f1f5f9; text-align:left; border-bottom:2px solid #cbd5e1;">
-              <th style="padding:10px 12px;">คำที่ผู้ใช้ค้นหา</th>
-              <th style="padding:10px 12px; text-align:center;">จำนวนครั้ง</th>
-              <th style="padding:10px 12px; text-align:center;">ผลลัพธ์ในเว็บ</th>
-              <th style="padding:10px 12px;">แหล่งที่มา</th>
-              <th style="padding:10px 12px;">ค้นหาล่าสุด</th>
-              <th style="padding:10px 12px; text-align:right;">การนำไปใช้</th>
+              <th style="padding:10px 12px;"><?= e(t('คำที่ผู้ใช้ค้นหา', 'User Query')) ?></th>
+              <th style="padding:10px 12px; text-align:center;"><?= e(t('จำนวนครั้ง', 'Frequency')) ?></th>
+              <th style="padding:10px 12px; text-align:center;"><?= e(t('ผลลัพธ์ในเว็บ', 'Listings Found')) ?></th>
+              <th style="padding:10px 12px;"><?= e(t('แหล่งที่มา', 'Source')) ?></th>
+              <th style="padding:10px 12px;"><?= e(t('ค้นหาล่าสุด', 'Last Searched')) ?></th>
+              <th style="padding:10px 12px; text-align:right;"><?= e(t('การนำไปใช้', 'Actions')) ?></th>
             </tr>
           </thead>
           <tbody>
@@ -612,36 +612,36 @@ $flash = get_flash();
                 </td>
                 <td style="padding:10px 12px; text-align:center;">
                   <span style="color:<?= $sq['results_count'] > 0 ? '#15803d' : '#b91c1c' ?>; font-weight:700;">
-                    <?= $sq['results_count'] > 0 ? "{$sq['results_count']} รายการ" : "0 รายการ" ?>
+                    <?= $sq['results_count'] > 0 ? ("{$sq['results_count']} " . e(t('รายการ', 'listings'))) : ("0 " . e(t('รายการ', 'listings'))) ?>
                   </span>
                 </td>
                 <td style="padding:10px 12px; font-size:12px; color:#475569;">
-                  <?= $sq['source'] === 'external' ? '🌐 Google/ภายนอก' : '🔍 ในเว็บ' ?>
+                  <?= $sq['source'] === 'external' ? '🌐 Google / External' : '🔍 ' . e(t('ในเว็บ', 'On-site Search')) ?>
                 </td>
                 <td style="padding:10px 12px; font-size:11.5px; color:#64748b;">
                   <?= e(date('d/m/Y H:i', strtotime($sq['last_searched_at']))) ?>
                 </td>
                 <td style="padding:10px 12px; text-align:right;">
                   <div style="display:inline-flex; gap:6px; align-items:center;">
-                    <a href="../search.php?q=<?= urlencode($sq['query']) ?>" target="_blank" rel="noopener" class="mini" style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155;">⌕ ผลค้นหา</a>
+                    <a href="../search.php?q=<?= urlencode($sq['query']) ?>" target="_blank" rel="noopener" class="mini" style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155;">⌕ <?= e(t('ผลค้นหา', 'Results')) ?></a>
                     <?php if ($canManageMarketing): ?>
                       <?php if (!empty($sq['is_promoted_seo'])): ?>
-                        <span class="mini" style="background:#dcfce7; color:#15803d; border:1px solid #86efac;">✓ บรรจุเป็น SEO แล้ว</span>
+                        <span class="mini" style="background:#dcfce7; color:#15803d; border:1px solid #86efac;">✓ <?= e(t('บรรจุเป็น SEO แล้ว', 'Promoted to SEO')) ?></span>
                       <?php else: ?>
                         <form method="post" style="display:inline; margin:0;">
                           <input type="hidden" name="csrf" value="<?= e($token) ?>">
                           <input type="hidden" name="action" value="promote_search_query">
                           <input type="hidden" name="query_id" value="<?= (int)$sq['id'] ?>">
-                          <button type="submit" class="mini live" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;" title="เพิ่มคำนี้เข้าเป็นคีย์เวิร์ด SEO ของเว็บทันที">
-                            ⚡ ทำเป็น SEO
+                          <button type="submit" class="mini live" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;" title="<?= e(t('เพิ่มคำนี้เข้าเป็นคีย์เวิร์ด SEO ของเว็บทันที', 'Promote this search query to active SEO landing page')) ?>">
+                            ⚡ <?= e(t('ทำเป็น SEO', 'Promote to SEO')) ?>
                           </button>
                         </form>
                       <?php endif; ?>
-                      <form method="post" onsubmit="return confirm('ลบคำค้นหานี้?');" style="display:inline; margin:0;">
+                      <form method="post" onsubmit="return confirm('<?= e(t('ลบคำค้นหานี้?', 'Delete this search query?')) ?>');" style="display:inline; margin:0;">
                         <input type="hidden" name="csrf" value="<?= e($token) ?>">
                         <input type="hidden" name="action" value="delete_search_query">
                         <input type="hidden" name="query_id" value="<?= (int)$sq['id'] ?>">
-                        <button type="submit" class="mini del" title="ลบคำค้นหา">✕</button>
+                        <button type="submit" class="mini del" title="<?= e(t('ลบคำค้นหา', 'Delete query')) ?>">✕</button>
                       </form>
                     <?php endif; ?>
                   </div>

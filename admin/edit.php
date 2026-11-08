@@ -77,16 +77,53 @@ if (request_is_post()) {
     $errors = array_merge($errors, property_detail_errors($_POST));
     if (!valid_line_id($lineId)) $errors[] = 'LINE ID ต้องเป็น 4-20 ตัวอักษรภาษาอังกฤษ ตัวเลข จุด ขีด หรือขีดล่าง';
 
+    $postedPrice = (int)$price;
+    $postedOrigPrice = (!empty($_POST['original_price']) && is_numeric($_POST['original_price'])) ? (int)$_POST['original_price'] : null;
+
     if (empty($errors)) {
         if ($id > 0) {
+            $prevPrice = (int)($property['price'] ?? 0);
+            $finalOrigPrice = $postedOrigPrice;
+            if ($finalOrigPrice === null && $postedPrice !== $prevPrice && $prevPrice > 0) {
+                $finalOrigPrice = $prevPrice;
+            }
+            if ($finalOrigPrice !== null && $postedPrice === $finalOrigPrice) {
+                $finalOrigPrice = null;
+            }
+
             // อัปเดตข้อมูล
-            $stmt = $pdo->prepare("UPDATE properties SET title = ?, type = ?, category = ?, property_category = ?, price = ?, location = ?, lat = ?, lng = ?, contact_name = ?, phone = ?, line_id = ?, description = ?, bedrooms = ?, bathrooms = ?, area_sqm = ?, land_area = ?, parking_spaces = ?, floor_number = ?, furnished = ?, amenities = ?, nearby_places = ?, status = ? WHERE id = ?");
-            $stmt->execute([$title, $type, $category, $category, $price, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status, $id]);
+            $stmt = $pdo->prepare("UPDATE properties SET title = ?, type = ?, category = ?, property_category = ?, price = ?, original_price = ?, location = ?, lat = ?, lng = ?, contact_name = ?, phone = ?, line_id = ?, description = ?, bedrooms = ?, bathrooms = ?, area_sqm = ?, land_area = ?, parking_spaces = ?, floor_number = ?, furnished = ?, amenities = ?, nearby_places = ?, status = ? WHERE id = ?");
+            $stmt->execute([$title, $type, $category, $category, $postedPrice, $finalOrigPrice, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status, $id]);
             set_flash('อัปเดตข้อมูลประกาศเรียบร้อยแล้ว');
+
+            // แจ้งเตือนเมื่อราคาลดลง
+            if ($finalOrigPrice !== null && $postedPrice < $finalOrigPrice) {
+                require_once __DIR__ . '/../includes/notifications.php';
+                $diff = $finalOrigPrice - $postedPrice;
+                $pct = round(($diff / $finalOrigPrice) * 100);
+                $titleNotif = '📉 ปรับลดราคาพิเศษ! ' . mb_substr($title, 0, 45) . ' (ลด ฿' . number_format($diff) . ')';
+                $msgNotif = 'ประกาศ "' . $title . '" ในทำเล ' . $location . ' ปรับลดราคาจาก ฿' . number_format($finalOrigPrice) . ' เหลือเพียง ฿' . number_format($postedPrice) . ' (-' . $pct . '%) รีบดูรายละเอียดก่อนปิดการขาย!';
+
+                send_user_notification(0, 'price_drop', $titleNotif, $msgNotif, 'property.php?id=' . $id, $id, '📉');
+
+                $favUsers = $pdo->prepare('SELECT user_id FROM property_favorites WHERE property_id = ?');
+                $favUsers->execute([$id]);
+                foreach ($favUsers->fetchAll(PDO::FETCH_COLUMN) as $fUid) {
+                    send_user_notification(
+                        (int)$fUid,
+                        'price_drop',
+                        '❤️ ทรัพย์ที่คุณบันทึกไว้ปรับลดราคา!',
+                        'ทรัพย์ที่คุณเคยกดหัวใจไว้ "' . $title . '" ลดราคาลง ฿' . number_format($diff) . ' เหลือ ฿' . number_format($postedPrice) . ' รีบเข้าไปตรวจสอบด่วน!',
+                        'property.php?id=' . $id,
+                        $id,
+                        '🔥'
+                    );
+                }
+            }
         } else {
             // เพิ่มข้อมูลใหม่ (อนุมัติอัตโนมัติเมื่อเพิ่มจากหลังบ้าน)
-            $stmt = $pdo->prepare("INSERT INTO properties (title, type, category, property_category, price, location, lat, lng, contact_name, phone, line_id, description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, amenities, nearby_places, status, approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')");
-            $stmt->execute([$title, $type, $category, $category, $price, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status]);
+            $stmt = $pdo->prepare("INSERT INTO properties (title, type, category, property_category, price, original_price, location, lat, lng, contact_name, phone, line_id, description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, amenities, nearby_places, status, approval) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved')");
+            $stmt->execute([$title, $type, $category, $category, $postedPrice, $postedOrigPrice, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status]);
             $id = $pdo->lastInsertId();
             set_flash('เพิ่มประกาศใหม่เรียบร้อยแล้ว');
         }
@@ -205,17 +242,23 @@ $token = csrf_token();
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="price"><?= e(t('ราคา (บาท) *', 'Price (THB) *')) ?></label>
+          <label for="price"><?= e(t('ราคาปัจจุบัน (บาท) *', 'Current Price (THB) *')) ?></label>
           <input type="number" id="price" name="price" class="form-control" value="<?= e($property['price']) ?>" placeholder="e.g. 2500000" required>
         </div>
 
         <div class="form-group">
-          <label for="status"><?= e(t('สถานะทรัพย์สิน *', 'Property Status *')) ?></label>
-          <select id="status" name="status" class="form-control">
-            <option value="available" <?= $property['status'] === 'available' ? 'selected' : '' ?>><?= e(t('กำลังประกาศ (Available)', 'Available (Active)')) ?></option>
-            <option value="done" <?= $property['status'] === 'done' ? 'selected' : '' ?>><?= e(t('ขาย/ปล่อยเช่าแล้ว (Done)', 'Sold / Rented (Closed)')) ?></option>
-          </select>
+          <label for="original_price"><?= e(t('ราคาเดิมก่อนลด / ขีดฆ่า (บาท - ไม่บังคับ)', 'Original Price / Strikethrough (Optional)')) ?></label>
+          <input type="number" id="original_price" name="original_price" class="form-control" value="<?= e($property['original_price'] ?? '') ?>" placeholder="<?= e(t('เช่น 3000000 เพื่อแสดงขีดฆ่า', 'e.g. 3000000')) ?>">
+          <small style="color:#64748B; font-size:11.5px;"><?= e(t('ระบบจะสร้างราคาขีดฆ่า ป้ายลดราคา และส่งแจ้งเตือนให้อัตโนมัติ', 'Shows strikethrough, discount badge and sends price-drop alerts.')) ?></small>
         </div>
+      </div>
+
+      <div class="form-group">
+        <label for="status"><?= e(t('สถานะทรัพย์สิน *', 'Property Status *')) ?></label>
+        <select id="status" name="status" class="form-control">
+          <option value="available" <?= $property['status'] === 'available' ? 'selected' : '' ?>><?= e(t('กำลังประกาศ (Available)', 'Available (Active)')) ?></option>
+          <option value="done" <?= $property['status'] === 'done' ? 'selected' : '' ?>><?= e(t('ขาย/ปล่อยเช่าแล้ว (Done)', 'Sold / Rented (Closed)')) ?></option>
+        </select>
       </div>
 
       <div class="form-group">

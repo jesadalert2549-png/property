@@ -5,3 +5,4 @@ uploads/*
 !uploads/.htaccess
 !uploads/**/.htaccess
 !uploads/hero/
+!uploads/auth/

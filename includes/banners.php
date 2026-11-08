@@ -326,8 +326,8 @@ function save_hero_background(array $file, float $opacity): array
     if (!isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
         throw new RuntimeException('ไม่ได้เลือกไฟล์หรืออัปโหลดไม่สำเร็จ');
     }
-    if ($file['size'] > 50 * 1024 * 1024) {
-        throw new RuntimeException('ไฟล์สื่อพื้นหลังต้องมีขนาดไม่เกิน 50 MB');
+    if ($file['size'] > 100 * 1024 * 1024) {
+        throw new RuntimeException('ไฟล์สื่อพื้นหลังต้องมีขนาดไม่เกิน 100 MB');
     }
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime = (string)$finfo->file($file['tmp_name']);

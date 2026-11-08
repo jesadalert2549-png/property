@@ -98,6 +98,29 @@ if (request_is_post() && ($_POST['action'] ?? '') === 'change_password') {
     }
 }
 
+// ลบประกาศของตนเอง (Member Delete Listing)
+if (!$isOwner && request_is_post() && ($_POST['action'] ?? '') === 'delete_property') {
+    csrf_check();
+    $deletePropertyId = (int)($_POST['property_id'] ?? 0);
+    if ($deletePropertyId > 0) {
+        $stCheck = $pdo->prepare('SELECT id FROM properties WHERE id = ? AND user_id = ? LIMIT 1');
+        $stCheck->execute([$deletePropertyId, (int)$_SESSION['user_id']]);
+        if ($stCheck->fetchColumn()) {
+            // ลบรูปภาพของประกาศออกจากเซิร์ฟเวอร์
+            $imgs = $pdo->prepare('SELECT filename FROM property_images WHERE property_id = ?');
+            $imgs->execute([$deletePropertyId]);
+            foreach ($imgs->fetchAll(PDO::FETCH_COLUMN) as $fName) {
+                delete_image_file($fName);
+            }
+            // ลบข้อมูลประกาศ (Cascade ลบรูป, favorites, featured อัตโนมัติ)
+            $pdo->prepare('DELETE FROM properties WHERE id = ? AND user_id = ?')->execute([$deletePropertyId, (int)$_SESSION['user_id']]);
+            $profileSuccess = t('ลบประกาศเรียบร้อยแล้ว', 'Listing deleted successfully.');
+        } else {
+            $profileError = t('ไม่พบประกาศ หรือคุณไม่มีสิทธิ์ลบประกาศนี้', 'Listing not found or you do not have permission.');
+        }
+    }
+}
+
 if ($isOwner) {
     $ownerSummary = [
         'listings' => (int)$pdo->query('SELECT COUNT(*) FROM properties')->fetchColumn(),
@@ -107,7 +130,7 @@ if ($isOwner) {
     ];
 } else {
     $statement = $pdo->prepare(
-        'SELECT p.id, p.title, p.type, p.status, p.approval, p.verification_status, p.verification_notes, p.price, p.location, p.created_at,
+        'SELECT p.id, p.title, p.type, p.status, p.approval, p.verification_status, p.verification_notes, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.created_at,
                 (SELECT i.filename FROM property_images i
                  WHERE i.property_id = p.id
                  ORDER BY i.sort_order, i.id LIMIT 1) AS cover
@@ -125,6 +148,10 @@ if ($isOwner) {
     );
     $projectStatement->execute([(int)$_SESSION['user_id']]);
     $myProjects = $projectStatement->fetchAll();
+
+    $favCountStmt = $pdo->prepare('SELECT COUNT(*) FROM property_favorites WHERE user_id = ?');
+    $favCountStmt->execute([(int)$_SESSION['user_id']]);
+    $myFavCount = (int)$favCountStmt->fetchColumn();
 }
 $memberDisplayName = trim((string)($memberProfile['full_name'] ?? '')) ?: (string)$memberProfile['username'];
 $memberStats = [
@@ -132,6 +159,7 @@ $memberStats = [
     'published' => count(array_filter($myProperties, static fn($post) => $post['approval'] === 'approved')) + count(array_filter($myProjects, static fn($post) => (int)$post['is_published'] === 1)),
     'pending' => count(array_filter($myProperties, static fn($post) => $post['approval'] === 'pending')),
     'projects' => count($myProjects),
+    'favorites' => $myFavCount ?? 0,
 ];
 ?>
 <!DOCTYPE html>
@@ -210,6 +238,14 @@ $agentStatus = $memberProfile['agent_status'] ?? 'none';
     <a href="#my-projects" class="portal-menu-item">
       <span class="portal-menu-item-left"><span class="portal-menu-icon">⌂</span><?= e(t('โครงการของฉัน', 'My projects')) ?></span>
       <span class="portal-menu-badge"><?= number_format($memberStats['projects']) ?></span>
+    </a>
+    <a href="favorites.php" class="portal-menu-item">
+      <span class="portal-menu-item-left"><span class="portal-menu-icon">❤️</span><?= e(t('ทรัพย์ที่กดใจไว้', 'Saved favorites')) ?></span>
+      <span class="portal-menu-badge" style="background:#fee2e2; color:#b91c1c;"><?= number_format($memberStats['favorites'] ?? 0) ?></span>
+    </a>
+    <a href="notifications.php" class="portal-menu-item">
+      <span class="portal-menu-item-left"><span class="portal-menu-icon">🔔</span><?= e(t('กล่องข้อความแจ้งเตือน', 'Inbox & Alerts')) ?></span>
+      <span class="portal-menu-badge sp-notif-badge" style="display:none; background:#ef4444; color:#fff;"></span>
     </a>
     <a href="submit.php" class="portal-menu-item">
       <span class="portal-menu-item-left"><span class="portal-menu-icon">＋</span><?= e(t('ลงประกาศใหม่', 'New listing')) ?></span>
@@ -340,7 +376,48 @@ $agentStatus = $memberProfile['agent_status'] ?? 'none';
                     <?php if (!empty($property['cover']) && is_file(UPLOAD_DIR . basename($property['cover']))): ?><img src="uploads/<?= e(basename($property['cover'])) ?>" alt="<?= e($property['title']) ?>" loading="lazy"><?php else: ?><span aria-hidden="true">⌂</span><?php endif; ?>
                     <span class="member-post-type"><?= e($property['type'] === 'rent' ? t('ให้เช่า', 'For rent') : t('ขาย', 'For sale')) ?></span>
                   </div>
-                  <div class="member-post-info"><div class="member-post-title-row"><h3><?= e($property['title']) ?></h3><span class="listing-status <?= $property['approval'] === 'approved' ? 'is-approved' : ($property['approval'] === 'rejected' ? 'is-rejected' : 'is-pending') ?>"><i></i><?= $property['approval'] === 'approved' ? (($property['verification_status'] ?? 'passed') === 'flagged' ? e(t('ตรวจซ้ำ', 'Re-review')) : e(t('เผยแพร่', 'Published'))) : ($property['approval'] === 'rejected' ? e(t('ซ่อนอยู่', 'Hidden')) : e(t('รอตรวจ', 'Pending'))) ?></span></div><p class="member-post-price"><?= e(is_en() ? number_format((int)$property['price']) . ($property['type'] === 'rent' ? ' THB/month' : ' THB') : price_label($property['type'], (int)$property['price'])) ?></p><p class="member-post-location">⌖ <?= e($property['location']) ?></p><?php if (($property['verification_status'] ?? '') === 'flagged' && !empty($property['verification_notes'])): ?><small class="member-review-note"><?= e($property['verification_notes']) ?></small><?php endif; ?><div class="member-post-footer"><small><?= e(t('ลงเมื่อ ', 'Posted on ')) . e(date('d/m/Y', strtotime($property['created_at']))) ?></small><span class="member-post-actions"><?php if ($property['approval'] === 'approved'): ?><a href="property.php?id=<?= (int)$property['id'] ?>"><?= e(t('ดูโพสต์', 'View post')) ?></a><?php endif; ?><a class="member-post-edit" href="edit-listing.php?id=<?= (int)$property['id'] ?>"><?= e(t('แก้ไข', 'Edit')) ?></a></span></div></div>
+                  <div class="member-post-info">
+                    <div class="member-post-title-row">
+                      <h3><?= e($property['title']) ?></h3>
+                      <span class="listing-status <?= $property['approval'] === 'approved' ? 'is-approved' : ($property['approval'] === 'rejected' ? 'is-rejected' : 'is-pending') ?>">
+                        <i></i><?= $property['approval'] === 'approved' ? (($property['verification_status'] ?? 'passed') === 'flagged' ? e(t('ตรวจซ้ำ', 'Re-review')) : e(t('เผยแพร่', 'Published'))) : ($property['approval'] === 'rejected' ? e(t('ซ่อนอยู่', 'Hidden')) : e(t('รอตรวจ', 'Pending'))) ?>
+                      </span>
+                    </div>
+                    <div class="member-post-price">
+                      <?php
+                        require_once __DIR__ . '/includes/price_helpers.php';
+                        echo render_price_badge((int)$property['price'], !empty($property['original_price']) ? (int)$property['original_price'] : null, $property['type']);
+                      ?>
+                    </div>
+                    <p class="member-post-location">⌖ <?= e($property['location']) ?></p>
+                    <?php if (($property['verification_status'] ?? '') === 'flagged' && !empty($property['verification_notes'])): ?>
+                      <small class="member-review-note"><?= e($property['verification_notes']) ?></small>
+                    <?php endif; ?>
+                    <div class="member-post-footer">
+                      <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <small><?= e(t('ลงเมื่อ ', 'Posted on ')) . e(date('d/m/Y', strtotime($property['created_at']))) ?></small>
+                        <span style="font-size:11.5px; color:#475569; background:#f1f5f9; padding:2px 8px; border-radius:999px; font-weight:700; display:inline-flex; align-items:center; gap:6px;">
+                          <span>👁️ <?= number_format((int)($property['views_count'] ?? 0)) ?> <?= e(t('ดู', 'views')) ?></span>
+                          <span style="color:#cbd5e1;">·</span>
+                          <span>👆 <?= number_format((int)($property['clicks_count'] ?? 0)) ?> <?= e(t('คลิก', 'clicks')) ?></span>
+                        </span>
+                      </div>
+                      <span class="member-post-actions">
+                        <?php if ($property['approval'] === 'approved'): ?>
+                          <a href="property.php?id=<?= (int)$property['id'] ?>"><?= e(t('ดูโพสต์', 'View post')) ?></a>
+                        <?php endif; ?>
+                        <a class="member-post-edit" href="edit-listing.php?id=<?= (int)$property['id'] ?>"><?= e(t('แก้ไข', 'Edit')) ?></a>
+                        <form method="post" style="display:inline; margin:0;" onsubmit="return confirm('<?= e(t('คุณแน่ใจหรือไม่ว่าต้องการลบประกาศนี้? การลบจะไม่สามารถกู้คืนได้', 'Are you sure you want to delete this listing? This action cannot be undone.')) ?>');">
+                          <input type="hidden" name="csrf" value="<?= e($csrf) ?>">
+                          <input type="hidden" name="action" value="delete_property">
+                          <input type="hidden" name="property_id" value="<?= (int)$property['id'] ?>">
+                          <button type="submit" class="member-post-delete-btn" style="background:none; border:none; padding:0; font:inherit; color:#dc2626; font-size:12px; font-weight:700; cursor:pointer; text-decoration:underline;">
+                            <?= e(t('ลบ', 'Delete')) ?>
+                          </button>
+                        </form>
+                      </span>
+                    </div>
+                  </div>
                 </article>
               <?php endforeach; ?>
             </div>

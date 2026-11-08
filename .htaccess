@@ -56,7 +56,7 @@ RewriteRule ^sitemap\.xml$ sitemap_xml.php [L]
 </FilesMatch>
 
 # ป้องกันเปิดดูไฟล์ตั้งค่าภายในจากภายนอก
-<FilesMatch "^(version|oauth_config|hero_config)\.json$">
+<FilesMatch "^(version|oauth_config|hero_config|auth_config)\.json$">
     Require all denied
 </FilesMatch>
 
@@ -66,3 +66,24 @@ RewriteRule ^sitemap\.xml$ sitemap_xml.php [L]
 # RewriteEngine On
 # RewriteCond %{HTTPS} off
 # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [L,R=301]
+
+
+# ===== 3. เพิ่มเพดานการอัปโหลดไฟล์ขนาดใหญ่ (เช่น วิดีโอพื้นหลัง 100 MB) =====
+<IfModule mod_php.c>
+    php_value upload_max_filesize 128M
+    php_value post_max_size 128M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 128M
+    php_value post_max_size 128M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 128M
+    php_value post_max_size 128M
+    php_value max_execution_time 300
+    php_value max_input_time 300
+</IfModule>

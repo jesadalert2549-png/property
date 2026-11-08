@@ -165,7 +165,6 @@ body:has(.dd-hero) .site-controls,
 .admin-desktop-navbar .kasa-logo-img--light,
 .site-shell-nav .kasa-logo-img--light,
 .site-header .kasa-logo-img--light,
-.dd-navbar .kasa-logo-img--light,
 .site-shell-drawer-footer .kasa-logo-img--light,
 .seo-footer .kasa-logo-img--light {
   display: none !important;
@@ -178,7 +177,6 @@ body:has(.dd-hero) .site-controls,
 .admin-desktop-navbar .kasa-logo-img--dark,
 .site-shell-nav .kasa-logo-img--dark,
 .site-header .kasa-logo-img--dark,
-.dd-navbar .kasa-logo-img--dark,
 .site-shell-drawer-footer .kasa-logo-img--dark,
 .seo-footer .kasa-logo-img--dark {
   display: block !important;

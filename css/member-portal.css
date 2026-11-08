@@ -852,3 +852,15 @@ body.member-portal-body .portal-section-title {
   .portal-stats-grid { grid-template-columns:minmax(0,1fr); }
   .portal-mobile-toggle { width:38px; height:38px; flex:0 0 38px; }
 }
+
+
+/* Member Dashboard Post Delete Button */
+.member-post-delete-btn {
+  transition: opacity 0.15s, transform 0.15s;
+  display: inline-flex;
+  align-items: center;
+}
+.member-post-delete-btn:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}

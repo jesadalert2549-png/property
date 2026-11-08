@@ -36,6 +36,7 @@ $catalog = [
         'title' => t('การตลาด & SEO', 'Marketing & SEO'),
         'icon'  => '📣',
         'items' => [
+            ['notifications.php', '📢', t('ส่งแจ้งเตือนอสังหาฯ', 'Property Push Alerts'), t('ส่งดีลลดราคาและทำเลทองเข้ากล่องข้อความ', 'Broadcast deals & price drops to inbox')],
             ['seo.php', '⚡', t('SEO & AI เจาะ 77 จว. & CBD', 'SEO & AI Geo Engine'), t('เจาะทำเลทองและคีย์เวิร์ด AI', 'Target prime zones & AI prompts')],
             ['featured.php', '✦', t('หมวดหมู่แนะนำหน้าแรก', 'Featured Sections'), t('โปรโมตคอนโด บ้านเดี่ยวหน้าแรก', 'Homepage highlighted categories')],
             ['banners.php', '🎬', t('สื่อโปรโมชัน / วิดีโอลูป', 'Promo Media & Ads'), t('แบนเนอร์ วิดีโอโฆษณาหน้าแรก', 'Media ads & looping video')],
@@ -45,6 +46,7 @@ $catalog = [
         'title' => t('เนื้อหา & ภาพ', 'Content'),
         'icon'  => '🖼️',
         'items' => [
+            ['auth-bg.php', '🖼️', t('ภาพพื้นหลัง Login', 'Login Wallpaper'), t('เปลี่ยนภาพปกหน้าล็อกอินและสมัครสมาชิก', 'Custom login & register background image')],
             ['favicon.php', '🎨', t('โลโก้ & Favicon (SEO)', 'Favicon & Brand Icon'), t('จัดการไอคอนที่แสดงบน Google Search', 'Google SERP icon & tab favicon')],
             ['category-images.php', '▧', t('ภาพหมวดหมู่อสังหาฯ', 'Category Covers'), t('ปรับเปลี่ยนภาพปกหมวดต่างๆ', 'Custom category cover images')],
         ],
@@ -61,6 +63,7 @@ $catalog = [
         'title' => t('สมาชิก & เอกสิทธิ์', 'Members & Founder'),
         'icon'  => '👑',
         'items' => [
+            ['notebook.php', '📓', t('สมุดบันทึกระบบ (CEO)', 'CEO Logbook'), t('จดบันทึกการเพิ่ม/ลดฟีเจอร์และแก้บั๊ก', 'Record feature additions & milestones')],
             ['members.php', '👥', t('จัดการสมาชิก & โควตา', 'Member Governance'), t('ปรับสิทธิ์และจำกัดโควตาประกาศ', 'Quota, tiers & user permissions')],
             ['features.php', '🗺️', t('แผนที่ฟีเจอร์ทั้งหมด', 'Feature Map'), t('ตรวจสอบฟีเจอร์และนวัตกรรมทั้งหมดของระบบ', 'All active system features & audit')],
             ['partners.php', '👑', t('จัดการหุ้นส่วน & สิทธิ์', 'Partners & Access'), t('กำหนดสิทธิ์รายบุคคลตามตำแหน่ง', 'Role-based access control')],

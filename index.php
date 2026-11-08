@@ -81,7 +81,7 @@ try {
 $featuredImages = [];
 foreach ($featuredSections as &$featuredSection) {
     $listingSql = $featuredPropertiesEnabled
-        ? 'SELECT p.id, p.title, p.type, p.price, p.location, p.contact_name,
+        ? 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name,
                   (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
                   (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
                   (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
@@ -89,7 +89,7 @@ foreach ($featuredSections as &$featuredSection) {
            FROM properties p LEFT JOIN featured_properties fp ON fp.property_id = p.id
            WHERE p.approval = ? AND p.status = ? AND p.property_category = ?
            ORDER BY (fp.property_id IS NULL), fp.sort_order, p.created_at DESC LIMIT 4'
-        : 'SELECT p.id, p.title, p.type, p.price, p.location, p.contact_name,
+        : 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name,
                   (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
                   (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
                   (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
@@ -186,7 +186,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     body {
       width: 100%;
       background: #F9F9FB;
-      font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif;
+      font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif !important;
     }
     img {
       max-width: 100%;
@@ -199,7 +199,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
        ========================================================================== */
     .dd-navbar {
       background: transparent;
-      padding: 12px 24px;
+      padding: 14px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -209,17 +209,45 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       right: 0;
       z-index: 1000;
       width: 100%;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       transition: background 0.32s cubic-bezier(.22, 1, .36, 1),
                   border-color 0.32s ease,
-                  box-shadow 0.32s ease,
-                  transform 0.32s ease;
+                  box-shadow 0.32s ease;
     }
     .dd-navbar.scrolled {
       position: fixed;
-      background: #0B1C33;
-      border-bottom-color: rgba(197, 160, 89, 0.28);
-      box-shadow: 0 8px 26px rgba(6, 15, 28, 0.35);
+      top: 0;
+      background: #0B1C33 !important;
+      border-bottom: 1px solid rgba(197, 160, 89, 0.35) !important;
+      box-shadow: 0 8px 26px rgba(6, 15, 28, 0.45) !important;
+    }
+    .dd-navbar:not(.scrolled) .dd-menu-item,
+    .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown-toggle {
+      color: #0B1C33 !important;
+      font-weight: 800 !important;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    }
+    .dd-navbar:not(.scrolled) .dd-menu-item:hover,
+    .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown-toggle:hover {
+      color: #8C6B32 !important;
+    }
+    .dd-navbar:not(.scrolled) .nav-caret {
+      border-color: #0B1C33 !important;
+    }
+    .dd-navbar:not(.scrolled) .dd-icon-btn {
+      background: rgba(255, 255, 255, 0.65) !important;
+      border: 1px solid rgba(11, 28, 51, 0.25) !important;
+      color: #0B1C33 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+    .dd-navbar:not(.scrolled) .dd-icon-btn:hover {
+      background: #ffffff !important;
+      border-color: #C5A059 !important;
+      color: #A8843F !important;
+    }
+    .dd-navbar:not(.scrolled) .mobile-hamburger-btn {
+      color: #0B1C33 !important;
     }
     .dd-nav-left, .dd-nav-right {
       display: flex;
@@ -443,7 +471,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 128px 16px 48px;
+      padding: 120px 16px 48px;
       width: 100%;
       isolation: isolate;
     }
@@ -651,14 +679,52 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     .showcase-tag {
       position: absolute;
       left: 10px;
-      bottom: 10px;
-      padding: 3px 8px;
-      border-radius: 3px;
-      background: #7955d9;
+      top: 10px;
+      bottom: auto;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #0B1C33;
       color: #fff;
       font-size: 11px;
       font-weight: 800;
-      box-shadow: 0 1px 4px rgba(0,0,0,.18);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      z-index: 3;
+    }
+    .showcase-featured-tag {
+      position: absolute;
+      top: 10px;
+      left: auto;
+      right: 50px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #C5A059, #A8843F);
+      color: #0B1C33;
+      font-size: 11px;
+      font-weight: 800;
+      z-index: 3;
+      box-shadow: 0 2px 8px rgba(197, 160, 89, 0.35);
+    }
+    .showcase-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: transform 0.2s, background 0.2s;
+      z-index: 3;
+    }
+    .showcase-fav-btn:hover {
+      transform: scale(1.15);
+      background: #fff;
     }
     .showcase-body {
       min-height: 86px;
@@ -686,7 +752,11 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       text-overflow: ellipsis;
     }
     .showcase-price {
-      display: none;
+      display: block;
+      margin-top: 6px;
+      font-size: 16px;
+      font-weight: 800;
+      color: #A8843F;
     }
 
     /* ==========================================================================
@@ -784,6 +854,14 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <nav class="dd-desktop-menu">
       <?php render_nav_dropdowns(); ?>
       <a href="project.php" class="dd-menu-item"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
+      <a href="favorites.php" class="dd-menu-item" title="<?= e(t('ทรัพย์ที่บันทึกไว้', 'Saved Properties')) ?>">
+        ❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?>
+        <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:2px;"></span>
+      </a>
+      <a href="notifications.php" class="dd-menu-item" title="<?= e(t('การแจ้งเตือน', 'Notifications')) ?>">
+        🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?>
+        <span class="sp-notif-badge" style="display:none; background:#ef4444; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:2px;"></span>
+      </a>
       <a href="advertise.php" class="dd-menu-item"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
       <a href="submit.php" class="dd-menu-item"><?= e(t('ลงประกาศกับเรา', 'List with us')) ?></a>
     </nav>
@@ -1001,13 +1079,27 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               <?php endif; ?>
               <span class="showcase-tag"><?= e(is_en() ? (property_category_en_label($featuredSection['category']) ?? (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) : (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) ?></span>
               <?php if (!empty($listing['is_featured'])): ?><span class="showcase-featured-tag"><?= e(t('แนะนำ', 'Featured')) ?></span><?php endif; ?>
+              <button type="button" class="sp-fav-card-btn showcase-fav-btn" data-fav-toggle data-fav-id="<?= (int)$listing['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+                <span class="fav-heart-icon">
+                  <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </span>
+              </button>
+              <?php
+                require_once __DIR__ . '/includes/price_helpers.php';
+                echo render_card_stats_badge((int)($listing['views_count'] ?? 0), (int)($listing['clicks_count'] ?? 0));
+              ?>
               <?php render_publisher_mini($listing); ?>
             </div>
             <div class="showcase-body">
               <div class="showcase-card-title"><?= e($listing['title']) ?></div>
               <div class="showcase-card-loc"><?= e($listing['location'] ?: '-') ?></div>
               
-              <div class="showcase-price">฿<?= number_format((int)$listing['price']) ?><?= $listing['type'] === 'rent' ? (is_en() ? '/month' : '/เดือน') : '' ?></div>
+              <div class="showcase-price">
+                <?php
+                  require_once __DIR__ . '/includes/price_helpers.php';
+                  echo render_price_badge((int)$listing['price'], !empty($listing['original_price']) ? (int)$listing['original_price'] : null, $listing['type']);
+                ?>
+              </div>
             </div>
           </a>
         <?php endforeach; ?>

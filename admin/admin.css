@@ -14,7 +14,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", system-ui, serif;
+  font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", system-ui, serif !important;
   background: var(--bg);
   color: #1E293B;
   font-size: 15px;

@@ -751,8 +751,8 @@ function generate_national_agency_schema(): array
         '@type'    => 'RealEstateAgent',
         'name'     => SITE_NAME,
         'url'      => site_url(),
-        'logo'     => page_url('images/kasa_logo.png'),
-        'image'    => page_url('images/kasa_logo.png'),
+        'logo'     => site_url() . '/images/favicon-48x48.png',
+        'image'    => site_url() . '/images/favicon-48x48.png',
         'description' => 'แพลตฟอร์มค้นหาและลงประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ชั้นนำ ซื้อขายบ้าน คอนโด ที่ดิน ทั่วไทย',
         'areaServed' => $served,
     ];
