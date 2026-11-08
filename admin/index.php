@@ -217,6 +217,9 @@ $approvalLabel = [
         <p><?= e(t('พื้นที่ปฏิบัติงานเฉพาะส่วนงานที่ได้รับมอบหมายสิทธิ์จาก Founder & CEO — อัปเดต ณ', 'Dedicated workspace for assigned tasks authorized by Founder & CEO — Updated on')) ?> <?= e(date('d/m/Y H:i')) ?> <?= e(t('น.', '')) ?></p>
       <?php endif; ?>
       <div class="dash-hero-actions">
+        <?php if ($isFounder): ?>
+          <a class="btn-hero" href="features.php" style="background:linear-gradient(135deg,#0B1C33,#1e3a8a); border:1px solid #C5A059; color:#E5CB96;">🗺️ <?= e(t('ดูฟีเจอร์ทั้งหมดของเว็บ', 'View All Features')) ?></a>
+        <?php endif; ?>
         <?php if ($isFounder || !empty($perms['analytics']['view'])): ?>
           <a class="btn-hero" href="pdf-report.php">🧾 <?= e(t('สร้างรายงาน PDF สรุปสถิติ', 'Generate PDF Report')) ?></a>
           <a class="btn-hero ghost" href="analytics.php">📊 <?= e(t('ดูสถิติเชิงลึก', 'View In-depth Stats')) ?></a>

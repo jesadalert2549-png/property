@@ -8,6 +8,9 @@ Disallow: /install.php
 User-agent: Googlebot
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
 User-agent: Bingbot
 Allow: /
 
@@ -27,6 +30,9 @@ User-agent: Applebot
 Allow: /
 
 User-agent: Amazonbot
+Allow: /
+
+User-agent: Cohere-ai
 Allow: /
 
 Sitemap: https://standardproperty.cloud/sitemap.xml

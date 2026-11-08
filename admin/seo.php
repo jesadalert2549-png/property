@@ -190,6 +190,42 @@ if (request_is_post()) {
         redirect('seo.php');
     }
 
+    // 4.1 แปลงคำค้นหาจากผู้ใช้ (Search Query) เป็นคีย์เวิร์ดเป้าหมาย SEO ทันที
+    if ($action === 'promote_search_query') {
+        $sqId = (int)($_POST['query_id'] ?? 0);
+        $sqRow = $pdo->prepare('SELECT * FROM search_queries WHERE id = ? LIMIT 1');
+        $sqRow->execute([$sqId]);
+        $queryData = $sqRow->fetch(PDO::FETCH_ASSOC);
+
+        if ($queryData) {
+            $kw = trim((string)$queryData['query']);
+            $cat = trim((string)$queryData['category']);
+            $kType = mb_strlen($kw) > 20 ? 'long_tail' : 'short_tail';
+
+            $stmt = $pdo->prepare('INSERT INTO seo_keywords (keyword, keyword_type, category, province, target_intent) VALUES (?, ?, ?, ?, ?)');
+            $stmt->execute([$kw, $kType, $cat, '', 'จากผู้ใช้งานจริง']);
+
+            $pdo->prepare('UPDATE search_queries SET is_promoted_seo = 1 WHERE id = ?')->execute([$sqId]);
+            set_flash("บรรจุคำค้น \"{$kw}\" เข้าสู่ระบบ SEO เป้าหมายเรียบร้อยแล้ว");
+        }
+        redirect('seo.php#search-insights');
+    }
+
+    // 4.2 ลบประวัติคำค้นหา
+    if ($action === 'delete_search_query') {
+        $sqId = (int)($_POST['query_id'] ?? 0);
+        $pdo->prepare('DELETE FROM search_queries WHERE id = ?')->execute([$sqId]);
+        set_flash("ลบประวัติคำค้นหาเรียบร้อยแล้ว");
+        redirect('seo.php#search-insights');
+    }
+
+    // 4.3 ล้างประวัติคำค้นหาทั้งหมด
+    if ($action === 'clear_all_queries') {
+        $pdo->exec('TRUNCATE TABLE search_queries');
+        set_flash("ล้างประวัติคำค้นหาทั้งหมดเรียบร้อยแล้ว");
+        redirect('seo.php#search-insights');
+    }
+
     // 5. ล้างคีย์เวิร์ดทั้งหมด
     if ($action === 'clear_all') {
         $pdo->exec('TRUNCATE TABLE seo_keywords');
@@ -201,6 +237,12 @@ if (request_is_post()) {
 // ข้อมูลสำหรับแสดงผล
 $totalKeywords = (int)$pdo->query('SELECT COUNT(*) FROM seo_keywords')->fetchColumn();
 $activeKeywords = (int)$pdo->query('SELECT COUNT(*) FROM seo_keywords WHERE is_active = 1')->fetchColumn();
+
+// สถิติระบบบันทึกและวิเคราะห์คำค้นหาเรียลไทม์ (Search Queries Intelligence)
+$totalSearchQueries = (int)$pdo->query('SELECT COUNT(*) FROM search_queries')->fetchColumn();
+$totalSearchHits    = (int)$pdo->query('SELECT COALESCE(SUM(search_count), 0) FROM search_queries')->fetchColumn();
+$recentSearchQueries = $pdo->query('SELECT * FROM search_queries ORDER BY last_searched_at DESC LIMIT 30')->fetchAll(PDO::FETCH_ASSOC);
+$topSearchQueries    = $pdo->query('SELECT * FROM search_queries ORDER BY search_count DESC, last_searched_at DESC LIMIT 10')->fetchAll(PDO::FETCH_ASSOC);
 
 // ดึงรายการคีย์เวิร์ดล่าสุด 60 รายการ
 $filterProv = trim((string)($_GET['filter_prov'] ?? ''));
@@ -300,7 +342,10 @@ $flash = get_flash();
     <div style="display:flex; flex-direction:column; gap:8px; align-items:flex-end;">
       <span class="stat-badge">📍 77 จังหวัดครอบคลุมทั้งระบบ</span>
       <span class="stat-badge">⚡ <?= number_format($totalKeywords) ?> คีย์เวิร์ดเป้าหมาย (เปิดใช้งาน <?= number_format($activeKeywords) ?>)</span>
+      <span class="stat-badge" style="background:rgba(197,160,89,.22); color:#FFF; font-weight:700;">🔍 <?= number_format($totalSearchQueries) ?> คำค้นพบใหม่ (ถูกค้นรวม <?= number_format($totalSearchHits) ?> ครั้ง)</span>
       <div style="display:flex; gap:8px; margin-top:4px;">
+        <a href="#search-insights" style="font-size:12px; color:#E5CB96; text-decoration:underline;">ดูคำค้นหาจากผู้ใช้จริง ↓</a>
+        <span style="color:rgba(255,255,255,.3);">|</span>
         <a href="../sitemap.xml" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;">เปิด XML Sitemap ↗</a>
         <span style="color:rgba(255,255,255,.3);">|</span>
         <a href="../robots.txt" target="_blank" rel="noopener" style="font-size:12px; color:#E5CB96; text-decoration:underline;">ตรวจสอบ robots.txt ↗</a>
@@ -494,6 +539,117 @@ $flash = get_flash();
     <?php else: ?>
       <div style="font-size:13px;color:#64748B;font-style:italic;padding:14px;background:#F9F9FB;border-radius:12px;">
         🔒 ดูข้อมูลได้อย่างเดียว (ต้องได้รับสิทธิ์จาก Founder &amp; CEO เพื่อสร้างหรือจัดการ SEO)
+      </div>
+    <?php endif; ?>
+  </section>
+
+  <!-- 2.5 ระบบตรวจจับและวิเคราะห์คำค้นหาเรียลไทม์ (Live Search Queries Intelligence) -->
+  <section class="seo-card" id="search-insights" style="border:1.5px solid #2563eb; background:linear-gradient(180deg, #fff, #f8faff);">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:12px;">
+      <div>
+        <h2 style="color:#1e40af;">📡 คำค้นหาและพฤติกรรมจริงจากผู้เข้าชม (Search Intelligence)</h2>
+        <span style="font-size:13px; color:#64748B;">บันทึกทุกคำค้นหาใหม่ทันทีเมื่อมีคนค้นหาในเว็บ หรือคลิกเข้ามาจาก Google เพื่อให้คุณแปลงเป็นคีย์เวิร์ด SEO เพิ่มโอกาสติดหน้าแรกเรื่อย ๆ</span>
+      </div>
+      <?php if ($canManageMarketing && $totalSearchQueries > 0): ?>
+        <form method="post" onsubmit="return confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างประวัติคำค้นหาทั้งหมด?');" style="margin:0;">
+          <input type="hidden" name="csrf" value="<?= e($token) ?>">
+          <input type="hidden" name="action" value="clear_all_queries">
+          <button type="submit" class="mini del" style="padding:6px 12px;">🗑️ ล้างประวัติคำค้นหา</button>
+        </form>
+      <?php endif; ?>
+    </div>
+
+    <!-- สรุปสถิติคำค้น -->
+    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-bottom:18px;">
+      <div style="padding:14px; background:#eff6ff; border:1px solid #bfdbfe; border-radius:12px;">
+        <span style="font-size:11px; font-weight:800; color:#1d4ed8; text-transform:uppercase;">คำค้นไม่ซ้ำทั้งหมด</span>
+        <div style="font-size:24px; font-weight:800; color:#1e3a8a; margin-top:2px;"><?= number_format($totalSearchQueries) ?> <span style="font-size:13px; font-weight:normal;">คำ</span></div>
+      </div>
+      <div style="padding:14px; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px;">
+        <span style="font-size:11px; font-weight:800; color:#15803d; text-transform:uppercase;">ยอดคลิกค้นหารวม</span>
+        <div style="font-size:24px; font-weight:800; color:#14532d; margin-top:2px;"><?= number_format($totalSearchHits) ?> <span style="font-size:13px; font-weight:normal;">ครั้ง</span></div>
+      </div>
+      <div style="padding:14px; background:#fefce8; border:1px solid #fef08a; border-radius:12px;">
+        <span style="font-size:11px; font-weight:800; color:#a16207; text-transform:uppercase;">ระบบทำงานอัตโนมัติ</span>
+        <div style="font-size:13.5px; font-weight:700; color:#713f12; margin-top:6px;">✓ บันทึกเรียลไทม์ 24 ชม.</div>
+      </div>
+    </div>
+
+    <?php if (!$recentSearchQueries): ?>
+      <div style="text-align:center; padding:32px 20px; background:#f8fafc; border-radius:14px; color:#64748B;">
+        <div style="font-size:28px; margin-bottom:6px;">🔍</div>
+        <p style="margin:0; font-size:14px; font-weight:600;">ระบบกำลังเฝ้ารอคำค้นหาใหม่อยู่ครับ</p>
+        <span style="font-size:12.5px;">เมื่อผู้ใช้พิมพ์คำค้นหาในหน้าแรก หรือหน้าค้นหา (`search.php`) ระบบจะบันทึกคำและความถี่ลงในตารางนี้ทันที</span>
+      </div>
+    <?php else: ?>
+      <div style="overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+          <thead>
+            <tr style="background:#f1f5f9; text-align:left; border-bottom:2px solid #cbd5e1;">
+              <th style="padding:10px 12px;">คำที่ผู้ใช้ค้นหา</th>
+              <th style="padding:10px 12px; text-align:center;">จำนวนครั้ง</th>
+              <th style="padding:10px 12px; text-align:center;">ผลลัพธ์ในเว็บ</th>
+              <th style="padding:10px 12px;">แหล่งที่มา</th>
+              <th style="padding:10px 12px;">ค้นหาล่าสุด</th>
+              <th style="padding:10px 12px; text-align:right;">การนำไปใช้</th>
+            </tr>
+          </thead>
+          <tbody>
+            <?php foreach ($recentSearchQueries as $sq): ?>
+              <tr style="border-bottom:1px solid #f1f5f9; background:#fff;">
+                <td style="padding:10px 12px; font-weight:700; color:#0f172a;">
+                  <span style="font-size:13.5px;"><?= e($sq['query']) ?></span>
+                  <?php if (!empty($sq['category'])): ?>
+                    <span style="display:inline-block; font-size:11px; padding:1px 6px; border-radius:4px; background:#f1f5f9; color:#475569; margin-left:4px; font-weight:normal;">
+                      <?= e(category_label_bi($sq['category'])) ?>
+                    </span>
+                  <?php endif; ?>
+                </td>
+                <td style="padding:10px 12px; text-align:center;">
+                  <span style="display:inline-block; padding:2px 10px; border-radius:999px; font-weight:800; font-size:12px; background:#eff6ff; color:#1d4ed8;">
+                    <?= number_format($sq['search_count']) ?>
+                  </span>
+                </td>
+                <td style="padding:10px 12px; text-align:center;">
+                  <span style="color:<?= $sq['results_count'] > 0 ? '#15803d' : '#b91c1c' ?>; font-weight:700;">
+                    <?= $sq['results_count'] > 0 ? "{$sq['results_count']} รายการ" : "0 รายการ" ?>
+                  </span>
+                </td>
+                <td style="padding:10px 12px; font-size:12px; color:#475569;">
+                  <?= $sq['source'] === 'external' ? '🌐 Google/ภายนอก' : '🔍 ในเว็บ' ?>
+                </td>
+                <td style="padding:10px 12px; font-size:11.5px; color:#64748b;">
+                  <?= e(date('d/m/Y H:i', strtotime($sq['last_searched_at']))) ?>
+                </td>
+                <td style="padding:10px 12px; text-align:right;">
+                  <div style="display:inline-flex; gap:6px; align-items:center;">
+                    <a href="../search.php?q=<?= urlencode($sq['query']) ?>" target="_blank" rel="noopener" class="mini" style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155;">⌕ ผลค้นหา</a>
+                    <?php if ($canManageMarketing): ?>
+                      <?php if (!empty($sq['is_promoted_seo'])): ?>
+                        <span class="mini" style="background:#dcfce7; color:#15803d; border:1px solid #86efac;">✓ บรรจุเป็น SEO แล้ว</span>
+                      <?php else: ?>
+                        <form method="post" style="display:inline; margin:0;">
+                          <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                          <input type="hidden" name="action" value="promote_search_query">
+                          <input type="hidden" name="query_id" value="<?= (int)$sq['id'] ?>">
+                          <button type="submit" class="mini live" style="background:#fef3c7; color:#92400e; border:1px solid #fcd34d;" title="เพิ่มคำนี้เข้าเป็นคีย์เวิร์ด SEO ของเว็บทันที">
+                            ⚡ ทำเป็น SEO
+                          </button>
+                        </form>
+                      <?php endif; ?>
+                      <form method="post" onsubmit="return confirm('ลบคำค้นหานี้?');" style="display:inline; margin:0;">
+                        <input type="hidden" name="csrf" value="<?= e($token) ?>">
+                        <input type="hidden" name="action" value="delete_search_query">
+                        <input type="hidden" name="query_id" value="<?= (int)$sq['id'] ?>">
+                        <button type="submit" class="mini del" title="ลบคำค้นหา">✕</button>
+                      </form>
+                    <?php endif; ?>
+                  </div>
+                </td>
+              </tr>
+            <?php endforeach; ?>
+          </tbody>
+        </table>
       </div>
     <?php endif; ?>
   </section>

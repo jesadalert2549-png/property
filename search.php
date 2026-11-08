@@ -41,6 +41,17 @@ $st = db()->prepare(
 );
 $st->execute($params);
 $items = $st->fetchAll();
+
+// ── บันทึกคำค้นหาลงระบบวิเคราะห์ SEO เมื่อมีการค้นหาจริง ──
+if ($q !== '' && empty($_GET['no_log'])) {
+    require_once __DIR__ . '/includes/seo_provinces.php';
+    $searchSource = 'internal';
+    $ref = $_SERVER['HTTP_REFERER'] ?? '';
+    if (preg_match('/google\.|bing\.|yahoo\.|duckduckgo\./i', $ref)) {
+        $searchSource = 'external';
+    }
+    record_search_query($q, count($items), $category, $type, $searchSource);
+}
 ?>
 <!DOCTYPE html>
 <html lang="<?= e(html_lang_attr()) ?>">

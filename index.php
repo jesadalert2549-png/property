@@ -158,7 +158,20 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <?php seo_head(SITE_NAME . (is_en() ? ' | Property Listings for Sale & Rent' : ' | ประกาศขาย-เช่าอสังหาริมทรัพย์'), is_en() ? 'List houses, condos, townhouses, land and commercial property for sale or rent across Thailand. Free listings, contact owners directly.' : 'ประกาศขายและให้เช่าบ้าน คอนโด ทาวน์เฮ้าส์ ที่ดิน และอสังหาริมทรัพย์ ลงประกาศฟรี ติดต่อเจ้าของได้โดยตรง', site_url() . '/'); ?>
+  <?php 
+    $homeTitle = is_en()
+        ? 'Buy & Rent Houses, Condos, Land & Properties in Thailand | ' . SITE_NAME
+        : 'ซื้อขายบ้าน บ้านเดี่ยว คอนโด ที่ดิน ทาวน์เฮ้าส์ อาคารพาณิชย์ | ' . SITE_NAME;
+    $homeDesc = is_en()
+        ? 'Find verified houses, condos, townhouses and land for sale or rent across Thailand. Compare prices, view locations, post free listings, or contact owners directly.'
+        : 'ศูนย์รวมประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ครบวงจร ทั้งบ้าน คอนโด ทาวน์โฮม ที่ดิน และอาคารพาณิชย์ ทั่วไทย ดูรูป ราคา และทำเล ติดต่อผู้ขายได้ทันที';
+    seo_head($homeTitle, $homeDesc, site_url() . '/');
+    require_once __DIR__ . '/includes/seo_provinces.php';
+    json_ld(generate_website_schema());
+    json_ld(generate_national_agency_schema());
+    json_ld(generate_site_navigation_schema());
+    json_ld(generate_homepage_ai_faq_schema());
+  ?>
   <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <?php lang_toggle_head(); ?>
   <style>
@@ -1278,6 +1291,38 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     window.location.href = url;
   }
 </script>
+
+<!-- AI Overviews & Knowledge FAQ Section สไตล์ DDproperty เพื่อให้ Google และ AI ดึงข้อมูลไปตอบ -->
+<?php $homeAiFaq = generate_homepage_ai_faq_schema(); ?>
+<section class="container" style="max-width:1200px; margin:40px auto 20px; padding:0 16px;">
+  <div style="background:#fff; border:1px solid #e2e8f0; border-radius:24px; padding:28px 32px; box-shadow:0 8px 24px rgba(11,28,51,0.04);">
+    <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
+      <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,0.14); color:#8C6B32; font-size:20px;">💡</span>
+      <div>
+        <h2 style="font-size:clamp(18px, 2.5vw, 22px); font-weight:800; color:#0B1C33; margin:0 0 2px;">
+          <?= e(t('คำถามที่พบบ่อยเกี่ยวกับการซื้อ ขาย และเช่าอสังหาริมทรัพย์', 'Frequently Asked Questions & Real Estate Insights')) ?>
+        </h2>
+        <p style="font-size:12.5px; color:#64748B; margin:0;">
+          <?= e(t('ข้อมูลสรุปและคู่มือเบื้องต้นสำหรับผู้ซื้อ ผู้เช่า และผู้ลงประกาศบน ' . SITE_NAME, 'Comprehensive property guides and market insights powered by ' . SITE_NAME)) ?>
+        </p>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <?php foreach ($homeAiFaq['mainEntity'] as $faqItem): ?>
+        <details class="dd-home-faq" style="border:1px solid #e2e8f0; border-radius:14px; background:#fafbfc; padding:14px 18px; transition:background 0.2s;">
+          <summary style="font-size:14px; font-weight:700; color:#0B1C33; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <span><?= e($faqItem['name']) ?></span>
+            <span style="color:#C5A059; font-size:12px;">▼</span>
+          </summary>
+          <p style="margin:10px 0 0; font-size:13px; color:#475569; line-height:1.65; border-top:1px solid #edf2f7; padding-top:10px;">
+            <?= e($faqItem['acceptedAnswer']['text']) ?>
+          </p>
+        </details>
+      <?php endforeach; ?>
+    </div>
+  </div>
+</section>
 
 <!-- ส่วนติดต่อ -->
 

@@ -89,6 +89,9 @@ json_ld([
         ['@type' => 'ListItem', 'position' => 3, 'name' => $p['title'], 'item' => $canonical],
     ],
 ]);
+require_once __DIR__ . '/includes/seo_provinces.php';
+$propertyAiFaq = generate_property_ai_faq_schema($p, $files);
+json_ld($propertyAiFaq);
 ?>
 <!DOCTYPE html>
 <html lang="<?= e(html_lang_attr()) ?>">
@@ -520,6 +523,28 @@ json_ld([
           </div>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- AI Overviews & Knowledge FAQ ประจำทรัพย์ -->
+  <section class="mt-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
+    <div class="flex items-center gap-3">
+      <span class="grid h-10 w-10 place-items-center rounded-full bg-accentSoft text-lg text-accent">💡</span>
+      <div>
+        <h3 class="text-xl font-extrabold text-ink"><?= e(t('คำถามและข้อควรรู้เกี่ยวกับประกาศนี้ (AI Knowledge FAQ)', 'Property FAQs & Buying Insights')) ?></h3>
+        <p class="text-xs text-slate-500"><?= e(t('สรุปสาระสำคัญ การประเมินค่างวด และขั้นตอนติดต่อเพื่อความสะดวกของผู้ซื้อ/ผู้เช่า', 'Key insights, loan estimates, and direct inquiry steps')) ?></p>
+      </div>
+    </div>
+    <div class="mt-6 space-y-4">
+      <?php foreach ($propertyAiFaq['mainEntity'] as $faqItem): ?>
+        <details class="group rounded-2xl border border-slate-200 bg-slate-50/60 p-4 transition open:bg-white open:shadow-sm">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-bold text-ink">
+            <span><?= e($faqItem['name']) ?></span>
+            <span class="text-xs text-accent transition group-open:rotate-180">▼</span>
+          </summary>
+          <p class="mt-3 text-sm leading-relaxed text-slate-600"><?= e($faqItem['acceptedAnswer']['text']) ?></p>
+        </details>
+      <?php endforeach; ?>
     </div>
   </section>
 

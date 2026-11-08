@@ -72,6 +72,17 @@ if ($event === 'page') {
         echo json_encode(['ok' => true, 'skipped' => 'unsupported_page']);
         exit;
     }
+
+    // ── ตรวจจับคำค้นหาจาก Google / เครื่องมือค้นหาภายนอก หรือพารามิเตอร์ q ──
+    try {
+        parse_str((string)(parse_url($requestPath, PHP_URL_QUERY) ?? ''), $urlParams);
+        $externalQuery = trim((string)($urlParams['q'] ?? $urlParams['keyword'] ?? $urlParams['search'] ?? ''));
+        if ($externalQuery !== '') {
+            require_once __DIR__ . '/../includes/seo_provinces.php';
+            $src = preg_match('/google\.|bing\.|yahoo\.|duckduckgo\./i', $referrer) ? 'external' : 'internal';
+            record_search_query($externalQuery, 0, (string)($urlParams['category'] ?? ''), (string)($urlParams['type'] ?? ''), $src);
+        }
+    } catch (Throwable $e) {}
 }
 
 db()->prepare(

@@ -45,6 +45,7 @@ $catalog = [
         'title' => t('เนื้อหา & ภาพ', 'Content'),
         'icon'  => '🖼️',
         'items' => [
+            ['favicon.php', '🎨', t('โลโก้ & Favicon (SEO)', 'Favicon & Brand Icon'), t('จัดการไอคอนที่แสดงบน Google Search', 'Google SERP icon & tab favicon')],
             ['category-images.php', '▧', t('ภาพหมวดหมู่อสังหาฯ', 'Category Covers'), t('ปรับเปลี่ยนภาพปกหมวดต่างๆ', 'Custom category cover images')],
         ],
     ],
@@ -57,9 +58,10 @@ $catalog = [
         ],
     ],
     'founder_only' => [
-        'title' => t('หุ้นส่วน & สิทธิ์', 'Partners'),
+        'title' => t('หุ้นส่วน & เอกสิทธิ์', 'Founder Suite'),
         'icon'  => '👑',
         'items' => [
+            ['features.php', '🗺️', t('แผนที่ฟีเจอร์ทั้งหมด', 'Feature Map'), t('ตรวจสอบฟีเจอร์และนวัตกรรมทั้งหมดของระบบ', 'All active system features & audit')],
             ['partners.php', '👑', t('จัดการหุ้นส่วน & สิทธิ์', 'Partners & Access'), t('กำหนดสิทธิ์รายบุคคลตามตำแหน่ง', 'Role-based access control')],
         ],
     ],

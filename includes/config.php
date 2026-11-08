@@ -2,10 +2,15 @@
 // ===== ตั้งค่าหลักของเว็บ =====
 date_default_timezone_set('Asia/Bangkok');
 
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'property_test');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+// โหลดไฟล์ตั้งค่าเฉพาะเครื่อง (ถ้ามี จะดึงค่า DB_HOST, DB_NAME, DB_USER, DB_PASS จากไฟล์นี้ก่อนเสมอ)
+if (is_file(__DIR__ . '/config.local.php')) {
+    require_once __DIR__ . '/config.local.php';
+}
+
+if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
+if (!defined('DB_NAME')) define('DB_NAME', 'property_test');
+if (!defined('DB_USER')) define('DB_USER', 'root');
+if (!defined('DB_PASS')) define('DB_PASS', '');
 
 define('SITE_NAME', 'PropertyGO');
 define('SITE_VERSION_FILE', dirname(__DIR__) . '/version.json');   // จัดการเวอร์ชันจากหลังบ้าน
@@ -30,6 +35,12 @@ define('SITE_URL', 'https://standardproperty.cloud');
 
 // เปลี่ยนช่องทางติดต่อเป็น Email
 define('CONTACT_EMAIL', 'Stadardproperty@gmail.com');
+
+// ช่องทางโซเชียลมีเดียของเว็บไซต์ (สำหรับแสดงผลบน Google และ Schema sameAs)
+const SOCIAL_LINKS = [
+    'facebook' => 'https://www.facebook.com/standardproperty',
+    'line'     => 'https://line.me/ti/p/@standardproperty',
+];
 
 // ===== ตั้งค่ารูปภาพ =====
 define('UPLOAD_DIR', dirname(__DIR__) . '/uploads/');

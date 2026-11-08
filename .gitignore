@@ -1,6 +1,6 @@
 .andromity/
 oauth_config.json
-#includes/config.php
+includes/config.local.php
 uploads/*
 !uploads/.htaccess
 !uploads/**/.htaccess

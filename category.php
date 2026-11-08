@@ -33,7 +33,7 @@ if ($cfg) {
     $target_category = $intent['category'];
     $target_type = $intent['type'];
     $target_q = $intent['search_q'];
-    $target_max_price = 0;
+    $target_max_price = (int)($intent['max_price'] ?? 0);
 }
 
 // ดึงรายการประกาศจากฐานข้อมูลตาม Category และ Type (ถ้ากำหนด)

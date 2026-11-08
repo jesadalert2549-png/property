@@ -311,24 +311,62 @@ function resolve_seo_intent(string $slug, array $get = []): array
         $provinceMeta = THAI_PROVINCES[$matchedProvince] ?? null;
     }
 
-    // 3) ตรวจจับ Intent เสริม เช่น รถไฟฟ้า, เลี้ยงสัตว์, วิวแม่น้ำ, งบประมาณ
+    // 3) ตรวจจับ Intent เสริม เช่น รถไฟฟ้า, เลี้ยงสัตว์, วิวแม่น้ำ, ติดทะเล, พูลวิลล่า และตรวจจับราคา/งบประมาณแบบ Dynamic
     $extraFeature = null;
+    $maxPrice = null;
+    $minPrice = null;
+
+    // ตรวจจับตัวเลขงบประมาณ เช่น "ไม่เกิน 5 ล้าน", "ไม่เกิน 3 ล้าน", "ไม่เกิน 15000", "ไม่เกิน 10,000", "งบ 2 ล้าน"
+    if (preg_match('/(?:ราคา)?ไม่เกิน\s*([\d,]+(?:\.\d+)?)\s*(ล้าน|หมื่น|พัน|บาท)?/u', $searchTarget, $mPrice) ||
+        preg_match('/งบ(?:ประมาณ)?\s*([\d,]+(?:\.\d+)?)\s*(ล้าน|หมื่น|พัน|บาท)?/u', $searchTarget, $mPrice)) {
+        $numVal = (float)str_replace(',', '', $mPrice[1]);
+        $unit = $mPrice[2] ?? '';
+        if ($unit === 'ล้าน') {
+            $maxPrice = (int)($numVal * 1000000);
+            $extraFeature = "ราคาไม่เกิน " . (fmod($numVal, 1) == 0 ? (int)$numVal : $numVal) . " ล้านบาท";
+        } elseif ($unit === 'หมื่น') {
+            $maxPrice = (int)($numVal * 10000);
+            $extraFeature = "ราคาไม่เกิน " . number_format($maxPrice) . " บาท";
+        } elseif ($unit === 'พัน') {
+            $maxPrice = (int)($numVal * 1000);
+            $extraFeature = "ราคาไม่เกิน " . number_format($maxPrice) . " บาท";
+        } else {
+            // ไม่ระบุหน่วย: ถ้า < 100 ให้ถือเป็นหน่วยล้าน (เช่น "ไม่เกิน 3" หรือ "ไม่เกิน 5")
+            if ($numVal <= 100) {
+                $maxPrice = (int)($numVal * 1000000);
+                $extraFeature = "ราคาไม่เกิน " . (fmod($numVal, 1) == 0 ? (int)$numVal : $numVal) . " ล้านบาท";
+            } else {
+                $maxPrice = (int)$numVal;
+                $extraFeature = "ราคาไม่เกิน " . number_format($maxPrice) . " บาท";
+            }
+        }
+    } elseif (mb_stripos($searchTarget, 'ราคาถูก') !== false || mb_stripos($searchTarget, 'งบประหยัด') !== false) {
+        $extraFeature = 'ราคาถูก งบประหยัด';
+    }
+
+    // ตรวจจับลักษณะเด่น (Lifestyle Features)
+    $lifestyleFeatures = [];
     if (mb_stripos($searchTarget, 'bts') !== false || mb_stripos($searchTarget, 'mrt') !== false || mb_stripos($searchTarget, 'รถไฟฟ้า') !== false) {
-        $extraFeature = 'ใกล้รถไฟฟ้า BTS/MRT';
-    } elseif (mb_stripos($searchTarget, 'เลี้ยงสัตว์') !== false || mb_stripos($searchTarget, 'pet friendly') !== false) {
-        $extraFeature = 'เลี้ยงสัตว์ได้ (Pet-Friendly)';
-    } elseif (mb_stripos($searchTarget, 'วิวแม่น้ำ') !== false || mb_stripos($searchTarget, 'ติดแม่น้ำ') !== false) {
-        $extraFeature = 'วิวแม่น้ำเจ้าพระยา';
-    } elseif (mb_stripos($searchTarget, 'ติดทะเล') !== false || mb_stripos($searchTarget, 'วิวทะเล') !== false) {
-        $extraFeature = 'ติดทะเล วิวทะเลสวย';
-    } elseif (mb_stripos($searchTarget, 'พูลวิลล่า') !== false) {
-        $extraFeature = 'สระว่ายน้ำส่วนตัว (Pool Villa)';
-    } elseif (mb_stripos($searchTarget, 'ราคาไม่เกิน 1 ล้าน') !== false || mb_stripos($searchTarget, 'ไม่เกิน 1 ล้าน') !== false) {
-        $extraFeature = 'ราคาไม่เกิน 1 ล้านบาท';
-    } elseif (mb_stripos($searchTarget, 'ราคาไม่เกิน 2 ล้าน') !== false || mb_stripos($searchTarget, 'ไม่เกิน 2 ล้าน') !== false) {
-        $extraFeature = 'ราคาไม่เกิน 2 ล้านบาท';
-    } elseif (mb_stripos($searchTarget, 'ราคาไม่เกิน 3 ล้าน') !== false || mb_stripos($searchTarget, 'ไม่เกิน 3 ล้าน') !== false) {
-        $extraFeature = 'ราคาไม่เกิน 3 ล้านบาท';
+        $lifestyleFeatures[] = 'ใกล้รถไฟฟ้า BTS/MRT';
+    }
+    if (mb_stripos($searchTarget, 'เลี้ยงสัตว์') !== false || mb_stripos($searchTarget, 'pet friendly') !== false) {
+        $lifestyleFeatures[] = 'เลี้ยงสัตว์ได้ (Pet-Friendly)';
+    }
+    if (mb_stripos($searchTarget, 'วิวแม่น้ำ') !== false || mb_stripos($searchTarget, 'ติดแม่น้ำ') !== false) {
+        $lifestyleFeatures[] = 'วิวแม่น้ำเจ้าพระยา';
+    }
+    if (mb_stripos($searchTarget, 'ติดทะเล') !== false || mb_stripos($searchTarget, 'วิวทะเล') !== false) {
+        $lifestyleFeatures[] = 'ติดทะเล วิวทะเลสวย';
+    }
+    if (mb_stripos($searchTarget, 'พูลวิลล่า') !== false) {
+        $lifestyleFeatures[] = 'สระว่ายน้ำส่วนตัว (Pool Villa)';
+    }
+    if (mb_stripos($searchTarget, 'พร้อมอยู่') !== false) {
+        $lifestyleFeatures[] = 'แต่งครบพร้อมอยู่';
+    }
+
+    if (!empty($lifestyleFeatures)) {
+        $extraFeature = $extraFeature ? $extraFeature . ' ' . implode(' ', $lifestyleFeatures) : implode(' ', $lifestyleFeatures);
     }
 
     // 4) ตรวจจับประเภทธุรกรรม (ขาย vs เช่า)
@@ -412,6 +450,7 @@ function resolve_seo_intent(string $slug, array $get = []): array
         'cbd_key'         => $matchedCbdKey,
         'cbd_info'        => $cbdInfo,
         'extra_feature'   => $extraFeature,
+        'max_price'       => $maxPrice,
         'category'        => $category,
         'category_label'  => $catLabel,
         'type'            => $type,
@@ -521,6 +560,150 @@ function generate_geo_faq_schema(array $intent): array
     ];
 }
 
+// ── สร้าง AI Overviews Knowledge FAQ สำหรับหน้าแรก (ครอบคลุมคำถามยอดฮิตที่คนถาม AI) ──
+function generate_homepage_ai_faq_schema(): array
+{
+    $siteName = SITE_NAME;
+    $url = site_url();
+
+    if (is_en()) {
+        return [
+            '@context'   => 'https://schema.org',
+            '@type'      => 'FAQPage',
+            'mainEntity' => [
+                [
+                    '@type' => 'Question',
+                    'name'  => "Where can I find verified property listings for sale and rent in Thailand?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => "On {$siteName} ({$url}), you can discover thousands of verified houses, condominiums, townhouses, land plots, and commercial properties across all 77 Thai provinces and prime Bangkok CBD transit hubs directly from direct owners and verified real estate agents with zero hidden commissions."
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name'  => "What are the most popular areas to buy or rent condos in Bangkok?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => "Top residential and investment zones include Sukhumvit (Thong Lo, Ekkamai, Phrom Phong), Sathorn-Silom, Rama 9-Ratchada, and Ari-Phayathai along the BTS and MRT lines, offering strong rental yields between 4.5% to 6.2% annually."
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name'  => "How much is the typical monthly mortgage installment for a home in Thailand?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => "As a rule of thumb, monthly home loan installments in Thailand average approximately 6,000 to 7,000 THB per 1 million THB borrowed over a 30-year term at standard bank interest rates. You can use the free real-time mortgage calculator on {$siteName} to compute exact payments based on loan tenure and down payments."
+                    ]
+                ],
+                [
+                    '@type' => 'Question',
+                    'name'  => "Can owners and agents list properties for free on {$siteName}?",
+                    'acceptedAnswer' => [
+                        '@type' => 'Answer',
+                        'text'  => "Yes, {$siteName} allows property owners and certified agents to publish unlimited free listings with high-resolution photo galleries, interactive GPS map pins, and direct LINE/phone contact with buyers and tenants."
+                    ]
+                ],
+            ]
+        ];
+    }
+
+    return [
+        '@context'   => 'https://schema.org',
+        '@type'      => 'FAQPage',
+        'mainEntity' => [
+            [
+                '@type' => 'Question',
+                'name'  => "ค้นหาซื้อบ้าน คอนโด หรือที่ดินทั่วไทยเริ่มต้นอย่างไร ให้ได้ราคาตรงจากเจ้าของ?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text'  => "สามารถค้นหาและเปรียบเทียบประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ได้บนเว็บไซต์ {$siteName} ({$url}) ซึ่งรวบรวมบ้านเดี่ยว คอนโดมิเนียม ทาวน์โฮม ที่ดินเปล่า และอาคารพาณิชย์ครอบคลุม 77 จังหวัดทั่วไทย และย่าน Prime CBD แนวรถไฟฟ้า มีข้อมูลราคาจริง ภาพถ่าย ทำเลที่ตั้ง และช่องทางติดต่อเจ้าของทรัพย์หรือตัวแทนรับรองโดยตรงโดยไม่มีค่านายหน้าแอบแฝง"
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name'  => "ทำเลทองยอดนิยมในการซื้อคอนโดและบ้านในกรุงเทพฯ และต่างจังหวัดมีที่ไหนบ้าง?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text'  => "ในกรุงเทพฯ ทำเลยอดนิยมสูงสุดคือแนวรถไฟฟ้า BTS/MRT ย่านสุขุมวิท (ทองหล่อ, เอกมัย, พร้อมพงษ์), สาทร-สีลม, พระราม 9-รัชดาภิเษก, และอารีย์ ส่วนต่างจังหวัดยอดนิยมได้แก่ เมืองเชียงใหม่, ชลบุรี-พัทยา, ภูเก็ต และหัวหิน ซึ่งเหมาะทั้งการอยู่อาศัยและการลงทุนรับผลตอบแทนค่าเช่า (Rental Yield) เฉลี่ย 4.5% - 6.5% ต่อปี"
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name'  => "กู้ซื้อบ้านหรือคอนโด ราคาล้านละเท่าไหร่ และต้องผ่อนเดือนละกี่บาท?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text'  => "โดยทั่วไปค่างวดผ่อนบ้านและคอนโดของธนาคารในไทยจะอยู่ที่ประมาณ 6,000 - 7,000 บาทต่องวดเงินกู้ 1 ล้านบาท (ระยะเวลาผ่อน 30 ปี อัตราดอกเบี้ยเฉลี่ย 4-6%) บนหน้าแรกของ {$siteName} มีระบบ Interactive Property Suite ให้คุณคำนวณค่างวดผ่อนจริงตามงบประมาณและสัดส่วนเงินดาวน์ได้ทันที"
+                ]
+            ],
+            [
+                '@type' => 'Question',
+                'name'  => "ลงประกาศขายหรือให้เช่าบ้านและคอนโดบน {$siteName} มีค่าใช้จ่ายหรือไม่?",
+                'acceptedAnswer' => [
+                    '@type' => 'Answer',
+                    'text'  => "เจ้าของบ้านและตัวแทนอสังหาริมทรัพย์สามารถสมัครสมาชิกและลงประกาศฟรีได้ทันที ไม่มีค่าธรรมเนียมแรกเข้า รองรับการอัปโหลดรูปภาพความละเอียดสูงสูงสุด 10 รูป ปักหมุดแผนที่พิกัดจริง และเชื่อมต่อปุ่มติดต่อทางโทรศัพท์และ LINE ID สะดวกปลอดภัย"
+                ]
+            ],
+        ]
+    ];
+}
+
+// ── สร้าง AI Overview Detail FAQ สำหรับหน้าทรัพย์แต่ละรายการ (property.php) ──
+function generate_property_ai_faq_schema(array $property, array $photos = []): array
+{
+    $title = $property['title'] ?? 'อสังหาริมทรัพย์';
+    $priceNum = (int)($property['price'] ?? 0);
+    $type = ($property['type'] ?? 'sale') === 'rent' ? 'เช่า' : 'ขาย';
+    $priceStr = $type === 'เช่า' ? number_format($priceNum) . ' บาท/เดือน' : number_format($priceNum) . ' บาท';
+    $location = $property['location'] ?? 'ทำเลดี เดินทางสะดวก';
+    $catLabel = category_label($property['property_category'] ?? 'other');
+    $siteName = SITE_NAME;
+    $contact = $property['contact_name'] ?? 'ผู้ลงประกาศ';
+
+    // คำนวณค่างวดผ่อนคร่าวๆ (ถ้าเป็นประเภทขาย)
+    $loanEstimate = '';
+    if ($type === 'ขาย' && $priceNum > 0) {
+        $approxMonthly = round(($priceNum * 0.9) * 0.0065); // กู้ 90% ผ่อนล้านละ ~6,500
+        $loanEstimate = " สำหรับผู้ที่ต้องการขอสินเชื่อธนาคาร ยอดผ่อนชำระเบื้องต้นประมาณเดือนละ " . number_format($approxMonthly) . " บาท (คำนวณที่ระยะเวลา 30 ปี เงินดาวน์ 10%)";
+    }
+
+    $faqs = [
+        [
+            '@type' => 'Question',
+            'name'  => "ประกาศ{$title} มีราคาเท่าไหร่ และตั้งอยู่ที่ทำเลไหน?",
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text'  => "ประกาศ{$title} ({$catLabel}) มีราคา{$type}อยู่ที่ {$priceStr} ตั้งอยู่บริเวณ {$location} บนเว็บไซต์ {$siteName}{$loanEstimate}"
+            ]
+        ],
+        [
+            '@type' => 'Question',
+            'name'  => "สามารถติดต่อสอบถามข้อมูลหรือขอนัดชมสถานที่จริงของประกาศนี้ได้อย่างไร?",
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text'  => "สามารถติดต่อผู้ลงประกาศ (คุณ {$contact}) ได้โดยตรงผ่านปุ่มโทรศัพท์หรือปุ่ม LINE ที่ปรากฏในหน้ารายละเอียดทรัพย์บน {$siteName} เพื่อสอบถามสถานะล่าสุด ขอดูโฉนด หรือนัดหมายวันเข้าชมสถานที่จริง"
+            ]
+        ],
+        [
+            '@type' => 'Question',
+            'name'  => "จุดเด่นและรายละเอียดพื้นที่ใช้สอยของทรัพย์นี้มีอะไรบ้าง?",
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text'  => "ทรัพย์นี้เป็นประเภท{$catLabel} ตั้งอยู่ในทำเล {$location} " .
+                    (!empty($property['bedrooms']) ? "มี {$property['bedrooms']} ห้องนอน " : "") .
+                    (!empty($property['bathrooms']) ? "{$property['bathrooms']} ห้องน้ำ " : "") .
+                    (!empty($property['area_sqm']) ? "ขนาดพื้นที่ใช้สอย {$property['area_sqm']} ตร.ม. " : "") .
+                    "ผู้สนใจสามารถเลื่อนดูภาพถ่ายจริงทุกมุม แผนที่ปักหมุด GPS และเครื่องมือคำนวณค่างวดได้ในหน้านี้ทันที"
+            ]
+        ]
+    ];
+
+    return [
+        '@context'   => 'https://schema.org',
+        '@type'      => 'FAQPage',
+        'mainEntity' => $faqs
+    ];
+}
+
 // ── สร้าง ItemList Schema สำหรับ Google Rich Results Carousel ──
 function generate_item_list_schema(array $items, string $title, string $canonical): array
 {
@@ -556,15 +739,100 @@ function generate_national_agency_schema(): array
         $served[] = ['@type' => 'Place', 'name' => $zone['name_th']];
     }
 
-    return [
+    $sameAs = [];
+    if (defined('SOCIAL_LINKS') && is_array(SOCIAL_LINKS)) {
+        foreach (SOCIAL_LINKS as $link) {
+            if (!empty($link)) $sameAs[] = $link;
+        }
+    }
+
+    $data = [
         '@context' => 'https://schema.org',
         '@type'    => 'RealEstateAgent',
         'name'     => SITE_NAME,
         'url'      => site_url(),
         'logo'     => page_url('images/kasa_logo.png'),
         'image'    => page_url('images/kasa_logo.png'),
-        'description' => 'แพลตฟอร์มค้นหาและลงประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ชั้นนำ ครอบคลุม 77 จังหวัดทั่วไทย และย่าน CBD ทำเลรถไฟฟ้าชั้นนำ',
+        'description' => 'แพลตฟอร์มค้นหาและลงประกาศซื้อ ขาย เช่า อสังหาริมทรัพย์ชั้นนำ ซื้อขายบ้าน คอนโด ที่ดิน ทั่วไทย',
         'areaServed' => $served,
+    ];
+    if (!empty($sameAs)) {
+        $data['sameAs'] = $sameAs;
+    }
+
+    return $data;
+}
+
+// ── สร้าง WebSite Schema พร้อม Sitelinks Searchbox เพื่อแสดงผลค้นหาแบบ DDproperty ──
+function generate_website_schema(): array
+{
+    return [
+        '@context' => 'https://schema.org',
+        '@type'    => 'WebSite',
+        'name'     => SITE_NAME,
+        'alternateName' => ['Standard Property', 'PropertyGO ประเทศไทย', 'เว็บซื้อขายบ้านและอสังหาฯ'],
+        'url'      => site_url() . '/',
+        'potentialAction' => [
+            '@type'       => 'SearchAction',
+            'target'      => [
+                '@type'       => 'EntryPoint',
+                'urlTemplate' => site_url() . '/search.php?q={search_term_string}',
+            ],
+            'query-input' => 'required name=search_term_string',
+        ],
+    ];
+}
+
+// ── สร้าง SiteNavigationElement สำหรับ Google Sitelinks ลิงก์ด่วนหน้าหลัก ──
+function generate_site_navigation_schema(): array
+{
+    return [
+        '@context' => 'https://schema.org',
+        '@type'    => 'ItemList',
+        'itemListElement' => [
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 1,
+                'name'     => 'ซื้อบ้านและคอนโด',
+                'description' => 'ค้นหาประกาศขายบ้านเดี่ยว คอนโด และอสังหาริมทรัพย์ทั่วไทย',
+                'url'      => site_url() . '/search.php?type=sale'
+            ],
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 2,
+                'name'     => 'เช่าบ้านและคอนโด',
+                'description' => 'ค้นหาประกาศให้เช่าบ้านและคอนโดราคาคุ้มค่า',
+                'url'      => site_url() . '/search.php?type=rent'
+            ],
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 3,
+                'name'     => 'ขายคอนโด',
+                'description' => 'รวมประกาศขายคอนโดมิเนียมมือหนึ่งมือสอง ใกล้รถไฟฟ้า',
+                'url'      => page_url('category.php?page=' . rawurlencode('ขายคอนโด'))
+            ],
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 4,
+                'name'     => 'ขายบ้านเดี่ยว',
+                'description' => 'รวมประกาศขายบ้านเดี่ยว บ้านมือสอง พร้อมอยู่ ทำเลเด่น',
+                'url'      => page_url('category.php?page=' . rawurlencode('ขายบ้าน'))
+            ],
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 5,
+                'name'     => 'โครงการใหม่',
+                'description' => 'รวมโครงการบ้านและคอนโดเปิดใหม่ น่าลงทุน',
+                'url'      => page_url('project.php')
+            ],
+            [
+                '@type'    => 'SiteNavigationElement',
+                'position' => 6,
+                'name'     => 'ลงประกาศฟรี',
+                'description' => 'ลงประกาศขาย ให้เช่า อสังหาริมทรัพย์ฟรี ไม่จำกัดเวลา',
+                'url'      => page_url('submit.php')
+            ],
+        ]
     ];
 }
 
@@ -603,8 +871,57 @@ function ensure_seo_tables(?PDO $pdo = null): void
                 KEY idx_area_prov (province)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         );
+        $pdo->exec(
+            "CREATE TABLE IF NOT EXISTS search_queries (
+                id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                query VARCHAR(255) NOT NULL,
+                category VARCHAR(50) NOT NULL DEFAULT '',
+                type VARCHAR(20) NOT NULL DEFAULT '',
+                results_count INT UNSIGNED NOT NULL DEFAULT 0,
+                search_count INT UNSIGNED NOT NULL DEFAULT 1,
+                source ENUM('internal', 'external', 'ai_assistant') NOT NULL DEFAULT 'internal',
+                referrer VARCHAR(255) NOT NULL DEFAULT '',
+                is_promoted_seo TINYINT(1) NOT NULL DEFAULT 0,
+                first_searched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                last_searched_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                UNIQUE KEY idx_query_exact (query),
+                KEY idx_counts (search_count),
+                KEY idx_promoted (is_promoted_seo),
+                KEY idx_last (last_searched_at)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
         $done = true;
     } catch (Throwable $e) {
         // Silently continue if database is not reachable yet
+    }
+}
+
+// ── ฟังก์ชันบันทึกและนับคำค้นหาใหม่แบบเรียลไทม์ ──
+function record_search_query(string $query, int $resultsCount = 0, string $category = '', string $type = '', string $source = 'internal'): void
+{
+    $cleanQuery = trim($query);
+    if (mb_strlen($cleanQuery) < 2) return;
+
+    // ทำความสะอาดและป้องกันคำขยะ
+    $cleanQuery = mb_substr($cleanQuery, 0, 120);
+
+    try {
+        $pdo = db();
+        ensure_seo_tables($pdo);
+
+        $ref = substr(parse_url($_SERVER['HTTP_REFERER'] ?? '', PHP_URL_HOST) ?: '', 0, 255);
+
+        $stmt = $pdo->prepare(
+            "INSERT INTO search_queries (query, category, type, results_count, search_count, source, referrer, first_searched_at, last_searched_at)
+             VALUES (?, ?, ?, ?, 1, ?, ?, NOW(), NOW())
+             ON DUPLICATE KEY UPDATE
+                search_count = search_count + 1,
+                results_count = VALUES(results_count),
+                last_searched_at = NOW(),
+                referrer = IF(VALUES(referrer) != '', VALUES(referrer), referrer)"
+        );
+        $stmt->execute([$cleanQuery, $category, $type, $resultsCount, $source, $ref]);
+    } catch (Throwable $e) {
+        // เงียบไว้เพื่อไม่กระทบการทำงานของผู้ใช้
     }
 }

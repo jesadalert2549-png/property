@@ -23,11 +23,13 @@ function category_url(string $slug): string
 
 function seo_head(string $title, string $description, string $canonical, bool $index = true, string $image = ''): void
 {
-    $robots = $index ? 'index,follow' : 'noindex,follow';
+    // max-snippet:-1, max-image-preview:large, max-video-preview:-1 ช่วยให้ Google AI Overviews และ Perplexity ดึงเนื้อหาและภาพไปแสดงผลสรุปได้เต็มประสิทธิภาพ
+    $robots = $index ? 'index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1' : 'noindex,follow';
     $image = $image !== '' ? $image : page_url('images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg');
     echo '<title>' . e($title) . "</title>\n";
     echo '<meta name="description" content="' . e($description) . "\">\n";
     echo '<meta name="robots" content="' . $robots . "\">\n";
+    echo '<meta name="googlebot" content="' . $robots . "\">\n";
     echo '<link rel="canonical" href="' . e($canonical) . "\">\n";
     echo '<meta property="og:type" content="website">' . "\n";
     echo '<meta property="og:site_name" content="' . e(SITE_NAME) . "\">\n";

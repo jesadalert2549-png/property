@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
+require_once __DIR__ . '/includes/seo_provinces.php';
 current_lang();
 
 $listings = db()->query(
@@ -96,6 +97,67 @@ $pageDescription = is_en() ? 'Links to main pages, property categories and publi
       ?>
         <li><a href="<?= e(category_url($slug)) ?>"><?= e($seoTitle) ?></a></li>
       <?php endforeach; ?>
+    </ul>
+  </section>
+
+  <!-- หมวดหมู่เจาะจงทำเลทอง ย่าน CBD & แนวรถไฟฟ้า BTS/MRT สำหรับ Google & AI -->
+  <section class="sitemap-section">
+    <h2>🏢 <?= e(t('ค้นหาตามย่านเศรษฐกิจ Prime CBD & แนวรถไฟฟ้า BTS/MRT', 'Search by Prime CBD & Transit Zones (BTS/MRT)')) ?></h2>
+    <p class="muted" style="margin-top:4px; font-size:13px;"><?= e(t('เจาะลึกคอนโดและบ้านเดี่ยวในทำเลที่มีความต้องการซื้อ-เช่าสูงสุด', 'In-depth condo and house searches across prime urban transit hubs')) ?></p>
+    <ul class="sitemap-links">
+      <?php
+      if (defined('PRIME_CBD_ZONES')) {
+          foreach (PRIME_CBD_ZONES as $cbdKey => $cbd) {
+              $cbdName = $cbd['name_th'];
+              echo '<li><a href="category.php?page=' . urlencode('คอนโด' . $cbdName) . '">⚡ ' . e($cbdName) . ' - คอนโดขายและเช่า</a></li>';
+              echo '<li><a href="category.php?page=' . urlencode('คอนโดติดรถไฟฟ้า' . $cbdName) . '">🚇 คอนโดติดรถไฟฟ้า ' . e($cbdName) . '</a></li>';
+              echo '<li><a href="category.php?page=' . urlencode('บ้าน' . $cbdName) . '">🏠 บ้านเดี่ยวและทาวน์โฮม ' . e($cbdName) . '</a></li>';
+              foreach (array_slice($cbd['sub_districts'], 0, 2) as $subD) {
+                  echo '<li><a href="category.php?page=' . urlencode('คอนโด' . $subD) . '">📍 คอนโดย่าน ' . e($subD) . '</a></li>';
+              }
+          }
+      }
+      ?>
+    </ul>
+  </section>
+
+  <!-- หมวดหมู่ค้นหาเจาะจงตามงบประมาณยอดนิยม -->
+  <section class="sitemap-section">
+    <h2>💰 <?= e(t('ค้นหาตามช่วงงบประมาณยอดนิยม (Budget Search)', 'Search by Popular Budget Brackets')) ?></h2>
+    <p class="muted" style="margin-top:4px; font-size:13px;"><?= e(t('ดักคำค้นหายอดฮิตสำหรับผู้ซื้อที่ค้นหาตามงบประมาณผ่อนได้จริง', 'Targeted searches for buyers filtering by realistic purchasing budget')) ?></p>
+    <ul class="sitemap-links">
+      <li><a href="category.php?page=<?= urlencode('คอนโดราคาไม่เกิน1ล้าน') ?>">💵 คอนโดราคาไม่เกิน 1 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('คอนโดราคาไม่เกิน2ล้าน') ?>">💵 คอนโดราคาไม่เกิน 2 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('คอนโดราคาไม่เกิน3ล้าน') ?>">💵 คอนโดราคาไม่เกิน 3 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('คอนโดราคาไม่เกิน5ล้าน') ?>">💵 คอนโดราคาไม่เกิน 5 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('บ้านราคาไม่เกิน2ล้าน') ?>">🏡 บ้านเดี่ยวราคาไม่เกิน 2 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('บ้านราคาไม่เกิน3ล้าน') ?>">🏡 บ้านเดี่ยวราคาไม่เกิน 3 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('บ้านราคาไม่เกิน5ล้าน') ?>">🏡 บ้านเดี่ยวราคาไม่เกิน 5 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('บ้านราคาไม่เกิน10ล้าน') ?>">🏡 บ้านหรูราคาไม่เกิน 10 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('ทาวน์โฮมราคาไม่เกิน2ล้าน') ?>">🏘️ ทาวน์โฮมราคาไม่เกิน 2 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('ทาวน์โฮมราคาไม่เกิน3ล้าน') ?>">🏘️ ทาวน์โฮมราคาไม่เกิน 3 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('ที่ดินราคาถูกไม่เกิน1ล้าน') ?>">🌳 ที่ดินราคาถูก งบไม่เกิน 1 ล้านบาท</a></li>
+      <li><a href="category.php?page=<?= urlencode('คอนโดให้เช่าราคาไม่เกิน10000') ?>">🔑 คอนโดให้เช่า ค่าเช่าไม่เกิน 10,000 บาท/เดือน</a></li>
+      <li><a href="category.php?page=<?= urlencode('คอนโดให้เช่าราคาไม่เกิน15000') ?>">🔑 คอนโดให้เช่า ค่าเช่าไม่เกิน 15,000 บาท/เดือน</a></li>
+      <li><a href="category.php?page=<?= urlencode('บ้านให้เช่าราคาไม่เกิน20000') ?>">🔑 บ้านให้เช่า ค่าเช่าไม่เกิน 20,000 บาท/เดือน</a></li>
+    </ul>
+  </section>
+
+  <!-- หมวดหมู่เจาะจง 77 จังหวัดทั่วไทย -->
+  <section class="sitemap-section">
+    <h2>📍 <?= e(t('ค้นหาอสังหาริมทรัพย์เจาะจง 77 จังหวัดทั่วไทย', 'Properties across all 77 Thai Provinces')) ?></h2>
+    <p class="muted" style="margin-top:4px; font-size:13px;"><?= e(t('แผนผังครอบคลุมทุกภูมิภาค สำหรับ Googlebot และเครื่องมือค้นหาทั่วโลก', 'Complete nationwide provincial coverage for search engine crawlers')) ?></p>
+    <ul class="sitemap-links">
+      <?php
+      if (defined('THAI_PROVINCES')) {
+          foreach (THAI_PROVINCES as $pName => $pData) {
+              if ($pName === '') continue;
+              echo '<li><a href="category.php?page=' . urlencode('ขายบ้าน' . $pName) . '">🏠 บ้าน' . e($pName) . '</a></li>';
+              echo '<li><a href="category.php?page=' . urlencode('ขายคอนโด' . $pName) . '">🏢 คอนโด' . e($pName) . '</a></li>';
+              echo '<li><a href="category.php?page=' . urlencode('ขายที่ดิน' . $pName) . '">🌳 ที่ดิน' . e($pName) . '</a></li>';
+          }
+      }
+      ?>
     </ul>
   </section>
 

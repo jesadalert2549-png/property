@@ -6,7 +6,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // โหลดไฟล์ตั้งค่า (config.php)
-require_once __DIR__ . '/config.php';
+if (is_file(__DIR__ . '/includes/config.php')) {
+    require_once __DIR__ . '/includes/config.php';
+} elseif (is_file(__DIR__ . '/config.php')) {
+    require_once __DIR__ . '/config.php';
+}
 
 // ฟังก์ชันเชื่อมต่อฐานข้อมูล PDO
 function db() {

@@ -113,13 +113,16 @@ function site_controls_head(): void
     $css = e(site_asset_url('css/site-controls.css') . '?v=' . $cssVersion);
     $footerCss = e(site_asset_url('css/seo-footer.css') . '?v=' . $footerCssVersion);
     $js = e(site_asset_url('js/site-controls.js') . '?v=' . $jsVersion);
-    $faviconSvg = e(site_asset_url('images/favicon.svg'));
-    $favicon32  = e(site_asset_url('images/favicon-32x32.png'));
-    $favicon16  = e(site_asset_url('images/favicon-16x16.png'));
-    $appleTouch = e(site_asset_url('images/apple-touch-icon.png'));
-    $faviconIco = e(site_asset_url('favicon.ico'));
+    $favVersion = is_file(__DIR__ . '/../images/favicon.png') ? filemtime(__DIR__ . '/../images/favicon.png') : time();
+    $faviconSvg = e(site_asset_url('images/favicon.svg') . '?v=' . $favVersion);
+    $favicon48  = e(site_asset_url('images/favicon-48x48.png') . '?v=' . $favVersion);
+    $favicon32  = e(site_asset_url('images/favicon-32x32.png') . '?v=' . $favVersion);
+    $favicon16  = e(site_asset_url('images/favicon-16x16.png') . '?v=' . $favVersion);
+    $appleTouch = e(site_asset_url('images/apple-touch-icon.png') . '?v=' . $favVersion);
+    $faviconIco = e(site_asset_url('favicon.ico') . '?v=' . $favVersion);
     $manifest   = e(site_asset_url('site.webmanifest'));
     echo '<link rel="icon" type="image/svg+xml" href="' . $faviconSvg . '">' . "\n";
+    echo '<link rel="icon" type="image/png" sizes="48x48" href="' . $favicon48 . '">' . "\n";
     echo '<link rel="icon" type="image/png" sizes="32x32" href="' . $favicon32 . '">' . "\n";
     echo '<link rel="icon" type="image/png" sizes="16x16" href="' . $favicon16 . '">' . "\n";
     echo '<link rel="apple-touch-icon" sizes="180x180" href="' . $appleTouch . '">' . "\n";
@@ -133,6 +136,7 @@ function site_controls_head(): void
     echo '<link rel="stylesheet" href="' . $footerCss . '">' . "\n";
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
     echo '<script defer src="' . $js . '"></script>' . "\n";
+    echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
     echo '<script>window.spPendingEvents=window.spPendingEvents||[];window.spPendingEvents.push({event:"page",path:window.location.pathname+window.location.search});if(window.spFlushTracking){window.spFlushTracking();}</script>' . "\n";
 }
 
