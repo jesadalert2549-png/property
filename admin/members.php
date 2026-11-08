@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/staff.php';
+require_once __DIR__ . '/../includes/profile_schema.php';
 require_admin();
 
 $isFounder = ($_SESSION['role'] ?? '') === 'admin';
@@ -8,6 +9,7 @@ $staffId = (int)($_SESSION['staff_id'] ?? 0);
 $canManageMembers = $isFounder || staff_can(db(), $staffId, 'founder_only', 'manage');
 
 $pdo = db();
+ensure_profile_schema($pdo);
 $message = '';
 $errors = [];
 
