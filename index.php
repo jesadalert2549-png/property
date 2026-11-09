@@ -679,49 +679,51 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     .showcase-tag {
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #0B1C33;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: rgba(11, 28, 51, 0.78);
       color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      border: 1px solid rgba(197, 160, 89, 0.4);
-      box-shadow: 0 2px 8px rgba(0,0,0,.25);
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       white-space: nowrap;
       pointer-events: none;
+      letter-spacing: 0.02em;
     }
     .showcase-featured-tag {
       display: inline-flex;
       align-items: center;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #C5A059, #A8843F);
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, rgba(197, 160, 89, 0.9), rgba(168, 132, 63, 0.9));
       color: #0B1C33;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 800;
-      box-shadow: 0 2px 8px rgba(197, 160, 89, 0.35);
       white-space: nowrap;
       pointer-events: none;
+      letter-spacing: 0.02em;
     }
     .showcase-badges-left {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 8px;
+      left: 8px;
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       max-width: calc(100% - 110px);
       z-index: 4;
       pointer-events: none;
     }
     .showcase-actions-right {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      top: 8px;
+      right: 8px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       z-index: 10;
     }
     .showcase-actions-right .sp-fav-card-btn,
@@ -729,22 +731,24 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       position: static !important;
       top: auto !important;
       right: auto !important;
-      width: 34px !important;
-      height: 34px !important;
+      width: 28px !important;
+      height: 28px !important;
       border-radius: 50% !important;
-      background: rgba(255, 255, 255, 0.94) !important;
-      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(6px) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
       display: grid !important;
       place-items: center !important;
-      font-size: 16px !important;
+      font-size: 14px !important;
       cursor: pointer !important;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.14) !important;
       transition: transform 0.2s, background 0.2s !important;
       margin: 0 !important;
     }
     .showcase-actions-right .sp-fav-card-btn:hover,
     .showcase-fav-btn:hover {
-      transform: scale(1.15) !important;
+      transform: scale(1.12) !important;
       background: #fff !important;
     }
     .card-video-pill {
@@ -753,18 +757,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       right: auto !important;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
       padding: 3px 8px;
       border-radius: 999px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 800;
       letter-spacing: .02em;
-      background: rgba(11,28,51,.82);
+      background: rgba(11,28,51,.78);
       color: #F8D888;
       border: 1px solid rgba(197,160,89,.35);
       backdrop-filter: blur(6px);
       -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 2px 8px rgba(0,0,0,.22);
+      box-shadow: 0 2px 6px rgba(0,0,0,.18);
       transition: all .2s ease;
       cursor: pointer;
       pointer-events: auto;
@@ -797,6 +801,35 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       min-height: 86px;
       padding: 10px 12px 12px;
     }
+    .showcase-publisher-row {
+      margin-bottom: 6px;
+    }
+    .showcase-publisher-row .publisher-mini {
+      position: static !important;
+      left: auto !important;
+      bottom: auto !important;
+      display: inline-flex !important;
+      padding: 2px 8px 2px 3px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      max-width: 100% !important;
+    }
+    .showcase-publisher-row .publisher-mini-avatar {
+      width: 20px !important;
+      height: 20px !important;
+      flex: 0 0 20px !important;
+      font-size: 10px !important;
+    }
+    .showcase-publisher-row .publisher-mini-name {
+      font-size: 11px !important;
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+    .showcase-publisher-row .publisher-mini-loc {
+      font-size: 10.5px !important;
+      color: #94a3b8 !important;
+    }
     .showcase-card-title {
       min-height: 38px;
       font-size: 14px;
@@ -818,12 +851,39 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .showcase-price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+    }
     .showcase-price {
       display: block;
-      margin-top: 6px;
       font-size: 16px;
       font-weight: 800;
       color: #A8843F;
+    }
+    .showcase-stats-wrap .property-card-stats-badge {
+      position: static !important;
+      bottom: auto !important;
+      right: auto !important;
+      display: inline-flex !important;
+      padding: 2px 7px !important;
+      font-size: 10px !important;
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .showcase-stats-wrap .property-card-stats-badge svg {
+      stroke: #64748b !important;
+    }
+    .showcase-stats-wrap .stat-badge-views,
+    .showcase-stats-wrap .stat-badge-clicks {
+      color: #64748b !important;
     }
 
     /* Video on card hover styles */
@@ -1189,21 +1249,26 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
                   </span>
                 </button>
               </div>
-              <?php
-                require_once __DIR__ . '/includes/price_helpers.php';
-                echo render_card_stats_badge((int)($listing['views_count'] ?? 0), (int)($listing['clicks_count'] ?? 0));
-              ?>
-              <?php render_publisher_mini($listing); ?>
             </div>
             <div class="showcase-body">
+              <div class="showcase-publisher-row">
+                <?php render_publisher_mini($listing); ?>
+              </div>
               <div class="showcase-card-title"><?= e($listing['title']) ?></div>
               <div class="showcase-card-loc"><?= e($listing['location'] ?: '-') ?></div>
               
-              <div class="showcase-price">
-                <?php
-                  require_once __DIR__ . '/includes/price_helpers.php';
-                  echo render_price_badge((int)$listing['price'], !empty($listing['original_price']) ? (int)$listing['original_price'] : null, $listing['type']);
-                ?>
+              <div class="showcase-price-row">
+                <div class="showcase-price">
+                  <?php
+                    require_once __DIR__ . '/includes/price_helpers.php';
+                    echo render_price_badge((int)$listing['price'], !empty($listing['original_price']) ? (int)$listing['original_price'] : null, $listing['type']);
+                  ?>
+                </div>
+                <div class="showcase-stats-wrap">
+                  <?php
+                    echo render_card_stats_badge((int)($listing['views_count'] ?? 0), (int)($listing['clicks_count'] ?? 0));
+                  ?>
+                </div>
               </div>
             </div>
           </a>
