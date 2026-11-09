@@ -10,7 +10,7 @@ $id = (int)($_GET['id'] ?? 0);
 $st = db()->prepare(
     "SELECT id, title, type, property_category, status, verification_status, verification_notes, price, original_price, location, lat, lng, line_id,
             description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, line_id,
-            amenities, nearby_places, contact_name, phone,
+            amenities, nearby_places, contact_name, phone, video_file,
             (SELECT u.id FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_user_id,
             (SELECT u.full_name FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_full_name,
             (SELECT u.avatar_path FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_avatar_path,
@@ -266,6 +266,26 @@ json_ld($propertyAiFaq);
 
   <section class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px] grid-cols-1 items-start">
     <div class="space-y-5">
+      <?php
+        $propVideoFilename = basename((string)($p['video_file'] ?? ''));
+        $propVideoPath = $propVideoFilename !== '' ? UPLOAD_DIR . $propVideoFilename : '';
+        $hasPropVideo = $propVideoFilename !== '' && is_file($propVideoPath);
+      ?>
+      <?php if ($hasPropVideo): ?>
+        <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-amber-50 text-accent font-bold">🎬</span>
+              <h3 class="text-base font-extrabold text-ink"><?= e(t('วิดีโอแนะนำทรัพย์ / คลิปพาทัวร์', 'Property Video Tour')) ?></h3>
+            </div>
+            <span class="text-xs font-bold text-accent bg-amber-50 px-2.5 py-1 rounded-full">HD VIDEO</span>
+          </div>
+          <div class="overflow-hidden rounded-2xl bg-black aspect-video relative">
+            <video src="uploads/<?= e(rawurlencode($propVideoFilename)) ?>" controls playsinline preload="metadata" class="w-full h-full object-contain"></video>
+          </div>
+        </div>
+      <?php endif; ?>
+
       <div class="relative" data-property-carousel>
         <?php $gallery = $files ? array_map(fn($file) => 'uploads/' . e($file), $files) : [
           'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80',

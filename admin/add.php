@@ -63,9 +63,20 @@ if (request_is_post()) {
     }
 
     if (empty($errors)) {
+        $uploadedVideo = null;
+        if (!empty($_FILES['video']['name'])) {
+            try {
+                $uploadedVideo = save_uploaded_property_video($_FILES['video'] ?? []);
+            } catch (RuntimeException $re) {
+                $errors[] = $re->getMessage();
+            }
+        }
+    }
+
+    if (empty($errors)) {
         // เพิ่มข้อมูลใหม่ (เพิ่มจากหลังบ้านอนุมัติให้อัตโนมัติเป็น 'approved')
-        $stmt = $pdo->prepare("INSERT INTO properties (title, type, category, property_category, price, location, lat, lng, contact_name, phone, line_id, description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, amenities, nearby_places, status, approval, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', NOW())");
-        $stmt->execute([$title, $type, $category, $category, $price, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status]);
+        $stmt = $pdo->prepare("INSERT INTO properties (title, type, category, property_category, price, location, lat, lng, contact_name, phone, line_id, description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, amenities, nearby_places, status, approval, video_file, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'approved', ?, NOW())");
+        $stmt->execute([$title, $type, $category, $category, $price, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status, $uploadedVideo]);
         $new_property_id = $pdo->lastInsertId();
 
         // จัดการอัปโหลดรูปภาพ (ถ้ามีเลือกไฟล์มา)
@@ -223,6 +234,14 @@ if (request_is_post()) {
         <label for="images"><?= e(t('อัปโหลดรูปภาพประกาศ (เลือกได้หลายรูป)', 'Upload Listing Photos (multiple allowed)')) ?></label>
         <input type="file" id="images" name="images[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple style="padding: 10px;">
         <span style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;"><?= e(t('รองรับไฟล์ JPG, JPEG, PNG, WEBP', 'Supported formats: JPG, JPEG, PNG, WEBP')) ?></span>
+      </div>
+
+      <div class="form-group" style="background: #fafbfc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px; margin-top: 20px;">
+        <label for="video" style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 6px;">
+          🎬 <?= e(t('วิดีโอคลิปของประกาศ (เมื่อเอาเมาส์วางที่การ์ดหน้าแรกจะเล่นพร้อมเสียง)', 'Property Video Clip (Plays with sound on hover on homepage)')) ?>
+        </label>
+        <span style="font-size: 12px; color: #64748b; margin-bottom: 8px; display: block;"><?= e(t('รองรับไฟล์ MP4, WebM หรือ MOV ขนาดไม่เกิน 50 MB', 'Supports MP4, WebM or MOV up to 50 MB')) ?></span>
+        <input type="file" id="video" name="video" class="form-control" accept="video/mp4,video/webm,video/quicktime" style="padding: 10px;">
       </div>
 
       <div style="margin-top: 32px;">

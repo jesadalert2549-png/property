@@ -95,10 +95,15 @@ if (request_is_post()) {
 
     if (!$errorMessages) {
         $uploadedImages = [];
+        $newUploadedVideo = null;
         try {
             $uploadedImages = save_uploaded_images($_FILES['images'] ?? [], max(0, MAX_IMAGES - $remainingImages));
+            if (!empty($_FILES['video']['name'])) {
+                $newUploadedVideo = save_uploaded_property_video($_FILES['video'] ?? []);
+            }
             if (count($uploadedImages) !== $fileCount) {
                 foreach ($uploadedImages as $filename) delete_image_file($filename);
+                if ($newUploadedVideo) delete_image_file($newUploadedVideo);
                 $uploadedImages = [];
                 $errorMessages[] = t('มีรูปที่อัปโหลดไม่ผ่านการตรวจ กรุณาเลือกรูป JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB ใหม่', 'Some uploads failed validation. Please choose JPG, PNG or WebP images no larger than 5 MB and try again.');
             } else {
@@ -123,15 +128,26 @@ if (request_is_post()) {
                     $finalOrigPrice = null;
                 }
 
+                // จัดการไฟล์วิดีโอ (ถ้าติ๊กลบ หรืออัปโหลดใหม่)
+                $finalVideo = $property['video_file'] ?? null;
+                if (!empty($_POST['delete_video'])) {
+                    if ($finalVideo) delete_image_file($finalVideo);
+                    $finalVideo = null;
+                }
+                if ($newUploadedVideo !== null) {
+                    if ($finalVideo) delete_image_file($finalVideo);
+                    $finalVideo = $newUploadedVideo;
+                }
+
                 $pdo->beginTransaction();
                 $update = $pdo->prepare(
-                    'UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, original_price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?'
+                    'UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, original_price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, video_file=?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?'
                 );
                 $update->execute([
                     $data['title'], $data['type'], $data['property_category'], $data['property_category'], $data['price'], $finalOrigPrice, $data['location'],
                     $data['lat'], $data['lng'], $data['description'], $data['bedrooms'], $data['bathrooms'], $data['area_sqm'], $data['land_area'],
                     $data['parking_spaces'], $data['floor_number'], $data['furnished'], $data['amenities'], $data['nearby_places'],
-                    $data['contact_name'], $data['phone'], $data['line_id'], $status, $approval, $verificationStatus, $verificationNotes, $id, $userId,
+                    $data['contact_name'], $data['phone'], $data['line_id'], $status, $approval, $verificationStatus, $verificationNotes, $finalVideo, $id, $userId,
                 ]);
 
                 if ($deleteIds) {
@@ -271,6 +287,20 @@ $mapLng = request_is_post() ? (string)($_POST['map_lng'] ?? '') : (string)($prop
       <h2 class="member-edit-section"><?= e(t('รูปภาพและแผนที่', 'Photos & map')) ?></h2>
       <label class="wide"><?= e(t('เพิ่มรูปภาพ', 'Add photos')) ?> <span class="member-edit-help"><?= e(t('เลือกเพิ่มหรือติ๊กภาพเดิมเพื่อลบ · รวมทั้งหมดไม่เกิน ' . MAX_IMAGES . ' รูป', 'Add new photos or tick existing ones to delete · up to ' . MAX_IMAGES . ' photos total')) ?></span><input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple></label>
       <?php if ($images): ?><div class="member-edit-images wide"><?php foreach ($images as $image): ?><div class="member-edit-image"><img src="uploads/<?= e(rawurlencode(basename($image['filename']))) ?>" alt="<?= e(t('รูปประกาศ', 'Listing photo')) ?>" loading="lazy"><label><input type="checkbox" name="delete_images[]" value="<?= (int)$image['id'] ?>" <?= in_array((int)$image['id'], $deleteIds, true) ? 'checked' : '' ?>> <?= e(t('ลบรูปนี้', 'Delete this photo')) ?></label></div><?php endforeach; ?></div><?php endif; ?>
+
+      <label class="wide" style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px 16px; background: #fafbfc; margin-top: 14px;">
+        <strong>🎬 <?= e(t('วิดีโอคลิปของประกาศ (เมื่อเอาเมาส์วางที่การ์ดหน้าแรกจะเล่นพร้อมเสียง)', 'Property video clip (Plays with sound on hover on homepage)')) ?></strong>
+        <span class="member-edit-help" style="display:block; margin:4px 0 8px;"><?= e(t('ไฟล์ MP4, WebM หรือ MOV · ไม่เกิน 50 MB', 'MP4, WebM or MOV · Max 50 MB')) ?></span>
+        <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
+          <div style="margin-bottom: 10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+            <video src="uploads/<?= e(rawurlencode(basename($property['video_file']))) ?>" controls style="max-height:120px; border-radius:8px; background:#0B1C33;"></video>
+            <label style="font-size:13px; color:#dc2626; font-weight:700; cursor:pointer;">
+              <input type="checkbox" name="delete_video" value="1"> ✕ <?= e(t('ลบคลิปวิดีโอนี้ออก', 'Delete this video')) ?>
+            </label>
+          </div>
+        <?php endif; ?>
+        <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
+      </label>
       <div class="wide listing-map-picker">
         <div class="listing-map-heading"><div><strong><?= e(t('ตำแหน่งบนแผนที่', 'Map location')) ?> <span>(<?= e(t('ไม่บังคับ', 'optional')) ?>)</span></strong><small><?= e(t('แตะเพื่อปักหมุด หรือลากหมุดไปยังตำแหน่งทรัพย์', 'Tap to drop a pin, or drag the pin to the property position')) ?></small></div><button type="button" class="listing-map-toggle" id="editMapToggle" aria-expanded="false" aria-controls="editMapPanel"><?= e(t('เปิดแผนที่', 'Open map')) ?></button></div>
         <div id="editMapPanel" class="listing-map-panel" hidden><div id="editPropertyMap" class="listing-map" role="application" aria-label="<?= e(t('เลือกตำแหน่งประกาศ', 'Select the listing position')) ?>"></div><p class="listing-map-help"><?= e(t('เลื่อนและซูมแผนที่ได้ จากนั้นแตะเพื่อวางหมุด สามารถลากหมุดเพื่อปรับตำแหน่งได้', 'Pan and zoom the map, then tap to place the pin. You can also drag the pin to adjust it.')) ?></p></div>

@@ -532,3 +532,65 @@ function save_uploaded_images_ordered(array $files, int $limit, int $coverIndex 
 
     return $fileList;
 }
+
+/**
+ * บันทึกไฟล์วิดีโอของประกาศอสังหาฯ (MP4, WebM, MOV ขนาดไม่เกิน 50MB)
+ *
+ * @param array $file ตัวแปร $_FILES['video']
+ * @return string|null ชื่อไฟล์ที่บันทึกแล้วใน UPLOAD_DIR หรือ null ถ้าไม่มีการอัปโหลด
+ * @throws RuntimeException เมื่อไฟล์มีข้อผิดพลาดหรือไม่รองรับ
+ */
+function save_uploaded_property_video(array $file): ?string
+{
+    if (!isset($file['error']) || $file['error'] === UPLOAD_ERR_NO_FILE) {
+        return null;
+    }
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        throw new RuntimeException('เกิดข้อผิดพลาดในการอัปโหลดไฟล์วิดีโอ (รหัส: ' . (int)$file['error'] . ')');
+    }
+
+    $size = (int)($file['size'] ?? 0);
+    $maxBytes = 50 * 1024 * 1024; // 50 MB
+    if ($size <= 0 || $size > $maxBytes) {
+        throw new RuntimeException('ไฟล์วิดีโอต้องมีขนาดไม่เกิน 50 MB');
+    }
+
+    $tmp = (string)($file['tmp_name'] ?? '');
+    if (!is_file($tmp)) {
+        throw new RuntimeException('ไม่พบไฟล์วิดีโอชั่วคราวบนเซิร์ฟเวอร์');
+    }
+
+    $name = (string)($file['name'] ?? '');
+    $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    $videoTypes = [
+        'video/mp4' => 'mp4',
+        'video/webm' => 'webm',
+        'video/quicktime' => 'mov',
+        'video/x-m4v' => 'mp4',
+    ];
+
+    $finfo = class_exists('finfo') ? new finfo(FILEINFO_MIME_TYPE) : null;
+    $mime = $finfo instanceof finfo ? strtolower((string)$finfo->file($tmp)) : '';
+
+    $chosenExt = null;
+    if (isset($videoTypes[$mime])) {
+        $chosenExt = $videoTypes[$mime];
+    } elseif (in_array($ext, ['mp4', 'webm', 'mov', 'm4v'], true)) {
+        $chosenExt = $ext === 'm4v' ? 'mp4' : $ext;
+    }
+
+    if (!$chosenExt) {
+        throw new RuntimeException('รองรับเฉพาะไฟล์วิดีโอ MP4, WebM หรือ MOV เท่านั้น');
+    }
+
+    if (!is_dir(UPLOAD_DIR)) {
+        mkdir(UPLOAD_DIR, 0755, true);
+    }
+
+    $filename = 'video-' . date('Ymd-His') . '-' . bin2hex(random_bytes(4)) . '.' . $chosenExt;
+    if (!move_uploaded_file($tmp, UPLOAD_DIR . $filename)) {
+        throw new RuntimeException('ไม่สามารถบันทึกไฟล์วิดีโอลงในโฟลเดอร์ uploads ได้');
+    }
+
+    return $filename;
+}

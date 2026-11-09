@@ -345,16 +345,24 @@ $approvalLabel = [
             <?php foreach ($rows as $p): $featuredRank = $featuredRankById[(int)$p['id']] ?? null; ?>
               <tr>
                 <td>
-                  <div class="thumb">
+                  <div class="thumb" style="position:relative;">
                     <?php if ($p['cover']): ?>
                       <img src="../uploads/<?= e($p['cover']) ?>" alt="<?= e(t('รูปประกาศ', 'Listing image')) ?>">
                     <?php else: ?>
                       <?= e(t('ไม่มีรูป', 'No image')) ?>
                     <?php endif; ?>
+                    <?php if (!empty($p['video_file']) && is_file(UPLOAD_DIR . basename($p['video_file']))): ?>
+                      <span style="position:absolute; bottom:4px; right:4px; background:rgba(11,28,51,0.9); color:#F8D888; border:1px solid rgba(197,160,89,0.5); font-size:10px; font-weight:800; padding:1px 5px; border-radius:999px; display:inline-flex; align-items:center; gap:2px;" title="<?= e(t('มีคลิปวิดีโอ', 'Has video clip')) ?>">
+                        ▶ <?= e(t('วิดีโอ', 'Video')) ?>
+                      </span>
+                    <?php endif; ?>
                   </div>
                 </td>
                 <td>
                   <strong style="font-size: 15px; color: #1e293b;"><?= e($p['title']) ?></strong>
+                  <?php if (!empty($p['video_file']) && is_file(UPLOAD_DIR . basename($p['video_file']))): ?>
+                    <a href="../uploads/<?= e(rawurlencode(basename($p['video_file']))) ?>" target="_blank" class="tag" style="background:#0B1C33; color:#F8D888; border:1px solid rgba(197,160,89,.4); text-decoration:none; margin-left:4px;" title="<?= e(t('คลิกเพื่อเปิดดูวิดีโอ', 'Click to view video')) ?>">🎬 <?= e(t('มีวิดีโอคลิป', 'Video')) ?></a>
+                  <?php endif; ?>
                   <?php if ($featuredRank !== null): ?><span class="tag featured-property-tag"><?= e(t('โปรโมตหน้าแรก #', 'Homepage Featured #')) ?><?= (int)$featuredRank ?></span><?php endif; ?><br>
                   <div style="margin-top: 4px; display: flex; gap: 6px; align-items: center;">
                     <span class="tag <?= e($p['type']) ?>"><?= type_label($p['type']) ?></span>

@@ -130,7 +130,7 @@ if ($isOwner) {
     ];
 } else {
     $statement = $pdo->prepare(
-        'SELECT p.id, p.title, p.type, p.status, p.approval, p.verification_status, p.verification_notes, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.created_at,
+        'SELECT p.id, p.title, p.type, p.status, p.approval, p.verification_status, p.verification_notes, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.created_at, p.video_file,
                 (SELECT i.filename FROM property_images i
                  WHERE i.property_id = p.id
                  ORDER BY i.sort_order, i.id LIMIT 1) AS cover
@@ -375,6 +375,11 @@ $agentStatus = $memberProfile['agent_status'] ?? 'none';
                   <div class="member-post-cover">
                     <?php if (!empty($property['cover']) && is_file(UPLOAD_DIR . basename($property['cover']))): ?><img src="uploads/<?= e(basename($property['cover'])) ?>" alt="<?= e($property['title']) ?>" loading="lazy"><?php else: ?><span aria-hidden="true">⌂</span><?php endif; ?>
                     <span class="member-post-type"><?= e($property['type'] === 'rent' ? t('ให้เช่า', 'For rent') : t('ขาย', 'For sale')) ?></span>
+                    <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
+                      <span style="position:absolute; bottom:6px; right:6px; background:rgba(11,28,51,0.92); color:#F8D888; border:1px solid rgba(197,160,89,0.5); font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; display:inline-flex; align-items:center; gap:3px;">
+                        🎬 <?= e(t('วิดีโอ', 'Video')) ?>
+                      </span>
+                    <?php endif; ?>
                   </div>
                   <div class="member-post-info">
                     <div class="member-post-title-row">

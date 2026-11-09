@@ -81,7 +81,7 @@ try {
 $featuredImages = [];
 foreach ($featuredSections as &$featuredSection) {
     $listingSql = $featuredPropertiesEnabled
-        ? 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name,
+        ? 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name, p.video_file,
                   (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
                   (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
                   (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
@@ -89,7 +89,7 @@ foreach ($featuredSections as &$featuredSection) {
            FROM properties p LEFT JOIN featured_properties fp ON fp.property_id = p.id
            WHERE p.approval = ? AND p.status = ? AND p.property_category = ?
            ORDER BY (fp.property_id IS NULL), fp.sort_order, p.created_at DESC LIMIT 4'
-        : 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name,
+        : 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name, p.video_file,
                   (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
                   (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
                   (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
@@ -677,10 +677,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       object-fit: cover;
     }
     .showcase-tag {
-      position: absolute;
-      left: 10px;
-      top: 10px;
-      bottom: auto;
+      display: inline-flex;
+      align-items: center;
       padding: 4px 10px;
       border-radius: 999px;
       background: #0B1C33;
@@ -689,42 +687,111 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       font-weight: 800;
       border: 1px solid rgba(197, 160, 89, 0.4);
       box-shadow: 0 2px 8px rgba(0,0,0,.25);
-      z-index: 3;
+      white-space: nowrap;
+      pointer-events: none;
     }
     .showcase-featured-tag {
-      position: absolute;
-      top: 10px;
-      left: auto;
-      right: 50px;
+      display: inline-flex;
+      align-items: center;
       padding: 4px 10px;
       border-radius: 999px;
       background: linear-gradient(135deg, #C5A059, #A8843F);
       color: #0B1C33;
       font-size: 11px;
       font-weight: 800;
-      z-index: 3;
       box-shadow: 0 2px 8px rgba(197, 160, 89, 0.35);
+      white-space: nowrap;
+      pointer-events: none;
     }
-    .showcase-fav-btn {
+    .showcase-badges-left {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      max-width: calc(100% - 110px);
+      z-index: 4;
+      pointer-events: none;
+    }
+    .showcase-actions-right {
       position: absolute;
       top: 10px;
       right: 10px;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      display: grid;
-      place-items: center;
-      font-size: 16px;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      transition: transform 0.2s, background 0.2s;
-      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
     }
+    .showcase-actions-right .sp-fav-card-btn,
+    .showcase-fav-btn {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 50% !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 16px !important;
+      cursor: pointer !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18) !important;
+      transition: transform 0.2s, background 0.2s !important;
+      margin: 0 !important;
+    }
+    .showcase-actions-right .sp-fav-card-btn:hover,
     .showcase-fav-btn:hover {
-      transform: scale(1.15);
-      background: #fff;
+      transform: scale(1.15) !important;
+      background: #fff !important;
+    }
+    .card-video-pill {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      background: rgba(11,28,51,.82);
+      color: #F8D888;
+      border: 1px solid rgba(197,160,89,.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      box-shadow: 0 2px 8px rgba(0,0,0,.22);
+      transition: all .2s ease;
+      cursor: pointer;
+      pointer-events: auto;
+      margin: 0;
+      user-select: none;
+    }
+    .card-video-pill:hover {
+      background: #0B1C33;
+      border-color: #F8D888;
+      transform: scale(1.05);
+    }
+    .card-video-pill .pill-play-icon {
+      color: #F8D888;
+    }
+    .card-video-pill .pill-sound-icon {
+      opacity: .85;
+      margin-left: 1px;
+    }
+    .card-video-pill.sound-active {
+      background: #15803d !important;
+      border-color: #4ade80 !important;
+      color: #ffffff !important;
+      box-shadow: 0 3px 12px rgba(21,128,61,.45) !important;
+    }
+    .card-video-pill.sound-active .pill-play-icon,
+    .card-video-pill.sound-active .pill-sound-icon {
+      color: #ffffff !important;
     }
     .showcase-body {
       min-height: 86px;
@@ -757,6 +824,27 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       font-size: 16px;
       font-weight: 800;
       color: #A8843F;
+    }
+
+    /* Video on card hover styles */
+    .showcase-media.has-hover-video {
+      cursor: pointer;
+    }
+    .showcase-hover-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      z-index: 2;
+      opacity: 0;
+      transition: opacity .25s ease;
+      pointer-events: none;
+      background: #0B1C33;
+    }
+    .showcase-media.video-playing .showcase-hover-video {
+      opacity: 1;
     }
 
     /* ==========================================================================
@@ -1070,20 +1158,37 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               $featuredImagePath = $featuredFilename ? __DIR__ . '/uploads/' . $featuredFilename : '';
               $featuredImageUrl = $featuredFilename ? 'uploads/' . $featuredFilename : '';
               $featuredImageExists = $featuredFilename !== '' && is_file($featuredImagePath);
+
+              $videoFilename = basename((string)($listing['video_file'] ?? ''));
+              $videoPath = $videoFilename !== '' ? __DIR__ . '/uploads/' . $videoFilename : '';
+              $videoUrl = ($videoFilename !== '' && is_file($videoPath)) ? 'uploads/' . rawurlencode($videoFilename) : '';
+              $hasVideo = $videoUrl !== '';
             ?>
-            <div class="showcase-media">
+            <div class="showcase-media<?= $hasVideo ? ' has-hover-video' : '' ?>"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
               <?php if ($featuredImageExists): ?>
                 <img src="<?= e($featuredImageUrl) ?>" class="showcase-img" alt="<?= e($listing['title']) ?>" loading="lazy" decoding="async" width="640" height="441">
               <?php else: ?>
                 <div class="showcase-img noimg" aria-hidden="true"></div>
               <?php endif; ?>
-              <span class="showcase-tag"><?= e(is_en() ? (property_category_en_label($featuredSection['category']) ?? (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) : (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) ?></span>
-              <?php if (!empty($listing['is_featured'])): ?><span class="showcase-featured-tag"><?= e(t('แนะนำ', 'Featured')) ?></span><?php endif; ?>
-              <button type="button" class="sp-fav-card-btn showcase-fav-btn" data-fav-toggle data-fav-id="<?= (int)$listing['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
-                <span class="fav-heart-icon">
-                  <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                </span>
-              </button>
+              <div class="showcase-badges-left">
+                <span class="showcase-tag"><?= e(is_en() ? (property_category_en_label($featuredSection['category']) ?? (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) : (PROPERTY_CATEGORIES[$featuredSection['category']] ?? $featuredSection['category'])) ?></span>
+                <?php if (!empty($listing['is_featured'])): ?><span class="showcase-featured-tag"><?= e(t('แนะนำ', 'Featured')) ?></span><?php endif; ?>
+              </div>
+              <div class="showcase-actions-right">
+                <?php if ($hasVideo): ?>
+                  <button type="button" class="card-video-pill" aria-label="<?= e(t('แตะเปิด/ปิดเสียงวิดีโอ', 'Toggle video sound')) ?>" title="<?= e(t('วิดีโอคลิป (แตะเปิด/ปิดเสียง)', 'Video (tap to unmute)')) ?>">
+                    <svg class="pill-play-icon" viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <span class="pill-text"><?= e(t('วิดีโอ', 'Video')) ?></span>
+                    <svg class="pill-sound-icon sound-muted" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('ปิดเสียงอยู่', 'Muted')) ?>"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    <svg class="pill-sound-icon sound-unmuted" style="display:none;" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('เปิดเสียงแล้ว', 'Playing with sound')) ?>"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                  </button>
+                <?php endif; ?>
+                <button type="button" class="sp-fav-card-btn showcase-fav-btn" data-fav-toggle data-fav-id="<?= (int)$listing['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+                  <span class="fav-heart-icon">
+                    <svg class="heart-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </span>
+                </button>
+              </div>
               <?php
                 require_once __DIR__ . '/includes/price_helpers.php';
                 echo render_card_stats_badge((int)($listing['views_count'] ?? 0), (int)($listing['clicks_count'] ?? 0));
@@ -1478,6 +1583,153 @@ render_site_footer(); ?>
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+  }
+
+  // Card Video Hover & Mobile Scroll-into-view Engine (Default Muted to prevent audio clashes)
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(hover: none)').matches;
+  const allCardVideos = Array.from(document.querySelectorAll('.showcase-media[data-card-video]'));
+  let currentlyPlayingAudioCard = null; // Ensure only ONE card plays audio at any time
+
+  allCardVideos.forEach(mediaWrap => {
+    const videoSrc = mediaWrap.getAttribute('data-card-video');
+    if (!videoSrc) return;
+
+    let videoEl = null;
+    let hoverTimer = null;
+    const pill = mediaWrap.querySelector('.card-video-pill');
+    const soundMutedIcon = pill?.querySelector('.sound-muted');
+    const soundUnmutedIcon = pill?.querySelector('.sound-unmuted');
+
+    const updateSoundUI = (isMuted) => {
+      if (pill) {
+        pill.classList.toggle('sound-active', !isMuted);
+        pill.title = isMuted ? '<?= e(t('วิดีโอคลิป (แตะเปิดเสียง)', 'Video (tap to unmute)')) ?>' : '<?= e(t('กำลังเล่นเสียง (แตะเพื่อปิดเสียง)', 'Playing with sound (tap to mute)')) ?>';
+      }
+      if (soundMutedIcon) soundMutedIcon.style.display = isMuted ? 'inline-block' : 'none';
+      if (soundUnmutedIcon) soundUnmutedIcon.style.display = isMuted ? 'none' : 'inline-block';
+    };
+
+    const createVideo = () => {
+      if (videoEl) return videoEl;
+      videoEl = document.createElement('video');
+      videoEl.className = 'showcase-hover-video';
+      videoEl.src = videoSrc;
+      videoEl.loop = true;
+      videoEl.playsInline = true;
+      videoEl.preload = 'auto';
+      // Default: Muted to avoid multiple videos clashing with noise
+      videoEl.muted = true;
+      videoEl.volume = 0.85;
+      mediaWrap.appendChild(videoEl);
+      updateSoundUI(true);
+      return videoEl;
+    };
+
+    const startPlay = () => {
+      clearTimeout(hoverTimer);
+      hoverTimer = setTimeout(() => {
+        const v = createVideo();
+        // Always starts muted automatically (both hover and scroll)
+        // User must explicitly click/tap the speaker button to hear sound
+        v.muted = true;
+        updateSoundUI(true);
+        const playPromise = v.play();
+        if (playPromise !== undefined) {
+          playPromise.then(() => {
+            mediaWrap.classList.add('video-playing');
+          }).catch(() => {});
+        }
+      }, isTouchDevice ? 50 : 120);
+    };
+
+    const stopPlay = () => {
+      clearTimeout(hoverTimer);
+      if (videoEl) {
+        mediaWrap.classList.remove('video-playing');
+        try {
+          videoEl.pause();
+          videoEl.currentTime = 0;
+          videoEl.muted = true;
+          updateSoundUI(true);
+        } catch (e) {}
+        if (currentlyPlayingAudioCard === mediaWrap) {
+          currentlyPlayingAudioCard = null;
+        }
+      }
+    };
+
+    // Desktop: Trigger visual play on hover / focus (silent)
+    const card = mediaWrap.closest('.showcase-card') || mediaWrap;
+    card.addEventListener('mouseenter', startPlay);
+    card.addEventListener('mouseleave', stopPlay);
+    card.addEventListener('focusin', startPlay);
+    card.addEventListener('focusout', stopPlay);
+
+    // Video Pill Tap: Plays with sound / toggles sound directly on the top badge
+    if (pill) {
+      pill.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const v = createVideo();
+
+        if (v.muted || !mediaWrap.classList.contains('video-playing')) {
+          // Mute any other card that might be currently playing audio
+          if (currentlyPlayingAudioCard && currentlyPlayingAudioCard !== mediaWrap) {
+            currentlyPlayingAudioCard._muteAudio?.();
+          }
+          v.muted = false;
+          v.volume = 0.85;
+          currentlyPlayingAudioCard = mediaWrap;
+          if (!mediaWrap.classList.contains('video-playing')) {
+            v.play().then(() => mediaWrap.classList.add('video-playing')).catch(() => {});
+          }
+          updateSoundUI(false);
+        } else {
+          v.muted = true;
+          if (currentlyPlayingAudioCard === mediaWrap) {
+            currentlyPlayingAudioCard = null;
+          }
+          updateSoundUI(true);
+        }
+      });
+    }
+
+    mediaWrap._startPlay = startPlay;
+    mediaWrap._stopPlay = stopPlay;
+    mediaWrap._muteAudio = () => {
+      if (videoEl) {
+        videoEl.muted = true;
+        updateSoundUI(true);
+      }
+    };
+  });
+
+  // Mobile & iPad: Scroll-into-view AutoPlay (IntersectionObserver)
+  if ('IntersectionObserver' in window && allCardVideos.length > 0) {
+    let currentInViewCard = null;
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        const media = entry.target;
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
+          if (currentInViewCard && currentInViewCard !== media) {
+            currentInViewCard._stopPlay?.();
+          }
+          currentInViewCard = media;
+          // Silent smooth preview
+          media._startPlay?.();
+        } else if (!entry.isIntersecting || entry.intersectionRatio < 0.25) {
+          if (currentInViewCard === media) {
+            currentInViewCard = null;
+          }
+          media._stopPlay?.();
+        }
+      });
+    }, {
+      threshold: [0.25, 0.55, 0.85],
+      rootMargin: '0px 0px -10% 0px'
+    });
+
+    allCardVideos.forEach(media => observer.observe(media));
   }
 </script>
 <script src="js/app.js?v=<?= time() ?>"></script>

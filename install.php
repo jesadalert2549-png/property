@@ -17,6 +17,7 @@ $tables = [
         approval ENUM('pending','approved','rejected') NOT NULL DEFAULT 'pending',
         verification_status ENUM('unchecked','passed','flagged') NOT NULL DEFAULT 'unchecked',
         verification_notes TEXT NULL,
+        video_file VARCHAR(255) NULL DEFAULT NULL,
         price INT UNSIGNED NOT NULL DEFAULT 0,
         original_price INT UNSIGNED NULL DEFAULT NULL,
         views_count INT UNSIGNED NOT NULL DEFAULT 0,

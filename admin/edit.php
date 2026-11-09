@@ -81,6 +81,18 @@ if (request_is_post()) {
     $postedOrigPrice = (!empty($_POST['original_price']) && is_numeric($_POST['original_price'])) ? (int)$_POST['original_price'] : null;
 
     if (empty($errors)) {
+        // จัดการอัปโหลดไฟล์วิดีโอ (ถ้ามี)
+        $newUploadedVideo = null;
+        if (!empty($_FILES['video']['name'])) {
+            try {
+                $newUploadedVideo = save_uploaded_property_video($_FILES['video'] ?? []);
+            } catch (RuntimeException $re) {
+                $errors[] = $re->getMessage();
+            }
+        }
+    }
+
+    if (empty($errors)) {
         if ($id > 0) {
             $prevPrice = (int)($property['price'] ?? 0);
             $finalOrigPrice = $postedOrigPrice;
@@ -91,9 +103,20 @@ if (request_is_post()) {
                 $finalOrigPrice = null;
             }
 
+            // จัดการไฟล์วิดีโอ (ถ้าติ๊กลบ หรืออัปโหลดใหม่)
+            $finalVideo = $property['video_file'] ?? null;
+            if (!empty($_POST['delete_video'])) {
+                if ($finalVideo) delete_image_file($finalVideo);
+                $finalVideo = null;
+            }
+            if ($newUploadedVideo !== null) {
+                if ($finalVideo) delete_image_file($finalVideo);
+                $finalVideo = $newUploadedVideo;
+            }
+
             // อัปเดตข้อมูล
-            $stmt = $pdo->prepare("UPDATE properties SET title = ?, type = ?, category = ?, property_category = ?, price = ?, original_price = ?, location = ?, lat = ?, lng = ?, contact_name = ?, phone = ?, line_id = ?, description = ?, bedrooms = ?, bathrooms = ?, area_sqm = ?, land_area = ?, parking_spaces = ?, floor_number = ?, furnished = ?, amenities = ?, nearby_places = ?, status = ? WHERE id = ?");
-            $stmt->execute([$title, $type, $category, $category, $postedPrice, $finalOrigPrice, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status, $id]);
+            $stmt = $pdo->prepare("UPDATE properties SET title = ?, type = ?, category = ?, property_category = ?, price = ?, original_price = ?, location = ?, lat = ?, lng = ?, contact_name = ?, phone = ?, line_id = ?, description = ?, bedrooms = ?, bathrooms = ?, area_sqm = ?, land_area = ?, parking_spaces = ?, floor_number = ?, furnished = ?, amenities = ?, nearby_places = ?, status = ?, video_file = ? WHERE id = ?");
+            $stmt->execute([$title, $type, $category, $category, $postedPrice, $finalOrigPrice, $location, $mapCoords[0] ?? null, $mapCoords[1] ?? null, $contact_name, $phone, $lineId, $description, $bedrooms, $bathrooms, $area_sqm, $land_area, $parking_spaces, $floor_number, $furnished, $amenities, $nearby_places, $status, $finalVideo, $id]);
             set_flash('อัปเดตข้อมูลประกาศเรียบร้อยแล้ว');
 
             // แจ้งเตือนเมื่อราคาลดลง
@@ -324,6 +347,24 @@ $token = csrf_token();
             </div>
           </div>
         <?php endif; ?>
+      </div>
+
+      <div class="form-group" style="background: #fafbfc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px; margin-top: 20px;">
+        <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 6px;">
+          🎬 <?= e(t('วิดีโอคลิปของประกาศ (เมื่อนำเมาส์ไปวางที่การ์ดหน้าแรกจะเล่นพร้อมเสียง)', 'Property Video Clip (Plays with sound on hover on homepage)')) ?>
+        </label>
+        <p style="margin: 0 0 10px; font-size: 12.5px; color: #64748b;">
+          <?= e(t('รองรับไฟล์ MP4, WebM หรือ MOV ขนาดไม่เกิน 50 MB เมื่อวางเมาส์ที่ประกาศบนหน้าแรก จะเล่นวิดีโอพร้อมเสียงทันที', 'Supports MP4, WebM or MOV up to 50 MB. Hovering over the homepage card plays this video with sound.')) ?>
+        </p>
+        <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
+          <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+            <video src="../uploads/<?= e(rawurlencode(basename($property['video_file']))) ?>" controls style="max-height: 140px; border-radius: 10px; background: #0B1C33;"></video>
+            <label style="font-size: 13px; color: #dc2626; font-weight: 700; cursor: pointer;">
+              <input type="checkbox" name="delete_video" value="1"> ✕ <?= e(t('ลบคลิปวิดีโอนี้ออก', 'Delete this video')) ?>
+            </label>
+          </div>
+        <?php endif; ?>
+        <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
       </div>
 
       <div style="margin-top: 32px;">

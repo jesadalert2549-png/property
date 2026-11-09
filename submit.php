@@ -88,12 +88,17 @@ if (request_is_post()) {
 
     if (!$errors) {
         $uploadedImages = [];
+        $uploadedVideo = null;
         $stage = 'upload';
         $coverIndex = max(0, min(MAX_IMAGES - 1, (int)($_POST['cover_index'] ?? 0)));
         try {
             $uploadedImages = save_uploaded_images_ordered($_FILES['images'] ?? [], MAX_IMAGES, $coverIndex);
+            if (!empty($_FILES['video']['name'])) {
+                $uploadedVideo = save_uploaded_property_video($_FILES['video'] ?? []);
+            }
             if (count($uploadedImages) < 1) {
                 foreach ($uploadedImages as $file) delete_image_file($file);
+                if ($uploadedVideo) delete_image_file($uploadedVideo);
                 $uploadedImages = [];
                 $errors[] = t('ไฟล์รูปไม่ถูกต้อง กรุณาเลือกรูป JPG, PNG หรือ WebP ขนาดไม่เกิน 5 MB', 'Invalid image file. Please choose a JPG, PNG or WebP image no larger than 5 MB.');
             } else {
@@ -112,14 +117,15 @@ if (request_is_post()) {
                     "INSERT INTO properties
                         (title, type, category, property_category, status, approval, verification_status, verification_notes,
                          price, location, lat, lng, description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished,
-                         amenities, nearby_places, contact_name, phone, line_id, user_id)
-                     VALUES (?, ?, ?, ?, 'available', 'approved', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                         amenities, nearby_places, contact_name, phone, line_id, user_id, video_file)
+                     VALUES (?, ?, ?, ?, 'available', 'approved', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
                 );
                 $stmt->execute([
                     $data['title'], $data['type'], $data['property_category'], $data['property_category'],
                     $verificationStatus, $verificationNotes, $data['price'], $data['location'], $data['lat'], $data['lng'], $data['description'],
                     $data['bedrooms'], $data['bathrooms'], $data['area_sqm'], $data['land_area'], $data['parking_spaces'], $data['floor_number'],
                     $data['furnished'], $data['amenities'], $data['nearby_places'], $data['contact_name'], $data['phone'], $data['line_id'], $userId,
+                    $uploadedVideo,
                 ]);
                 $propertyId = (int)$pdo->lastInsertId();
 
@@ -141,6 +147,9 @@ if (request_is_post()) {
             }
             foreach ($uploadedImages as $file) {
                 delete_image_file($file);
+            }
+            if (!empty($uploadedVideo)) {
+                delete_image_file($uploadedVideo);
             }
             error_log('Listing submission failed during ' . $stage . ': ' . $ex->getMessage());
             $errors[] = $stage === 'upload'
@@ -344,6 +353,12 @@ $furnishedLabelsEn = [
                 <span><?= e(t('เลือกรูปภาพเป็นหน้าปกประกาศได้ โดยแตะที่ปุ่ม "ตั้งเป็นหน้าปก" บนรูปที่ต้องการ (ค่าเริ่มต้นคือรูปแรก)', 'Select a cover photo by tapping "Set as cover" on your chosen photo (default is first photo).')) ?></span>
               </div>
               <div id="listingImagePreview" class="listing-image-preview field-full" aria-live="polite"></div>
+
+              <label class="listing-upload field-full" style="border-style:dashed; background:#fbfcfe;">
+                <strong>🎬 <?= e(t('วิดีโอคลิปของประกาศ (ไม่บังคับ - มีฟีเจอร์เอาเมาส์ชี้แล้วเล่นพร้อมเสียงบนหน้าแรก)', 'Property video clip (Optional - plays with sound on hover on homepage)')) ?></strong>
+                <small><?= e(t('ไฟล์ MP4, WebM หรือ MOV · ขนาดไม่เกิน 50 MB · เมื่อนำเมาส์ไปวางที่การ์ดหน้าแรก วิดีโอจะเล่นพร้อมเสียงทันที', 'MP4, WebM or MOV · Max 50 MB · Hovering over the homepage card plays this video with sound')) ?></small>
+                <input id="listingVideo" type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
+              </label>
               <label><?= e(t('ชื่อผู้ติดต่อ', 'Contact name')) ?> *
                 <input type="text" name="contact_name" value="<?= $v('contact_name') ?>" placeholder="<?= e(t('ชื่อที่ให้ผู้สนใจติดต่อ', 'Name for interested buyers to contact')) ?>" required>
                 <small><?= e(t('เติมชื่อจากบัญชีของคุณให้แล้ว แก้ไขได้ก่อนส่ง', 'Pre-filled from your account. You can edit it before submitting.')) ?></small>
