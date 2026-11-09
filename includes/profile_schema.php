@@ -22,7 +22,7 @@ function ensure_profile_schema(PDO $pdo): void
         }
     }
 
-    // ตรวจสอบและสร้างคอลัมน์ original_price, views_count, clicks_count ใน properties อัตโนมัติ (กรณี deploy ขึ้นโฮสต์จริง)
+    // ตรวจสอบและสร้างคอลัมน์ original_price, views_count, clicks_count, video_file ใน properties อัตโนมัติ (กรณี deploy ขึ้นโฮสต์จริง)
     try {
         if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'original_price'")->fetch()) {
             $pdo->exec("ALTER TABLE properties ADD COLUMN original_price INT UNSIGNED NULL DEFAULT NULL AFTER price");
@@ -32,6 +32,9 @@ function ensure_profile_schema(PDO $pdo): void
         }
         if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'clicks_count'")->fetch()) {
             $pdo->exec("ALTER TABLE properties ADD COLUMN clicks_count INT UNSIGNED NOT NULL DEFAULT 0 AFTER views_count");
+        }
+        if (!$pdo->query("SHOW COLUMNS FROM properties LIKE 'video_file'")->fetch()) {
+            $pdo->exec("ALTER TABLE properties ADD COLUMN video_file VARCHAR(255) NULL DEFAULT NULL AFTER clicks_count");
         }
     } catch (Throwable $e) {}
 }
