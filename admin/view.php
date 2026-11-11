@@ -72,7 +72,7 @@ $images = $img_stmt->fetchAll(PDO::FETCH_COLUMN);
       <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 24px;">
         <?php foreach ($images as $img): ?>
           <a href="../uploads/<?= e($img) ?>" target="_blank" style="display: block; height: 130px; border-radius: 8px; overflow: hidden; border: 1px solid #cbd5e1;">
-            <img src="../uploads/<?= e($img) ?>" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="../uploads/<?= e($img) ?>" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" decoding="async" alt="<?= e(t('รูปประกาศ', 'Listing photo')) ?>">
           </a>
         <?php endforeach; ?>
       </div>

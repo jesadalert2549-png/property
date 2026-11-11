@@ -6,3 +6,11 @@ uploads/*
 !uploads/**/.htaccess
 !uploads/hero/
 !uploads/auth/
+# Temporary test files & automated browser screenshots
+*.png
+*.jpg
+!images/
+!images/**
+*.mjs
+*.txt
+test_cookie*.txt

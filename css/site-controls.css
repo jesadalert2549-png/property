@@ -33,18 +33,27 @@
   --font-editorial: "Fenice Std", "Noto Serif Thai", "Pridi", "Bodoni MT", "Didot", Georgia, serif;
 }
 
-body {
+body:not(.member-portal-body) {
   font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif !important;
 }
 
-h1, h2, h3, h4, h5, h6,
-.section-title, .hero-title, .card-title,
-.site-shell-title, .dash-hero h1, .stat-card-value {
+body:not(.member-portal-body) h1,
+body:not(.member-portal-body) h2,
+body:not(.member-portal-body) h3,
+body:not(.member-portal-body) h4,
+body:not(.member-portal-body) h5,
+body:not(.member-portal-body) h6,
+body:not(.member-portal-body) .section-title,
+body:not(.member-portal-body) .hero-title,
+body:not(.member-portal-body) .card-title,
+body:not(.member-portal-body) .site-shell-title,
+body:not(.member-portal-body) .dash-hero h1,
+body:not(.member-portal-body) .stat-card-value {
   font-family: "Fenice Std", "Noto Serif Thai", "Pridi", serif !important;
   letter-spacing: -0.015em;
 }
 
-/* Never display floating controls on home page, search catalog, category listing, property detail, or admin workspace */
+/* Never display floating controls on home page, search catalog, category listing, property detail, forms, or admin workspace */
 body.home-page .site-controls,
 body.page-home .site-controls,
 body.search-page-body .site-controls,
@@ -62,6 +71,8 @@ body:has(.admin-sidebar) .site-controls,
 body:has(.admin-desktop-navbar) .site-controls,
 body:has(.dd-navbar) .site-controls,
 body:has(.dd-hero) .site-controls,
+body:has(.member-edit-page) .site-controls,
+body:has(.listing-form) .site-controls,
 .site-controls.home-hidden {
   display: none !important;
 }

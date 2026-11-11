@@ -17,7 +17,7 @@ $adminReturnTargets = array_map(
 $validAdminReturn = in_array($requestedReturnTo, $adminReturnTargets, true)
     || preg_match('#^admin/(?:edit|view|agent-document)\.php\?id=[1-9][0-9]{0,9}$#D', $requestedReturnTo);
 $validListingEditReturn = (bool)preg_match('#^edit-listing\.php\?id=[1-9][0-9]{0,9}$#D', $requestedReturnTo);
-$validMemberReturn = in_array($requestedReturnTo, ['submit.php', 'submit-project.php'], true) || $validListingEditReturn;
+$validMemberReturn = in_array($requestedReturnTo, ['submit.php', 'submit-project.php', 'submit-reel.php'], true) || $validListingEditReturn;
 $returnTo = $validMemberReturn || $validAdminReturn ? $requestedReturnTo : '';
 $token = csrf_token();
 if (request_is_post()) {

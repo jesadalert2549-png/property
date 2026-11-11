@@ -82,19 +82,22 @@ $featuredImages = [];
 foreach ($featuredSections as &$featuredSection) {
     $listingSql = $featuredPropertiesEnabled
         ? 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name, p.video_file,
-                  (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
-                  (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
-                  (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
+                  u.full_name AS publisher_name,
+                  u.avatar_path AS publisher_avatar,
+                  u.agent_status AS publisher_agent_status,
                   (fp.property_id IS NOT NULL) AS is_featured
-           FROM properties p LEFT JOIN featured_properties fp ON fp.property_id = p.id
+           FROM properties p
+           LEFT JOIN users u ON u.id = p.user_id
+           LEFT JOIN featured_properties fp ON fp.property_id = p.id
            WHERE p.approval = ? AND p.status = ? AND p.property_category = ?
            ORDER BY (fp.property_id IS NULL), fp.sort_order, p.created_at DESC LIMIT 4'
         : 'SELECT p.id, p.title, p.type, p.price, p.original_price, p.views_count, p.clicks_count, p.location, p.contact_name, p.video_file,
-                  (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
-                  (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
-                  (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
+                  u.full_name AS publisher_name,
+                  u.avatar_path AS publisher_avatar,
+                  u.agent_status AS publisher_agent_status,
                   0 AS is_featured
            FROM properties p
+           LEFT JOIN users u ON u.id = p.user_id
            WHERE p.approval = ? AND p.status = ? AND p.property_category = ?
            ORDER BY p.created_at DESC LIMIT 4';
     $listingStatement = $pdo->prepare($listingSql);
@@ -757,19 +760,19 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       right: auto !important;
       display: inline-flex;
       align-items: center;
-      gap: 3px;
-      padding: 3px 8px;
+      gap: 4px;
+      padding: 3.5px 9px;
       border-radius: 999px;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
       letter-spacing: .02em;
-      background: rgba(11,28,51,.78);
+      background: rgba(11,28,51,.85);
       color: #F8D888;
-      border: 1px solid rgba(197,160,89,.35);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      box-shadow: 0 2px 6px rgba(0,0,0,.18);
-      transition: all .2s ease;
+      border: 1px solid rgba(197,160,89,.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 3px 8px rgba(0,0,0,.22);
+      transition: all .22s cubic-bezier(0.34, 1.56, 0.64, 1);
       cursor: pointer;
       pointer-events: auto;
       margin: 0;
@@ -778,20 +781,24 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     .card-video-pill:hover {
       background: #0B1C33;
       border-color: #F8D888;
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(197,160,89,.35);
+    }
+    .card-video-pill:active {
+      transform: scale(0.95);
     }
     .card-video-pill .pill-play-icon {
       color: #F8D888;
     }
     .card-video-pill .pill-sound-icon {
-      opacity: .85;
+      opacity: .9;
       margin-left: 1px;
     }
     .card-video-pill.sound-active {
       background: #15803d !important;
       border-color: #4ade80 !important;
       color: #ffffff !important;
-      box-shadow: 0 3px 12px rgba(21,128,61,.45) !important;
+      box-shadow: 0 4px 14px rgba(21,128,61,.5) !important;
     }
     .card-video-pill.sound-active .pill-play-icon,
     .card-video-pill.sound-active .pill-sound-icon {
@@ -886,6 +893,129 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #64748b !important;
     }
 
+    /* Flagship Property Reels Buttons & Floating Action Pill (Luxury Theme Match) */
+    .reels-flagship-nav-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      padding: 6px 15px !important;
+      border-radius: 999px !important;
+      background: linear-gradient(135deg, #0B1C33 0%, #172D4D 45%, #C5A059 100%) !important;
+      color: #ffffff !important;
+      font-family: 'Prompt', -apple-system, sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.02em !important;
+      text-decoration: none !important;
+      box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4), 0 2px 6px rgba(11, 28, 51, 0.5) !important;
+      border: 1.5px solid rgba(248, 216, 136, 0.75) !important;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      position: relative !important;
+      overflow: hidden !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+      animation: reelsGoldPulse 2.4s infinite ease-in-out !important;
+    }
+    .reels-flagship-nav-btn:hover {
+      transform: translateY(-2px) scale(1.06) !important;
+      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
+      color: #0B1C33 !important;
+      text-shadow: none !important;
+      box-shadow: 0 6px 24px rgba(197, 160, 89, 0.6) !important;
+      border-color: #ffffff !important;
+    }
+    .reels-flagship-nav-btn:active {
+      transform: scale(0.96) !important;
+    }
+    .reels-flagship-nav-btn .flame-icon {
+      font-size: 14px;
+      display: inline-block;
+      animation: flameWiggle 1.6s infinite ease-in-out;
+    }
+    @keyframes reelsGoldPulse {
+      0%, 100% {
+        box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4), 0 2px 6px rgba(11, 28, 51, 0.5);
+      }
+      50% {
+        box-shadow: 0 4px 26px rgba(197, 160, 89, 0.75), 0 0 14px rgba(248, 216, 136, 0.6);
+      }
+    }
+    @keyframes flameWiggle {
+      0%, 100% { transform: rotate(0deg) scale(1); }
+      25% { transform: rotate(-8deg) scale(1.15); }
+      75% { transform: rotate(8deg) scale(1.15); }
+    }
+
+    /* Floating Reels Action Pill on Mobile & Tablet (Cohesive Luxury Design & Perfect Placement) */
+    .reels-floating-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 20px;
+      z-index: 1000;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0B1C33 0%, #182E4B 50%, #8C6B32 85%, #C5A059 100%);
+      color: #ffffff !important;
+      font-family: 'Prompt', -apple-system, sans-serif !important;
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-decoration: none !important;
+      border: 1.5px solid rgba(248, 216, 136, 0.85);
+      box-shadow: 0 8px 24px rgba(11, 28, 51, 0.55), 0 4px 16px rgba(197, 160, 89, 0.45);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: fabFloat 3s infinite ease-in-out;
+      cursor: pointer;
+    }
+    .reels-floating-fab:hover {
+      transform: translateY(-4px) scale(1.06);
+      border-color: #ffffff;
+      box-shadow: 0 12px 32px rgba(197, 160, 89, 0.65), 0 4px 18px rgba(11, 28, 51, 0.6);
+      color: #ffffff !important;
+    }
+    .reels-floating-fab:active {
+      transform: scale(0.95);
+    }
+    .reels-floating-fab .fab-flame {
+      font-size: 16px;
+      display: inline-block;
+      animation: flameWiggle 1.4s infinite ease-in-out;
+    }
+    .reels-floating-fab .fab-tag {
+      font-size: 10px;
+      font-weight: 900;
+      padding: 2.5px 8px;
+      border-radius: 999px;
+      background: rgba(248, 216, 136, 0.22);
+      border: 1px solid rgba(248, 216, 136, 0.6);
+      color: #F8D888;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Coordinated Position for Scroll-To-Top button (Sits neatly above the FAB, never overlapping) */
+    .to-top {
+      bottom: 84px !important;
+      right: 22px !important;
+      width: 40px !important;
+      height: 40px !important;
+      font-size: 16px !important;
+      border: 1px solid rgba(197, 160, 89, 0.35) !important;
+      box-shadow: 0 4px 16px rgba(11, 28, 51, 0.25) !important;
+      z-index: 999 !important;
+    }
+
+    /* Override nav scrolled state so reels button ALWAYS stays vibrant */
+    .dd-navbar:not(.scrolled) .reels-flagship-nav-btn,
+    .dd-navbar.scrolled .reels-flagship-nav-btn {
+      color: #ffffff !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+    }
+
     /* Video on card hover styles */
     .showcase-media.has-hover-video {
       cursor: pointer;
@@ -898,9 +1028,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       object-fit: cover;
       display: block;
       z-index: 2;
-      opacity: 0;
+      opacity: 1; /* Always directly visible for video cards like Kasa Reels */
       transition: opacity .25s ease;
-      pointer-events: none;
       background: #0B1C33;
     }
     .showcase-media.video-playing .showcase-hover-video {
@@ -1001,6 +1130,10 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <!-- เมนู Desktop -->
     <nav class="dd-desktop-menu">
       <?php render_nav_dropdowns(); ?>
+      <a href="reels.php" class="reels-flagship-nav-btn" title="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด สไตล์ Reels', 'Watch Short-form Property Video Tours')) ?>">
+        <span class="flame-icon">🔥</span>
+        <span><?= e(t('Property Reels', 'Property Reels')) ?></span>
+      </a>
       <a href="project.php" class="dd-menu-item"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
       <a href="favorites.php" class="dd-menu-item" title="<?= e(t('ทรัพย์ที่บันทึกไว้', 'Saved Properties')) ?>">
         ❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?>
@@ -1017,6 +1150,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
   <!-- ปุ่มขวา Desktop -->
   <div class="dd-nav-right">
+    <a href="submit-reel.php" class="dd-icon-btn" style="background:linear-gradient(135deg,rgba(248,216,136,0.18),rgba(197,160,89,0.12)); border:1.5px solid rgba(248,216,136,0.7); color:#F8D888; font-weight:850; box-shadow:0 2px 10px rgba(197,160,89,0.25);" title="<?= e(t('ลงคลิป Reels ด่วนใน 30 วินาที', 'Post quick reel')) ?>">
+      <span>📹</span> <?= e(t('ลงคลิป Reels', 'Post Reel')) ?>
+    </a>
     <a href="submit.php" class="dd-icon-btn"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
     <?php if (!empty($_SESSION['user_id'])): ?>
       <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>" class="dd-btn-login"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
@@ -1047,6 +1183,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
     <!-- รายการเมนู Dropdown -->
     <ul class="drawer-menu-list">
+      <li>
+        <a href="reels.php" class="drawer-menu-item" style="color:#ffffff !important; font-weight:800; background:linear-gradient(135deg, #0B1C33 0%, #172D4D 45%, #C5A059 100%) !important; border:1px solid rgba(248, 216, 136, 0.75) !important; border-radius:12px; margin:6px 14px 4px; box-shadow:0 4px 14px rgba(197,160,89,0.35);">
+          <span>🔥 <?= e(t('Property Reels (คลิปสั้นพาทัวร์)', 'Property Reels (Short Video Tours)')) ?></span>
+          <span class="arrow" style="color:#F8D888;">›</span>
+        </a>
+      </li>
+      <li>
+        <a href="submit-reel.php" class="drawer-menu-item" style="color:#F8D888 !important; font-weight:800; background:rgba(11,28,51,0.06); border:1px solid rgba(197, 160, 89, 0.4); border-radius:12px; margin:0 14px 10px;">
+          <span>📹 <?= e(t('➕ โพสต์คลิป Reels ด่วน (30 วิ)', '➕ Quick Post Reel (30s)')) ?></span>
+          <span class="arrow" style="color:#C5A059;">›</span>
+        </a>
+      </li>
       <li>
         <a href="search.php?type=sale" class="drawer-menu-item">
           <span><?= e(t('ซื้อ', 'Buy')) ?></span>
@@ -1225,6 +1373,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               $hasVideo = $videoUrl !== '';
             ?>
             <div class="showcase-media<?= $hasVideo ? ' has-hover-video' : '' ?>"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
+              <?php if ($hasVideo): ?>
+                <video class="showcase-hover-video" src="<?= e($videoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= e($featuredImageUrl) ?>"></video>
+              <?php endif; ?>
               <?php if ($featuredImageExists): ?>
                 <img src="<?= e($featuredImageUrl) ?>" class="showcase-img" alt="<?= e($listing['title']) ?>" loading="lazy" decoding="async" width="640" height="441">
               <?php else: ?>
@@ -1659,8 +1810,7 @@ render_site_footer(); ?>
     const videoSrc = mediaWrap.getAttribute('data-card-video');
     if (!videoSrc) return;
 
-    let videoEl = null;
-    let hoverTimer = null;
+    let videoEl = mediaWrap.querySelector('video.showcase-hover-video');
     const pill = mediaWrap.querySelector('.card-video-pill');
     const soundMutedIcon = pill?.querySelector('.sound-muted');
     const soundUnmutedIcon = pill?.querySelector('.sound-unmuted');
@@ -1674,7 +1824,7 @@ render_site_footer(); ?>
       if (soundUnmutedIcon) soundUnmutedIcon.style.display = isMuted ? 'none' : 'inline-block';
     };
 
-    const createVideo = () => {
+    const getOrCreateVideo = () => {
       if (videoEl) return videoEl;
       videoEl = document.createElement('video');
       videoEl.className = 'showcase-hover-video';
@@ -1690,113 +1840,131 @@ render_site_footer(); ?>
       return videoEl;
     };
 
+    // Initialize pre-rendered video if exists
+    if (videoEl) {
+      videoEl.muted = true;
+      videoEl.volume = 0.85;
+      videoEl.play().catch(() => {});
+      mediaWrap.classList.add('video-playing');
+      updateSoundUI(true);
+    }
+
     const startPlay = () => {
-      clearTimeout(hoverTimer);
-      hoverTimer = setTimeout(() => {
-        const v = createVideo();
-        // Always starts muted automatically (both hover and scroll)
-        // User must explicitly click/tap the speaker button to hear sound
-        v.muted = true;
-        updateSoundUI(true);
-        const playPromise = v.play();
-        if (playPromise !== undefined) {
-          playPromise.then(() => {
-            mediaWrap.classList.add('video-playing');
-          }).catch(() => {});
-        }
-      }, isTouchDevice ? 50 : 120);
+      const v = getOrCreateVideo();
+      const playPromise = v.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          mediaWrap.classList.add('video-playing');
+        }).catch(() => {});
+      }
     };
 
-    const stopPlay = () => {
-      clearTimeout(hoverTimer);
+    let isUserEngaged = false; // When user clicks pill on desktop, keep sound active
+
+    const stopPlay = (force = false) => {
+      // If user unmuted the sound, do not pause on mouse leave
+      if (!force && isUserEngaged && !isTouchDevice) {
+        return;
+      }
       if (videoEl) {
-        mediaWrap.classList.remove('video-playing');
-        try {
-          videoEl.pause();
-          videoEl.currentTime = 0;
+        // When stopping force, mute back
+        if (force) {
           videoEl.muted = true;
           updateSoundUI(true);
-        } catch (e) {}
-        if (currentlyPlayingAudioCard === mediaWrap) {
-          currentlyPlayingAudioCard = null;
+          isUserEngaged = false;
+          if (currentlyPlayingAudioCard === mediaWrap) {
+            currentlyPlayingAudioCard = null;
+          }
         }
       }
     };
 
     // Desktop: Trigger visual play on hover / focus (silent)
     const card = mediaWrap.closest('.showcase-card') || mediaWrap;
-    card.addEventListener('mouseenter', startPlay);
-    card.addEventListener('mouseleave', stopPlay);
-    card.addEventListener('focusin', startPlay);
-    card.addEventListener('focusout', stopPlay);
+    card.addEventListener('mouseenter', () => {
+      if (!isUserEngaged) {
+        startPlay();
+      }
+    });
+    card.addEventListener('mouseleave', () => stopPlay(false));
+    card.addEventListener('focusin', () => {
+      if (!isUserEngaged) {
+        startPlay();
+      }
+    });
+    card.addEventListener('focusout', () => stopPlay(false));
 
-    // Video Pill Tap: Plays with sound / toggles sound directly on the top badge
+    // Video Pill Tap/Click: Click to play with sound & stays playing (persistent) or click again to close
     if (pill) {
       pill.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const v = createVideo();
+        const v = getOrCreateVideo();
 
-        if (v.muted || !mediaWrap.classList.contains('video-playing')) {
-          // Mute any other card that might be currently playing audio
-          if (currentlyPlayingAudioCard && currentlyPlayingAudioCard !== mediaWrap) {
-            currentlyPlayingAudioCard._muteAudio?.();
-          }
-          v.muted = false;
-          v.volume = 0.85;
-          currentlyPlayingAudioCard = mediaWrap;
-          if (!mediaWrap.classList.contains('video-playing')) {
-            v.play().then(() => mediaWrap.classList.add('video-playing')).catch(() => {});
-          }
-          updateSoundUI(false);
-        } else {
+        // If it's already playing with sound and user is engaged, clicking mutes it
+        if (isUserEngaged && !v.muted) {
           v.muted = true;
+          isUserEngaged = false;
           if (currentlyPlayingAudioCard === mediaWrap) {
             currentlyPlayingAudioCard = null;
           }
           updateSoundUI(true);
+          return;
         }
+
+        // Mute any other card that might be currently playing audio
+        if (currentlyPlayingAudioCard && currentlyPlayingAudioCard !== mediaWrap) {
+          currentlyPlayingAudioCard._muteAudio?.();
+        }
+
+        isUserEngaged = true;
+        v.muted = false;
+        v.volume = 0.85;
+        currentlyPlayingAudioCard = mediaWrap;
+        v.play().catch(() => {});
+        updateSoundUI(false);
       });
     }
 
     mediaWrap._startPlay = startPlay;
-    mediaWrap._stopPlay = stopPlay;
+    mediaWrap._stopPlay = (force = true) => stopPlay(force);
     mediaWrap._muteAudio = () => {
       if (videoEl) {
         videoEl.muted = true;
         updateSoundUI(true);
       }
+      isUserEngaged = false;
     };
   });
 
-  // Mobile & iPad: Scroll-into-view AutoPlay (IntersectionObserver)
+  // Mobile & iPad: Optimize video playback on scroll (pause off-screen videos to save CPU/battery)
   if ('IntersectionObserver' in window && allCardVideos.length > 0) {
-    let currentInViewCard = null;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const media = entry.target;
-        if (entry.isIntersecting && entry.intersectionRatio >= 0.55) {
-          if (currentInViewCard && currentInViewCard !== media) {
-            currentInViewCard._stopPlay?.();
-          }
-          currentInViewCard = media;
-          // Silent smooth preview
-          media._startPlay?.();
-        } else if (!entry.isIntersecting || entry.intersectionRatio < 0.25) {
-          if (currentInViewCard === media) {
-            currentInViewCard = null;
-          }
-          media._stopPlay?.();
+        const v = media.querySelector('video.showcase-hover-video');
+        if (!v) return;
+        if (entry.isIntersecting) {
+          v.play().catch(() => {});
+        } else {
+          v.pause();
         }
       });
     }, {
-      threshold: [0.25, 0.55, 0.85],
-      rootMargin: '0px 0px -10% 0px'
+      threshold: 0.15,
+      rootMargin: '50px 0px 50px 0px'
     });
 
     allCardVideos.forEach(media => observer.observe(media));
   }
 </script>
+<!-- Floating Reels Action Pill on Mobile & Tablet (Always Visible & Accessible) -->
+<a href="reels.php" class="reels-floating-fab" title="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด สไตล์ Reels', 'Watch Short-form Property Video Tours')) ?>" aria-label="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด', 'Property Reels')) ?>">
+  <span class="fab-flame">🔥</span>
+  <span>Property Reels</span>
+  <span class="fab-tag">FEED</span>
+</a>
+
 <script src="js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

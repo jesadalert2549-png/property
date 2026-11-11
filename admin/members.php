@@ -36,7 +36,19 @@ if (request_is_post()) {
                 'UPDATE users SET tier = ?, max_listings = ?, can_post_featured = ?, can_post_project = ?, is_banned = ?, ban_reason = ?, admin_notes = ? WHERE id = ?'
             );
             $stmt->execute([$tier, $maxListings, $canFeatured, $canProject, $isBanned, $banReason, $adminNotes, $targetUserId]);
-            $message = "อัปเดตสิทธิ์และโควตาสมาชิก #{$targetUserId} เรียบร้อยแล้ว";
+
+            $newPw = trim((string)($_POST['reset_password'] ?? ''));
+            if ($newPw !== '') {
+                if (strlen($newPw) < 6) {
+                    $errors[] = 'รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร';
+                } else {
+                    $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')
+                        ->execute([password_hash($newPw, PASSWORD_DEFAULT), $targetUserId]);
+                    $message = "อัปเดตสิทธิ์และรีเซ็ตรหัสผ่านใหม่ให้สมาชิก #{$targetUserId} สำเร็จแล้ว";
+                }
+            } else {
+                $message = "อัปเดตสิทธิ์และโควตาสมาชิก #{$targetUserId} เรียบร้อยแล้ว";
+            }
         }
 
         // 2. ปลดแบน / แบน สมาชิกด่วน (Quick Ban / Unban)
@@ -420,6 +432,12 @@ $token = csrf_token();
           </div>
 
           <div>
+            <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;"><?= e(t('รีเซ็ตรหัสผ่านใหม่ (Reset Password)', 'Reset Password')) ?></label>
+            <input type="text" name="reset_password" id="modalResetPassword" placeholder="<?= e(t('เว้นว่างไว้หากไม่ต้องการเปลี่ยนรหัสผ่าน', 'Leave blank to keep unchanged')) ?>" autocomplete="new-password" style="width:100%; min-height:40px; padding:6px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; box-sizing:border-box;">
+            <small style="color:#64748B; font-size:11px; margin-top:3px; display:block;">🔑 <?= e(t('ระบุรหัสผ่านใหม่ (อย่างน้อย 6 หรือ 8 ตัวอักษร) เพื่อตั้งค่าให้สมาชิกทันที', 'Enter new password to reset for this user immediately.')) ?></small>
+          </div>
+
+          <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:4px;"><?= e(t('บันทึกช่วยจำของผู้ดูแล (Admin Internal Notes)', 'Admin Internal Notes')) ?></label>
             <textarea name="admin_notes" id="modalAdminNotes" rows="2" placeholder="<?= e(t('บันทึกข้อความเฉพาะ Founder...', 'Private notes for Founder...')) ?>" style="width:100%; padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font:inherit; font-size:12.5px; box-sizing:border-box;"></textarea>
           </div>
@@ -446,6 +464,7 @@ $token = csrf_token();
     document.getElementById('modalBanReason').value = u.ban_reason || '';
     document.getElementById('banReasonBox').style.display = parseInt(u.is_banned) === 1 ? 'block' : 'none';
     document.getElementById('modalAdminNotes').value = u.admin_notes || '';
+    document.getElementById('modalResetPassword').value = '';
     document.getElementById('memberModal').classList.add('active');
   }
   function closeMemberModal() {

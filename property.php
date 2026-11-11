@@ -8,14 +8,16 @@ ensure_profile_schema(db());
 
 $id = (int)($_GET['id'] ?? 0);
 $st = db()->prepare(
-    "SELECT id, title, type, property_category, status, verification_status, verification_notes, price, original_price, location, lat, lng, line_id,
-            description, bedrooms, bathrooms, area_sqm, land_area, parking_spaces, floor_number, furnished, line_id,
-            amenities, nearby_places, contact_name, phone, video_file,
-            (SELECT u.id FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_user_id,
-            (SELECT u.full_name FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_full_name,
-            (SELECT u.avatar_path FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_avatar_path,
-            (SELECT u.agent_status FROM users u WHERE u.id = properties.user_id LIMIT 1) AS owner_agent_status
-     FROM properties WHERE properties.id = ? AND properties.approval = 'approved'"
+    "SELECT properties.id, properties.title, properties.type, properties.property_category, properties.status, properties.verification_status, properties.verification_notes, properties.price, properties.original_price, properties.location, properties.lat, properties.lng, properties.line_id,
+            properties.description, properties.bedrooms, properties.bathrooms, properties.area_sqm, properties.land_area, properties.parking_spaces, properties.floor_number, properties.furnished,
+            properties.amenities, properties.nearby_places, properties.contact_name, properties.phone, properties.video_file,
+            u.id AS owner_user_id,
+            u.full_name AS owner_full_name,
+            u.avatar_path AS owner_avatar_path,
+            u.agent_status AS owner_agent_status
+     FROM properties
+     LEFT JOIN users u ON u.id = properties.user_id
+     WHERE properties.id = ? AND properties.approval = 'approved' LIMIT 1"
 );
 $st->execute([$id]);
 $p = $st->fetch();
@@ -44,7 +46,7 @@ $listingStatusLabel = $p['status'] === 'done'
 
 // ประกาศแนะนำจากหมวดเดียวกัน (ไม่รวมประกาศนี้)
 $st = db()->prepare(
-    "SELECT p.id, p.title, p.type, p.property_category, p.price, p.original_price, p.location,
+    "SELECT p.id, p.title, p.type, p.property_category, p.price, p.original_price, p.location, p.video_file,
             (SELECT i.filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover
      FROM properties p
      WHERE p.approval = 'approved' AND p.id != ? AND p.property_category = ?
@@ -227,6 +229,118 @@ json_ld($propertyAiFaq);
         font-size:11px !important;
       }
     }
+
+    /* Kasa Reels-style card video preview */
+    .card-media-wrap {
+      position: relative;
+      overflow: hidden;
+      border-radius: 16px;
+      background: #0B1C33;
+      aspect-ratio: 16 / 10;
+      box-shadow: 0 4px 14px rgba(11,28,51,0.06);
+    }
+    .card-media-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .45s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .group:hover .card-media-wrap img {
+      transform: scale(1.05);
+    }
+    .card-hover-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      z-index: 2;
+      opacity: 1; /* Directly visible like Kasa Reels */
+      transition: opacity .3s ease;
+      background: #0B1C33;
+    }
+    .card-media-wrap.video-playing .card-hover-video {
+      opacity: 1;
+    }
+    .card-video-pill {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11.5px;
+      font-weight: 850;
+      letter-spacing: .02em;
+      background: linear-gradient(135deg, rgba(11,28,51,.92), rgba(21,46,77,.92));
+      color: #F8D888;
+      border: 1px solid rgba(197,160,89,.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 4px 14px rgba(0,0,0,.35);
+      transition: all .24s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .card-video-pill:hover {
+      background: #0B1C33;
+      border-color: #F8D888;
+      transform: scale(1.08);
+      box-shadow: 0 6px 18px rgba(197,160,89,.45);
+    }
+    .card-video-pill:active {
+      transform: scale(0.95);
+    }
+    .card-video-pill.sound-active {
+      background: #15803d !important;
+      border-color: #4ade80 !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px rgba(21,128,61,.5) !important;
+    }
+    .card-video-pill.sound-active svg {
+      color: #ffffff !important;
+    }
+
+    /* Kasa Reels Reels Center Pulse Play Overlay */
+    .card-reels-center-btn {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 5;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .card-reels-play-ring {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(11, 28, 51, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 2px solid rgba(248, 216, 136, 0.85);
+      display: grid;
+      place-items: center;
+      color: #F8D888;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      transition: transform .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .group:hover .card-reels-play-ring {
+      transform: scale(1.15);
+      background: rgba(11, 28, 51, 0.9);
+      border-color: #ffffff;
+      color: #ffffff;
+    }
+    .card-media-wrap.video-playing .card-reels-center-btn {
+      opacity: 0;
+      transform: scale(0.8);
+      pointer-events: none;
+    }
   </style>
 </head>
 <body class="page-property bg-slate-50 text-slate-800 antialiased" data-back-url="category.php?page=<?= e(rawurlencode((string)$catSlug)) ?>">
@@ -280,8 +394,8 @@ json_ld($propertyAiFaq);
             </div>
             <span class="text-xs font-bold text-accent bg-amber-50 px-2.5 py-1 rounded-full">HD VIDEO</span>
           </div>
-          <div class="overflow-hidden rounded-2xl bg-black aspect-video relative">
-            <video src="uploads/<?= e(rawurlencode($propVideoFilename)) ?>" controls playsinline preload="metadata" class="w-full h-full object-contain"></video>
+          <div class="overflow-hidden rounded-2xl bg-black aspect-video relative group/mainvid">
+            <video id="mainPropertyVideo" src="uploads/<?= e(rawurlencode($propVideoFilename)) ?>" autoplay controls playsinline preload="auto" class="w-full h-full object-contain"></video>
           </div>
         </div>
       <?php endif; ?>
@@ -362,7 +476,7 @@ json_ld($propertyAiFaq);
             <p class="font-bold text-ink"><?= e(category_label_bi($p['property_category'])) ?></p>
           </div>
         </div>
-        <?php if (!empty($p['owner_user_id'])): ?><a class="publisher-profile-card publisher-profile-link" href="member.php?id=<?= (int)$p['owner_user_id'] ?>" aria-label="ดูโปรไฟล์และประกาศของ <?= e($publisherName) ?>"><?php else: ?><div class="publisher-profile-card"><?php endif; ?><span class="publisher-avatar"><?php if ($publisherAvatarExists): ?><img src="uploads/avatars/<?= e($publisherAvatar) ?>" alt="รูปโปรไฟล์ <?= e($publisherName) ?>"><?php else: ?><?= e(mb_strtoupper(mb_substr($publisherName, 0, 1))) ?><?php endif; ?></span><div class="publisher-profile-info"><p class="publisher-eyebrow"><?= e(t('ผู้ประกาศ · ดูโปรไฟล์', 'Lister · View profile')) ?></p><strong><?= e($publisherName) ?></strong><?php if (($p['owner_agent_status'] ?? '') === 'verified'): ?><span class="agent-verified-badge" title="<?= e(t('ผู้ดูแลตรวจสอบหลักฐาน Agent แล้ว', 'Agent credentials verified by admin')) ?>"><?= e(t('✓ Agent รับรอง', '✓ Verified agent')) ?></span><?php endif; ?></div><?= !empty($p['owner_user_id']) ? '</a>' : '</div>' ?>
+        <?php if (!empty($p['owner_user_id'])): ?><a class="publisher-profile-card publisher-profile-link" href="member.php?id=<?= (int)$p['owner_user_id'] ?>" aria-label="ดูโปรไฟล์และประกาศของ <?= e($publisherName) ?>"><?php else: ?><div class="publisher-profile-card"><?php endif; ?><span class="publisher-avatar"><?php if ($publisherAvatarExists): ?><img src="uploads/avatars/<?= e($publisherAvatar) ?>" alt="รูปโปรไฟล์ <?= e($publisherName) ?>" loading="lazy" decoding="async"><?php else: ?><?= e(mb_strtoupper(mb_substr($publisherName, 0, 1))) ?><?php endif; ?></span><div class="publisher-profile-info"><p class="publisher-eyebrow"><?= e(t('ผู้ประกาศ · ดูโปรไฟล์', 'Lister · View profile')) ?></p><strong><?= e($publisherName) ?></strong><?php if (($p['owner_agent_status'] ?? '') === 'verified'): ?><span class="agent-verified-badge" title="<?= e(t('ผู้ดูแลตรวจสอบหลักฐาน Agent แล้ว', 'Agent credentials verified by admin')) ?>"><?= e(t('✓ Agent รับรอง', '✓ Verified agent')) ?></span><?php endif; ?></div><?= !empty($p['owner_user_id']) ? '</a>' : '</div>' ?>
       </div>
       <div class="mt-5">
         <?php if ($p['status'] !== 'done'): ?>
@@ -594,10 +708,27 @@ json_ld($propertyAiFaq);
     <?php if ($related): ?>
       <div class="grid gap-3.5 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
         <?php foreach ($related as $r): ?>
+          <?php
+            $relVideoFilename = basename((string)($r['video_file'] ?? ''));
+            $relVideoPath = $relVideoFilename !== '' ? UPLOAD_DIR . $relVideoFilename : '';
+            $relVideoUrl = ($relVideoFilename !== '' && is_file($relVideoPath)) ? 'uploads/' . rawurlencode($relVideoFilename) : '';
+            $hasRelVideo = $relVideoUrl !== '';
+            $cover = $r['cover'] && is_file(UPLOAD_DIR . basename($r['cover'])) ? 'uploads/' . rawurlencode(basename($r['cover'])) : 'images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg';
+          ?>
           <a href="property.php?id=<?= (int)$r['id'] ?>" class="group rounded-2xl sm:rounded-3xl border border-slate-200 bg-white p-3 shadow-soft transition hover:-translate-y-0.5 hover:border-accent block">
-            <div class="overflow-hidden rounded-xl sm:rounded-2xl bg-slate-100 aspect-video sm:aspect-auto">
-              <?php $cover = $r['cover'] && is_file(UPLOAD_DIR . basename($r['cover'])) ? 'uploads/' . rawurlencode(basename($r['cover'])) : 'images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg'; ?>
-              <img src="<?= e($cover) ?>" alt="<?= e($r['title']) ?>" class="h-44 sm:h-48 w-full object-cover transition duration-500 group-hover:scale-[1.04]" loading="lazy" decoding="async" width="640" height="220">
+            <div class="card-media-wrap<?= $hasRelVideo ? ' has-hover-video video-playing' : '' ?>"<?= $hasRelVideo ? ' data-card-video="' . e($relVideoUrl) . '"' : '' ?>>
+              <?php if ($hasRelVideo): ?>
+                <video class="card-hover-video" src="<?= e($relVideoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= e($cover) ?>"></video>
+              <?php endif; ?>
+              <img src="<?= e($cover) ?>" alt="<?= e($r['title']) ?>" loading="lazy" decoding="async" width="640" height="220">
+              <?php if ($hasRelVideo): ?>
+                <button type="button" class="card-video-pill" aria-label="<?= e(t('แตะเปิด/ปิดเสียงวิดีโอ', 'Toggle video sound')) ?>" title="<?= e(t('วิดีโอคลิป (แตะเปิด/ปิดเสียง)', 'Video (tap to unmute)')) ?>">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <span><?= e(t('วิดีโอ', 'Video')) ?></span>
+                  <svg class="sound-muted" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('ปิดเสียงอยู่', 'Muted')) ?>"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                  <svg class="sound-unmuted" style="display:none;" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('เปิดเสียงแล้ว', 'Playing with sound')) ?>"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+              <?php endif; ?>
             </div>
             <p class="mt-3 font-extrabold text-ink text-sm sm:text-base leading-snug line-clamp-2"><?= e($r['title']) ?></p>
             <p class="mt-1 text-xs sm:text-sm text-slate-500 truncate">⌖ <?= e(category_label_bi($r['property_category'])) ?> · <?= e($r['location']) ?></p>
@@ -780,6 +911,160 @@ render_to_top();
       mapEl.replaceChildren(fallbackMap);
     }
   }
+
+  // เล่นวิดีโอแนะนำทรัพย์หลักทันทีพร้อมเสียง (Autoplay with Sound & Max Volume 100%)
+  const mainVideo = document.getElementById('mainPropertyVideo');
+  if (mainVideo) {
+    mainVideo.volume = 1.0; // เพิ่ม Volume เสียงเต็มที่ 100%
+    mainVideo.muted = false; // เปิดเสียง
+
+    const activateFullAudio = () => {
+      mainVideo.muted = false;
+      mainVideo.volume = 1.0;
+      mainVideo.play().catch(() => {});
+      document.removeEventListener('click', activateFullAudio, true);
+      document.removeEventListener('touchstart', activateFullAudio, true);
+      document.removeEventListener('keydown', activateFullAudio, true);
+    };
+
+    const tryPlay = mainVideo.play();
+    if (tryPlay !== undefined) {
+      tryPlay.catch(() => {
+        // Fallback: หากเบราว์เซอร์ติด Autoplay Policy บล็อกเสียงก่อนปฏิสัมพันธ์แรก
+        // ให้เล่นแบบเงียบก่อน แล้วปลดล็อกเปิดเสียงดัง 100% ทันทีที่ผู้ใช้คลิก/แตะหน้าจอครั้งแรก
+        mainVideo.muted = true;
+        mainVideo.play().then(() => {
+          document.addEventListener('click', activateFullAudio, { capture: true, once: true });
+          document.addEventListener('touchstart', activateFullAudio, { capture: true, once: true });
+          document.addEventListener('keydown', activateFullAudio, { capture: true, once: true });
+        }).catch(() => {});
+      });
+    }
+  }
 </script>
 </body>
 </html>
+
+<script>
+  // Kasa Reels-style Video Previews for Related Property Cards
+  (() => {
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(hover: none)').matches;
+    const relatedCards = Array.from(document.querySelectorAll('.card-media-wrap[data-card-video]'));
+    let activeAudioCard = null;
+
+    relatedCards.forEach(mediaWrap => {
+      const src = mediaWrap.getAttribute('data-card-video');
+      if (!src) return;
+
+      let vEl = mediaWrap.querySelector('video.card-hover-video');
+      let userEngaged = false;
+      const pill = mediaWrap.querySelector('.card-video-pill');
+      const soundMuted = pill?.querySelector('.sound-muted');
+      const soundUnmuted = pill?.querySelector('.sound-unmuted');
+
+      const updateUI = (isMuted) => {
+        if (pill) pill.classList.toggle('sound-active', !isMuted);
+        if (soundMuted) soundMuted.style.display = isMuted ? 'inline-block' : 'none';
+        if (soundUnmuted) soundUnmuted.style.display = isMuted ? 'none' : 'inline-block';
+      };
+
+      const getOrCreateVideo = () => {
+        if (vEl) return vEl;
+        vEl = document.createElement('video');
+        vEl.className = 'card-hover-video';
+        vEl.src = src;
+        vEl.loop = true;
+        vEl.playsInline = true;
+        vEl.preload = 'auto';
+        vEl.muted = true;
+        vEl.volume = 0.85;
+        mediaWrap.appendChild(vEl);
+        updateUI(true);
+        return vEl;
+      };
+
+      // Auto start video directly if pre-rendered
+      if (vEl) {
+        vEl.muted = true;
+        vEl.volume = 0.85;
+        vEl.play().catch(() => {});
+        updateUI(true);
+      }
+
+      const start = () => {
+        const v = getOrCreateVideo();
+        v.play().catch(() => {});
+      };
+
+      const stop = (force = false) => {
+        if (!force && userEngaged && !isTouch) return;
+        if (vEl && force) {
+          vEl.muted = true;
+          updateUI(true);
+          if (activeAudioCard === mediaWrap) activeAudioCard = null;
+        }
+        userEngaged = false;
+      };
+
+      const card = mediaWrap.closest('a') || mediaWrap;
+      card.addEventListener('mouseenter', () => { if (!userEngaged) start(); });
+      card.addEventListener('mouseleave', () => stop(false));
+      card.addEventListener('focusin', () => { if (!userEngaged) start(); });
+      card.addEventListener('focusout', () => stop(false));
+
+      if (pill) {
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const v = getOrCreateVideo();
+
+          if (userEngaged && mediaWrap.classList.contains('video-playing') && !v.muted) {
+            stop(true);
+            return;
+          }
+
+          if (activeAudioCard && activeAudioCard !== mediaWrap) {
+            activeAudioCard._mute?.();
+          }
+
+          userEngaged = true;
+          v.muted = false;
+          v.volume = 0.85;
+          activeAudioCard = mediaWrap;
+          if (!mediaWrap.classList.contains('video-playing')) {
+            v.play().then(() => mediaWrap.classList.add('video-playing')).catch(() => {});
+          } else {
+            v.play().catch(() => {});
+          }
+          updateUI(false);
+        });
+      }
+
+      mediaWrap._start = start;
+      mediaWrap._stop = (f = true) => stop(f);
+      mediaWrap._mute = () => {
+        if (vEl) {
+          vEl.muted = true;
+          updateUI(true);
+        }
+        userEngaged = false;
+      };
+    });
+
+    if ('IntersectionObserver' in window && relatedCards.length > 0) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const media = entry.target;
+          const v = media.querySelector('video.card-hover-video');
+          if (!v) return;
+          if (entry.isIntersecting) {
+            v.play().catch(() => {});
+          } else {
+            v.pause();
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '50px 0px 50px 0px' });
+      relatedCards.forEach(c => obs.observe(c));
+    }
+  })();
+</script>

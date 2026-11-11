@@ -221,7 +221,7 @@ $allProjects = $pdo->query('SELECT id, title, developer, location, is_published,
         </div>
         <label class="wide">เพิ่มรูปภาพโครงการ <span class="project-admin-hint">เลือกได้สูงสุด <?= MAX_IMAGES ?> รูปต่อครั้ง · jpg, png, webp</span><input type="file" name="images[]" id="projectImages" accept="image/jpeg,image/png,image/webp" multiple></label>
         <div class="project-admin-images wide" id="projectImagePreview">
-          <?php foreach ($images as $image): ?><img src="../uploads/<?= e($image['filename']) ?>" alt="รูปโครงการเดิม" loading="lazy"><?php endforeach; ?>
+          <?php foreach ($images as $image): ?><img src="../uploads/<?= e($image['filename']) ?>" alt="รูปโครงการเดิม" loading="lazy" decoding="async"><?php endforeach; ?>
         </div>
         <?php if (($projectId > 0 && $canEditProjects) || ($projectId === 0 && $canCreateProjects)): ?>
           <label class="project-publish-row wide"><input type="checkbox" name="is_published" value="1" <?= !empty($project['is_published'])?'checked':'' ?>> <?= e(t('เผยแพร่หน้าโครงการ', 'Publish on project page')) ?></label>

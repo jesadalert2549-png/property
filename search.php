@@ -27,16 +27,17 @@ if (in_array($type, ['sale', 'rent'], true)) {
 }
 
 $st = db()->prepare(
-    'SELECT id, title, type, status, price, location, property_category, contact_name,
-            (SELECT u.full_name FROM users u WHERE u.id = properties.user_id LIMIT 1) AS publisher_name,
-            (SELECT u.avatar_path FROM users u WHERE u.id = properties.user_id LIMIT 1) AS publisher_avatar,
-            (SELECT u.agent_status FROM users u WHERE u.id = properties.user_id LIMIT 1) AS publisher_agent_status,
+    'SELECT properties.id, properties.title, properties.type, properties.status, properties.price, properties.original_price, properties.location, properties.property_category, properties.contact_name, properties.video_file,
+            u.full_name AS publisher_name,
+            u.avatar_path AS publisher_avatar,
+            u.agent_status AS publisher_agent_status,
             (SELECT i.filename FROM property_images i
              WHERE i.property_id = properties.id
              ORDER BY i.sort_order, i.id LIMIT 1) AS cover
      FROM properties
+     LEFT JOIN users u ON u.id = properties.user_id
      WHERE ' . implode(' AND ', $where) . "
-     ORDER BY (status = 'done'), created_at DESC
+     ORDER BY (properties.status = 'done'), properties.created_at DESC
      LIMIT 100"
 );
 $st->execute($params);
@@ -61,6 +62,173 @@ if ($q !== '' && empty($_GET['no_log'])) {
   <?php seo_head((is_en() ? 'Search Properties | ' : 'ค้นหาอสังหาริมทรัพย์ | ') . SITE_NAME, is_en() ? 'Search property listings for sale and rent by location and type' : 'ค้นหาประกาศขายและให้เช่าอสังหาริมทรัพย์ตามทำเลและประเภท', page_url('search.php'), false); ?>
   <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <?php lang_toggle_head(); ?>
+  <style>
+    .card .thumb {
+      position: relative;
+      overflow: hidden;
+      border-radius: 14px;
+      background: #0B1C33;
+    }
+    .thumb.has-hover-video { position: relative; overflow: hidden; background: #0B1C33; }
+    .thumb .card-video-stream {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      z-index: 2;
+      opacity: 1;
+      background: #0B1C33;
+    }
+    .thumb-badges-left {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+      pointer-events: none;
+    }
+    .thumb-badges-left .badge {
+      position: static !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 3px 8px !important;
+      border-radius: 6px !important;
+      font-size: 10px !important;
+      font-weight: 700 !important;
+      margin: 0 !important;
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      backdrop-filter: blur(4px) !important;
+      -webkit-backdrop-filter: blur(4px) !important;
+    }
+    .thumb-actions-right {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      z-index: 10;
+    }
+    .thumb-actions-right .card-video-pill {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3.5px 9px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      background: rgba(11,28,51,.85);
+      color: #F8D888;
+      border: 1px solid rgba(197,160,89,.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 3px 8px rgba(0,0,0,.22);
+      transition: all .22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      user-select: none;
+      margin: 0 !important;
+    }
+    .thumb-actions-right .card-video-pill:hover { background: #0B1C33; border-color: #F8D888; transform: scale(1.08); box-shadow: 0 4px 12px rgba(197,160,89,.35); }
+    .thumb-actions-right .card-video-pill:active { transform: scale(0.95); }
+    .thumb-actions-right .card-video-pill.sound-active { background: #15803d !important; border-color: #4ade80 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(21,128,61,.5) !important; }
+    .thumb-actions-right .card-video-pill.sound-active svg { color: #ffffff !important; }
+    .thumb-actions-right .card-fav-heart-btn {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 50% !important;
+      background: rgba(255, 255, 255, 0.88) !important;
+      backdrop-filter: blur(6px) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 14px !important;
+      cursor: pointer !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.14) !important;
+      transition: transform 0.2s, background 0.2s !important;
+      margin: 0 !important;
+    }
+    .thumb-actions-right .card-fav-heart-btn:hover {
+      transform: scale(1.12) !important;
+      background: #fff !important;
+    }
+    .thumb-actions-right .card-fav-heart-btn svg {
+      width: 16px !important;
+      height: 16px !important;
+    }
+    .card .info {
+      padding: 14px 16px 16px;
+    }
+    .card-publisher-line {
+      margin-bottom: 6px;
+    }
+    .card-publisher-line .publisher-mini {
+      position: static !important;
+      left: auto !important;
+      bottom: auto !important;
+      display: inline-flex !important;
+      padding: 2px 8px 2px 3px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      max-width: 100% !important;
+    }
+    .card-publisher-line .publisher-mini-avatar {
+      width: 20px !important;
+      height: 20px !important;
+      flex: 0 0 20px !important;
+      font-size: 10px !important;
+    }
+    .card-publisher-line .publisher-mini-name {
+      font-size: 11px !important;
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+    .card-publisher-line .publisher-mini-loc {
+      font-size: 10.5px !important;
+      color: #94a3b8 !important;
+    }
+    .card-price-stats-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 6px;
+    }
+    .card-stats-slot .property-card-stats-badge {
+      position: static !important;
+      bottom: auto !important;
+      right: auto !important;
+      display: inline-flex !important;
+      padding: 2px 7px !important;
+      font-size: 10px !important;
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .card-stats-slot .property-card-stats-badge svg {
+      stroke: #64748b !important;
+    }
+    .card-stats-slot .stat-badge-views,
+    .card-stats-slot .stat-badge-clicks {
+      color: #64748b !important;
+    }
+  </style>
 </head>
 <body class="search-page-body">
 
@@ -187,36 +355,64 @@ if ($q !== '' && empty($_GET['no_log'])) {
           <?php
             $cover = basename((string)($row['cover'] ?? ''));
             $coverExists = $cover !== '' && is_file(UPLOAD_DIR . $cover);
+            $videoFilename = basename((string)($row['video_file'] ?? ''));
+            $videoPath = $videoFilename !== '' ? UPLOAD_DIR . $videoFilename : '';
+            $videoUrl = ($videoFilename !== '' && is_file($videoPath)) ? 'uploads/' . rawurlencode($videoFilename) : '';
+            $hasVideo = $videoUrl !== '';
           ?>
-          <div class="thumb">
+          <div class="thumb<?= $hasVideo ? ' has-hover-video' : '' ?>"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
+            <?php if ($hasVideo): ?>
+              <video class="card-video-stream" src="<?= e($videoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= $coverExists ? 'uploads/' . e($cover) : '' ?>"></video>
+            <?php endif; ?>
             <?php if ($coverExists): ?>
               <img src="uploads/<?= e($cover) ?>" alt="<?= e($row['title']) ?>" loading="lazy" decoding="async" width="640" height="441">
             <?php else: ?>
               <div class="noimg" aria-hidden="true"></div>
             <?php endif; ?>
-            <span class="badge <?= e($row['type']) ?>"><?= e(is_en() ? ($row['type'] === 'rent' ? 'For rent' : 'For sale') : type_label($row['type'])) ?></span>
-            <?php if ($row['status'] === 'done'): ?>
-              <div class="ribbon"><?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?></div>
-            <?php else: ?><?php render_publisher_mini($row); ?><?php endif; ?>
-            <button type="button" class="sp-fav-card-btn card-fav-heart-btn" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
-              <span class="fav-heart-icon">
-                <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-              </span>
-            </button>
-            <?php
-              require_once __DIR__ . '/includes/price_helpers.php';
-              echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
-            ?>
+            <div class="thumb-badges-left">
+              <span class="badge <?= e($row['type']) ?>"><?= e(is_en() ? ($row['type'] === 'rent' ? 'For rent' : 'For sale') : type_label($row['type'])) ?></span>
+              <?php if ($row['status'] === 'done'): ?>
+                <span class="badge" style="background:#b91c1c;color:#fff;"><?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?></span>
+              <?php endif; ?>
+            </div>
+            <div class="thumb-actions-right">
+              <?php if ($hasVideo): ?>
+                <button type="button" class="card-video-pill" aria-label="<?= e(t('แตะเปิด/ปิดเสียงวิดีโอ', 'Toggle video sound')) ?>" title="<?= e(t('วิดีโอคลิป (แตะเปิด/ปิดเสียง)', 'Video (tap to unmute)')) ?>">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                  <span><?= e(t('วิดีโอ', 'Video')) ?></span>
+                  <svg class="sound-muted" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('ปิดเสียงอยู่', 'Muted')) ?>"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                  <svg class="sound-unmuted" style="display:none;" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('เปิดเสียงแล้ว', 'Playing with sound')) ?>"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                </button>
+              <?php endif; ?>
+              <button type="button" class="sp-fav-card-btn card-fav-heart-btn" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+                <span class="fav-heart-icon">
+                  <svg class="heart-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                </span>
+              </button>
+            </div>
           </div>
           <div class="info">
+            <?php if ($row['status'] !== 'done'): ?>
+              <div class="card-publisher-line">
+                <?php render_publisher_mini($row); ?>
+              </div>
+            <?php endif; ?>
             <h2><?= e($row['title']) ?></h2>
-            <div class="price">
-              <?php
-                require_once __DIR__ . '/includes/price_helpers.php';
-                echo render_price_badge((int)$row['price'], !empty($row['original_price']) ? (int)$row['original_price'] : null, $row['type']);
-              ?>
-            </div>
             <p class="loc"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="vertical-align:-1px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg> <?= e($row['location']) ?></p>
+            <div class="card-price-stats-row">
+              <div class="price">
+                <?php
+                  require_once __DIR__ . '/includes/price_helpers.php';
+                  echo render_price_badge((int)$row['price'], !empty($row['original_price']) ? (int)$row['original_price'] : null, $row['type']);
+                ?>
+              </div>
+              <div class="card-stats-slot">
+                <?php
+                  require_once __DIR__ . '/includes/price_helpers.php';
+                  echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
+                ?>
+              </div>
+            </div>
           </div>
         </a>
       <?php endforeach; ?>
@@ -255,3 +451,83 @@ if ($q !== '' && empty($_GET['no_log'])) {
 </script>
 </body>
 </html>
+
+<script>
+  // Kasa Reels-style Feed Video Stream & Sound Toggle for Search Results
+  (() => {
+    const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || window.matchMedia('(hover: none)').matches;
+    const cards = Array.from(document.querySelectorAll('.thumb[data-card-video]'));
+    let activeCard = null;
+
+    cards.forEach(media => {
+      const src = media.getAttribute('data-card-video');
+      if (!src) return;
+
+      let vEl = media.querySelector('video.card-video-stream');
+      const pill = media.querySelector('.card-video-pill');
+      const soundMuted = pill?.querySelector('.sound-muted');
+      const soundUnmuted = pill?.querySelector('.sound-unmuted');
+      let userEngaged = false;
+
+      const updateUI = (isMuted) => {
+        if (pill) pill.classList.toggle('sound-active', !isMuted);
+        if (soundMuted) soundMuted.style.display = isMuted ? 'inline-block' : 'none';
+        if (soundUnmuted) soundUnmuted.style.display = isMuted ? 'none' : 'inline-block';
+      };
+
+      if (vEl) {
+        vEl.muted = true;
+        vEl.volume = 1.0;
+        vEl.play().catch(() => {});
+        updateUI(true);
+      }
+
+      if (pill) {
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!vEl) return;
+
+          if (userEngaged && !vEl.muted) {
+            vEl.muted = true;
+            userEngaged = false;
+            if (activeCard === media) activeCard = null;
+            updateUI(true);
+            return;
+          }
+
+          if (activeCard && activeCard !== media) {
+            activeCard._mute?.();
+          }
+
+          userEngaged = true;
+          vEl.muted = false;
+          vEl.volume = 1.0;
+          activeCard = media;
+          vEl.play().catch(() => {});
+          updateUI(false);
+        });
+      }
+
+      media._mute = () => {
+        if (vEl) {
+          vEl.muted = true;
+          updateUI(true);
+        }
+        userEngaged = false;
+      };
+    });
+
+    if ('IntersectionObserver' in window && cards.length > 0) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video.card-video-stream');
+          if (!v) return;
+          if (entry.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        });
+      }, { threshold: 0.15, rootMargin: '50px 0px 50px 0px' });
+      cards.forEach(c => obs.observe(c));
+    }
+  })();
+</script>

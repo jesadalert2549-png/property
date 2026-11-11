@@ -12,9 +12,9 @@ $items = [];
 $guestIdsParam = trim((string)($_GET['ids'] ?? ''));
 
 if ($isLoggedIn) {
-    // ดึงทรัพย์ที่บันทึกไว้ของสมาชิกจากฐานข้อมูล
+    // ดึงทรัพย์ที่บันทึกไว้ของสมาชิกจากฐานข้อมูล (ดึงเฉพาะฟิลด์ที่จำเป็นต่อการแสดงผล)
     $stmt = $pdo->prepare(
-        "SELECT p.*,
+        "SELECT p.id, p.title, p.type, p.price, p.original_price, p.location, p.property_category, p.views_count, p.clicks_count, p.video_file,
                 (SELECT filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover
          FROM property_favorites f
          JOIN properties p ON p.id = f.property_id
@@ -29,7 +29,7 @@ if ($isLoggedIn) {
     if (!empty($cleanIds)) {
         $placeholders = implode(',', array_fill(0, count($cleanIds), '?'));
         $stmt = $pdo->prepare(
-            "SELECT p.*,
+            "SELECT p.id, p.title, p.type, p.price, p.original_price, p.location, p.property_category, p.views_count, p.clicks_count, p.video_file,
                     (SELECT filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover
              FROM properties p
              WHERE p.id IN ($placeholders) AND p.approval = 'approved'
@@ -98,9 +98,57 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
     .fav-card-media {
       position: relative;
       aspect-ratio: 4 / 3;
-      background: #e2e8f0;
+      background: #0B1C33;
       overflow: hidden;
     }
+    .fav-card-media .card-video-stream {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      z-index: 2;
+      opacity: 1;
+      background: #0B1C33;
+    }
+    .fav-card-media .card-video-pill {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3.5px 9px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      background: rgba(11,28,51,.85);
+      color: #F8D888;
+      border: 1px solid rgba(197,160,89,.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 3px 8px rgba(0,0,0,.22);
+      transition: all .22s cubic-bezier(0.34, 1.56, 0.64, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .fav-card-media .card-video-pill:hover {
+      background: #0B1C33;
+      border-color: #F8D888;
+      transform: scale(1.08);
+      box-shadow: 0 4px 12px rgba(197,160,89,.35);
+    }
+    .fav-card-media .card-video-pill:active { transform: scale(0.95); }
+    .fav-card-media .card-video-pill.sound-active {
+      background: #15803d !important;
+      border-color: #4ade80 !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 14px rgba(21,128,61,.5) !important;
+    }
+    .fav-card-media .card-video-pill.sound-active svg { color: #ffffff !important; }
     .fav-card-media img {
       width: 100%;
       height: 100%;
@@ -218,12 +266,27 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
           $coverFilename = $item['cover'] ?? '';
           $coverPath = $coverFilename ? __DIR__ . '/uploads/' . $coverFilename : '';
           $coverUrl = ($coverFilename && is_file($coverPath)) ? 'uploads/' . rawurlencode($coverFilename) : 'images/Gemini_Generated_Image_r1f2n5r1f2n5r1f2.jpg';
+          $videoFilename = basename((string)($item['video_file'] ?? ''));
+          $videoPath = $videoFilename !== '' ? UPLOAD_DIR . $videoFilename : '';
+          $videoUrl = ($videoFilename !== '' && is_file($videoPath)) ? 'uploads/' . rawurlencode($videoFilename) : '';
+          $hasVideo = $videoUrl !== '';
         ?>
         <article class="fav-item-card" id="favCard-<?= (int)$item['id'] ?>">
-          <div class="fav-card-media">
+          <div class="fav-card-media"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
             <a href="property.php?id=<?= (int)$item['id'] ?>">
+              <?php if ($hasVideo): ?>
+                <video class="card-video-stream" src="<?= e($videoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= e($coverUrl) ?>"></video>
+              <?php endif; ?>
               <img src="<?= e($coverUrl) ?>" alt="<?= e($item['title']) ?>" loading="lazy" decoding="async">
             </a>
+            <?php if ($hasVideo): ?>
+              <button type="button" class="card-video-pill" aria-label="<?= e(t('แตะเปิด/ปิดเสียงวิดีโอ', 'Toggle video sound')) ?>" title="<?= e(t('วิดีโอคลิป (แตะเปิด/ปิดเสียง)', 'Video (tap to unmute)')) ?>">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                <span><?= e(t('วิดีโอ', 'Video')) ?></span>
+                <svg class="sound-muted" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('ปิดเสียงอยู่', 'Muted')) ?>"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                <svg class="sound-unmuted" style="display:none;" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('เปิดเสียงแล้ว', 'Playing with sound')) ?>"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+              </button>
+            <?php endif; ?>
             <button type="button" class="sp-fav-card-btn fav-card-heart-btn" data-fav-toggle data-fav-id="<?= (int)$item['id'] ?>" data-is-fav="1" aria-label="<?= e(t('ลบออกจากรายการที่ชอบ', 'Remove from favorites')) ?>">
               <span class="fav-heart-icon">
                 <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="currentColor" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
@@ -286,3 +349,82 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
 <?php render_site_footer(); ?>
 </body>
 </html>
+
+<script>
+  // Kasa Reels-style Feed Video Stream & Sound Toggle for Favorites Page
+  (() => {
+    const cards = Array.from(document.querySelectorAll('.fav-card-media[data-card-video]'));
+    let activeCard = null;
+
+    cards.forEach(media => {
+      const src = media.getAttribute('data-card-video');
+      if (!src) return;
+
+      let vEl = media.querySelector('video.card-video-stream');
+      const pill = media.querySelector('.card-video-pill');
+      const soundMuted = pill?.querySelector('.sound-muted');
+      const soundUnmuted = pill?.querySelector('.sound-unmuted');
+      let userEngaged = false;
+
+      const updateUI = (isMuted) => {
+        if (pill) pill.classList.toggle('sound-active', !isMuted);
+        if (soundMuted) soundMuted.style.display = isMuted ? 'inline-block' : 'none';
+        if (soundUnmuted) soundUnmuted.style.display = isMuted ? 'none' : 'inline-block';
+      };
+
+      if (vEl) {
+        vEl.muted = true;
+        vEl.volume = 1.0;
+        vEl.play().catch(() => {});
+        updateUI(true);
+      }
+
+      if (pill) {
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!vEl) return;
+
+          if (userEngaged && !vEl.muted) {
+            vEl.muted = true;
+            userEngaged = false;
+            if (activeCard === media) activeCard = null;
+            updateUI(true);
+            return;
+          }
+
+          if (activeCard && activeCard !== media) {
+            activeCard._mute?.();
+          }
+
+          userEngaged = true;
+          vEl.muted = false;
+          vEl.volume = 1.0;
+          activeCard = media;
+          vEl.play().catch(() => {});
+          updateUI(false);
+        });
+      }
+
+      media._mute = () => {
+        if (vEl) {
+          vEl.muted = true;
+          updateUI(true);
+        }
+        userEngaged = false;
+      };
+    });
+
+    if ('IntersectionObserver' in window && cards.length > 0) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video.card-video-stream');
+          if (!v) return;
+          if (entry.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        });
+      }, { threshold: 0.15, rootMargin: '50px 0px 50px 0px' });
+      cards.forEach(c => obs.observe(c));
+    }
+  })();
+</script>

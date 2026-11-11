@@ -214,6 +214,147 @@ $token = csrf_token();
     .edit-page-box { background: #fff; padding: 36px; border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: 0 10px 30px rgba(23,27,61,.06); }
     .edit-page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #edf2f7; }
     .edit-page-header h1 { margin: 0; font-size: 22px; color: #251c42; }
+
+    /* Modern Photo & Video Dropzones matching Submit.php */
+    .listing-upload {
+      position: relative !important;
+      border: 2px dashed #C5A059 !important;
+      border-radius: 18px !important;
+      background: #FAF8F5 !important;
+      padding: 28px 20px !important;
+      text-align: center !important;
+      transition: all .22s ease !important;
+      cursor: pointer !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+    }
+    .listing-upload:hover {
+      border-color: #A8843F !important;
+      background: #F5EFE6 !important;
+      transform: translateY(-2px) !important;
+    }
+    .listing-upload-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      background: rgba(197, 160, 89, 0.16);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      display: grid;
+      place-items: center;
+      color: #8C6B32;
+      font-size: 24px;
+    }
+    .listing-upload strong {
+      color: #0B1C33 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      display: block !important;
+    }
+    .listing-upload small {
+      color: #64748B !important;
+      font-size: 12.5px !important;
+      display: block !important;
+      line-height: 1.5 !important;
+    }
+    .listing-upload-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      margin-top: 10px !important;
+      padding: 8px 18px !important;
+      border-radius: 999px !important;
+      background: #0B1C33 !important;
+      border: 1px solid rgba(197, 160, 89, 0.5) !important;
+      color: #F8D888 !important;
+      font-size: 12.5px !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 12px rgba(11, 28, 51, 0.15) !important;
+      pointer-events: none !important;
+      transition: all .2s ease !important;
+    }
+    .listing-upload:hover .listing-upload-btn {
+      background: #C5A059 !important;
+      color: #0B1C33 !important;
+      transform: scale(1.05) !important;
+    }
+    .listing-upload input[type="file"] {
+      display: none !important;
+    }
+    .listing-video-preview-box {
+      display: none;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0B1C33;
+      aspect-ratio: 16 / 9;
+      max-height: 280px;
+      margin: 12px 0;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      box-shadow: 0 8px 24px rgba(11, 28, 51, 0.15);
+    }
+    .listing-video-preview-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .listing-video-remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      background: rgba(11, 28, 51, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all .18s;
+    }
+    .listing-video-remove-btn:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+    .listing-image-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .listing-preview-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #E2E8F0;
+      background: #F8FAFC;
+      box-shadow: 0 2px 8px rgba(15, 30, 55, .06);
+    }
+    .listing-preview-card img {
+      width: 100%;
+      height: 105px;
+      object-fit: cover;
+      display: block;
+    }
+    .listing-preview-card .new-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #0B1C33;
+      color: #F8D888;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      font-size: 10px;
+      font-weight: 800;
+    }
   </style>
 </head>
 <body class="has-admin-sidebar">
@@ -327,13 +468,24 @@ $token = csrf_token();
         <textarea id="description" name="description" class="form-control" rows="6" placeholder="<?= e(t('ระบุรายละเอียด จุดเด่น สิ่งอำนวยความสะดวก ของอสังหาริมทรัพย์...', 'Property highlights, features, and key information...')) ?>"><?= e($property['description']) ?></textarea>
       </div>
 
+      <!-- Modern Photo Upload Zone matching Submit.php -->
       <div class="form-group">
-        <label for="images"><?= e(t('อัปโหลดรูปภาพประกาศเพิ่มเติม (เลือกได้หลายรูป)', 'Upload Additional Photos (multiple allowed)')) ?></label>
-        <input type="file" id="images" name="images[]" class="form-control" accept="image/*" multiple style="padding: 8px;">
-        <span style="font-size: 12px; color: #64748b; margin-top: 4px; display: block;"><?= e(t('รองรับไฟล์ JPG, PNG, WEBP ขนาดไม่เกิน 5MB ต่อรูป', 'Supported formats: JPG, PNG, WEBP (max 5MB per photo)')) ?></span>
-        
+        <label style="font-weight:700; color:#1e293b; display:block; margin-bottom:8px;"><?= e(t('รูปภาพของประกาศ', 'Listing Photos')) ?></label>
+        <div class="listing-upload" id="adminImagesDropzone">
+          <div class="listing-upload-icon">📷</div>
+          <strong><?= e(t('อัปโหลดรูปภาพประกาศเพิ่มเติม', 'Upload Additional Photos')) ?></strong>
+          <small><?= e(t('แตะเพื่อเลือกรูปภาพ หรือลากไฟล์มาวาง · สูงสุดรวมไม่เกิน ', 'Tap to select photos or drag & drop · up to ')) ?><?= MAX_IMAGES ?><?= e(t(' รูป (JPG, PNG, WebP ขนาดไม่เกิน 5 MB ต่อรูป)', ' photos (JPG, PNG, WebP max 5 MB each)')) ?></small>
+          <span class="listing-upload-btn">
+            <span>📁</span> <span><?= e(t('เลือกรูปภาพจากเครื่อง', 'Browse Photos')) ?></span>
+          </span>
+          <input id="adminImages" type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple style="display:none;">
+        </div>
+
+        <!-- Preview of newly selected photos -->
+        <div id="adminImagePreview" class="listing-image-preview" aria-live="polite"></div>
+
         <?php if (!empty($images)): ?>
-          <div style="margin-top: 16px;">
+          <div style="margin-top: 18px;">
             <label style="font-size: 13px; font-weight: 600; color: #475569; margin-bottom: 8px; display: block;"><?= e(t('รูปภาพที่มีอยู่เดิม (ติ๊กเลือกเพื่อลบรูปที่ไม่ต้องการ):', 'Existing photos (check to delete):')) ?></label>
             <div class="image-preview-grid">
               <?php foreach ($images as $img): ?>
@@ -349,22 +501,36 @@ $token = csrf_token();
         <?php endif; ?>
       </div>
 
-      <div class="form-group" style="background: #fafbfc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 18px; margin-top: 20px;">
-        <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 6px;">
+      <!-- Modern Video Upload Zone matching Submit.php -->
+      <div class="form-group" style="margin-top: 20px;">
+        <label style="font-weight: 700; color: #1e293b; display: block; margin-bottom: 8px;">
           🎬 <?= e(t('วิดีโอคลิปของประกาศ (เมื่อนำเมาส์ไปวางที่การ์ดหน้าแรกจะเล่นพร้อมเสียง)', 'Property Video Clip (Plays with sound on hover on homepage)')) ?>
         </label>
-        <p style="margin: 0 0 10px; font-size: 12.5px; color: #64748b;">
-          <?= e(t('รองรับไฟล์ MP4, WebM หรือ MOV ขนาดไม่เกิน 50 MB เมื่อวางเมาส์ที่ประกาศบนหน้าแรก จะเล่นวิดีโอพร้อมเสียงทันที', 'Supports MP4, WebM or MOV up to 50 MB. Hovering over the homepage card plays this video with sound.')) ?>
-        </p>
+        
+        <div class="listing-upload" id="adminVideoDropzone">
+          <div class="listing-upload-icon" style="background:rgba(239,68,68,0.12); color:#ef4444; border-color:rgba(239,68,68,0.35);">🎬</div>
+          <strong><?= e(t('อัปโหลดไฟล์วิดีโอคลิปพาทัวร์ทรัพย์', 'Upload property tour video clip')) ?></strong>
+          <small><?= e(t('แตะเพื่อเลือกคลิปพาทัวร์ทรัพย์ · MP4, WebM หรือ MOV ขนาดไม่เกิน 50 MB', 'Tap to select video tour · MP4, WebM or MOV up to 50 MB')) ?></small>
+          <span class="listing-upload-btn" style="background:#0B1C33; color:#F8D888;">
+            <span>📹</span> <span><?= e(t('เลือกไฟล์วิดีโอ', 'Browse Video')) ?></span>
+          </span>
+          <input id="adminVideo" type="file" name="video" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
+        </div>
+
+        <!-- Video Live Preview Player Box for new upload -->
+        <div class="listing-video-preview-box" id="adminVideoPreviewBox">
+          <video id="adminVideoPreviewPlayer" controls playsinline></video>
+          <button type="button" class="listing-video-remove-btn" id="adminVideoRemoveBtn">✕ <?= e(t('เปลี่ยนวิดีโอ', 'Change video')) ?></button>
+        </div>
+
         <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
-          <div style="margin-bottom: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+          <div style="margin-top: 12px; padding: 14px 16px; background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 12px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
             <video src="../uploads/<?= e(rawurlencode(basename($property['video_file']))) ?>" controls style="max-height: 140px; border-radius: 10px; background: #0B1C33;"></video>
             <label style="font-size: 13px; color: #dc2626; font-weight: 700; cursor: pointer;">
               <input type="checkbox" name="delete_video" value="1"> ✕ <?= e(t('ลบคลิปวิดีโอนี้ออก', 'Delete this video')) ?>
             </label>
           </div>
         <?php endif; ?>
-        <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
       </div>
 
       <div style="margin-top: 32px;">
@@ -374,6 +540,140 @@ $token = csrf_token();
 
   </div>
 </div>
+
+<script>
+(() => {
+  // ── Custom Drag & Drop / Click for Photos Zone in Admin ──
+  const imageInput = document.getElementById('adminImages');
+  const imagesDropzone = document.getElementById('adminImagesDropzone');
+  const imagePreview = document.getElementById('adminImagePreview');
+
+  if (imageInput && imagePreview && imagesDropzone) {
+    let previewUrls = [];
+
+    const renderPreviews = (files) => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      previewUrls = [];
+      imagePreview.replaceChildren();
+
+      files.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'listing-preview-card';
+
+        const img = document.createElement('img');
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        img.src = url;
+        img.alt = file.name;
+
+        const badge = document.createElement('span');
+        badge.className = 'new-badge';
+        badge.textContent = '+ รูปใหม่ #' + (index + 1);
+
+        item.appendChild(img);
+        item.appendChild(badge);
+        imagePreview.appendChild(item);
+      });
+    };
+
+    imagesDropzone.addEventListener('click', (e) => {
+      if (e.target !== imageInput) {
+        imageInput.click();
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      imagesDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        imagesDropzone.style.borderColor = '#A8843F';
+        imagesDropzone.style.background = '#F5EFE6';
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      imagesDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        imagesDropzone.style.borderColor = '#C5A059';
+        imagesDropzone.style.background = '#FAF8F5';
+      });
+    });
+    imagesDropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer?.files?.length && imageInput) {
+        imageInput.files = e.dataTransfer.files;
+        imageInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    imageInput.addEventListener('change', () => {
+      const files = Array.from(imageInput.files || []).slice(0, <?= MAX_IMAGES ?>).filter(f => f.type.startsWith('image/'));
+      renderPreviews(files);
+    });
+  }
+
+  // ── Custom Video Upload & Live Video Preview Box in Admin ──
+  const videoInput = document.getElementById('adminVideo');
+  const videoDropzone = document.getElementById('adminVideoDropzone');
+  const videoPreviewBox = document.getElementById('adminVideoPreviewBox');
+  const videoPreviewPlayer = document.getElementById('adminVideoPreviewPlayer');
+  const videoRemoveBtn = document.getElementById('adminVideoRemoveBtn');
+
+  videoDropzone?.addEventListener('click', (e) => {
+    if (e.target !== videoInput) {
+      videoInput?.click();
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    videoDropzone?.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      videoDropzone.style.borderColor = '#A8843F';
+      videoDropzone.style.background = '#F5EFE6';
+    });
+  });
+  ['dragleave', 'drop'].forEach(eventName => {
+    videoDropzone?.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      videoDropzone.style.borderColor = '#C5A059';
+      videoDropzone.style.background = '#FAF8F5';
+    });
+  });
+  videoDropzone?.addEventListener('drop', (e) => {
+    if (e.dataTransfer?.files?.length && videoInput) {
+      videoInput.files = e.dataTransfer.files;
+      videoInput.dispatchEvent(new Event('change'));
+    }
+  });
+
+  videoInput?.addEventListener('change', () => {
+    const file = videoInput.files?.[0];
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) {
+        alert('<?= e(t('ไฟล์วิดีโอต้องมีขนาดไม่เกิน 50 MB', 'Video must be less than 50 MB')) ?>');
+        videoInput.value = '';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      if (videoPreviewPlayer) {
+        videoPreviewPlayer.src = url;
+        videoPreviewPlayer.play().catch(() => {});
+      }
+      if (videoDropzone) videoDropzone.style.display = 'none';
+      if (videoPreviewBox) videoPreviewBox.style.display = 'block';
+    }
+  });
+
+  videoRemoveBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (videoInput) videoInput.value = '';
+    if (videoPreviewPlayer) {
+      videoPreviewPlayer.pause();
+      videoPreviewPlayer.src = '';
+    }
+    if (videoPreviewBox) videoPreviewBox.style.display = 'none';
+    if (videoDropzone) videoDropzone.style.display = 'flex';
+  });
+})();
+</script>
 
 </body>
 </html>

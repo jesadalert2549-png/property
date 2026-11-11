@@ -29,7 +29,8 @@ if ($projectId > 0) {
         $units = $statement->fetchAll();
     }
 } else {
-    $projects = db()->query("SELECT dp.*, u.full_name AS publisher_name, u.avatar_path AS publisher_avatar, u.agent_status AS publisher_agent_status
+    $projects = db()->query("SELECT dp.id, dp.title, dp.category, dp.developer, dp.location, dp.project_status, dp.price_from, dp.unit_count, dp.updated_at,
+        u.full_name AS publisher_name, u.avatar_path AS publisher_avatar, u.agent_status AS publisher_agent_status
         FROM development_projects dp LEFT JOIN users u ON u.id = dp.owner_user_id
         WHERE dp.is_published = 1 ORDER BY dp.updated_at DESC, dp.id DESC")->fetchAll();
 }

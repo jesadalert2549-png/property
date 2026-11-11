@@ -37,12 +37,13 @@ if ($cfg) {
 }
 
 // ดึงรายการประกาศจากฐานข้อมูลตาม Category และ Type (ถ้ากำหนด)
-$sql = "SELECT p.*,
-        (SELECT u.full_name FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_name,
-        (SELECT u.avatar_path FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_avatar,
-        (SELECT u.agent_status FROM users u WHERE u.id = p.user_id LIMIT 1) AS publisher_agent_status,
+$sql = "SELECT p.id, p.title, p.type, p.status, p.price, p.original_price, p.location, p.property_category, p.views_count, p.clicks_count, p.video_file, p.created_at,
+        u.full_name AS publisher_name,
+        u.avatar_path AS publisher_avatar,
+        u.agent_status AS publisher_agent_status,
         (SELECT filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover 
         FROM properties p 
+        LEFT JOIN users u ON u.id = p.user_id
         WHERE p.approval = 'approved'";
 
 $params = [];
@@ -153,6 +154,69 @@ $all_slugs = available_category_slugs();
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
+  <style>
+    .cat-media-wrap { position: relative; overflow: hidden; background: #0B1C33; border-radius: 20px; }
+    .cat-media-wrap .card-video-stream { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; z-index: 2; opacity: 1; transition: opacity .25s ease; background: #0B1C33; }
+    .cat-badges-left { position: absolute; top: 12px; left: 12px; z-index: 10; display: flex; align-items: center; gap: 6px; pointer-events: none; }
+    .cat-actions-right { position: absolute; top: 12px; right: 12px; z-index: 10; display: flex; align-items: center; gap: 6px; }
+    .cat-media-wrap .card-video-pill { position: static !important; top: auto !important; right: auto !important; display: inline-flex; align-items: center; gap: 4px; padding: 3.5px 9px; border-radius: 999px; font-size: 10.5px; font-weight: 800; letter-spacing: .02em; background: rgba(11,28,51,.85); color: #F8D888; border: 1px solid rgba(197,160,89,.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 3px 8px rgba(0,0,0,.22); transition: all .22s cubic-bezier(0.34, 1.56, 0.64, 1); cursor: pointer; user-select: none; margin: 0 !important; }
+    .cat-media-wrap .card-video-pill:hover { background: #0B1C33; border-color: #F8D888; transform: scale(1.08); box-shadow: 0 4px 12px rgba(197,160,89,.35); }
+    .cat-media-wrap .card-video-pill:active { transform: scale(0.95); }
+    .cat-media-wrap .card-video-pill.sound-active { background: #15803d !important; border-color: #4ade80 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(21,128,61,.5) !important; }
+    .cat-media-wrap .card-video-pill.sound-active svg { color: #ffffff !important; }
+    .cat-fav-btn {
+      position: static !important;
+      top: auto !important;
+      right: auto !important;
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 50% !important;
+      background: rgba(255, 255, 255, 0.88) !important;
+      backdrop-filter: blur(6px) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 14px !important;
+      cursor: pointer !important;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.14) !important;
+      transition: transform 0.2s, background 0.2s !important;
+      margin: 0 !important;
+    }
+    .cat-fav-btn:hover { transform: scale(1.12) !important; background: #fff !important; }
+    .cat-fav-btn svg { width: 16px !important; height: 16px !important; }
+    .cat-publisher-line { margin-bottom: 8px; }
+    .cat-publisher-line .publisher-mini {
+      position: static !important;
+      left: auto !important;
+      bottom: auto !important;
+      display: inline-flex !important;
+      padding: 2px 8px 2px 3px !important;
+      background: #f8fafc !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      max-width: 100% !important;
+    }
+    .cat-publisher-line .publisher-mini-avatar { width: 20px !important; height: 20px !important; flex: 0 0 20px !important; font-size: 10px !important; }
+    .cat-publisher-line .publisher-mini-name { font-size: 11px !important; color: #475569 !important; font-weight: 700 !important; }
+    .cat-publisher-line .publisher-mini-loc { font-size: 10.5px !important; color: #94a3b8 !important; }
+    .cat-stats-slot .property-card-stats-badge {
+      position: static !important;
+      bottom: auto !important;
+      right: auto !important;
+      display: inline-flex !important;
+      padding: 2px 7px !important;
+      font-size: 10px !important;
+      background: #f1f5f9 !important;
+      color: #64748b !important;
+      border: 1px solid #e2e8f0 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+    .cat-stats-slot .property-card-stats-badge svg { stroke: #64748b !important; }
+    .cat-stats-slot .stat-badge-views, .cat-stats-slot .stat-badge-clicks { color: #64748b !important; }
+  </style>
 </head>
 <body class="page-category bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
 
@@ -234,36 +298,60 @@ $all_slugs = available_category_slugs();
   <?php else: ?>
     <section class="category-listings-grid mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
       <?php foreach ($items as $row): ?>
-        <?php $cover = basename((string)($row['cover'] ?? '')); $coverExists = $cover !== '' && is_file(UPLOAD_DIR . $cover); $img = $coverExists ? 'uploads/' . e($cover) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'; ?>
+        <?php
+          $cover = basename((string)($row['cover'] ?? ''));
+          $coverExists = $cover !== '' && is_file(UPLOAD_DIR . $cover);
+          $img = $coverExists ? 'uploads/' . e($cover) : 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80';
+          $videoFilename = basename((string)($row['video_file'] ?? ''));
+          $videoPath = $videoFilename !== '' ? UPLOAD_DIR . $videoFilename : '';
+          $videoUrl = ($videoFilename !== '' && is_file($videoPath)) ? 'uploads/' . rawurlencode($videoFilename) : '';
+          $hasVideo = $videoUrl !== '';
+        ?>
         <article class="group overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-xl sm:rounded-[28px]">
           <a href="property.php?id=<?= (int)$row['id'] ?>" class="block no-underline text-inherit">
-            <div class="relative overflow-hidden">
+            <div class="cat-media-wrap relative overflow-hidden"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
+              <?php if ($hasVideo): ?>
+                <video class="card-video-stream" src="<?= e($videoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= $img ?>"></video>
+              <?php endif; ?>
               <img src="<?= $img ?>" alt="<?= e($row['title']) ?>" class="h-52 w-full object-cover transition duration-500 group-hover:scale-105 sm:h-60" loading="lazy" decoding="async" width="640" height="240">
-              <span class="absolute left-4 top-4 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-ink shadow-sm">
-                <?= e(is_en() ? ($row['type'] === 'rent' ? 'For rent' : 'For sale') : type_label($row['type'])) ?>
-              </span>
-              <?php if ($row['status'] === 'done'): ?>
-                <span class="absolute bottom-4 left-4 rounded-full bg-slate-900/80 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.12em] text-white">
-                  <?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?>
+              <div class="cat-badges-left">
+                <span class="rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-ink shadow-sm">
+                  <?= e(is_en() ? ($row['type'] === 'rent' ? 'For rent' : 'For sale') : type_label($row['type'])) ?>
                 </span>
-              <?php else: ?><?php render_publisher_mini($row); ?><?php endif; ?>
-              <button type="button" class="sp-fav-card-btn absolute top-3.5 right-3.5 z-10" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
-                <span class="fav-heart-icon">
-                  <svg class="heart-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
-                </span>
-              </button>
-              <?php
-                require_once __DIR__ . '/includes/price_helpers.php';
-                echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
-              ?>
+                <?php if ($row['status'] === 'done'): ?>
+                  <span class="rounded-full bg-slate-900/80 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.12em] text-white">
+                    <?= e(t($row['type'] === 'rent' ? 'ปล่อยเช่าแล้ว' : 'ขายแล้ว', $row['type'] === 'rent' ? 'Rented' : 'Sold')) ?>
+                  </span>
+                <?php endif; ?>
+              </div>
+              <div class="cat-actions-right">
+                <?php if ($hasVideo): ?>
+                  <button type="button" class="card-video-pill" aria-label="<?= e(t('แตะเปิด/ปิดเสียงวิดีโอ', 'Toggle video sound')) ?>" title="<?= e(t('วิดีโอคลิป (แตะเปิด/ปิดเสียง)', 'Video (tap to unmute)')) ?>">
+                    <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                    <span><?= e(t('วิดีโอ', 'Video')) ?></span>
+                    <svg class="sound-muted" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('ปิดเสียงอยู่', 'Muted')) ?>"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    <svg class="sound-unmuted" style="display:none;" viewBox="0 0 24 24" width="13" height="13" fill="currentColor" title="<?= e(t('เปิดเสียงแล้ว', 'Playing with sound')) ?>"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                  </button>
+                <?php endif; ?>
+                <button type="button" class="sp-fav-card-btn cat-fav-btn" data-fav-toggle data-fav-id="<?= (int)$row['id'] ?>" aria-label="<?= e(t('บันทึกในรายการที่ชอบ', 'Save to favorites')) ?>">
+                  <span class="fav-heart-icon">
+                    <svg class="heart-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  </span>
+                </button>
+              </div>
             </div>
             <div class="p-4 sm:p-5">
+              <?php if ($row['status'] !== 'done'): ?>
+                <div class="cat-publisher-line">
+                  <?php render_publisher_mini($row); ?>
+                </div>
+              <?php endif; ?>
               <div class="flex items-center justify-between gap-3">
                 <span class="rounded-full bg-accentSoft px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-[.14em] text-accent"><?= e(category_label_bi($row['property_category'])) ?></span>
                 <span class="text-xs font-bold text-slate-500">#<?= (int)$row['id'] ?></span>
               </div>
-              <h2 class="mt-3.5 line-clamp-2 text-lg font-extrabold leading-6 text-ink sm:mt-4 sm:text-xl sm:leading-7 break-words"><?= e($row['title']) ?></h2>
-              <p class="mt-2.5 flex items-center gap-1.5 text-sm text-slate-500 sm:mt-3"><svg class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><span><?= e($row['location']) ?></span></p>
+              <h2 class="mt-3 line-clamp-2 text-lg font-extrabold leading-6 text-ink sm:text-xl sm:leading-7 break-words"><?= e($row['title']) ?></h2>
+              <p class="mt-2 flex items-center gap-1.5 text-sm text-slate-500"><svg class="h-4 w-4 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg><span><?= e($row['location']) ?></span></p>
               
               <div class="mt-3.5 flex items-center justify-between gap-3 border-t border-slate-200 pt-3.5 sm:mt-4 sm:pt-4">
                 <div>
@@ -275,7 +363,12 @@ $all_slugs = available_category_slugs();
                     ?>
                   </div>
                 </div>
-                <span class="inline-flex items-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 transition hover:bg-slate-50"><?= e(t('ดูรายละเอียด', 'View details')) ?></span>
+                <div class="cat-stats-slot">
+                  <?php
+                    require_once __DIR__ . '/includes/price_helpers.php';
+                    echo render_card_stats_badge((int)($row['views_count'] ?? 0), (int)($row['clicks_count'] ?? 0));
+                  ?>
+                </div>
               </div>
             </div>
           </a>
@@ -405,3 +498,82 @@ $all_slugs = available_category_slugs();
 <?php render_to_top(); render_ux_scripts(); render_site_footer(); ?>
 </body>
 </html>
+
+<script>
+  // Kasa Reels-style Feed Video Stream & Sound Toggle for Category Page
+  (() => {
+    const cards = Array.from(document.querySelectorAll('.cat-media-wrap[data-card-video]'));
+    let activeCard = null;
+
+    cards.forEach(media => {
+      const src = media.getAttribute('data-card-video');
+      if (!src) return;
+
+      let vEl = media.querySelector('video.card-video-stream');
+      const pill = media.querySelector('.card-video-pill');
+      const soundMuted = pill?.querySelector('.sound-muted');
+      const soundUnmuted = pill?.querySelector('.sound-unmuted');
+      let userEngaged = false;
+
+      const updateUI = (isMuted) => {
+        if (pill) pill.classList.toggle('sound-active', !isMuted);
+        if (soundMuted) soundMuted.style.display = isMuted ? 'inline-block' : 'none';
+        if (soundUnmuted) soundUnmuted.style.display = isMuted ? 'none' : 'inline-block';
+      };
+
+      if (vEl) {
+        vEl.muted = true;
+        vEl.volume = 1.0;
+        vEl.play().catch(() => {});
+        updateUI(true);
+      }
+
+      if (pill) {
+        pill.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (!vEl) return;
+
+          if (userEngaged && !vEl.muted) {
+            vEl.muted = true;
+            userEngaged = false;
+            if (activeCard === media) activeCard = null;
+            updateUI(true);
+            return;
+          }
+
+          if (activeCard && activeCard !== media) {
+            activeCard._mute?.();
+          }
+
+          userEngaged = true;
+          vEl.muted = false;
+          vEl.volume = 1.0;
+          activeCard = media;
+          vEl.play().catch(() => {});
+          updateUI(false);
+        });
+      }
+
+      media._mute = () => {
+        if (vEl) {
+          vEl.muted = true;
+          updateUI(true);
+        }
+        userEngaged = false;
+      };
+    });
+
+    if ('IntersectionObserver' in window && cards.length > 0) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          const v = entry.target.querySelector('video.card-video-stream');
+          if (!v) return;
+          if (entry.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        });
+      }, { threshold: 0.15, rootMargin: '50px 0px 50px 0px' });
+      cards.forEach(c => obs.observe(c));
+    }
+  })();
+</script>

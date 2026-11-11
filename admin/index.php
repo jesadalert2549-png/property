@@ -124,8 +124,8 @@ $counts = array_merge(
 $counts['all'] = array_sum($counts);
 $counts['flagged'] = (int)$pdo->query("SELECT COUNT(*) FROM properties WHERE approval = 'approved' AND verification_status = 'flagged'")->fetchColumn();
 
-// ===== ดึงรายการตามแท็บ พร้อมรูปหน้าปก =====
-$select = "SELECT p.*,
+// ===== ดึงรายการตามแท็บ พร้อมรูปหน้าปก (ดึงเฉพาะฟิลด์ที่จำเป็นต่อการแสดงผลในตาราง) =====
+$select = "SELECT p.id, p.title, p.type, p.price, p.location, p.contact_name, p.phone, p.line_id, p.approval, p.status, p.verification_status, p.verification_notes, p.video_file, p.created_at,
     fp.sort_order AS featured_order,
     (SELECT filename FROM property_images i WHERE i.property_id = p.id ORDER BY i.sort_order, i.id LIMIT 1) AS cover
     FROM properties p
@@ -347,7 +347,7 @@ $approvalLabel = [
                 <td>
                   <div class="thumb" style="position:relative;">
                     <?php if ($p['cover']): ?>
-                      <img src="../uploads/<?= e($p['cover']) ?>" alt="<?= e(t('รูปประกาศ', 'Listing image')) ?>">
+                      <img src="../uploads/<?= e($p['cover']) ?>" alt="<?= e(t('รูปประกาศ', 'Listing image')) ?>" loading="lazy" decoding="async">
                     <?php else: ?>
                       <?= e(t('ไม่มีรูป', 'No image')) ?>
                     <?php endif; ?>

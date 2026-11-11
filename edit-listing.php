@@ -7,20 +7,27 @@ $id = isset($_GET['id']) && ctype_digit((string)$_GET['id']) ? (int)$_GET['id'] 
 if (empty($_SESSION['user_id'])) {
     redirect('login.php?return_to=' . rawurlencode('edit-listing.php?id=' . $id));
 }
-if (($_SESSION['role'] ?? '') === 'admin') {
-    redirect('admin/edit.php?id=' . $id);
-}
 if ($id < 1) {
     render_not_found();
 }
-
-$userId = (int)$_SESSION['user_id'];
 $pdo = db();
-$propertyStatement = $pdo->prepare('SELECT * FROM properties WHERE id = ? AND user_id = ? LIMIT 1');
-$propertyStatement->execute([$id, $userId]);
-$property = $propertyStatement->fetch();
-if (!$property) {
-    render_not_found();
+$userId = (int)$_SESSION['user_id'];
+
+if (($_SESSION['role'] ?? '') === 'admin') {
+    // Admin editing via member view or admin view is allowed, or allow viewing if admin
+    $propertyStatement = $pdo->prepare('SELECT * FROM properties WHERE id = ? LIMIT 1');
+    $propertyStatement->execute([$id]);
+    $property = $propertyStatement->fetch();
+    if (!$property) {
+        render_not_found();
+    }
+} else {
+    $propertyStatement = $pdo->prepare('SELECT * FROM properties WHERE id = ? AND user_id = ? LIMIT 1');
+    $propertyStatement->execute([$id, $userId]);
+    $property = $propertyStatement->fetch();
+    if (!$property) {
+        render_not_found();
+    }
 }
 
 $errorMessages = [];
@@ -140,15 +147,20 @@ if (request_is_post()) {
                 }
 
                 $pdo->beginTransaction();
-                $update = $pdo->prepare(
-                    'UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, original_price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, video_file=?, updated_at=CURRENT_TIMESTAMP WHERE id=? AND user_id=?'
-                );
-                $update->execute([
+                $updateOwnerSql = ($_SESSION['role'] ?? '') === 'admin' ? 'WHERE id=?' : 'WHERE id=? AND user_id=?';
+                $updateParams = [
                     $data['title'], $data['type'], $data['property_category'], $data['property_category'], $data['price'], $finalOrigPrice, $data['location'],
                     $data['lat'], $data['lng'], $data['description'], $data['bedrooms'], $data['bathrooms'], $data['area_sqm'], $data['land_area'],
                     $data['parking_spaces'], $data['floor_number'], $data['furnished'], $data['amenities'], $data['nearby_places'],
-                    $data['contact_name'], $data['phone'], $data['line_id'], $status, $approval, $verificationStatus, $verificationNotes, $finalVideo, $id, $userId,
-                ]);
+                    $data['contact_name'], $data['phone'], $data['line_id'], $status, $approval, $verificationStatus, $verificationNotes, $finalVideo, $id
+                ];
+                if (($_SESSION['role'] ?? '') !== 'admin') {
+                    $updateParams[] = $userId;
+                }
+                $update = $pdo->prepare(
+                    "UPDATE properties SET title=?, type=?, category=?, property_category=?, price=?, original_price=?, location=?, lat=?, lng=?, description=?, bedrooms=?, bathrooms=?, area_sqm=?, land_area=?, parking_spaces=?, floor_number=?, furnished=?, amenities=?, nearby_places=?, contact_name=?, phone=?, line_id=?, status=?, approval=?, verification_status=?, verification_notes=?, video_file=?, updated_at=CURRENT_TIMESTAMP $updateOwnerSql"
+                );
+                $update->execute($updateParams);
 
                 if ($deleteIds) {
                     $placeholders = implode(',', array_fill(0, count($deleteIds), '?'));
@@ -234,19 +246,163 @@ $mapLng = request_is_post() ? (string)($_POST['map_lng'] ?? '') : (string)($prop
     .member-edit-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px; }
     .member-edit-grid label { display:grid; align-content:start; gap:6px; color:#3d455f; font-size:13px; font-weight:700; }
     .member-edit-grid label.wide { grid-column:1/-1; }
-    .member-edit-grid input,.member-edit-grid select,.member-edit-grid textarea { width:100%; min-height:44px; padding:10px 12px; border:1px solid #d8ddea; border-radius:10px; background:#fff; color:#20243b; font:inherit; }
+    .member-edit-grid input:not([type="checkbox"]):not([type="radio"]),.member-edit-grid select,.member-edit-grid textarea { width:100%; min-height:44px; padding:10px 12px; border:1px solid #d8ddea; border-radius:10px; background:#fff; color:#20243b; font:inherit; }
+    .member-edit-grid input[type="checkbox"],.member-edit-grid input[type="radio"] { width: 17px; height: 17px; min-height: 17px; margin: 0; cursor: pointer; accent-color: #dc2626; flex-shrink: 0; }
     .member-edit-grid textarea { min-height:100px; resize:vertical; }
-    .member-edit-grid input:focus,.member-edit-grid select:focus,.member-edit-grid textarea:focus { border-color:var(--accent); outline:3px solid #7955d91c; }
+    .member-edit-grid input:not([type="checkbox"]):not([type="radio"]):focus,.member-edit-grid select:focus,.member-edit-grid textarea:focus { border-color:var(--accent); outline:3px solid #7955d91c; }
     .member-edit-section { grid-column:1/-1; margin:12px 0 0; padding-top:17px; border-top:1px solid #edf0f5; color:var(--primary-dark); font-size:16px; }
     .member-edit-help { color:var(--muted); font-size:11px; font-weight:450; }
-    .member-edit-images { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:10px; margin-top:10px; }
+    .member-edit-images { display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:10px; margin-top:10px; width: 100%; box-sizing: border-box; }
     .member-edit-image { overflow:hidden; border:1px solid #e3e7ee; border-radius:11px; background:#f8f9fc; }
     .member-edit-image img { display:block; width:100%; height:88px; object-fit:cover; }
     .member-edit-image label { display:flex; align-items:center; gap:6px; padding:8px; color:#a33e4b; font-size:11px; }
+    .member-edit-delete-video { display:inline-flex !important; flex-direction:row !important; align-items:center !important; gap:8px !important; font-size:13px !important; color:#dc2626 !important; font-weight:700 !important; cursor:pointer !important; margin: 4px 0 0 !important; }
     .member-edit-actions { display:flex; justify-content:space-between; gap:12px; margin-top:22px; }
     .member-edit-actions a { display:inline-flex; align-items:center; justify-content:center; min-height:48px; padding:0 17px; border:1px solid #dce1ec; border-radius:12px; color:#555d73; font-weight:750; text-decoration:none; }
     .member-edit-actions button { min-height:48px; padding:0 22px; border:0; border-radius:12px; background:linear-gradient(135deg,#b39af2,#583caa); color:#fff; font:inherit; font-weight:850; cursor:pointer; }
-    @media(max-width:600px) { .member-edit-heading { align-items:flex-start; flex-direction:column; } .member-edit-grid { grid-template-columns:1fr; } .member-edit-grid label.wide,.member-edit-section { grid-column:auto; } .member-edit-actions { flex-direction:column-reverse; } .member-edit-actions>* { width:100%; } }
+
+    /* Modern Photo & Video Dropzones matching Submit.php */
+    .listing-upload {
+      grid-column: 1 / -1 !important;
+      position: relative !important;
+      border: 2px dashed #C5A059 !important;
+      border-radius: 18px !important;
+      background: #FAF8F5 !important;
+      padding: 30px 20px !important;
+      text-align: center !important;
+      transition: all .22s ease !important;
+      cursor: pointer !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+    }
+    .listing-upload:hover {
+      border-color: #A8843F !important;
+      background: #F5EFE6 !important;
+      transform: translateY(-2px) !important;
+    }
+    .listing-upload-icon {
+      width: 52px;
+      height: 52px;
+      margin: 0 auto 6px;
+      border-radius: 50%;
+      background: rgba(197, 160, 89, 0.16);
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      display: grid;
+      place-items: center;
+      color: #8C6B32;
+      font-size: 24px;
+    }
+    .listing-upload strong {
+      color: #0B1C33 !important;
+      font-size: 15px !important;
+      font-weight: 800 !important;
+      display: block !important;
+    }
+    .listing-upload small {
+      color: #64748B !important;
+      font-size: 12.5px !important;
+      display: block !important;
+      line-height: 1.5 !important;
+    }
+    .listing-upload-btn {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      margin-top: 10px !important;
+      padding: 8px 18px !important;
+      border-radius: 999px !important;
+      background: #0B1C33 !important;
+      border: 1px solid rgba(197, 160, 89, 0.5) !important;
+      color: #F8D888 !important;
+      font-size: 12.5px !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 12px rgba(11, 28, 51, 0.15) !important;
+      pointer-events: none !important;
+      transition: all .2s ease !important;
+    }
+    .listing-upload:hover .listing-upload-btn {
+      background: #C5A059 !important;
+      color: #0B1C33 !important;
+      transform: scale(1.05) !important;
+    }
+    .listing-upload input[type="file"] {
+      display: none !important;
+    }
+    .listing-video-preview-box {
+      display: none;
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0B1C33;
+      aspect-ratio: 16 / 9;
+      max-height: 280px;
+      margin: 12px 0;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      box-shadow: 0 8px 24px rgba(11, 28, 51, 0.15);
+    }
+    .listing-video-preview-box video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .listing-video-remove-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 10;
+      background: rgba(11, 28, 51, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      transition: all .18s;
+    }
+    .listing-video-remove-btn:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+    .listing-image-preview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .listing-preview-card {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #E2E8F0;
+      background: #F8FAFC;
+      box-shadow: 0 2px 8px rgba(15, 30, 55, .06);
+    }
+    .listing-preview-card img {
+      width: 100%;
+      height: 105px;
+      object-fit: cover;
+      display: block;
+    }
+    .listing-preview-card .new-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #0B1C33;
+      color: #F8D888;
+      border: 1px solid rgba(197, 160, 89, 0.4);
+      font-size: 10px;
+      font-weight: 800;
+    }
+    @media(max-width:600px) { .member-edit-heading { align-items:flex-start; flex-direction:column; } .member-edit-grid { grid-template-columns:1fr; } .member-edit-grid label.wide,.member-edit-section,.listing-upload.wide { grid-column:auto !important; } .member-edit-actions { flex-direction:column-reverse; } .member-edit-actions>* { width:100%; } }
   </style>
 </head>
 <body>
@@ -285,22 +441,71 @@ $mapLng = request_is_post() ? (string)($_POST['map_lng'] ?? '') : (string)($prop
       <label class="wide"><?= e(t('สถานที่ใกล้เคียง (ไม่บังคับ)', 'Nearby places (optional)')) ?><textarea name="nearby_places"><?= e((string)($property['nearby_places'] ?? '')) ?></textarea></label>
 
       <h2 class="member-edit-section"><?= e(t('รูปภาพและแผนที่', 'Photos & map')) ?></h2>
-      <label class="wide"><?= e(t('เพิ่มรูปภาพ', 'Add photos')) ?> <span class="member-edit-help"><?= e(t('เลือกเพิ่มหรือติ๊กภาพเดิมเพื่อลบ · รวมทั้งหมดไม่เกิน ' . MAX_IMAGES . ' รูป', 'Add new photos or tick existing ones to delete · up to ' . MAX_IMAGES . ' photos total')) ?></span><input type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple></label>
-      <?php if ($images): ?><div class="member-edit-images wide"><?php foreach ($images as $image): ?><div class="member-edit-image"><img src="uploads/<?= e(rawurlencode(basename($image['filename']))) ?>" alt="<?= e(t('รูปประกาศ', 'Listing photo')) ?>" loading="lazy"><label><input type="checkbox" name="delete_images[]" value="<?= (int)$image['id'] ?>" <?= in_array((int)$image['id'], $deleteIds, true) ? 'checked' : '' ?>> <?= e(t('ลบรูปนี้', 'Delete this photo')) ?></label></div><?php endforeach; ?></div><?php endif; ?>
+      
+      <!-- Modern Photo Upload Zone matching Submit.php -->
+      <div class="listing-upload wide" id="listingImagesDropzone">
+        <div class="listing-upload-icon">📷</div>
+        <strong><?= e(t('เพิ่มรูปภาพอสังหาริมทรัพย์', 'Add property photos')) ?></strong>
+        <small><?= e(t('แตะเพื่อเลือกรูปภาพ หรือลากไฟล์มาวาง · สูงสุดรวมไม่เกิน ', 'Tap to select photos or drag & drop · up to ')) ?><?= MAX_IMAGES ?><?= e(t(' รูป (JPG, PNG, WebP ขนาดไม่เกิน 5 MB ต่อรูป)', ' photos (JPG, PNG, WebP max 5 MB each)')) ?></small>
+        <span class="listing-upload-btn">
+          <span>📁</span> <span><?= e(t('เลือกรูปภาพจากเครื่อง', 'Browse Photos')) ?></span>
+        </span>
+        <input id="listingImages" type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple style="display:none;">
+      </div>
 
-      <label class="wide" style="border: 1px dashed #cbd5e1; border-radius: 12px; padding: 14px 16px; background: #fafbfc; margin-top: 14px;">
-        <strong>🎬 <?= e(t('วิดีโอคลิปของประกาศ (เมื่อเอาเมาส์วางที่การ์ดหน้าแรกจะเล่นพร้อมเสียง)', 'Property video clip (Plays with sound on hover on homepage)')) ?></strong>
-        <span class="member-edit-help" style="display:block; margin:4px 0 8px;"><?= e(t('ไฟล์ MP4, WebM หรือ MOV · ไม่เกิน 50 MB', 'MP4, WebM or MOV · Max 50 MB')) ?></span>
-        <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
-          <div style="margin-bottom: 10px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <video src="uploads/<?= e(rawurlencode(basename($property['video_file']))) ?>" controls style="max-height:120px; border-radius:8px; background:#0B1C33;"></video>
-            <label style="font-size:13px; color:#dc2626; font-weight:700; cursor:pointer;">
-              <input type="checkbox" name="delete_video" value="1"> ✕ <?= e(t('ลบคลิปวิดีโอนี้ออก', 'Delete this video')) ?>
+      <!-- Preview of newly selected photos -->
+      <div id="listingImagePreview" class="listing-image-preview wide" aria-live="polite"></div>
+
+      <?php if ($images): ?>
+        <div class="wide" style="margin-top: 14px;">
+          <span class="member-edit-help" style="display:block; font-weight:700; color:#3d455f; margin-bottom:8px;">
+            <?= e(t('รูปภาพปัจจุบันในระบบ (ติ๊กถูกในช่องใต้รูปเพื่อลบ):', 'Current photos (check the box under a photo to delete):')) ?>
+          </span>
+          <div class="member-edit-images">
+            <?php foreach ($images as $image): ?>
+              <div class="member-edit-image">
+                <img src="uploads/<?= e(rawurlencode(basename($image['filename']))) ?>" alt="<?= e(t('รูปประกาศ', 'Listing photo')) ?>" loading="lazy">
+                <label>
+                  <input type="checkbox" name="delete_images[]" value="<?= (int)$image['id'] ?>" <?= in_array((int)$image['id'], $deleteIds, true) ? 'checked' : '' ?>> 
+                  <?= e(t('ลบรูปนี้', 'Delete this photo')) ?>
+                </label>
+              </div>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php endif; ?>
+
+      <!-- Modern Video Upload Zone matching Submit.php -->
+      <div class="listing-upload wide" id="listingVideoDropzone" style="margin-top: 10px;">
+        <div class="listing-upload-icon" style="background:rgba(239,68,68,0.12); color:#ef4444; border-color:rgba(239,68,68,0.35);">🎬</div>
+        <strong><?= e(t('วิดีโอคลิปของประกาศ (ไม่บังคับ - พรีวิวพร้อมเสียงเมื่อวางเมาส์)', 'Property video clip (Optional - plays with sound on hover)')) ?></strong>
+        <small><?= e(t('แตะเพื่อเลือกคลิปพาทัวร์ทรัพย์ · MP4, WebM หรือ MOV ขนาดไม่เกิน 50 MB', 'Tap to select video tour · MP4, WebM or MOV up to 50 MB')) ?></small>
+        <span class="listing-upload-btn" style="background:#0B1C33; color:#F8D888;">
+          <span>📹</span> <span><?= e(t('เลือกไฟล์วิดีโอ', 'Browse Video')) ?></span>
+        </span>
+        <input id="listingVideo" type="file" name="video" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
+      </div>
+
+      <!-- Video Live Preview Player Box for new upload -->
+      <div class="listing-video-preview-box wide" id="listingVideoPreviewBox">
+        <video id="listingVideoPreviewPlayer" controls playsinline></video>
+        <button type="button" class="listing-video-remove-btn" id="listingVideoRemoveBtn">✕ <?= e(t('เปลี่ยนวิดีโอ', 'Change video')) ?></button>
+      </div>
+
+      <?php if (!empty($property['video_file']) && is_file(UPLOAD_DIR . basename($property['video_file']))): ?>
+        <div class="wide" id="existingVideoBlock" style="padding: 14px 16px; background: #fafbfc; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 8px;">
+          <span style="display:block; font-size:12.5px; font-weight:700; color:#3d455f; margin-bottom:8px;">
+            <?= e(t('วิดีโอปัจจุบันที่แสดงอยู่:', 'Currently active video:')) ?>
+          </span>
+          <div style="display:flex; flex-direction:column; gap:10px;">
+            <video src="uploads/<?= e(rawurlencode(basename($property['video_file']))) ?>" controls style="max-height:160px; max-width:100%; border-radius:8px; background:#0B1C33; display:block;"></video>
+            <label class="member-edit-delete-video">
+              <input type="checkbox" name="delete_video" value="1">
+              <span>✕ <?= e(t('ลบคลิปวิดีโอนี้ออก', 'Delete this video')) ?></span>
             </label>
           </div>
-        <?php endif; ?>
-        <input type="file" name="video" accept="video/mp4,video/webm,video/quicktime">
-      </label>
+        </div>
+      <?php endif; ?>
       <div class="wide listing-map-picker">
         <div class="listing-map-heading"><div><strong><?= e(t('ตำแหน่งบนแผนที่', 'Map location')) ?> <span>(<?= e(t('ไม่บังคับ', 'optional')) ?>)</span></strong><small><?= e(t('แตะเพื่อปักหมุด หรือลากหมุดไปยังตำแหน่งทรัพย์', 'Tap to drop a pin, or drag the pin to the property position')) ?></small></div><button type="button" class="listing-map-toggle" id="editMapToggle" aria-expanded="false" aria-controls="editMapPanel"><?= e(t('เปิดแผนที่', 'Open map')) ?></button></div>
         <div id="editMapPanel" class="listing-map-panel" hidden><div id="editPropertyMap" class="listing-map" role="application" aria-label="<?= e(t('เลือกตำแหน่งประกาศ', 'Select the listing position')) ?>"></div><p class="listing-map-help"><?= e(t('เลื่อนและซูมแผนที่ได้ จากนั้นแตะเพื่อวางหมุด สามารถลากหมุดเพื่อปรับตำแหน่งได้', 'Pan and zoom the map, then tap to place the pin. You can also drag the pin to adjust it.')) ?></p></div>
@@ -314,6 +519,137 @@ $mapLng = request_is_post() ? (string)($_POST['map_lng'] ?? '') : (string)($prop
 <?php render_site_footer(); ?>
 <script>
 (() => {
+  // ── Custom Drag & Drop / Click for Photos Zone ──
+  const imageInput = document.getElementById('listingImages');
+  const imagesDropzone = document.getElementById('listingImagesDropzone');
+  const imagePreview = document.getElementById('listingImagePreview');
+
+  if (imageInput && imagePreview && imagesDropzone) {
+    let previewUrls = [];
+
+    const renderPreviews = (files) => {
+      previewUrls.forEach(url => URL.revokeObjectURL(url));
+      previewUrls = [];
+      imagePreview.replaceChildren();
+
+      files.forEach((file, index) => {
+        const item = document.createElement('div');
+        item.className = 'listing-preview-card';
+
+        const img = document.createElement('img');
+        const url = URL.createObjectURL(file);
+        previewUrls.push(url);
+        img.src = url;
+        img.alt = file.name;
+
+        const badge = document.createElement('span');
+        badge.className = 'new-badge';
+        badge.textContent = '+ รูปใหม่ #' + (index + 1);
+
+        item.appendChild(img);
+        item.appendChild(badge);
+        imagePreview.appendChild(item);
+      });
+    };
+
+    imagesDropzone.addEventListener('click', (e) => {
+      if (e.target !== imageInput) {
+        imageInput.click();
+      }
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      imagesDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        imagesDropzone.style.borderColor = '#A8843F';
+        imagesDropzone.style.background = '#F5EFE6';
+      });
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+      imagesDropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        imagesDropzone.style.borderColor = '#C5A059';
+        imagesDropzone.style.background = '#FAF8F5';
+      });
+    });
+    imagesDropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer?.files?.length && imageInput) {
+        imageInput.files = e.dataTransfer.files;
+        imageInput.dispatchEvent(new Event('change'));
+      }
+    });
+
+    imageInput.addEventListener('change', () => {
+      const files = Array.from(imageInput.files || []).slice(0, <?= MAX_IMAGES ?>).filter(f => f.type.startsWith('image/'));
+      renderPreviews(files);
+    });
+  }
+
+  // ── Custom Video Upload & Live Video Preview Box ──
+  const videoInput = document.getElementById('listingVideo');
+  const videoDropzone = document.getElementById('listingVideoDropzone');
+  const videoPreviewBox = document.getElementById('listingVideoPreviewBox');
+  const videoPreviewPlayer = document.getElementById('listingVideoPreviewPlayer');
+  const videoRemoveBtn = document.getElementById('listingVideoRemoveBtn');
+
+  videoDropzone?.addEventListener('click', (e) => {
+    if (e.target !== videoInput) {
+      videoInput?.click();
+    }
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    videoDropzone?.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      videoDropzone.style.borderColor = '#A8843F';
+      videoDropzone.style.background = '#F5EFE6';
+    });
+  });
+  ['dragleave', 'drop'].forEach(eventName => {
+    videoDropzone?.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      videoDropzone.style.borderColor = '#C5A059';
+      videoDropzone.style.background = '#FAF8F5';
+    });
+  });
+  videoDropzone?.addEventListener('drop', (e) => {
+    if (e.dataTransfer?.files?.length && videoInput) {
+      videoInput.files = e.dataTransfer.files;
+      videoInput.dispatchEvent(new Event('change'));
+    }
+  });
+
+  videoInput?.addEventListener('change', () => {
+    const file = videoInput.files?.[0];
+    if (file) {
+      if (file.size > 50 * 1024 * 1024) {
+        alert('<?= e(t('ไฟล์วิดีโอต้องมีขนาดไม่เกิน 50 MB', 'Video must be less than 50 MB')) ?>');
+        videoInput.value = '';
+        return;
+      }
+      const url = URL.createObjectURL(file);
+      if (videoPreviewPlayer) {
+        videoPreviewPlayer.src = url;
+        videoPreviewPlayer.play().catch(() => {});
+      }
+      if (videoDropzone) videoDropzone.style.display = 'none';
+      if (videoPreviewBox) videoPreviewBox.style.display = 'block';
+    }
+  });
+
+  videoRemoveBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (videoInput) videoInput.value = '';
+    if (videoPreviewPlayer) {
+      videoPreviewPlayer.pause();
+      videoPreviewPlayer.src = '';
+    }
+    if (videoPreviewBox) videoPreviewBox.style.display = 'none';
+    if (videoDropzone) videoDropzone.style.display = 'flex';
+  });
+
+  // ── Map Picker ──
   const toggle = document.getElementById('editMapToggle');
   const panel = document.getElementById('editMapPanel');
   const el = document.getElementById('editPropertyMap');

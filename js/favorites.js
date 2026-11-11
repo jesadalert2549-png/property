@@ -30,6 +30,10 @@
     });
   }
 
+  function getApiEndpoint(file) {
+    return window.location.pathname.includes('/admin/') ? '../' + file : file;
+  }
+
   window.spToggleFavorite = async function (propertyId, btnEl) {
     propertyId = parseInt(propertyId, 10);
     if (!propertyId || propertyId <= 0) return;
@@ -40,7 +44,7 @@
     }
 
     try {
-      const resp = await fetch('api/favorites.php', {
+      const resp = await fetch(getApiEndpoint('api/favorites.php'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ property_id: propertyId })
@@ -125,7 +129,7 @@
   // ซิงก์สถานะตอนโหลดหน้าเว็บ
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const resp = await fetch('api/favorites.php');
+      const resp = await fetch(getApiEndpoint('api/favorites.php'));
       const data = await resp.json();
       if (data.ok) {
         if (data.is_logged_in) {
@@ -133,7 +137,7 @@
           const guestFavs = getGuestFavorites();
           if (guestFavs.length > 0) {
             try {
-              const syncResp = await fetch('api/favorites.php', {
+              const syncResp = await fetch(getApiEndpoint('api/favorites.php'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action: 'sync_guest', guest_ids: guestFavs })
@@ -180,7 +184,8 @@
   'use strict';
   async function syncNotifications() {
     try {
-      const resp = await fetch('api/notifications.php');
+      const apiPath = window.location.pathname.includes('/admin/') ? '../api/notifications.php' : 'api/notifications.php';
+      const resp = await fetch(apiPath);
       const data = await resp.json();
       if (data.ok && typeof data.unread_count === 'number') {
         const c = data.unread_count;

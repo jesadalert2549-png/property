@@ -102,7 +102,7 @@ function get_user_notifications(int $userId = 0, int $limit = 30): array
         ensure_notification_tables($pdo);
 
         if ($userId > 0) {
-            $sql = "SELECT n.*,
+            $sql = "SELECT n.id, n.user_id, n.property_id, n.type, n.title, n.message, n.link_url, n.icon, n.created_at,
                            p.price AS property_price,
                            p.location AS property_location,
                            (SELECT filename FROM property_images i WHERE i.property_id = n.property_id ORDER BY i.sort_order, i.id LIMIT 1) AS property_cover,
@@ -121,7 +121,7 @@ function get_user_notifications(int $userId = 0, int $limit = 30): array
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
             // Guest mode: ดึงเฉพาะ Broadcast ล่าสุด
-            $sql = "SELECT n.*,
+            $sql = "SELECT n.id, n.user_id, n.property_id, n.type, n.title, n.message, n.link_url, n.icon, n.created_at,
                            p.price AS property_price,
                            p.location AS property_location,
                            (SELECT filename FROM property_images i WHERE i.property_id = n.property_id ORDER BY i.sort_order, i.id LIMIT 1) AS property_cover,

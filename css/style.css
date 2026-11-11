@@ -2270,3 +2270,69 @@ body.auth-page,
   padding-top: 0 !important;
   margin-top: 0 !important;
 }
+
+
+/* =========================================================
+   Universal Modern File Upload Styling (Replaces ugly browser [Choose File] button globally)
+   ========================================================= */
+input[type="file"] {
+  font-family: 'Prompt', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 13px !important;
+  color: #475569 !important;
+  background: #FAF8F5 !important;
+  border: 1.5px dashed #C5A059 !important;
+  border-radius: 12px !important;
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: all .2s ease !important;
+}
+
+input[type="file"]:hover {
+  border-color: #A8843F !important;
+  background: #F5EFE6 !important;
+}
+
+/* Custom File Selector Button (The [Choose File] button itself!) */
+input[type="file"]::file-selector-button {
+  border: none !important;
+  border-radius: 999px !important;
+  background: #0B1C33 !important;
+  color: #F8D888 !important;
+  font-family: 'Prompt', -apple-system, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  margin-right: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(11, 28, 51, 0.18) !important;
+  transition: all .2s ease !important;
+}
+
+input[type="file"]::file-selector-button:hover {
+  background: #C5A059 !important;
+  color: #0B1C33 !important;
+  transform: scale(1.04) !important;
+}
+
+/* WebKit Legacy Fallback */
+input[type="file"]::-webkit-file-upload-button {
+  border: none !important;
+  border-radius: 999px !important;
+  background: #0B1C33 !important;
+  color: #F8D888 !important;
+  font-family: 'Prompt', -apple-system, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 6px 14px !important;
+  margin-right: 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(11, 28, 51, 0.18) !important;
+  transition: all .2s ease !important;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+  background: #C5A059 !important;
+  color: #0B1C33 !important;
+  transform: scale(1.04) !important;
+}
