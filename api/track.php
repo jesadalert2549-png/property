@@ -85,14 +85,91 @@ if ($event === 'page') {
     } catch (Throwable $e) {}
 }
 
-db()->prepare(
-    'INSERT INTO visits (visitor_hash, user_id, event_type, property_id, page_path, referrer, user_agent, device)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-)->execute([$visitorHash, !empty($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null, $event, $propertyId, $pagePath, $referrer, $browser, $device]);
+// ── ระบบป้องกัน Bug ยอดวิวพุ่งจากการรีเฟรชหน้าจอ (Anti-Refresh Spam / Cooldown Protection) ──
+$isDuplicateView = false;
+$cooldownSeconds = 7200; // คูลดาวน์ 2 ชั่วโมงต่อทรัพย์/คลิป ต่อผู้ชม
 
-// อัปเดตนับยอดวิวสะสมในตาราง properties ทันทีเมื่อมีคนเปิดดูหน้ารายละเอียดทรัพย์
 if ($event === 'property' && $propertyId > 0) {
-    db()->prepare('UPDATE properties SET views_count = views_count + 1 WHERE id = ?')->execute([$propertyId]);
+    // 1. ตรวจสอบว่าผู้ใช้งานเป็นเจ้าของทรัพย์นี้หรือไม่ (ไม่นับยอดวิวเมื่อเจ้าของเปิดดูหรือรีเฟรชทรัพย์ตัวเอง)
+    if (!empty($_SESSION['user_id'])) {
+        try {
+            $chkOwner = db()->prepare('SELECT user_id FROM properties WHERE id = ? LIMIT 1');
+            $chkOwner->execute([$propertyId]);
+            $ownerId = $chkOwner->fetchColumn();
+            if ($ownerId !== false && (int)$ownerId === (int)$_SESSION['user_id']) {
+                $isDuplicateView = true;
+            }
+        } catch (Throwable $e) {}
+    }
+
+    // 2. ตรวจสอบผ่าน Session ป้องกันการกด F5 รีเฟรชหน้าจอรัวๆ
+    if (!$isDuplicateView) {
+        if (!isset($_SESSION['viewed_properties']) || !is_array($_SESSION['viewed_properties'])) {
+            $_SESSION['viewed_properties'] = [];
+        }
+        if (isset($_SESSION['viewed_properties'][$propertyId])) {
+            $lastViewTime = (int)$_SESSION['viewed_properties'][$propertyId];
+            if ((time() - $lastViewTime) < $cooldownSeconds) {
+                $isDuplicateView = true;
+            }
+        }
+    }
+
+    // 3. ตรวจสอบผ่าน First-party Cookie
+    if (!$isDuplicateView && isset($_COOKIE['sp_view_p_' . $propertyId])) {
+        $isDuplicateView = true;
+    }
+
+    // 4. ตรวจสอบย้อนหลังจากตาราง visits ภายใน 2 ชั่วโมง สำหรับ visitor_hash เดียวกัน
+    if (!$isDuplicateView) {
+        try {
+            $chkVisits = db()->prepare(
+                'SELECT id FROM visits 
+                 WHERE visitor_hash = ? AND event_type = "property" AND property_id = ? 
+                   AND created_at >= DATE_SUB(NOW(), INTERVAL 2 HOUR) 
+                 LIMIT 1'
+            );
+            $chkVisits->execute([$visitorHash, $propertyId]);
+            if ($chkVisits->fetchColumn()) {
+                $isDuplicateView = true;
+            }
+        } catch (Throwable $e) {}
+    }
 }
 
-echo json_encode(['ok' => true]);
+if (!$isDuplicateView) {
+    // บันทึกการเข้าชมจริง
+    try {
+        db()->prepare(
+            'INSERT INTO visits (visitor_hash, user_id, event_type, property_id, page_path, referrer, user_agent, device)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        )->execute([$visitorHash, !empty($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : null, $event, $propertyId, $pagePath, $referrer, $browser, $device]);
+    } catch (Throwable $e) {}
+
+    // อัปเดตนับยอดวิวสะสมเฉพาะวิวแท้ที่ไม่ใช่การรีเฟรชซ้ำ
+    if ($event === 'property' && $propertyId > 0) {
+        try {
+            db()->prepare('UPDATE properties SET views_count = views_count + 1 WHERE id = ?')->execute([$propertyId]);
+        } catch (Throwable $e) {}
+
+        // จำค่าใน Session ของผู้ใช้
+        $_SESSION['viewed_properties'][$propertyId] = time();
+
+        // ตั้ง First-party Cookie คูลดาวน์ 2 ชั่วโมง
+        setcookie('sp_view_p_' . $propertyId, '1', [
+            'expires' => time() + $cooldownSeconds,
+            'path' => '/',
+            'secure' => request_is_https(),
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    }
+
+    echo json_encode(['ok' => true, 'counted' => true]);
+} else {
+    // กรณีเป็นการรีเฟรชหน้าจอ (ไม่นับยอดเพิ่ม และไม่บันทึก visits ซ้ำซ้อน)
+    if ($event === 'property' && $propertyId > 0) {
+        $_SESSION['viewed_properties'][$propertyId] = time();
+    }
+    echo json_encode(['ok' => true, 'counted' => false, 'skipped' => 'refresh_cooldown']);
+}

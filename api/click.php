@@ -16,8 +16,21 @@ $propertyId = (int)($input['property_id'] ?? 0);
 if ($propertyId > 0) {
     try {
         $pdo = db();
-        $st = $pdo->prepare('UPDATE properties SET clicks_count = clicks_count + 1 WHERE id = ?');
-        $st->execute([$propertyId]);
+
+        // ป้องกันสแปมคลิกจากการกดซ้ำหรือรีเฟรชรัวๆ
+        if (!isset($_SESSION['clicked_properties']) || !is_array($_SESSION['clicked_properties'])) {
+            $_SESSION['clicked_properties'] = [];
+        }
+        $isDuplicateClick = false;
+        if (isset($_SESSION['clicked_properties'][$propertyId]) && (time() - (int)$_SESSION['clicked_properties'][$propertyId]) < 1800) {
+            $isDuplicateClick = true;
+        }
+
+        if (!$isDuplicateClick) {
+            $_SESSION['clicked_properties'][$propertyId] = time();
+            $st = $pdo->prepare('UPDATE properties SET clicks_count = clicks_count + 1 WHERE id = ?');
+            $st->execute([$propertyId]);
+        }
 
         // ดึงสถิติล่าสุด
         $res = $pdo->prepare('SELECT views_count, clicks_count FROM properties WHERE id = ? LIMIT 1');
@@ -28,7 +41,8 @@ if ($propertyId > 0) {
             'ok' => true,
             'property_id' => $propertyId,
             'views' => (int)($row['views_count'] ?? 0),
-            'clicks' => (int)($row['clicks_count'] ?? 0)
+            'clicks' => (int)($row['clicks_count'] ?? 0),
+            'counted' => !$isDuplicateClick
         ]);
         exit;
     } catch (Throwable $e) {}

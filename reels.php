@@ -1612,6 +1612,37 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
   };
   updateSoundIcon(isGlobalMuted);
 
+  // ระบบนับยอดวิวคลิป Reels แบบป้องกันการสแปมและป้องกัน Bug รีเฟรชหน้าจอ (Anti-Refresh Spam)
+  let trackedReelsInSession = new Set();
+  try {
+    const saved = JSON.parse(sessionStorage.getItem('kasa_reels_viewed') || '[]');
+    if (Array.isArray(saved)) trackedReelsInSession = new Set(saved);
+  } catch (e) {}
+
+  let reelWatchTimer = null;
+  const trackReelView = (slide) => {
+    if (!slide) return;
+    const propId = parseInt(slide.getAttribute('data-reel-id'), 10);
+    if (!propId || trackedReelsInSession.has(propId)) return;
+
+    if (reelWatchTimer) clearTimeout(reelWatchTimer);
+    // ต้องดูคลิปจริงอย่างน้อย 2.5 วินาที จึงจะบันทึกวิว (ป้องกันการเลื่อนผ่านเร็วๆ)
+    reelWatchTimer = setTimeout(() => {
+      if (trackedReelsInSession.has(propId)) return;
+      trackedReelsInSession.add(propId);
+      try {
+        sessionStorage.setItem('kasa_reels_viewed', JSON.stringify(Array.from(trackedReelsInSession)));
+      } catch (e) {}
+
+      const payload = JSON.stringify({ event: 'property', property_id: propId });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('api/track.php', payload);
+      } else {
+        fetch('api/track.php', { method: 'POST', body: payload, keepalive: true }).catch(() => {});
+      }
+    }, 2500);
+  };
+
   const playSlide = (index) => {
     slides.forEach((slide, i) => {
       const v = slide.querySelector('video.reel-video');
@@ -1628,6 +1659,7 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
             v.play().catch(() => {});
           });
         }
+        trackReelView(slide);
       } else {
         v.pause();
         v.currentTime = 0;
