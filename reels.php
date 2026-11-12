@@ -1600,7 +1600,8 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
 
   const slides = Array.from(document.querySelectorAll('.reel-slide'));
   let currentActiveIndex = 0;
-  let isGlobalMuted = true; // Start muted like Kasa Reels feed so browser allows instant autoplay without blocking
+  // ค่าเริ่มต้นพยายามเปิดเสียง (Unmuted) เสมอตามความต้องการของผู้ใช้
+  let isGlobalMuted = false;
 
   const updateSoundIcon = (muted) => {
     document.querySelectorAll('.reel-sound-toggle-btn').forEach(btn => {
@@ -1611,6 +1612,21 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
     });
   };
   updateSoundIcon(isGlobalMuted);
+
+  // ปลดล็อกเสียงทันทีเมื่อผู้ใช้แตะหรือคลิกหน้าจอครั้งแรก (Autoplay Unmute on first user touch/click)
+  const unlockAudioOnFirstInteraction = () => {
+    if (isGlobalMuted) return;
+    const activeVideo = slides[currentActiveIndex]?.querySelector('video.reel-video');
+    if (activeVideo && activeVideo.muted) {
+      activeVideo.muted = false;
+      activeVideo.volume = 1.0;
+      activeVideo.play().catch(() => {});
+      updateSoundIcon(false);
+    }
+  };
+  window.addEventListener('click', unlockAudioOnFirstInteraction, { once: true, passive: true });
+  window.addEventListener('touchstart', unlockAudioOnFirstInteraction, { once: true, passive: true });
+  window.addEventListener('keydown', unlockAudioOnFirstInteraction, { once: true, passive: true });
 
   // ระบบนับยอดวิวคลิป Reels แบบป้องกันการสแปมและป้องกัน Bug รีเฟรชหน้าจอ (Anti-Refresh Spam)
   let trackedReelsInSession = new Set();
@@ -1653,9 +1669,17 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
         v.muted = isGlobalMuted;
         const playPromise = v.play();
         if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // If browser blocks unmuted audio on start, play muted then unmute on first gesture
+          playPromise.then(() => {
+            // เมื่อเล่นสำเร็จและสถานะเปิดเสียงอยู่ ให้แน่ใจว่าไอคอนตรงกับเสียงที่ดัง
+            if (!v.muted) {
+              isGlobalMuted = false;
+              updateSoundIcon(false);
+            }
+          }).catch(() => {
+            // หาก Browser (Safari / Chrome) มีนโยบาย Autoplay Policy บล็อกเสียงในครั้งแรกที่ยังไม่ได้คลิก
+            // ให้เล่นภาพต่อทันทีแบบ muted ชั่วคราว และรอปลดเสียงเมื่อผู้ใช้แตะหน้าจอ
             v.muted = true;
+            updateSoundIcon(true);
             v.play().catch(() => {});
           });
         }

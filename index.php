@@ -160,7 +160,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <html lang="<?= e(html_lang_attr()) ?>">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <?php 
     $homeTitle = is_en()
         ? 'Buy & Rent Houses, Condos, Land & Properties in Thailand | ' . SITE_NAME
@@ -186,8 +186,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       margin: 0;
       padding: 0;
     }
+    html {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
+    }
     body {
       width: 100%;
+      max-width: 100%;
+      overflow-x: clip;
       background: #F9F9FB;
       font-family: "Fenice Std", "Noto Serif Thai", "Prompt", "Inter", -apple-system, system-ui, serif !important;
     }
@@ -316,36 +323,40 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #E4C688;
     }
     .dd-btn-login {
-      background: #7955d9;
-      color: #fff;
+      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
+      color: #0B1C33 !important;
       padding: 8px 20px;
       border-radius: 9999px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 14px;
       text-decoration: none;
-      box-shadow: 0 2px 4px rgba(114,87,245,0.2);
-      transition: background 0.2s;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+      transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
       white-space: nowrap;
     }
     .dd-btn-login:hover {
-      background: #583caa;
+      background: linear-gradient(135deg, #D4AF67 0%, #B58F48 100%) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.45);
     }
     .dd-admin-stats-btn {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       padding: 8px 14px;
-      border: 1px solid #7955d9;
+      border: 1px solid rgba(197, 160, 89, 0.6);
       border-radius: 9999px;
-      color: #7955d9;
+      color: #0B1C33;
       background: #fff;
       font-size: 13px;
       font-weight: 700;
       text-decoration: none;
       white-space: nowrap;
+      transition: all 0.2s ease;
     }
     .dd-admin-stats-btn:hover {
-      background: #fffaf5;
+      background: #FFFDF9;
+      border-color: #C5A059;
     }
 
     /* ปุ่ม Hamburger Toggle (แสดงเฉพาะมือถือ) */
@@ -448,15 +459,20 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       background: #ffffff;
     }
     .drawer-login-btn {
-      background: #7955d9;
-      color: #ffffff;
+      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
+      color: #0B1C33 !important;
       text-decoration: none;
       padding: 12px;
       border-radius: 9999px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 15px;
       display: block;
-      box-shadow: 0 4px 10px rgba(114,87,245,0.25);
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .drawer-login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.45);
     }
     .drawer-download-link {
       color: #261d3b;
@@ -503,7 +519,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       position: relative;
     }
     .dd-tab.active {
-      color: #7955d9;
+      color: #A8843F !important;
     }
     .dd-search-bar {
       display: flex;
@@ -517,43 +533,56 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       min-width: 200px;
       display: flex;
       align-items: center;
-      background: #f8fafc;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      padding: 0 12px;
+      background: #ffffff;
+      border: 1.5px solid #dce2e9;
+      border-radius: 10px;
+      padding: 0 14px;
+      transition: all 0.25s ease;
+    }
+    .dd-search-input-wrap:focus-within {
+      border-color: #C5A059 !important;
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18) !important;
     }
     .dd-search-input-wrap input {
       border: none;
       background: transparent;
-      padding: 12px 8px;
+      padding: 12px 10px;
       width: 100%;
       outline: none;
-      font-size: 14px;
+      font-size: 14.5px;
       font-family: inherit;
     }
     .dd-search-bar select {
-      padding: 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      background: #f8fafc;
+      padding: 12px 14px;
+      border: 1.5px solid #dce2e9;
+      border-radius: 10px;
+      background: #ffffff;
       font-size: 14px;
       font-family: inherit;
       outline: none;
       cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .dd-search-bar select:focus {
+      border-color: #C5A059 !important;
+      box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18) !important;
     }
     .dd-btn-search {
-      background: #7955d9;
-      color: #fff;
+      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
+      color: #0B1C33 !important;
       border: none;
       padding: 12px 28px;
-      border-radius: 8px;
-      font-weight: 700;
+      border-radius: 10px;
+      font-weight: 800;
       font-size: 15px;
       cursor: pointer;
-      transition: background 0.2s;
+      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
+      transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
     }
     .dd-btn-search:hover {
-      background: #583caa;
+      background: linear-gradient(135deg, #D4AF67 0%, #B58F48 100%) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(197, 160, 89, 0.45);
     }
 
     /* ==========================================================================
@@ -631,6 +660,19 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       font-weight: 800;
       color: #111827;
       margin: 0;
+      position: relative;
+      padding-left: 16px;
+    }
+    .showcase-title::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 5px;
+      height: 70%;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #C5A059, #A8843F);
     }
     .badge-new {
       display: none;
@@ -644,40 +686,56 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     }
     .showcase-more:hover {
       text-decoration: none;
-      color: var(--accent-dark, #583caa);
+      color: #A8843F !important;
     }
     .showcase-grid {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
+      gap: 20px;
       width: 100%;
     }
     .showcase-card {
       min-width: 0;
-      background: #fff;
-      border: 1px solid #dfe3e8;
-      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid #E8ECF2;
+      border-radius: 16px;
       overflow: hidden;
       text-decoration: none;
       color: inherit;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: transform 0.32s cubic-bezier(.22, 1, .36, 1), box-shadow 0.32s cubic-bezier(.22, 1, .36, 1), border-color 0.32s ease;
       display: block;
       position: relative;
+      box-shadow: 0 4px 16px rgba(11, 28, 51, 0.05);
     }
     .showcase-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 10px 20px rgba(0,0,0,0.06);
+      transform: translateY(-6px);
+      border-color: rgba(197, 160, 89, 0.55);
+      box-shadow: 0 16px 36px rgba(11, 28, 51, 0.12), 0 2px 10px rgba(197, 160, 89, 0.15);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .showcase-card,
+      .showcase-card .showcase-img,
+      .showcase-more,
+      .home-category-item,
+      .home-category-icon {
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+      }
     }
     .showcase-media {
       position: relative;
-      aspect-ratio: 4 / 3;
+      aspect-ratio: 16 / 10;
       overflow: hidden;
-      background: #e2e8f0;
+      background: #0B1C33;
     }
     .showcase-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      transition: transform 0.55s cubic-bezier(.22, 1, .36, 1);
+    }
+    .showcase-card:hover .showcase-img {
+      transform: scale(1.055);
     }
     .showcase-tag {
       display: inline-flex;
@@ -805,92 +863,104 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #ffffff !important;
     }
     .showcase-body {
-      min-height: 86px;
-      padding: 10px 12px 12px;
+      min-height: 92px;
+      padding: 14px 16px 16px;
+      background: #ffffff;
     }
     .showcase-publisher-row {
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
     .showcase-publisher-row .publisher-mini {
       position: static !important;
       left: auto !important;
       bottom: auto !important;
       display: inline-flex !important;
-      padding: 2px 8px 2px 3px !important;
-      background: #f8fafc !important;
-      border: 1px solid #e2e8f0 !important;
+      padding: 3px 10px 3px 4px !important;
+      background: #F8FAFC !important;
+      border: 1px solid #E2E8F0 !important;
+      border-radius: 999px !important;
       box-shadow: none !important;
       max-width: 100% !important;
     }
     .showcase-publisher-row .publisher-mini-avatar {
-      width: 20px !important;
-      height: 20px !important;
-      flex: 0 0 20px !important;
+      width: 22px !important;
+      height: 22px !important;
+      flex: 0 0 22px !important;
       font-size: 10px !important;
+      border-radius: 50% !important;
     }
     .showcase-publisher-row .publisher-mini-name {
-      font-size: 11px !important;
-      color: #475569 !important;
+      font-size: 11.5px !important;
+      color: #334155 !important;
       font-weight: 700 !important;
     }
     .showcase-publisher-row .publisher-mini-loc {
-      font-size: 10.5px !important;
+      font-size: 11px !important;
       color: #94a3b8 !important;
     }
     .showcase-card-title {
-      min-height: 38px;
-      font-size: 14px;
-      line-height: 1.35;
+      min-height: 42px;
+      font-size: 14.5px;
+      line-height: 1.4;
       font-weight: 700;
-      color: #1e293b;
-      margin-bottom: 3px;
+      color: #0F172A;
+      margin-bottom: 4px;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      transition: color 0.2s ease;
+    }
+    .showcase-card:hover .showcase-card-title {
+      color: #A8843F;
     }
     .showcase-card-loc {
-      font-size: 12px;
-      line-height: 1.35;
-      color: #64748b;
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: #64748B;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      margin-bottom: 6px;
     }
     .showcase-price-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-top: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #F1F5F9;
     }
     .showcase-price {
       display: block;
-      font-size: 16px;
-      font-weight: 800;
+      font-size: 17px;
+      font-weight: 850;
       color: #A8843F;
+      letter-spacing: -0.01em;
     }
     .showcase-stats-wrap .property-card-stats-badge {
       position: static !important;
       bottom: auto !important;
       right: auto !important;
       display: inline-flex !important;
-      padding: 2px 7px !important;
-      font-size: 10px !important;
-      background: #f1f5f9 !important;
-      color: #64748b !important;
-      border: 1px solid #e2e8f0 !important;
+      padding: 3px 8px !important;
+      font-size: 10.5px !important;
+      background: #F8FAFC !important;
+      color: #64748B !important;
+      border: 1px solid #E2E8F0 !important;
+      border-radius: 999px !important;
       box-shadow: none !important;
       backdrop-filter: none !important;
       -webkit-backdrop-filter: none !important;
     }
     .showcase-stats-wrap .property-card-stats-badge svg {
-      stroke: #64748b !important;
+      stroke: #64748B !important;
     }
     .showcase-stats-wrap .stat-badge-views,
     .showcase-stats-wrap .stat-badge-clicks {
-      color: #64748b !important;
+      color: #64748B !important;
     }
 
     /* Flagship Property Reels Buttons & Floating Action Pill (Luxury Theme Match) */
@@ -997,6 +1067,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       letter-spacing: 0.06em;
     }
 
+    @keyframes fabFloat {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
     /* Coordinated Position for Scroll-To-Top button (Sits neatly above the FAB, never overlapping) */
     .to-top {
       bottom: 84px !important;
@@ -1037,24 +1116,187 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     }
 
     /* ==========================================================================
-       5. Media Queries: สำหรับมือถือและแท็บเล็ต
+       5. Media Queries: รองรับทุกขนาดหน้าจอ (Desktop, Laptop, Tablet, Mobile)
        ========================================================================== */
+    @media (max-width: 1280px) {
+      .dd-desktop-menu {
+        gap: 12px !important;
+        margin-left: 10px !important;
+      }
+      .dd-nav-left, .dd-nav-right {
+        gap: 10px !important;
+      }
+      .dd-menu-item {
+        font-size: 13px !important;
+      }
+      .dd-icon-btn, .dd-btn-login {
+        padding: 6px 12px !important;
+        font-size: 12.5px !important;
+      }
+      .reels-flagship-nav-btn {
+        padding: 5px 11px !important;
+        font-size: 12px !important;
+      }
+    }
+
+    @media (min-width: 993px) and (max-width: 1100px) {
+      .dd-navbar .dd-nav-left {
+        gap: 8px;
+      }
+      .dd-navbar .dd-logo,
+      .dd-navbar .kasa-logo,
+      .dd-navbar .sp-logo {
+        max-width: 170px;
+      }
+      .dd-navbar .kasa-logo-img,
+      .dd-navbar .sp-logo .kasa-logo-img {
+        height: 44px;
+        max-width: 170px;
+      }
+      .dd-navbar .dd-desktop-menu {
+        gap: 8px !important;
+        margin-left: 6px !important;
+      }
+      .dd-navbar .dd-desktop-menu .dd-menu-item,
+      .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+        font-size: 12px !important;
+      }
+      .dd-navbar .dd-desktop-menu .reels-flagship-nav-btn {
+        padding: 5px 8px !important;
+        font-size: 11px !important;
+      }
+      .dd-navbar .dd-nav-right {
+        gap: 6px;
+      }
+      .dd-navbar .dd-nav-right .dd-icon-btn,
+      .dd-navbar .dd-nav-right .dd-btn-login {
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+      }
+      .dd-navbar .lang-toggle {
+        margin-left: 0 !important;
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+    }
+
+    @media (min-width: 993px) and (max-width: 1100px) {
+      .dd-desktop-menu .dd-menu-item[href="favorites.php"],
+      .dd-desktop-menu .dd-menu-item[href="notifications.php"],
+      .dd-desktop-menu .dd-menu-item[href="advertise.php"] {
+        display: none !important;
+      }
+    }
+
+    @media (max-width: 1120px) {
+      .dd-desktop-menu .dd-menu-item[href="advertise.php"] {
+        display: none !important;
+      }
+      .dd-nav-right .dd-icon-btn[href="submit.php"] {
+        display: none !important;
+      }
+    }
+
+    @media (min-width: 993px) and (max-width: 1020px) {
+      .dd-navbar .dd-nav-right .dd-icon-btn[href="submit-reel.php"] {
+        display: none !important;
+      }
+      .dd-navbar .dd-nav-right .lang-toggle {
+        display: none !important;
+      }
+    }
+
     @media (max-width: 992px) {
       .dd-desktop-menu, .dd-nav-right {
         display: none !important;
       }
       .mobile-hamburger-btn {
         display: block !important;
+        flex: 0 0 auto;
       }
       .dd-navbar {
-        padding: 12px 16px;
+        position: fixed !important;
+        min-height: 62px;
+        left: 0;
+        right: 0;
+        padding: 8px 16px;
+        background: rgba(11, 28, 51, 0.96) !important;
+        border-bottom: 1px solid rgba(197, 160, 89, 0.28);
+        box-shadow: 0 5px 18px rgba(6, 15, 28, 0.22);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
       }
-    }
-
-    @media (max-width: 768px) {
+      .dd-navbar:not(.scrolled) .dd-logo,
+      .dd-navbar:not(.scrolled) .mobile-hamburger-btn {
+        color: #ffffff !important;
+      }
+      .dd-navbar:not(.scrolled) .brand-mark {
+        color: #0B1C33 !important;
+      }
       .dd-hero {
-        padding: 96px 16px 36px;
+        padding: calc(96px + env(safe-area-inset-top, 0px)) 16px 36px;
         min-height: auto;
+      }
+      .dd-hero-media-wrap,
+      .dd-hero-media,
+      .dd-hero-overlay {
+        max-width: none !important;
+      }
+      .dd-hero-heading-wrap {
+        width: 100%;
+        max-width: 680px;
+        padding: 0 4px;
+      }
+      .mobile-drawer {
+        width: min(310px, 85vw);
+        max-width: 85vw;
+        height: 100vh;
+        height: 100dvh;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .mobile-drawer-overlay {
+        width: 100%;
+        height: 100vh;
+        height: 100dvh;
+      }
+      .mobile-drawer {
+        right: 0;
+        transform: translateX(110%);
+      }
+      .mobile-drawer.active {
+        transform: translateX(0);
+      }
+      .dd-hero {
+        overflow-x: clip;
+      }
+      .home-category-icons {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 10px;
+        width: calc(100% + 32px);
+        max-width: calc(100% + 32px);
+        margin: 14px -16px 0;
+        padding: 4px 12px 10px;
+      }
+      .home-category-icons::-webkit-scrollbar {
+        display: none;
+      }
+      .home-category-item {
+        flex: 0 0 76px;
+        width: 76px;
+        min-width: 0;
+        scroll-snap-align: start;
+        padding: 10px 4px 8px;
+      }
+      .home-category-label {
+        white-space: normal;
+        overflow-wrap: anywhere;
       }
       .dd-hero h1 {
         font-size: 24px !important;
@@ -1079,9 +1321,10 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       .featured-nav {
         grid-template-columns: none;
         grid-auto-flow: column;
-        grid-auto-columns: 74%;
+        grid-auto-columns: minmax(0, 74%);
         gap: 12px;
         overflow-x: auto;
+        overscroll-behavior-x: contain;
         scroll-snap-type: x mandatory;
         scrollbar-width: thin;
       }
@@ -1104,15 +1347,88 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         display: grid;
         grid-template-columns: none;
         grid-auto-flow: column;
-        grid-auto-columns: 78%;
+        grid-auto-columns: minmax(0, 78%);
         gap: 12px;
         overflow-x: auto;
+        overscroll-behavior-x: contain;
         padding: 2px 2px 14px;
         scroll-snap-type: x mandatory;
         scrollbar-width: thin;
       }
       .showcase-card {
+        min-width: 0;
         scroll-snap-align: start;
+      }
+      .interactive-tools-grid {
+        grid-template-columns: minmax(0, 1fr) !important;
+      }
+      .interactive-tool-card {
+        min-width: 0;
+        padding: 20px 16px !important;
+        border-radius: 18px !important;
+      }
+      .interactive-tool-card strong,
+      .interactive-tool-card small,
+      .interactive-tool-card label {
+        overflow-wrap: anywhere;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .dd-navbar {
+        padding-right: max(14px, env(safe-area-inset-right, 0px));
+        padding-left: max(14px, env(safe-area-inset-left, 0px));
+      }
+      .home-category-icons {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        overflow-y: hidden;
+        overscroll-behavior-x: contain;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 10px;
+        width: calc(100% + 32px);
+        max-width: calc(100% + 32px);
+        margin: 14px -16px 0;
+        padding: 4px 12px 10px;
+      }
+      .home-category-icons::-webkit-scrollbar {
+        display: none;
+      }
+      .home-category-item {
+        flex: 0 0 76px;
+        width: 76px;
+        min-width: 0;
+        scroll-snap-align: start;
+        padding: 10px 4px 8px;
+      }
+      .home-category-icon {
+        width: 48px;
+        height: 48px;
+      }
+      .home-category-label {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+      .dd-hero {
+        padding-top: calc(96px + env(safe-area-inset-top, 0px));
+        min-height: auto;
+      }
+      .dd-hero h1 {
+        font-size: 23px !important;
+        line-height: 1.35;
+      }
+      .dd-hero p {
+        font-size: 13px !important;
+        line-height: 1.6;
+      }
+      .showcase-grid {
+        grid-auto-columns: minmax(0, 86%);
+      }
+      .featured-nav {
+        grid-auto-columns: minmax(0, 82%);
       }
     }
   </style>
@@ -1131,16 +1447,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <nav class="dd-desktop-menu">
       <?php render_nav_dropdowns(); ?>
       <a href="reels.php" class="reels-flagship-nav-btn" title="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด สไตล์ Reels', 'Watch Short-form Property Video Tours')) ?>">
-        <span class="flame-icon">🔥</span>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-2px;"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
         <span><?= e(t('Property Reels', 'Property Reels')) ?></span>
       </a>
       <a href="project.php" class="dd-menu-item"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
       <a href="favorites.php" class="dd-menu-item" title="<?= e(t('ทรัพย์ที่บันทึกไว้', 'Saved Properties')) ?>">
-        ❤️ <?= e(t('ที่ชอบ', 'Favorites')) ?>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:inline-block; vertical-align:-1px; color:#ef4444;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <span><?= e(t('ที่ชอบ', 'Favorites')) ?></span>
         <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:2px;"></span>
       </a>
       <a href="notifications.php" class="dd-menu-item" title="<?= e(t('การแจ้งเตือน', 'Notifications')) ?>">
-        🔔 <?= e(t('แจ้งเตือน', 'Alerts')) ?>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-1px; color:#C5A059;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span><?= e(t('แจ้งเตือน', 'Alerts')) ?></span>
         <span class="sp-notif-badge" style="display:none; background:#ef4444; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:2px;"></span>
       </a>
       <a href="advertise.php" class="dd-menu-item"><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></a>
@@ -1151,7 +1469,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
   <!-- ปุ่มขวา Desktop -->
   <div class="dd-nav-right">
     <a href="submit-reel.php" class="dd-icon-btn" style="background:linear-gradient(135deg,rgba(248,216,136,0.18),rgba(197,160,89,0.12)); border:1.5px solid rgba(248,216,136,0.7); color:#F8D888; font-weight:850; box-shadow:0 2px 10px rgba(197,160,89,0.25);" title="<?= e(t('ลงคลิป Reels ด่วนใน 30 วินาที', 'Post quick reel')) ?>">
-      <span>📹</span> <?= e(t('ลงคลิป Reels', 'Post Reel')) ?>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-1px;"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+      <span><?= e(t('ลงคลิป Reels', 'Post Reel')) ?></span>
     </a>
     <a href="submit.php" class="dd-icon-btn"><?= e(t('ลงประกาศ', 'Post a listing')) ?></a>
     <?php if (!empty($_SESSION['user_id'])): ?>
@@ -1185,13 +1504,19 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <ul class="drawer-menu-list">
       <li>
         <a href="reels.php" class="drawer-menu-item" style="color:#ffffff !important; font-weight:800; background:linear-gradient(135deg, #0B1C33 0%, #172D4D 45%, #C5A059 100%) !important; border:1px solid rgba(248, 216, 136, 0.75) !important; border-radius:12px; margin:6px 14px 4px; box-shadow:0 4px 14px rgba(197,160,89,0.35);">
-          <span>🔥 <?= e(t('Property Reels (คลิปสั้นพาทัวร์)', 'Property Reels (Short Video Tours)')) ?></span>
+          <span style="display:inline-flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            <span><?= e(t('Property Reels (คลิปสั้นพาทัวร์)', 'Property Reels (Short Video Tours)')) ?></span>
+          </span>
           <span class="arrow" style="color:#F8D888;">›</span>
         </a>
       </li>
       <li>
         <a href="submit-reel.php" class="drawer-menu-item" style="color:#F8D888 !important; font-weight:800; background:rgba(11,28,51,0.06); border:1px solid rgba(197, 160, 89, 0.4); border-radius:12px; margin:0 14px 10px;">
-          <span>📹 <?= e(t('➕ โพสต์คลิป Reels ด่วน (30 วิ)', '➕ Quick Post Reel (30s)')) ?></span>
+          <span style="display:inline-flex; align-items:center; gap:8px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+            <span><?= e(t('โพสต์คลิป Reels ด่วน (30 วิ)', 'Quick Post Reel (30s)')) ?></span>
+          </span>
           <span class="arrow" style="color:#C5A059;">›</span>
         </a>
       </li>
@@ -1282,7 +1607,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       <input type="hidden" name="type" id="formTypeInput" value="">
       
       <div class="dd-search-input-wrap">
-        <span style="color: #94a3b8; font-size: 16px;">🔍</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         <input type="text" name="q" placeholder="<?= e(t('ค้นหาทำเล เช่น สุขุมวิท, ภูเก็ต, ลาดพร้าว', 'Search a location, e.g. Sukhumvit, Phuket, Lat Phrao')) ?>" value="<?= e($_GET['q'] ?? '') ?>">
       </div>
 
@@ -1336,7 +1661,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       <?php if ($navCategoryImageExists): ?>
         <img src="<?= e($navCategoryImage) ?>" alt="<?= e($navTitle) ?>" loading="lazy" decoding="async">
       <?php else: ?>
-        <span class="featured-nav-placeholder" aria-hidden="true"><span><?= e($categoryIconFallback[$navCategory] ?? '🏡') ?></span></span>
+        <span class="featured-nav-placeholder" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:rgba(255,255,255,0.85);"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
       <?php endif; ?>
       <span class="featured-nav-title"><?= e($navTitle) ?></span>
     </a>
@@ -1444,13 +1769,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0;"><?= e(t('คำนวณค่างวดผ่อนบ้าน คอนโด หรือสำรวจผลตอบแทนการลงทุน (Rental Yield) ได้แบบเรียลไทม์ทันที', 'Estimate home or condo monthly installments and explore Rental Yield in real-time.')) ?></p>
     </div>
 
-    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:24px;">
+    <div class="interactive-tools-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:24px;">
       
       <!-- Card 1: เครื่องมือคำนวณเงินผ่อนบ้าน-คอนโดแบบเรียลไทม์ -->
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
+      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,.15); color:#8C6B32; font-size:20px;">🧮</span>
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,.15); color:#8C6B32;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><line x1="8" y1="6" x2="16" y2="6"></line><line x1="16" y1="14" x2="16" y2="18"></line><path d="M16 10h.01"></path><path d="M12 10h.01"></path><path d="M8 10h.01"></path><path d="M12 14h.01"></path><path d="M8 14h.01"></path><path d="M12 18h.01"></path><path d="M8 18h.01"></path></svg>
+            </span>
             <div>
               <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('คำนวณยอดผ่อนต่อเดือน', 'Monthly Payment Calculator')) ?></strong>
               <small style="color:#64748B; font-size:11.5px;"><?= e(t('ประเมินวงเงินและค่างวดอัตโนมัติ', 'Automated loan amount and monthly estimates')) ?></small>
@@ -1508,10 +1835,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       </div>
 
       <!-- Card 2: เครื่องมือจำลองผลตอบแทนการปล่อยเช่า (Rental Yield & Investment) -->
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(21,128,61,.12); color:#15803d; font-size:20px;">📈</span>
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(21,128,61,.12); color:#15803d;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+            </span>
             <div>
               <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('เครื่องมือประเมินผลตอบแทน (Rental Yield)', 'Rental Yield Calculator')) ?></strong>
               <small style="color:#64748B; font-size:11.5px;"><?= e(t('วิเคราะห์ความคุ้มค่าก่อนซื้อลงทุน', 'Analyze investment return before buying')) ?></small>
@@ -1541,8 +1870,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
             </div>
           </div>
 
-          <div style="font-size:12px; color:#475569; line-height:1.5; background:#fafafa; border-radius:8px; padding:8px 12px;">
-            💡 <strong><?= e(t('คำแนะนำนักลงทุน:', 'Investor Tip:')) ?></strong> <?= e(t('Yield ระดับ 5% - 7% ถือเป็นเกณฑ์ที่ดีมากสำหรับคอนโดย่าน CBD และแนวรถไฟฟ้า', 'A 5% - 7% yield is considered excellent for CBD and transit-oriented condos.')) ?>
+          <div style="font-size:12px; color:#475569; line-height:1.5; background:#fafafa; border-radius:8px; padding:8px 12px; display:flex; align-items:flex-start; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; margin-top:2px;"><path d="M9 18h6"></path><path d="M10 22h4"></path><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14"></path></svg>
+            <div><strong><?= e(t('คำแนะนำนักลงทุน:', 'Investor Tip:')) ?></strong> <?= e(t('Yield ระดับ 5% - 7% ถือเป็นเกณฑ์ที่ดีมากสำหรับคอนโดย่าน CBD และแนวรถไฟฟ้า', 'A 5% - 7% yield is considered excellent for CBD and transit-oriented condos.')) ?></div>
           </div>
 
           <a href="category.php?page=condo" style="display:inline-flex; align-items:center; justify-content:center; gap:6px; padding:10px; border-radius:10px; background:#0B1C33; color:#fff; font-weight:700; font-size:13px; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059';this.style.color='#0B1C33'" onmouseout="this.style.background='#0B1C33';this.style.color='#fff'">
@@ -1552,10 +1882,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       </div>
 
       <!-- Card 3: ควิซด่วนค้นหาบ้าน/คอนโดที่ใช่คุณ (Property Matchmaker) -->
-      <div style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
-            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(121,85,217,.12); color:#7955d9; font-size:20px;">🧭</span>
+            <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(121,85,217,.12); color:#7955d9;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+            </span>
             <div>
               <strong style="font-size:16px; color:#0B1C33; display:block;"><?= e(t('ค้นหาอสังหาฯ ใน 10 วินาที', 'Find Properties in 10 Seconds')) ?></strong>
               <small style="color:#64748B; font-size:11.5px;"><?= e(t('ระบบจับคู่ทำเลและประเภทที่ตรงใจคุณ', 'Smart matching for locations and property types')) ?></small>
@@ -1576,26 +1908,26 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
           <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;"><?= e(t('2. ประเภทที่ต้องการ:', '2. Preferred type:')) ?></label>
             <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px;">
-              <button type="button" class="quiz-btn active" data-cat="condo" onclick="selectQuizOption(this, 'cat')">🏢 <?= e(t('คอนโด', 'Condo')) ?></button>
-              <button type="button" class="quiz-btn" data-cat="house" onclick="selectQuizOption(this, 'cat')">🏠 <?= e(t('บ้าน', 'House')) ?></button>
-              <button type="button" class="quiz-btn" data-cat="townhouse" onclick="selectQuizOption(this, 'cat')">🏘️ <?= e(t('ทาวน์โฮม', 'Townhouse')) ?></button>
+              <button type="button" class="quiz-btn active" data-cat="condo" onclick="selectQuizOption(this, 'cat')"><?= e(t('คอนโด', 'Condo')) ?></button>
+              <button type="button" class="quiz-btn" data-cat="house" onclick="selectQuizOption(this, 'cat')"><?= e(t('บ้าน', 'House')) ?></button>
+              <button type="button" class="quiz-btn" data-cat="townhouse" onclick="selectQuizOption(this, 'cat')"><?= e(t('ทาวน์โฮม', 'Townhouse')) ?></button>
             </div>
           </div>
 
           <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#334155; margin-bottom:6px;"><?= e(t('3. สไตล์ทำเลที่ชอบ:', '3. Location style:')) ?></label>
             <select id="quizZoneSelect" style="width:100%; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; background:#fff; font-weight:600;">
-              <option value="สุขุมวิท">🚇 <?= e(t('ติดรถไฟฟ้า BTS/MRT ใจกลางเมือง (สุขุมวิท/อโศก)', 'Near BTS/MRT City Center (Sukhumvit/Asoke)')) ?></option>
-              <option value="สาทร">💼 <?= e(t('ย่านธุรกิจและการเงิน (สาทร/สีลม)', 'Business & Financial District (Sathorn/Silom)')) ?></option>
-              <option value="อารีย์">☕ <?= e(t('ย่านคาเฟ่ ไลฟ์สไตล์ชิคๆ (อารีย์/พหลโยธิน)', 'Chic Cafe & Lifestyle Hub (Ari/Phaholyothin)')) ?></option>
-              <option value="บางนา">🏡 <?= e(t('บ้านเดี่ยวบรรยากาศเงียบสงบ (บางนา/ศรีนครินทร์)', 'Quiet Residential Houses (Bangna/Srinakarin)')) ?></option>
-              <option value="เชียงใหม่">🌄 <?= e(t('ต่างจังหวัดบรรยากาศร่มรื่น (เชียงใหม่)', 'Scenic Northern Living (Chiang Mai)')) ?></option>
-              <option value="หัวหิน">🏖️ <?= e(t('ตากอากาศติดชายหาด (หัวหิน/ชะอำ)', 'Beachfront Getaways (Hua Hin/Cha-am)')) ?></option>
+              <option value="สุขุมวิท"><?= e(t('ติดรถไฟฟ้า BTS/MRT ใจกลางเมือง (สุขุมวิท/อโศก)', 'Near BTS/MRT City Center (Sukhumvit/Asoke)')) ?></option>
+              <option value="สาทร"><?= e(t('ย่านธุรกิจและการเงิน (สาทร/สีลม)', 'Business & Financial District (Sathorn/Silom)')) ?></option>
+              <option value="อารีย์"><?= e(t('ย่านคาเฟ่ ไลฟ์สไตล์ชิคๆ (อารีย์/พหลโยธิน)', 'Chic Cafe & Lifestyle Hub (Ari/Phaholyothin)')) ?></option>
+              <option value="บางนา"><?= e(t('บ้านเดี่ยวบรรยากาศเงียบสงบ (บางนา/ศรีนครินทร์)', 'Quiet Residential Houses (Bangna/Srinakarin)')) ?></option>
+              <option value="เชียงใหม่"><?= e(t('ต่างจังหวัดบรรยากาศร่มรื่น (เชียงใหม่)', 'Scenic Northern Living (Chiang Mai)')) ?></option>
+              <option value="หัวหิน"><?= e(t('ตากอากาศติดชายหาด (หัวหิน/ชะอำ)', 'Beachfront Getaways (Hua Hin/Cha-am)')) ?></option>
             </select>
           </div>
 
           <button type="button" onclick="goToMatchedProperties()" style="margin-top:4px; width:100%; padding:12px; border:0; border-radius:10px; background:linear-gradient(135deg, #C5A059, #A8843F); color:#0B1C33; font-weight:800; font-size:14px; cursor:pointer; box-shadow:0 4px 14px rgba(197,160,89,.35); transition:transform .15s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-            ⚡ <?= e(t('แสดงทรัพย์ที่ตรงกับคุณทันที', 'Show Matching Properties Instantly')) ?>
+            <?= e(t('แสดงทรัพย์ที่ตรงกับคุณทันที', 'Show Matching Properties Instantly')) ?>
           </button>
         </div>
       </div>
@@ -1710,7 +2042,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <section class="container" style="max-width:1200px; margin:40px auto 20px; padding:0 16px;">
   <div style="background:#fff; border:1px solid #e2e8f0; border-radius:24px; padding:28px 32px; box-shadow:0 8px 24px rgba(11,28,51,0.04);">
     <div style="display:flex; align-items:center; gap:12px; margin-bottom:18px;">
-      <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,0.14); color:#8C6B32; font-size:20px;">💡</span>
+      <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,0.14); color:#8C6B32;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+      </span>
       <div>
         <h2 style="font-size:clamp(18px, 2.5vw, 22px); font-weight:800; color:#0B1C33; margin:0 0 2px;">
           <?= e(t('คำถามที่พบบ่อยเกี่ยวกับการซื้อ ขาย และเช่าอสังหาริมทรัพย์', 'Frequently Asked Questions & Real Estate Insights')) ?>
@@ -1769,24 +2103,28 @@ render_site_footer(); ?>
   const mobileDrawer = document.getElementById('mobileDrawer');
 
   function openDrawer() {
+    if (!mobileDrawer || !drawerOverlay || !openDrawerBtn) return;
     mobileDrawer.classList.add('active');
     drawerOverlay.classList.add('active');
     mobileDrawer.setAttribute('aria-hidden', 'false');
     openDrawerBtn.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
+    closeDrawerBtn?.focus();
   }
 
   function closeDrawer() {
+    if (!mobileDrawer || !drawerOverlay) return;
     mobileDrawer.classList.remove('active');
     drawerOverlay.classList.remove('active');
     mobileDrawer.setAttribute('aria-hidden', 'true');
-    openDrawerBtn.setAttribute('aria-expanded', 'false');
+    openDrawerBtn?.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
+    openDrawerBtn?.focus();
   }
 
-  openDrawerBtn.addEventListener('click', openDrawer);
-  closeDrawerBtn.addEventListener('click', closeDrawer);
-  drawerOverlay.addEventListener('click', closeDrawer);
+  openDrawerBtn?.addEventListener('click', openDrawer);
+  closeDrawerBtn?.addEventListener('click', closeDrawer);
+  drawerOverlay?.addEventListener('click', closeDrawer);
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape') closeDrawer();
   });
@@ -1960,7 +2298,7 @@ render_site_footer(); ?>
 </script>
 <!-- Floating Reels Action Pill on Mobile & Tablet (Always Visible & Accessible) -->
 <a href="reels.php" class="reels-floating-fab" title="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด สไตล์ Reels', 'Watch Short-form Property Video Tours')) ?>" aria-label="<?= e(t('ดูคลิปสั้นพาทัวร์บ้าน & คอนโด', 'Property Reels')) ?>">
-  <span class="fab-flame">🔥</span>
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block;"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
   <span>Property Reels</span>
   <span class="fab-tag">FEED</span>
 </a>

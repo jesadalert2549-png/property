@@ -620,55 +620,202 @@ json_ld($propertyAiFaq);
     </div>
   </section>
 
-  <section class="mt-10 rounded-2xl sm:rounded-3xl bg-[#faf7ff] p-4 sm:p-8 shadow-soft">
-    <div class="grid gap-6 grid-cols-1 lg:grid-cols-[0.9fr_1.1fr]">
+  <section class="mt-10 rounded-2xl sm:rounded-3xl bg-[#faf7ff] p-4 sm:p-8 shadow-soft border border-slate-200/80">
+    <div class="grid gap-6 grid-cols-1 lg:grid-cols-[0.85fr_1.15fr]">
       <div>
-        <p class="text-xs font-bold uppercase tracking-[.18em] text-accent">Mortgage Calculator</p>
-        <h3 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink"><?= e(t('คำนวณผ่อนชำระต่อเดือน', 'Monthly payment calculator')) ?></h3>
-        <p class="mt-2 sm:mt-3 text-xs sm:text-sm leading-relaxed text-slate-600"><?= e(t('ใช้ข้อมูลเบื้องต้นเพื่อประมาณการงบผ่อน รายการนี้เป็นการคำนวณแบบสรุป ไม่ใช่ข้อเสนอจากธนาคาร', 'Use basic figures to estimate your installment budget. This is a summary calculation, not a bank offer.')) ?></p>
-      </div>
-      <div class="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-5 shadow-soft">
-        <div class="mb-5 flex items-end justify-between gap-3">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('ประมาณการ', 'Estimate')) ?></p>
-            <p class="mt-2 text-2xl sm:text-4xl font-black tracking-tight text-ink"><span id="monthlyPayment">0</span> <span class="text-sm sm:text-lg text-slate-500 font-bold"><?= e(t('บาท/เดือน', 'THB/month')) ?></span></p>
+        <p class="text-xs font-bold uppercase tracking-[.18em] text-accent">Financial Health & Decision Tool</p>
+        <h3 class="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-ink"><?= e(t('คำนวณเงินดาวน์ & สุขภาพการเงิน', 'Down payment & financial health')) ?></h3>
+        <p class="mt-2 sm:mt-3 text-sm sm:text-base leading-relaxed text-slate-800 font-medium"><?= e(t('เครื่องมือช่วยตัดสินใจซื้ออสังหาฯ: ปรับเงินดาวน์ คำนวณค่างวด พร้อมวิเคราะห์สัดส่วนรายได้ต่อภาระผ่อน เพื่อให้คุณเห็นภาพชัดเจนว่าชีวิตหลังซื้อบ้านจะคล่องตัวหรือตึงมือเพียงใด', 'Decision assistant: adjust down payment, compute installments, and assess your income-to-debt ratio to see your lifestyle and financial comfort after buying.')) ?></p>
+
+        <!-- กล่องคำแนะนำภาพรวมสุขภาพทางการเงินเบื้องต้น (Financial Rules of Thumb) คอนทราสต์สูง อ่านง่ายชัดเจน -->
+        <div class="mt-5 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4 sm:p-5 text-slate-900 space-y-2.5 shadow-xs">
+          <div class="flex items-center gap-2 font-black text-amber-950 text-sm sm:text-base">
+            <span class="text-lg">💡</span>
+            <span><?= e(t('เกณฑ์ประเมิน DSR (Debt Service Ratio)', 'DSR Financial Benchmark')) ?></span>
           </div>
-          <div class="rounded-2xl bg-slate-100 px-3 py-2 text-right">
-            <p class="text-[10px] font-bold uppercase tracking-[.14em] text-slate-500"><?= e(t('วงเงินกู้', 'Loan ratio')) ?></p>
-            <p id="loanRatio" class="mt-1 text-base sm:text-lg font-extrabold text-ink">80%</p>
+          <p class="leading-relaxed text-xs sm:text-sm font-semibold text-slate-800"><?= e(t('สถาบันการเงินแนะนำให้ภาระผ่อนบ้านไม่ควรเกิน 30% - 40% ของรายได้ เพื่อคงสภาพคล่องสำหรับการใช้ชีวิต การออม และเหตุฉุกเฉิน', 'Banks generally recommend home installment below 30%-40% of monthly income to maintain living liquidity and savings.')) ?></p>
+          <div class="grid grid-cols-2 gap-2 pt-1 font-black text-xs">
+            <span class="rounded-xl border border-emerald-300 bg-emerald-100 px-2.5 py-1.5 text-emerald-950 flex items-center gap-1"><span>✅</span> <span>≤ 30%: สบาย ไร้กังวล</span></span>
+            <span class="rounded-xl border border-blue-300 bg-blue-100 px-2.5 py-1.5 text-blue-950 flex items-center gap-1"><span>👌</span> <span>31-40%: กำลังดี ผ่อนไหว</span></span>
+            <span class="rounded-xl border border-amber-400 bg-amber-100 px-2.5 py-1.5 text-amber-950 flex items-center gap-1"><span>⚠️</span> <span>41-50%: เริ่มตึง มีวินัย</span></span>
+            <span class="rounded-xl border border-rose-300 bg-rose-100 px-2.5 py-1.5 text-rose-950 flex items-center gap-1"><span>🚨</span> <span>> 50%: ตึงมาก เสี่ยงสูง</span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl sm:rounded-3xl bg-white p-4 sm:p-6 shadow-soft space-y-5 border border-slate-200">
+        <!-- แถบค่างวดประมาณการ และสัดส่วนเงินกู้สุทธิ -->
+        <div class="flex items-end justify-between gap-3 border-b-2 border-slate-100 pb-4">
+          <div>
+            <p class="text-xs font-black uppercase tracking-[.14em] text-slate-600"><?= e(t('ประมาณการผ่อนชำระ', 'Estimated monthly payment')) ?></p>
+            <p class="mt-1.5 text-2xl sm:text-4xl font-black tracking-tight text-ink"><span id="monthlyPayment">0</span> <span class="text-sm sm:text-lg text-slate-700 font-black"><?= e(t('บาท/เดือน', 'THB/month')) ?></span></p>
+          </div>
+          <div class="rounded-2xl bg-slate-100 border border-slate-300 px-4 py-2.5 text-right">
+            <p class="text-xs font-black uppercase tracking-[.14em] text-slate-600"><?= e(t('วงเงินกู้สุทธิ', 'Net loan ratio')) ?></p>
+            <p id="loanRatio" class="mt-0.5 text-lg sm:text-xl font-black text-ink">80%</p>
           </div>
         </div>
 
         <div class="space-y-4 sm:space-y-5">
+          <!-- 1. ราคาอสังหาริมทรัพย์ -->
           <div>
             <div class="mb-2 flex items-center justify-between gap-2">
-              <label for="homePrice" class="text-xs sm:text-sm font-bold text-slate-700"><?= e(t('ราคาอสังหาริมทรัพย์', 'Property price')) ?></label>
-              <span class="flex items-center gap-1">
-                <input id="priceNumber" class="h-8 sm:h-9 w-28 sm:w-36 rounded-lg border border-slate-200 bg-slate-50 px-2 text-right text-xs sm:text-sm font-extrabold text-ink outline-none focus:border-accent" type="number" min="100000" max="50000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
-                <span class="text-xs sm:text-sm font-extrabold text-ink"><?= e(t('บาท', 'THB')) ?></span>
+              <label for="homePrice" class="text-xs sm:text-sm font-black text-slate-900"><?= e(t('ราคาอสังหาริมทรัพย์', 'Property price')) ?></label>
+              <span class="flex items-center gap-1.5">
+                <input id="priceNumber" class="h-9 sm:h-10 w-28 sm:w-36 rounded-xl border-2 border-slate-300 bg-slate-50 px-2.5 text-right text-xs sm:text-sm font-black text-ink outline-none focus:border-accent focus:bg-white" type="number" min="100000" max="50000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
+                <span class="text-xs sm:text-sm font-black text-slate-800"><?= e(t('บาท', 'THB')) ?></span>
               </span>
             </div>
-            <input id="homePrice" class="w-full accent-accent" type="range" min="100000" max="20000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
+            <input id="homePrice" class="w-full accent-accent cursor-pointer h-2 bg-slate-200 rounded-lg" type="range" min="100000" max="20000000" step="10000" value="<?= (int)$p['price'] ?: 5890000 ?>">
           </div>
-          <div>
-            <div class="mb-2 flex items-center justify-between"><label for="loanPercent" class="text-xs sm:text-sm font-bold text-slate-700"><?= e(t('วงเงินสินเชื่อ', 'Loan amount')) ?></label><span id="loanValue" class="text-xs sm:text-sm font-extrabold text-ink">80%</span></div>
-            <input id="loanPercent" class="w-full accent-accent" type="range" min="10" max="100" value="80">
+
+          <!-- 2. เงินดาวน์ (Down payment) สามารถกรอก % เองได้ หรือเลื่อน Range ได้ พร้อมคำนวณเป็นยอดเงินบาทจริง -->
+          <div class="rounded-2xl border-2 border-slate-300 bg-slate-50 p-3.5 sm:p-4 space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <label for="downPercent" class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+                  <span class="text-base">💰</span>
+                  <span><?= e(t('เงินดาวน์ (Down payment)', 'Down payment')) ?></span>
+                </label>
+                <p class="text-xs sm:text-sm text-slate-700 font-bold mt-1">
+                  <?= e(t('คิดเป็นเงินดาวน์จริง:', 'Actual down payment:')) ?>
+                  <span id="downAmountThb" class="font-black text-ink text-sm sm:text-base ml-1">0 บาท</span>
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-black text-slate-700"><?= e(t('สัดส่วน', 'Ratio')) ?></span>
+                <div class="flex items-center rounded-xl border-2 border-slate-300 bg-white px-2.5 py-1.5 shadow-xs focus-within:border-accent focus-within:ring-2 focus-within:ring-accent/20">
+                  <input id="downPercentNumber" class="w-12 text-right text-xs sm:text-sm font-black text-ink outline-none" type="number" min="0" max="90" step="1" value="20">
+                  <span class="text-xs font-black text-slate-800 ml-1">%</span>
+                </div>
+              </div>
+            </div>
+            <input id="downPercent" class="w-full accent-accent cursor-pointer h-2 bg-slate-200 rounded-lg" type="range" min="0" max="90" step="1" value="20">
+            <div class="flex justify-between text-xs font-black text-slate-700 px-0.5">
+              <span>0% (กู้เต็ม 100%)</span>
+              <span>10%</span>
+              <span>20% (มาตรฐาน)</span>
+              <span>30%</span>
+              <span>50%+</span>
+            </div>
           </div>
+
+          <!-- 3. อัตราดอกเบี้ย, ระยะเวลากู้, เงินกู้เพิ่มเติม -->
           <div class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
-            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('อัตราดอกเบี้ย / ปี (%)', 'Interest rate / year (%)')) ?>
-              <input id="interestRate" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20" step="0.1" value="3.25">
+            <label class="block text-xs sm:text-sm font-black text-slate-900"><?= e(t('อัตราดอกเบี้ย / ปี (%)', 'Interest rate / year (%)')) ?>
+              <input id="interestRate" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 text-sm sm:text-base font-black text-ink outline-none focus:border-accent focus:bg-white" type="number" min="0" max="20" step="0.05" value="3.25">
             </label>
-            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('ระยะเวลากู้ (ปี)', 'Loan term (years)')) ?>
-              <input id="loanYears" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="1" max="40" step="1" value="30">
+            <label class="block text-xs sm:text-sm font-black text-slate-900"><?= e(t('ระยะเวลากู้ (ปี)', 'Loan term (years)')) ?>
+              <input id="loanYears" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 text-sm sm:text-base font-black text-ink outline-none focus:border-accent focus:bg-white" type="number" min="1" max="40" step="1" value="30">
             </label>
-            <label class="block text-xs sm:text-sm font-bold text-slate-700"><?= e(t('เงินกู้เพิ่มเติม (บาท)', 'Extra loan (THB)')) ?>
-              <input id="extraLoan" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-sm sm:text-base font-bold outline-none focus:border-accent" type="number" min="0" max="20000000" step="10000" value="0">
+            <label class="block text-xs sm:text-sm font-black text-slate-900"><?= e(t('เงินกู้เพิ่มเติม/ตกแต่ง (บาท)', 'Extra/decor loan (THB)')) ?>
+              <input id="extraLoan" class="mt-1.5 h-10 sm:h-11 w-full rounded-xl border-2 border-slate-300 bg-slate-50 px-3 text-sm sm:text-base font-black text-ink outline-none focus:border-accent focus:bg-white" type="number" min="0" max="20000000" step="10000" value="0">
             </label>
           </div>
-          <div class="rounded-xl sm:rounded-2xl bg-slate-50 p-3.5 sm:p-4 text-xs sm:text-sm text-slate-600 space-y-1">
-            <div class="flex justify-between"><span><?= e(t('เงินกู้รวม', 'Total loan')) ?></span><span id="loanSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
-            <div class="flex justify-between"><span><?= e(t('ดอกเบี้ยรวมตลอดสัญญา', 'Total interest')) ?></span><span id="interestSummary" class="font-extrabold text-ink">0 <?= e(t('บาท', 'THB')) ?></span></div>
-            <div class="flex justify-between border-t border-slate-200 pt-1 mt-1 font-bold text-ink"><span><?= e(t('ยอดชำระรวมทั้งหมด', 'Total repayment')) ?></span><span id="totalSummary" class="font-extrabold text-accent">0 <?= e(t('บาท', 'THB')) ?></span></div>
+
+          <!-- 4. ส่วนสรุปตัวเลขสินเชื่อรวม (ตัวหนา ชัดเจน สบายตา) -->
+          <div class="rounded-xl sm:rounded-2xl border border-slate-200 bg-slate-50 p-3.5 sm:p-4 text-xs sm:text-sm text-slate-700 space-y-2 font-medium">
+            <div class="flex justify-between items-center"><span class="font-bold text-slate-700"><?= e(t('ยอดเงินดาวน์ที่ต้องเตรียม', 'Down payment required')) ?></span><span id="downSummary" class="font-black text-slate-900 text-sm sm:text-base">0 <?= e(t('บาท', 'THB')) ?></span></div>
+            <div class="flex justify-between items-center"><span class="font-bold text-slate-700"><?= e(t('ยอดขอกู้ธนาคารสุทธิ', 'Net bank loan')) ?></span><span id="loanSummary" class="font-black text-slate-900 text-sm sm:text-base">0 <?= e(t('บาท', 'THB')) ?></span></div>
+            <div class="flex justify-between items-center"><span class="font-bold text-slate-700"><?= e(t('ดอกเบี้ยรวมตลอดสัญญา', 'Total interest')) ?></span><span id="interestSummary" class="font-black text-slate-900 text-sm sm:text-base">0 <?= e(t('บาท', 'THB')) ?></span></div>
+            <div class="flex justify-between items-center border-t-2 border-slate-200 pt-2 mt-1 font-black text-slate-900"><span><?= e(t('ยอดชำระคืนรวมตลอดสัญญา', 'Total repayment')) ?></span><span id="totalSummary" class="font-black text-accentDark text-base sm:text-lg">0 <?= e(t('บาท', 'THB')) ?></span></div>
+          </div>
+
+          <!-- 5. เครื่องมือคำนวณสุขภาพทางการเงิน (Financial Health & Decision Assistant) -->
+          <div class="rounded-2xl sm:rounded-3xl border-2 border-slate-300 bg-white p-4 sm:p-5 shadow-xs space-y-4">
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5">
+                <span class="grid h-9 w-9 place-items-center rounded-xl bg-accentSoft text-lg text-accentDark border border-accent/30 font-bold">🩺</span>
+                <div>
+                  <h4 class="text-sm sm:text-base font-black text-ink"><?= e(t('วิเคราะห์สุขภาพทางการเงินและคุณภาพชีวิต', 'Financial Health & Decision Assistant')) ?></h4>
+                  <p class="text-xs font-bold text-slate-600"><?= e(t('ใส่เงินเดือนเพื่อดูภาพจำลองชีวิตและสัดส่วนภาระผ่อน (DSR)', 'Enter monthly income to see your lifestyle scenario & DSR ratio')) ?></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- ช่องกรอกเงินเดือน / รายได้ต่อเดือน -->
+            <div class="grid grid-cols-1 sm:grid-cols-[1.2fr_0.8fr] gap-3 items-end">
+              <div>
+                <label for="monthlyIncomeInput" class="block text-xs font-black text-slate-800 mb-1.5">
+                  <?= e(t('รายได้รวมต่อเดือนของคุณ/ผู้กู้ร่วม (บาท)', 'Monthly total income (THB)')) ?>
+                </label>
+                <div class="relative flex items-center">
+                  <span class="absolute left-3.5 text-slate-600 font-black text-sm">฿</span>
+                  <input id="monthlyIncomeInput" class="h-11 sm:h-12 w-full rounded-xl border-2 border-slate-300 bg-white pl-8 pr-3 text-base sm:text-lg font-black text-ink outline-none focus:border-accent focus:ring-2 focus:ring-accent/20" type="number" min="10000" max="2000000" step="5000" value="45000" placeholder="เช่น 45000">
+                </div>
+              </div>
+
+              <!-- ปุ่มเลือกตัวอย่างเงินเดือนด่วน -->
+              <div>
+                <span class="block text-xs font-bold text-slate-600 mb-1.5"><?= e(t('เลือกด่วน:', 'Quick select:')) ?></span>
+                <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5 text-xs">
+                  <button type="button" class="quick-salary-btn rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 font-black text-slate-800 hover:border-ink hover:bg-slate-100 transition" data-val="30000">30k</button>
+                  <button type="button" class="quick-salary-btn rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 font-black text-slate-800 hover:border-ink hover:bg-slate-100 transition" data-val="45000">45k</button>
+                  <button type="button" class="quick-salary-btn rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 font-black text-slate-800 hover:border-ink hover:bg-slate-100 transition" data-val="60000">60k</button>
+                  <button type="button" class="quick-salary-btn rounded-xl border-2 border-slate-300 bg-slate-50 px-3 py-1.5 font-black text-slate-800 hover:border-ink hover:bg-slate-100 transition" data-val="100000">100k</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- กล่องสรุปผลการวิเคราะห์ระดับสุขภาพทางการเงิน (Dynamic Card) -->
+            <div id="healthAssessmentCard" class="rounded-2xl border-2 p-4 sm:p-5 transition-all duration-300">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-slate-200/80 pb-3.5">
+                <div class="flex items-center gap-3">
+                  <div id="healthBadgeIcon" class="grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl shadow-sm border">
+                    🌟
+                  </div>
+                  <div>
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span id="healthGradePill" class="rounded-full px-3 py-1 text-xs font-black uppercase tracking-wider shadow-xs">
+                        ยอดเยี่ยม
+                      </span>
+                      <span id="healthRatioLabel" class="text-xs font-black text-slate-800">
+                        สัดส่วนค่างวด 0% ของรายได้
+                      </span>
+                    </div>
+                    <h5 id="healthTitle" class="mt-1.5 text-base sm:text-lg font-black text-ink leading-snug">
+                      กำลังคำนวณ...
+                    </h5>
+                  </div>
+                </div>
+                <div class="text-left sm:text-right bg-white p-3 sm:p-0 rounded-xl border sm:border-0 border-slate-200">
+                  <p class="text-xs font-black uppercase tracking-wider text-slate-600"><?= e(t('เงินเหลือใช้หลังผ่อนบ้าน', 'Remaining after installment')) ?></p>
+                  <p id="remainingMoneyText" class="text-lg sm:text-2xl font-black text-ink mt-0.5">0 บาท/เดือน</p>
+                </div>
+              </div>
+
+              <!-- หลอดวัดระดับความตึงตัวทางการเงิน (Health Meter Bar) -->
+              <div class="mt-4 space-y-2">
+                <div class="flex justify-between text-xs sm:text-sm font-black text-slate-800">
+                  <span><?= e(t('ภาระผ่อนต่อเงินเดือน (DSR)', 'Installment-to-Income (DSR)')) ?>: <strong id="healthDsrPercent" class="text-ink font-black text-sm sm:text-base">0%</strong></span>
+                  <span id="healthMeterDesc" class="font-black text-emerald-800">ผ่อนสบายมาก</span>
+                </div>
+                <div class="h-3.5 w-full overflow-hidden rounded-full bg-slate-200 border border-slate-300 flex">
+                  <div id="healthProgressBar" class="h-full rounded-full transition-all duration-500 ease-out" style="width: 30%;"></div>
+                </div>
+                <div class="flex justify-between text-xs font-black text-slate-700 pt-0.5">
+                  <span>0% (สบาย)</span>
+                  <span>30%</span>
+                  <span>40% (เพดานแนะนำ)</span>
+                  <span>50%+ (เสี่ยง)</span>
+                </div>
+              </div>
+
+              <!-- บรรยายภาพจำลองชีวิตเมื่อตัดสินใจซื้อ (Life Scenario & Advice) คอนทราสต์สูง อ่านเข้าใจทันที -->
+              <div class="mt-4 rounded-xl bg-white p-4 border-2 border-slate-200 shadow-xs space-y-2.5">
+                <p class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                  <span class="text-base">🏙️</span>
+                  <span><?= e(t('ภาพจำลองวิถีชีวิตจริงหลังซื้อทรัพย์นี้ (Lifestyle Scenario)', 'Post-purchase lifestyle scenario')) ?></span>
+                </p>
+                <p id="healthNarrative" class="text-sm sm:text-base leading-relaxed text-slate-900 font-semibold">
+                  กำลังประเมินภาพรวมวิถีชีวิตและการเงินของคุณ...
+                </p>
+                <div class="pt-2.5 border-t border-slate-200 flex items-start gap-2 text-xs sm:text-sm text-slate-800 font-medium">
+                  <span class="text-accentDark font-black shrink-0">💡 คำแนะนำ:</span>
+                  <span id="healthActionTip" class="leading-relaxed font-bold text-slate-900">...</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -840,49 +987,217 @@ render_to_top();
   });
 
   const priceInput = document.getElementById('homePrice');
+  if (priceInput) {
   const priceNumber = document.getElementById('priceNumber');
-  const loanInput = document.getElementById('loanPercent');
+  const downRange = document.getElementById('downPercent');
+  const downNumber = document.getElementById('downPercentNumber');
+  const downAmountThb = document.getElementById('downAmountThb');
+  const downSummary = document.getElementById('downSummary');
   const interestInput = document.getElementById('interestRate');
   const yearsInput = document.getElementById('loanYears');
   const extraLoanInput = document.getElementById('extraLoan');
   const monthlyEl = document.getElementById('monthlyPayment');
-  const loanValue = document.getElementById('loanValue');
   const loanRatio = document.getElementById('loanRatio');
   const loanSummary = document.getElementById('loanSummary');
   const interestSummary = document.getElementById('interestSummary');
   const totalSummary = document.getElementById('totalSummary');
 
+  // สุขภาพทางการเงิน & Decision Assistant Elements
+  const incomeInput = document.getElementById('monthlyIncomeInput');
+  const healthCard = document.getElementById('healthAssessmentCard');
+  const healthBadgeIcon = document.getElementById('healthBadgeIcon');
+  const healthGradePill = document.getElementById('healthGradePill');
+  const healthRatioLabel = document.getElementById('healthRatioLabel');
+  const healthTitle = document.getElementById('healthTitle');
+  const remainingMoneyText = document.getElementById('remainingMoneyText');
+  const healthDsrPercent = document.getElementById('healthDsrPercent');
+  const healthMeterDesc = document.getElementById('healthMeterDesc');
+  const healthProgressBar = document.getElementById('healthProgressBar');
+  const healthNarrative = document.getElementById('healthNarrative');
+  const healthActionTip = document.getElementById('healthActionTip');
+
   const formatTh = (n) => new Intl.NumberFormat('th-TH').format(Math.round(n));
+
   const updateMortgage = (source) => {
     let price = Number(priceInput.value || 0);
-    if (source === 'number') {
+    if (source === 'price_number') {
       price = Math.min(50000000, Math.max(100000, Number(priceNumber.value || 0)));
       priceInput.value = Math.min(20000000, price);
     } else {
       priceNumber.value = price;
     }
-    const loanPct = Number(loanInput.value || 80);
+
+    // จัดการเงินดาวน์ (Down payment %) ทั้งจาก Slider และช่องกรอกตัวเลข %
+    let downPct = Number(downRange.value || 20);
+    if (source === 'down_number') {
+      downPct = Math.min(90, Math.max(0, Number(downNumber.value || 0)));
+      downRange.value = downPct;
+    } else {
+      downNumber.value = downPct;
+    }
+
+    const loanPct = Math.max(0, 100 - downPct);
+    const downPaymentThb = price * (downPct / 100);
     const annualRate = Number(interestInput.value || 0);
     const years = Math.min(40, Math.max(1, Number(yearsInput.value || 30)));
     const principal = Math.max(0, price * (loanPct / 100) + Number(extraLoanInput.value || 0));
     const months = years * 12;
     const monthlyRate = annualRate / 100 / 12;
+
     let payment = principal / months;
     if (monthlyRate > 0) {
       payment = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
     }
     const totalPaid = payment * months;
 
-    loanValue.textContent = loanPct + '%';
+    // อัปเดตข้อมูลตัวเลขสินเชื่อ
+    if (downAmountThb) downAmountThb.textContent = formatTh(downPaymentThb) + ' บาท';
+    if (downSummary) downSummary.textContent = formatTh(downPaymentThb) + ' <?= e(t('บาท', 'THB')) ?>';
     loanRatio.textContent = loanPct + '%';
     monthlyEl.textContent = formatTh(payment);
     loanSummary.textContent = formatTh(principal) + ' <?= e(t('บาท', 'THB')) ?>';
     interestSummary.textContent = formatTh(totalPaid - principal) + ' <?= e(t('บาท', 'THB')) ?>';
     totalSummary.textContent = formatTh(totalPaid) + ' <?= e(t('บาท', 'THB')) ?>';
+
+    // คำนวณและประเมินสุขภาพทางการเงิน & วิเคราะห์คุณภาพชีวิต (Financial Health & Decision Assistant)
+    updateFinancialHealth(payment);
   };
-  [priceInput, loanInput, interestInput, yearsInput, extraLoanInput].forEach((input) => input.addEventListener('input', () => updateMortgage(input === extraLoanInput ? '' : '')));
-  priceNumber.addEventListener('input', () => updateMortgage('number'));
+
+  const updateFinancialHealth = (monthlyInstallment) => {
+    if (!incomeInput) return;
+    const income = Math.max(1, Number(incomeInput.value || 0));
+    const dsr = (monthlyInstallment / income) * 100;
+    const remaining = income - monthlyInstallment;
+
+    if (healthDsrPercent) healthDsrPercent.textContent = dsr.toFixed(1) + '%';
+    if (remainingMoneyText) {
+      if (remaining >= 0) {
+        remainingMoneyText.textContent = formatTh(remaining) + ' บาท/เดือน';
+        remainingMoneyText.className = 'text-base sm:text-xl font-black text-emerald-600 mt-0.5';
+      } else {
+        remainingMoneyText.textContent = '-' + formatTh(Math.abs(remaining)) + ' บาท (ติดลบ)';
+        remainingMoneyText.className = 'text-base sm:text-xl font-black text-rose-600 mt-0.5';
+      }
+    }
+
+    if (healthRatioLabel) {
+      healthRatioLabel.textContent = `ภาระผ่อน ${dsr.toFixed(1)}% ของรายได้ (ยอดผ่อน ${formatTh(monthlyInstallment)} บ./ด.)`;
+    }
+
+    // ปรับเปอร์เซ็นต์หลอด Bar (Cap ที่ 100%)
+    const barWidth = Math.min(100, Math.max(4, dsr));
+    if (healthProgressBar) healthProgressBar.style.width = barWidth + '%';
+
+    // กำหนดระดับสุขภาพทางการเงิน 5 ระดับ (ตัวอักษรเข้ม คอนทราสต์สูง อ่านชัดเจน)
+    if (dsr <= 25) {
+      // ระดับ 1: ยอดเยี่ยม สบาย ไร้กังวล
+      healthCard.className = 'rounded-2xl border-2 border-emerald-500 bg-emerald-50/70 p-4 sm:p-5 transition-all duration-300 shadow-sm';
+      healthBadgeIcon.className = 'grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl bg-emerald-200 text-emerald-950 shadow-xs border border-emerald-400';
+      healthBadgeIcon.textContent = '🏖️';
+      healthGradePill.className = 'rounded-full bg-emerald-700 text-white px-3 py-1 text-xs font-black uppercase tracking-wider';
+      healthGradePill.textContent = 'ยอดเยี่ยม ผ่อนสบายมาก (DSR ≤ 25%)';
+      healthTitle.textContent = 'สุขภาพการเงินแข็งแกร่งมาก — ใช้ชีวิตได้อย่างอิสระไร้กังวล';
+      healthMeterDesc.textContent = 'ผ่อนชิลล์มาก ไม่กระทบชีวิตประจำวัน';
+      healthMeterDesc.className = 'font-black text-emerald-800';
+      healthProgressBar.className = 'h-full rounded-full bg-emerald-600 transition-all duration-500 ease-out';
+      healthNarrative.innerHTML = 'หลังหักค่างวดบ้านแล้ว คุณจะยังมีเงินเหลือใช้ถึง <strong class="text-emerald-950 font-black text-base">' + formatTh(remaining) + ' บาท/เดือน</strong> ทำให้สามารถกิน เที่ยว ช้อปปิ้ง ท่องเที่ยวต่างประเทศ และยังมีเงินเหลือเก็บออมลงทุนสร้างความมั่งคั่งได้ตามปกติ ชีวิตมีความสุขและผ่อนคลายเต็มที่';
+      healthActionTip.textContent = 'พร้อมกู้ซื้อได้ทันที! แบงก์อนุมัติผ่านง่ายมาก และคุณยังสามารถโปะค่างวดเพิ่มเพื่อตัดเงินต้นให้หมดหนี้เร็วขึ้นได้อีกด้วย';
+    } else if (dsr <= 35) {
+      // ระดับ 2: แข็งแรง กำลังดี สบายใจ
+      healthCard.className = 'rounded-2xl border-2 border-teal-500 bg-teal-50/70 p-4 sm:p-5 transition-all duration-300 shadow-sm';
+      healthBadgeIcon.className = 'grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl bg-teal-200 text-teal-950 shadow-xs border border-teal-400';
+      healthBadgeIcon.textContent = '☕';
+      healthGradePill.className = 'rounded-full bg-teal-700 text-white px-3 py-1 text-xs font-black uppercase tracking-wider';
+      healthGradePill.textContent = 'สมดุลดีมาก (DSR 26% - 35%)';
+      healthTitle.textContent = 'สัดส่วนมาตรฐานในอุดมคติ — มีบ้านสวยพร้อมรักษาสภาพคล่อง';
+      healthMeterDesc.textContent = 'อยู่ในเกณฑ์แนะนำของธนาคาร';
+      healthMeterDesc.className = 'font-black text-teal-800';
+      healthProgressBar.className = 'h-full rounded-full bg-teal-600 transition-all duration-500 ease-out';
+      healthNarrative.innerHTML = 'สัดส่วนนี้เป็นมาตรฐานที่ผู้เชี่ยวชาญด้านการเงินแนะนำ คุณเหลือเงินใช้จ่าย <strong class="text-teal-950 font-black text-base">' + formatTh(remaining) + ' บาท/เดือน</strong> เพียงพอสำหรับค่ากินอยู่ ค่าน้ำไฟ ประกันชีวิต และยังสังสรรค์พักผ่อนวันหยุดได้สบาย ไม่ทำให้รู้สึกอึดอัด';
+      healthActionTip.textContent = 'เป็นระดับที่น่าซื้อมาก แนะนำให้เตรียมเงินสำรองฉุกเฉินเผื่อไว้ 3-6 เท่าของค่างวด เพื่อความสบายใจสูงสุดในทุกสถานการณ์';
+    } else if (dsr <= 45) {
+      // ระดับ 3: ปานกลาง มีวินัย เริ่มตึงมือ
+      healthCard.className = 'rounded-2xl border-2 border-amber-500 bg-amber-50/70 p-4 sm:p-5 transition-all duration-300 shadow-sm';
+      healthBadgeIcon.className = 'grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl bg-amber-200 text-amber-950 shadow-xs border border-amber-400';
+      healthBadgeIcon.textContent = '⚖️';
+      healthGradePill.className = 'rounded-full bg-amber-600 text-white px-3 py-1 text-xs font-black uppercase tracking-wider';
+      healthGradePill.textContent = 'ปานกลาง ต้องมีวินัย (DSR 36% - 45%)';
+      healthTitle.textContent = 'ผ่อนไหวแต่เริ่มตึงมือ — ต้องวางแผนงบประมาณอย่างรัดกุม';
+      healthMeterDesc.textContent = 'แตะเพดานที่เริ่มต้องระมัดระวัง';
+      healthMeterDesc.className = 'font-black text-amber-900';
+      healthProgressBar.className = 'h-full rounded-full bg-amber-500 transition-all duration-500 ease-out';
+      healthNarrative.innerHTML = 'หลังหักค่างวดคุณจะมีเงินเหลือ <strong class="text-amber-950 font-black text-base">' + formatTh(remaining) + ' บาท/เดือน</strong> ซึ่งยังสามารถดำรงชีวิตได้ แต่จำเป็นต้องลดค่าใช้จ่ายฟุ่มเฟือย เช่น ปาร์ตี้บ่อยๆ หรือการซื้อของชิ้นใหญ่ อาจต้องคำนวณค่าบัตรเครดิตและภาระหนี้อื่นอย่างใกล้ชิด';
+      healthActionTip.textContent = 'หากต้องการผ่อนสบายขึ้น แนะนำให้เพิ่มเงินดาวน์เป็น 25%-30% หรือยืดระยะเวลากู้ให้นานขึ้น หรือมองหาผู้กู้ร่วมเพื่อช่วยเสริมฐานรายได้';
+    } else if (dsr <= 60) {
+      // ระดับ 4: ค่อนข้างตึง เครียด เสี่ยงสูง
+      healthCard.className = 'rounded-2xl border-2 border-orange-500 bg-orange-50/70 p-4 sm:p-5 transition-all duration-300 shadow-sm';
+      healthBadgeIcon.className = 'grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl bg-orange-200 text-orange-950 shadow-xs border border-orange-400';
+      healthBadgeIcon.textContent = '😰';
+      healthGradePill.className = 'rounded-full bg-orange-600 text-white px-3 py-1 text-xs font-black uppercase tracking-wider';
+      healthGradePill.textContent = 'ตึงตัวมาก เสี่ยงสูง (DSR 46% - 60%)';
+      healthTitle.textContent = 'ภาระหนักเกินไป — มีความเสี่ยงต่อสภาพคล่องและชีวิตประจำวัน';
+      healthMeterDesc.textContent = 'เสี่ยงผ่อนไม่ไหวหรือแบงก์ปฏิเสธ';
+      healthMeterDesc.className = 'font-black text-orange-900';
+      healthProgressBar.className = 'h-full rounded-full bg-orange-500 transition-all duration-500 ease-out';
+      healthNarrative.innerHTML = 'เงินเกือบครึ่งหนึ่งของเงินเดือนต้องหมดไปกับค่างวดบ้าน โดยเหลือเงินใช้จ่ายเพียง <strong class="text-orange-950 font-black text-base">' + formatTh(remaining) + ' บาท/เดือน</strong> หากมีเหตุฉุกเฉิน ค่ารักษาพยาบาล หรือค่าซ่อมแซม คุณจะตกอยู่ในภาวะชักหน้าไม่ถึงหลังทันที และอาจต้องกู้หนี้ยืมสินเพิ่ม';
+      healthActionTip.textContent = 'เสี่ยงสูงมากที่ธนาคารจะไม่อนุมัติสินเชื่อ แนะนำให้เพิ่มเงินดาวน์ก้อนใหญ่ หรือหาผู้กู้ร่วม (Co-borrower) หรือพิจารณาทรัพย์ในระดับราคาที่ย่อมเยากว่านี้';
+    } else {
+      // ระดับ 5: วิกฤต แย่มาก อันตราย
+      healthCard.className = 'rounded-2xl border-2 border-rose-500 bg-rose-50/80 p-4 sm:p-5 transition-all duration-300 shadow-sm';
+      healthBadgeIcon.className = 'grid h-12 w-12 sm:h-14 sm:w-14 shrink-0 place-items-center rounded-2xl text-2xl sm:text-3xl bg-rose-200 text-rose-950 shadow-xs border border-rose-400';
+      healthBadgeIcon.textContent = '🚨';
+      healthGradePill.className = 'rounded-full bg-rose-700 text-white px-3 py-1 text-xs font-black uppercase tracking-wider';
+      healthGradePill.textContent = 'วิกฤต ไม่แนะนำเด็ดขาด (DSR > 60%)';
+      healthTitle.textContent = 'เกินกำลังความสามารถ — สภาพคล่องวิกฤตและอาจถูกยึดทรัพย์ได้';
+      healthMeterDesc.textContent = 'อันตรายสูงสุด ไม่ผ่านเกณฑ์สินเชื่อ';
+      healthMeterDesc.className = 'font-black text-rose-900';
+      healthProgressBar.className = 'h-full rounded-full bg-rose-600 transition-all duration-500 ease-out';
+      healthNarrative.innerHTML = (remaining >= 0)
+        ? 'ค่างวดกินรายได้ส่วนใหญ่เกือบทั้งหมด คุณเหลือเงินเพียง <strong class="text-rose-950 font-black text-base">' + formatTh(remaining) + ' บาท/เดือน</strong> ซึ่งไม่เพียงพอต่อค่าครองชีพขั้นพื้นฐาน การตัดสินใจซื้อในจุดนี้จะสร้างความเครียดมหาศาลต่อการใช้ชีวิต'
+        : 'ค่างวดบ้านสูงเกินกว่าเงินเดือนที่คุณได้รับถึง <strong class="text-rose-700 font-black text-base">' + formatTh(Math.abs(remaining)) + ' บาท</strong> ส่งผลให้ติดลบทันทีตั้งแต่เดือนแรกที่เริ่มผ่อน';
+      healthActionTip.textContent = 'ชะลอการซื้อทรัพย์ราคานี้ไว้ก่อน ควรเก็บเงินดาวน์เพิ่มหรือปรับลดงบประมาณอสังหาฯ ลงมาให้อยู่ในจุดที่ผ่อนแล้วสบายใจ ปลอดภัยต่ออนาคต';
+    }
+  };
+
+  // Event Listeners สำหรับการคำนวณและอัปเดตแบบเรียลไทม์
+  [priceInput, interestInput, yearsInput, extraLoanInput].forEach((input) => {
+    input?.addEventListener('input', () => updateMortgage());
+  });
+  priceNumber?.addEventListener('input', () => updateMortgage('price_number'));
+
+  downRange?.addEventListener('input', () => updateMortgage('down_range'));
+  downNumber?.addEventListener('input', () => updateMortgage('down_number'));
+
+  incomeInput?.addEventListener('input', () => {
+    const price = Number(priceInput.value || 0);
+    const downPct = Number(downRange.value || 20);
+    const loanPct = Math.max(0, 100 - downPct);
+    const principal = Math.max(0, price * (loanPct / 100) + Number(extraLoanInput.value || 0));
+    const annualRate = Number(interestInput.value || 0);
+    const years = Math.min(40, Math.max(1, Number(yearsInput.value || 30)));
+    const months = years * 12;
+    const monthlyRate = annualRate / 100 / 12;
+    let payment = principal / months;
+    if (monthlyRate > 0) {
+      payment = (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -months));
+    }
+    updateFinancialHealth(payment);
+  });
+
+  // ปุ่ม Quick Salary Buttons (30k, 45k, 60k, 100k)
+  document.querySelectorAll('.quick-salary-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.getAttribute('data-val');
+      if (incomeInput && val) {
+        incomeInput.value = val;
+        incomeInput.dispatchEvent(new Event('input'));
+      }
+    });
+  });
+
+  // คำนวณครั้งแรกเมื่อเปิดหน้า
   updateMortgage();
+  }
 
   // แผนที่ Leaflet (OpenStreetMap API)
   const mapEl = document.getElementById('propertyMap');

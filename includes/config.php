@@ -2,15 +2,33 @@
 // ===== ตั้งค่าหลักของเว็บ =====
 date_default_timezone_set('Asia/Bangkok');
 
-// โหลดไฟล์ตั้งค่าเฉพาะเครื่อง (ถ้ามี จะดึงค่า DB_HOST, DB_NAME, DB_USER, DB_PASS จากไฟล์นี้ก่อนเสมอ)
-if (is_file(__DIR__ . '/config.local.php')) {
-    require_once __DIR__ . '/config.local.php';
+// Load machine-specific database settings from the ignored local config file first.
+// Keep the local XAMPP defaults when the file is absent; production needs config.local.php.
+$localConfigPath = __DIR__ . '/config.local.php';
+if (is_file($localConfigPath)) {
+    require_once $localConfigPath;
 }
 
 if (!defined('DB_HOST')) define('DB_HOST', 'localhost');
 if (!defined('DB_NAME')) define('DB_NAME', 'property_test');
 if (!defined('DB_USER')) define('DB_USER', 'root');
 if (!defined('DB_PASS')) define('DB_PASS', '');
+
+// Production safety: never boot with dev DB defaults on a live host.
+if (!defined('APP_ALLOW_DEV_DB')) {
+    $isLocalHost = in_array(strtolower((string)($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '')), ['', 'localhost', '127.0.0.1', '::1'], true)
+        || preg_match('/^(localhost|127\.0\.0\.1)(:\d+)?$/', (string)($_SERVER['HTTP_HOST'] ?? ''));
+    if (!$isLocalHost) {
+        if (!is_file($localConfigPath)) {
+            http_response_code(500);
+            exit('Configuration error: includes/config.local.php is missing on this server.');
+        }
+        if (DB_NAME === 'property_test' || (DB_USER === 'root' && DB_PASS === '')) {
+            http_response_code(500);
+            exit('Configuration error: development database credentials detected in production.');
+        }
+    }
+}
 
 define('SITE_NAME', 'PropertyGO');
 define('SITE_VERSION_FILE', dirname(__DIR__) . '/version.json');   // จัดการเวอร์ชันจากหลังบ้าน
