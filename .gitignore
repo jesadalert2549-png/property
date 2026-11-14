@@ -43,3 +43,5 @@ uploads/**
 node_modules/
 .vscode/
 *.log
+# Local DB backups made before destructive operations
+_db_backup/
