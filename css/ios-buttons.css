@@ -1,0 +1,298 @@
+/* ==========================================================================
+   iOS-style button system
+   --------------------------------------------------------------------------
+   รวมปุ่มของทั้งเว็บให้ใช้ขนาด/รูปทรง/การตอบสนองแบบเดียวกัน (Apple HIG)
+     • ความสูงขั้นต่ำ 44 px  — ขนาดที่นิ้วแตะได้แม่น (44pt)
+     • ปุ่มหลัก 48-52 px, radius 14 px
+     • :active ย่อ 0.97 ทันที ให้ความรู้สึกกดจริง
+     • ปิด tap highlight ของ Safari (สีเทาแถบตอนแตะ)
+     • hover ไม่ติดค้างบนจอสัมผัส (@media hover:hover)
+     • เคารพ prefers-reduced-motion
+   โหลดไฟล์นี้ "หลัง" style.css เสมอ เพื่อให้ค่าที่นี่ชนะ
+   ========================================================================== */
+
+:root {
+  --ios-btn-h: 48px;
+  --ios-btn-h-lg: 52px;
+  --ios-btn-h-sm: 44px;
+  --ios-radius: 14px;
+  --ios-radius-pill: 999px;
+  --ios-ease: cubic-bezier(.32, .72, 0, 1);
+  --ios-blue: #0A84FF;
+  --ios-gold: #C5A059;
+  --ios-gold-dark: #A8843F;
+  --ios-ink: #0B1C33;
+}
+
+/* ---------------------------------------------------------------- พื้นฐาน */
+.ios-btn,
+.btn,
+.btn-block,
+.dd-btn-search,
+.qs-submit,
+.nav-cta,
+.dd-btn-login,
+.dd-icon-btn,
+.qs-filter-btn,
+.qs-apply,
+.qs-clear,
+.project-empty-cta,
+.project-submit-button,
+.drawer-login-btn,
+.card-video-pill,
+.reels-floating-fab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5em;
+  min-height: var(--ios-btn-h);
+  padding: 0 18px;
+  border-radius: var(--ios-radius);
+  font-weight: 700;
+  letter-spacing: -.01em;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+  transition: transform .16s var(--ios-ease),
+              box-shadow .2s ease,
+              background-color .18s ease,
+              border-color .18s ease,
+              filter .16s ease,
+              opacity .18s ease;
+}
+
+/* ปุ่มไอคอนล้วน: ต้องเป็นสี่เหลี่ยมจัตุรัส 44x44 */
+.dd-icon-btn,
+.qs-filter-btn {
+  width: var(--ios-btn-h-sm);
+  min-width: var(--ios-btn-h-sm);
+  padding: 0;
+  border-radius: 12px;
+}
+
+/* ------------------------------------------------------- ขนาดที่ใหญ่ขึ้น */
+.btn-block,
+.dd-btn-search,
+.qs-submit {
+  min-height: var(--ios-btn-h-lg);
+  font-size: 16px;
+}
+
+/* --------------------------------------------------------- การตอบสนองกด */
+.ios-btn:active,
+.btn:active,
+.btn-block:active,
+.dd-btn-search:active,
+.qs-submit:active,
+.nav-cta:active,
+.dd-btn-login:active,
+.dd-icon-btn:active,
+.qs-filter-btn:active,
+.qs-apply:active,
+.qs-clear:active,
+.project-empty-cta:active,
+.project-submit-button:active,
+.drawer-login-btn:active,
+.card-video-pill:active {
+  transform: scale(.97);
+  filter: brightness(.96);
+}
+
+@media (hover: hover) {
+  .ios-btn:hover,
+  .btn:hover,
+  .btn-block:hover,
+  .dd-btn-search:hover,
+  .qs-submit:hover,
+  .nav-cta:hover,
+  .dd-btn-login:hover,
+  .dd-icon-btn:hover,
+  .qs-filter-btn:hover,
+  .project-empty-cta:hover,
+  .drawer-login-btn:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* ------------------------------------------------------------------ โฟกัส */
+.ios-btn:focus-visible,
+.btn:focus-visible,
+.btn-block:focus-visible,
+.dd-btn-search:focus-visible,
+.qs-submit:focus-visible,
+.nav-cta:focus-visible,
+.dd-btn-login:focus-visible,
+.dd-icon-btn:focus-visible,
+.qs-filter-btn:focus-visible,
+.project-empty-cta:focus-visible,
+.drawer-login-btn:focus-visible {
+  outline: 3px solid rgba(197, 160, 89, .55);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------- ปุ่มหลักของแต่ละหน้า */
+
+/* ปุ่มค้นหา AI (หน้าแรก) — ทองเป็นหลัก */
+.dd-btn-search,
+.qs-submit {
+  border-radius: var(--ios-radius) !important;
+  background: linear-gradient(135deg, var(--ios-gold), var(--ios-gold-dark)) !important;
+  color: var(--ios-ink) !important;
+  border: 1px solid rgba(168, 132, 63, .55) !important;
+  box-shadow: 0 1px 2px rgba(11, 28, 51, .06), 0 6px 18px rgba(197, 160, 89, .28) !important;
+}
+
+/* ปุ่ม CTA ใน navbar / drawer */
+.nav-cta,
+.dd-btn-login {
+  min-height: var(--ios-btn-h-sm);
+  padding: 0 18px;
+  border-radius: var(--ios-radius-pill) !important;
+}
+
+/* ปุ่มใน sidebar/project */
+.project-empty-cta,
+.project-submit-button {
+  min-height: var(--ios-btn-h-lg);
+  border-radius: var(--ios-radius) !important;
+}
+
+/* ปุ่มย่อยในแผงตัวกรอง */
+.qs-apply {
+  min-height: var(--ios-btn-h-sm);
+  padding: 0 16px;
+  border-radius: 12px !important;
+  font-size: 14px;
+}
+
+.qs-clear {
+  min-height: 32px;
+  padding: 0 10px;
+  border-radius: 8px !important;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: 0;
+}
+.qs-clear:active { transform: scale(.96); }
+
+/* -------------------------------------------------- ปุ่มแบบข้อความล้วน */
+/* ลิงก์ที่ทำหน้าที่เป็นปุ่ม: ให้พื้นที่แตะ ≥44px โดยไม่เปลี่ยนหน้าตา */
+.ios-tap {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* --------------------------------------------------- ลดการเคลื่อนไหว */
+@media (prefers-reduced-motion: reduce) {
+  .ios-btn, .btn, .btn-block, .dd-btn-search, .qs-submit, .nav-cta,
+  .dd-btn-login, .dd-icon-btn, .qs-filter-btn, .qs-apply, .project-empty-cta,
+  .project-submit-button, .drawer-login-btn, .card-video-pill {
+    transition: none !important;
+  }
+  .ios-btn:active, .btn:active, .btn-block:active, .dd-btn-search:active,
+  .qs-submit:active, .nav-cta:active, .dd-btn-login:active,
+  .dd-icon-btn:active, .qs-filter-btn:active, .qs-apply:active,
+  .project-empty-cta:active, .project-submit-button:active,
+  .drawer-login-btn:active, .card-video-pill:active {
+    transform: none !important;
+  }
+}
+
+/* =========================================================
+   Chips (แท็กทำเลยอดนิยม) — เดิมสูง 27px แตะยากมาก
+   เพิ่มพื้นที่แตะเป็น 36px โดยหน้าตายังเหมือนเดิม
+   ========================================================= */
+.ios-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Apple HIG: พื้นที่แตะขั้นต่ำ 44pt — chip เล็กเกินไปจะกดพลาดง่ายบนมือ
+     ใช้ min-height 40px และเว้นระยะห่างระหว่าง chip ด้วย gap ของ container */
+  min-height: 40px;
+  padding: 0 15px;
+  border-radius: var(--ios-radius-pill);
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform .14s var(--ios-ease), background-color .16s ease,
+              border-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.ios-chip--solid {
+  background: var(--ios-ink);
+  color: #fff;
+  border: 1px solid transparent;
+  box-shadow: 0 1px 2px rgba(11, 28, 51, .12);
+}
+
+.ios-chip--ghost {
+  background: #fff;
+  color: var(--ios-ink);
+  border: 1px solid #e2e8f0;
+}
+
+.ios-chip:active { transform: scale(.96); }
+
+@media (hover: hover) {
+  .ios-chip--solid:hover { background: var(--ios-gold); color: var(--ios-ink); }
+  .ios-chip--ghost:hover { border-color: var(--ios-gold); color: var(--ios-gold-dark); }
+}
+
+/* ---------------------------------------------------- ตัวสลับภาษา */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  min-width: 44px;
+  padding: 0 12px;
+  border-radius: var(--ios-radius-pill);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color .16s ease, transform .14s var(--ios-ease);
+}
+.lang-toggle:active { transform: scale(.95); }
+
+/* ---------------------------------------------------- ปุ่มปิด drawer */
+.drawer-close-btn {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+}
+.drawer-close-btn:active { transform: scale(.92); }
+
+/* ---------------------------------------------------- หัวใจบนการ์ด */
+.sp-fav-card-btn,
+.card-fav-heart-btn {
+  min-width: 40px;
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .14s var(--ios-ease), background-color .16s ease;
+}
+.sp-fav-card-btn:active,
+.card-fav-heart-btn:active { transform: scale(.9); }
+
+/* ---------------------------------------------------- โลโก้ใน header */
+/* โลโก้ไม่ใช่ปุ่มหลัก — ให้พื้นที่แตะเต็มแถบ แต่ไม่บังคับ 44px สูง */
+.site-header .kasa-logo,
+.site-shell-left .kasa-logo { min-height: 44px; display: inline-flex; align-items: center; }

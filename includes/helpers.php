@@ -147,6 +147,8 @@ function site_controls_head(): void
     echo '<link rel="stylesheet" href="' . $css . '">' . "\n";
     echo '<link rel="stylesheet" href="' . $footerCss . '">' . "\n";
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
+    // ระบบปุ่ม iOS — โหลดท้ายสุดเพื่อให้ค่าชนะสไตล์เฉพาะหน้าอื่น
+    echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-buttons.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-buttons.css')) . '">' . "\n";
     echo '<script defer src="' . $js . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
@@ -209,6 +211,70 @@ function price_label(string $type, int $price): string
 function category_label(string $key): string
 {
     return PROPERTY_CATEGORIES[$key] ?? PROPERTY_CATEGORIES['other'];
+}
+
+/**
+ * ตรวจว่าประกาศ "มีเนื้อหาสมเหตุสมผล" พอจะแสดงบนหน้าเว็บสาธารณะหรือไม่
+ *
+ * มีไว้กรองข้อมูลขยะที่ผู้ใช้ลองพิมพ์เล่น/ทดสอบ ซึ่งก่อนหน้านี้หลุดขึ้นหน้า
+ * search.php และหน้าหมวดจริง เช่น title = "าาาาาาาา", "kkkkkkkk", "สวย"
+ * หรือราคา overflow 4,294,967,295
+ *
+ * ใช้ร่วมกับ ai_search_title_is_sane() ใน includes/ai_search/ranker.php
+ * โดยฟังก์ชันนี้เพิ่มเรื่องราคาเข้าไปด้วย
+ */
+function listing_content_is_sane(array $row): bool
+{
+    $title = trim((string)($row['title'] ?? ''));
+    if ($title === '') {
+        return false;
+    }
+
+    // ต้องมีตัวอักษรหรือตัวเลขจริงอย่างน้อย 2 ตัว
+    if (preg_match_all('/[\p{L}\p{N}]/u', $title) < 2) {
+        return false;
+    }
+
+    // ตัวอักษรเดียวกันซ้ำตั้งแต่ 4 ตัวขึ้นไป (าาาาา / kkkkkkk)
+    if (preg_match('/(\X)\1{3,}/u', $title) === 1) {
+        return false;
+    }
+
+    // ชื่อสั้นเกินจนไม่สือความหมาย (สวย / ดี / aaa)
+    if (mb_strlen(preg_replace('/[^\p{L}\p{N}]+/u', '', $title) ?? '') < 4) {
+        return false;
+    }
+
+    // คำทดสอบ
+    $lower = mb_strtolower($title);
+    $junk = ['test', 'test test', 'ทดสอบ', 'ทดสอบระบบ', 'test property', 'untitled', 'ไม่มีชื่อ', 'nameless', 'null', 'undefined'];
+    if (in_array($lower, $junk, true)) {
+        return false;
+    }
+    foreach (['ทดสอบ', 'test ', 'untitled', 'draft ', 'ตัวอย่าง'] as $prefix) {
+        if (mb_strpos($lower, $prefix) === 0) {
+            return false;
+        }
+    }
+
+    // ราคาต้องสมเหตุสมผล — 0 / ติดลบ / ค่า overflow ของ int ไม่ใช่ประกาศจริง
+    if (array_key_exists('price', $row)) {
+        $price = (int)$row['price'];
+        if ($price <= 0 || $price >= 2147483000) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+/**
+ * กรอง array ของประกาศให้เหลือเฉพาะรายการที่สมเหตุสมผล
+ * ใช้ฝั่ง PHP หลัง query เพราะการกรองด้วย SQL ด้วย regex ภาษาไทยจะช้ากว่า
+ */
+function filter_sane_listings(array $rows): array
+{
+    return array_values(array_filter($rows, static fn($row) => listing_content_is_sane((array)$row)));
 }
 
 // ดึงพิกัดจากลิงก์ Google Maps รูปแบบ @lat,lng หรือ ?q=lat,lng

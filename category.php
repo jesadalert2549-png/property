@@ -78,7 +78,8 @@ $sql .= " ORDER BY p.created_at DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
-$items = $stmt->fetchAll();
+// กรองประกาศข้อมูลขยะ (title พิมพ์ค้าง / ราคา overflow) แบบเดียวกับหน้าค้นหา
+$items = filter_sane_listings($stmt->fetchAll());
 
 $categoryImage = '';
 if ($target_category !== null) {

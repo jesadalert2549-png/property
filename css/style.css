@@ -1750,7 +1750,9 @@ body:has(.dd-hero) .site-controls {
 @media (min-width: 641px) {
   .site-controls { right: 18px; bottom: 18px; }
   .to-top { right: 18px; bottom: 74px; }
-  .cookie-consent { right: 18px; bottom: 130px; width: min(460px, calc(100vw - 36px)); }
+  /* เดิม bottom:130px + width 460px ทำให้ banner ลอยขึ้นไปกลางจอและบังผลการค้นหา
+     ตัวค่าเริ่มต้นที่ถูกต้องอยู่ใน css/site-controls.css (width 340px, ชิดขอบล่าง) */
+  .cookie-consent { right: 16px; bottom: 12px; width: min(340px, calc(100vw - 24px)); }
 }
 
 /* --- 5b) มือถือ: เว้นที่ว่างท้ายหน้าให้แถวปุ่มลอย ไม่ให้ทับ CTA/footer --- */

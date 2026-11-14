@@ -42,7 +42,9 @@ $st = db()->prepare(
      LIMIT 100"
 );
 $st->execute($params);
-$items = $st->fetchAll();
+/* กรองประกาศที่ข้อมูลไม่สมเหตุสมผล (title = "าาาาาา", "kkkkkkk", ราคา overflow)
+   ก่อนหน้านี้รายการกลุ่มนี้หลุดขึ้นหน้าค้นหาจริง */
+$items = filter_sane_listings($st->fetchAll());
 
 // ── บันทึกคำค้นหาลงระบบวิเคราะห์ SEO เมื่อมีการค้นหาจริง ──
 if ($q !== '' && empty($_GET['no_log'])) {
@@ -317,7 +319,7 @@ if ($q !== '' && empty($_GET['no_log'])) {
       ];
       foreach ($cbdFastTags as $kw => $lbl):
       ?>
-        <a href="search.php?q=<?= urlencode($kw) ?>" style="font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:#0B1C33; color:#fff; text-decoration:none; transition:all .15s;" onmouseover="this.style.background='#C5A059'" onmouseout="this.style.background='#0B1C33'"><?= e($lbl) ?></a>
+        <a href="search.php?q=<?= urlencode($kw) ?>" class="ios-chip ios-chip--solid"><?= e($lbl) ?></a>
       <?php endforeach; ?>
       <span style="font-size:12px; font-weight:700; color:#64748B; margin-left:8px;">📍 <?= e(t('จังหวัดยอดนิยม:', 'Popular Provinces:')) ?></span>
       <?php
@@ -333,7 +335,7 @@ if ($q !== '' && empty($_GET['no_log'])) {
       ];
       foreach ($hotProvs as $hpKw => $hpLbl):
       ?>
-        <a href="search.php?q=<?= urlencode($hpKw) ?>" style="font-size:12px; font-weight:600; padding:4px 10px; border-radius:999px; background:#fff; border:1px solid #e2e8f0; color:#0B1C33; text-decoration:none;" onmouseover="this.style.borderColor='#C5A059';this.style.color='#C5A059'" onmouseout="this.style.borderColor='#e2e8f0';this.style.color='#0B1C33'"><?= e($hpLbl) ?></a>
+        <a href="search.php?q=<?= urlencode($hpKw) ?>" class="ios-chip ios-chip--ghost"><?= e($hpLbl) ?></a>
       <?php endforeach; ?>
     </div>
 
