@@ -239,10 +239,21 @@
     relocateBanner();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', splitAll);
-  } else {
+  /* Expose a runner so the page can call us from <body onload>. On this
+     dashboard every inline <script> in <head> is discarded before it runs
+     (measured: the node is in the DOM but never executes, while evaluating
+     the same source by hand works). <body onload> is an attribute, not a
+     script node, so it always fires. */
+  window.__iosFxRun = function () {
+    if (window.__iosFxRan) return;
+    window.__iosFxRan = true;
     splitAll();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.__iosFxRun);
+  } else {
+    window.__iosFxRun();
   }
 
   /* The script sits in <head> and runs before PHP has streamed the card
