@@ -1,0 +1,826 @@
+/* ==========================================================================
+   Admin — iOS skin (หน้าแรก: admin/index.php)
+   --------------------------------------------------------------------------
+   โหลดท้ายสุดของหน้า admin เพื่อทับสไตล์เดิม โดยไม่แตะ HTML/PHP
+   หลักการ:
+     • พื้นหลังเทาอ่อนแบบ iOS (#F2F2F7) การ์ดขาว radius 20px เงานุ่ม
+     • ตัวอักษรใช้ Prompt/Inter เรียงชัด, tabular numbers สำหรับตัวเลข
+     • ไอคอนในวงกลมสีอ่อน ตาม SF Symbols container
+     • ปุ่ม/ลิงก์แตะง่าย ≥44px, :active scale(.97), ปิด tap highlight
+     • ตารางแบบ iOS list: แถวสูง, เส้นคั่นบาง, ไม่มีขอบ
+   ========================================================================== */
+
+.admin-ios {
+  --ios-bg: #F2F2F7;
+  --ios-card: #FFFFFF;
+  --ios-line: rgba(60, 60, 67, .12);
+  --ios-ink: #1C1C1E;
+  --ios-ink-2: #3A3A3C;
+  --ios-muted: #8E8E93;
+  --ios-gold: #A8843F;
+  --ios-gold-soft: #FBF4E4;
+  --ios-blue: #0A84FF;
+  --ios-green: #30A46C;
+  --ios-red: #FF3B30;
+  --ios-radius: 20px;
+  --ios-ease: cubic-bezier(.32, .72, 0, 1);
+  --ios-shadow: 0 1px 2px rgba(0, 0, 0, .04), 0 8px 24px -8px rgba(16, 24, 40, .10);
+}
+
+/* admin.css ตั้ง `body{font-family:...!important}` และ style.css ตั้งพื้นหลังซ้ำ
+   ต้องใช้ selector ที่แรงกว่าจึงจะชนะ */
+html body.admin-ios.admin-ios {
+  background: #F2F2F7 !important;
+  color: #1C1C1E !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Prompt", "Inter", "Segoe UI", system-ui, sans-serif !important;
+  font-size: 15px !important;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.admin-ios .wrap {
+  padding: 20px 24px 48px !important;
+  max-width: 1320px;
+}
+
+/* ---------------------------------------------------------- Hero แดชบอร์ด */
+.admin-ios .dash-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ios-radius) !important;
+  padding: 26px 28px !important;
+  background: linear-gradient(135deg, #0B1C33 0%, #16304F 55%, #A8843F 160%) !important;
+  border: 0 !important;
+  box-shadow: 0 2px 6px rgba(11, 28, 51, .16), 0 18px 40px -14px rgba(11, 28, 51, .38) !important;
+  margin-bottom: 20px !important;
+}
+
+.admin-ios .dash-hero h1 {
+  color: #fff !important;
+  font-size: clamp(20px, 2.4vw, 27px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.25 !important;
+  margin: 6px 0 6px !important;
+}
+
+.admin-ios .dash-hero p {
+  color: rgba(255, 255, 255, .74) !important;
+  font-size: 13.5px !important;
+  line-height: 1.55 !important;
+  margin: 0 !important;
+  max-width: 62ch;
+}
+
+.admin-ios .dash-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 11px !important;
+  border-radius: 999px !important;
+  background: rgba(248, 216, 136, .16) !important;
+  border: 1px solid rgba(248, 216, 136, .4) !important;
+  color: #F8D888 !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  letter-spacing: .04em !important;
+}
+
+.admin-ios .dash-hero-ring {
+  display: none !important;
+}
+
+.admin-ios .dash-hero-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 9px !important;
+  margin-top: 16px !important;
+}
+
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  background: rgba(255, 255, 255, .12) !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  transition: background-color .16s ease, transform .14s var(--ios-ease) !important;
+}
+
+@media (hover: hover) {
+
+  .admin-ios .dash-hero-actions .btn-hero:hover,
+  .admin-ios .dash-hero-actions a:hover {
+    background: rgba(255, 255, 255, .2) !important;
+  }
+}
+
+.admin-ios .dash-hero-actions .btn-hero:active,
+.admin-ios .dash-hero-actions a:active {
+  transform: scale(.97);
+}
+
+/* ------------------------------------------------------ แบนเนอร์โปรโมต */
+.admin-ios .featured-manage-banner {
+  display: flex !important;
+  align-items: center;
+  gap: 14px;
+  border-radius: 16px !important;
+  padding: 16px 18px !important;
+  background: var(--ios-gold-soft) !important;
+  border: 1px solid rgba(168, 132, 63, .18) !important;
+  box-shadow: none !important;
+  margin-bottom: 18px !important;
+}
+
+.admin-ios .featured-manage-icon {
+  display: grid !important;
+  place-items: center;
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 12px !important;
+  background: rgba(168, 132, 63, .14) !important;
+  color: var(--ios-gold) !important;
+  font-size: 18px !important;
+  flex: 0 0 auto;
+}
+
+.admin-ios .featured-manage-banner strong {
+  display: block;
+  font-size: 14px !important;
+  color: #5C4720 !important;
+  font-weight: 800 !important;
+}
+
+.admin-ios .featured-manage-banner small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px !important;
+  color: #7A6234 !important;
+  line-height: 1.5;
+}
+
+.admin-ios .featured-manage-banner>a {
+  margin-left: auto;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #fff !important;
+  color: var(--ios-gold) !important;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none !important;
+  border: 1px solid rgba(168, 132, 63, .22);
+  transition: transform .14s var(--ios-ease);
+}
+
+.admin-ios .featured-manage-banner>a:active {
+  transform: scale(.97);
+}
+
+/* ------------------------------------------------------ การ์ดสถิติ */
+.admin-ios .stat-cards {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+  gap: 12px !important;
+  margin-bottom: 22px !important;
+}
+
+.admin-ios .scard {
+  display: flex !important;
+  align-items: center;
+  gap: 13px;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  background: var(--ios-card) !important;
+  border: 0 !important;
+  box-shadow: var(--ios-shadow) !important;
+  transition: transform .16s var(--ios-ease) !important;
+}
+
+.admin-ios .scard:active {
+  transform: scale(.985);
+}
+
+.admin-ios .scard-icon {
+  display: grid !important;
+  place-items: center;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 13px !important;
+  font-size: 20px !important;
+  background: var(--ios-bg) !important;
+  flex: 0 0 auto;
+}
+
+.admin-ios .scard-icon.i-blue {
+  background: #EAF2FC !important;
+}
+
+.admin-ios .scard-icon.i-amber {
+  background: #FBF4E4 !important;
+}
+
+.admin-ios .scard-icon.i-green {
+  background: #E7F6EF !important;
+}
+
+.admin-ios .scard-icon.i-red {
+  background: #FDECEA !important;
+}
+
+.admin-ios .scard-num {
+  font-size: 25px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.03em !important;
+  line-height: 1.1 !important;
+  color: var(--ios-ink) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-ios .scard-lbl {
+  margin-top: 2px;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  color: var(--ios-muted) !important;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------- Launchpad (inline style) */
+/* ต้องบังคับเพราะ HTML ใช้ inline style และ onmouseover */
+.admin-ios .ceo-launchpad>div:first-child h2 {
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.015em !important;
+  color: var(--ios-ink) !important;
+}
+
+.admin-ios .ceo-launchpad>div:first-child p {
+  color: var(--ios-muted) !important;
+  font-size: 12.5px !important;
+}
+
+.admin-ios .ceo-cat-card {
+  background: var(--ios-card) !important;
+  border: 0 !important;
+  border-radius: var(--ios-radius) !important;
+  padding: 16px !important;
+  box-shadow: var(--ios-shadow) !important;
+  transform: none !important;
+}
+
+.admin-ios .ceo-cat-card>div:first-child {
+  border-bottom: 0 !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 10px !important;
+}
+
+.admin-ios .ceo-cat-card>div:first-child>div>span:first-child {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 11px !important;
+  background: var(--ios-gold-soft) !important;
+  color: var(--ios-gold) !important;
+  font-size: 17px !important;
+}
+
+.admin-ios .ceo-cat-card strong {
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  color: var(--ios-ink) !important;
+}
+
+.admin-ios .ceo-cat-card a {
+  background: var(--ios-bg) !important;
+  border-radius: 11px !important;
+  min-height: 40px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--ios-ink-2) !important;
+  transition: background-color .16s ease, transform .14s var(--ios-ease) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .ceo-cat-card a:hover {
+    background: var(--ios-gold-soft) !important;
+    color: var(--ios-gold) !important;
+  }
+}
+
+.admin-ios .ceo-cat-card a:active {
+  transform: scale(.98);
+}
+
+/* ---------------------------------------------------------------- ตาราง */
+.admin-ios .table-wrap {
+  background: var(--ios-card) !important;
+  border-radius: var(--ios-radius) !important;
+  border: 0 !important;
+  box-shadow: var(--ios-shadow) !important;
+  overflow: hidden;
+}
+
+.admin-ios table {
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  width: 100%;
+}
+
+.admin-ios thead th {
+  background: #FAFAFC !important;
+  color: var(--ios-muted) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  padding: 12px 16px !important;
+  border-bottom: 1px solid var(--ios-line) !important;
+  text-align: left;
+}
+
+.admin-ios tbody td {
+  padding: 14px 16px !important;
+  font-size: 13.5px !important;
+  color: var(--ios-ink-2) !important;
+  border-bottom: 1px solid var(--ios-line) !important;
+  vertical-align: middle;
+}
+
+.admin-ios tbody tr:last-child td {
+  border-bottom: 0 !important;
+}
+
+@media (hover: hover) {
+  .admin-ios tbody tr:hover td {
+    background: #FAFAFC !important;
+  }
+}
+
+/* --------------------------------------------------------------- แท็บ */
+.admin-ios .tabs {
+  display: flex !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  border-radius: 14px !important;
+  background: #E6E6EB !important;
+  border: 0 !important;
+  margin-bottom: 16px !important;
+  flex-wrap: wrap;
+}
+
+.admin-ios .tabs a,
+.admin-ios .tabs button {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px !important;
+  padding: 0 16px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: var(--ios-ink-2) !important;
+  text-decoration: none !important;
+  border: 0 !important;
+  background: transparent !important;
+  transition: background-color .16s ease, box-shadow .16s ease !important;
+}
+
+.admin-ios .tabs a.active,
+.admin-ios .tabs button.active,
+.admin-ios .tabs .active {
+  background: #fff !important;
+  color: var(--ios-ink) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .12) !important;
+}
+
+/* ------------------------------------------------------------- ปุ่มทั่วไป */
+.admin-ios .btn,
+.admin-ios .btn-action,
+.admin-ios button.btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 40px !important;
+  padding: 0 16px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease, transform .14s var(--ios-ease) !important;
+}
+
+.admin-ios .btn:active,
+.admin-ios .btn-action:active {
+  transform: scale(.97);
+}
+
+/* ------------------------------------------------------- แจ้งเตือน */
+.admin-ios .flash {
+  border-radius: 14px !important;
+  padding: 13px 16px !important;
+  font-size: 13.5px !important;
+  font-weight: 600;
+  background: #E7F6EF !important;
+  color: #0E6B47 !important;
+  border: 1px solid rgba(48, 164, 108, .24) !important;
+  box-shadow: none !important;
+  margin-bottom: 16px !important;
+}
+
+/* ---------------------------------------------- ป้าย/ชิป (pill) ในตาราง */
+.admin-ios .pill {
+  display: inline-flex !important;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------ Responsive */
+@media (max-width: 900px) {
+  .admin-ios .wrap {
+    padding: 14px 14px 40px !important;
+  }
+
+  .admin-ios .dash-hero {
+    padding: 20px !important;
+    border-radius: 18px !important;
+  }
+
+  .admin-ios .stat-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .admin-ios .scard {
+    padding: 14px !important;
+    border-radius: 16px !important;
+  }
+
+  .admin-ios .scard-num {
+    font-size: 22px !important;
+  }
+
+  .admin-ios .featured-manage-banner {
+    flex-wrap: wrap;
+  }
+
+  .admin-ios .featured-manage-banner>a {
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-ios .scard-icon {
+    width: 38px !important;
+    height: 38px !important;
+    font-size: 17px !important;
+  }
+
+  .admin-ios .scard-num {
+    font-size: 20px !important;
+  }
+
+  .admin-ios .scard-lbl {
+    font-size: 11.5px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .admin-ios .scard,
+  .admin-ios .ceo-cat-card a,
+  .admin-ios .btn,
+  .admin-ios .dash-hero-actions a {
+    transition: none !important;
+  }
+
+  .admin-ios .scard:active,
+  .admin-ios .ceo-cat-card a:active,
+  .admin-ios .btn:active {
+    transform: none !important;
+  }
+}
+/* ==========================================================================
+   iOS skin v2 — แก้ 4 จุดที่เห็นในภาพจริง
+   --------------------------------------------------------------------------
+   1) topbar เดิมแน่น 2 แถว ข้อความทับ → จัดระยะห่างใหม่ ลดขนาดตัวอักษร
+      และให้เลื่อนแนวนอนได้โดยไม่ตัดกลางคำ
+   2) cookie banner ทับการ์ด Launchpad → ย่อและชิดขอบล่าง
+   3) การ์ด Launchpad ในแถวเดียวกันสูงไม่เท่ากันแต่มีที่ว่างด้านใน
+      → ให้การ์ดสูงเท่ากันแต่เนื้อหาชิดบน (align-items: start)
+   4) ปุ่มใน hero ล้นเป็น 2 แถวไม่สมดุล → กริด 3 คอลัมน์เท่ากัน
+   ========================================================================== */
+
+/* ------------------------------------------------------------ 1) Topbar */
+.admin-ios .admin-desktop-navbar {
+  min-height: 60px !important;
+  height: auto !important;
+  padding: 8px 16px !important;
+  gap: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+  background: rgba(11, 28, 51, .97) !important;
+  border-bottom: 1px solid rgba(197, 160, 89, .22) !important;
+  box-shadow: 0 2px 10px rgba(6, 15, 28, .22) !important;
+}
+
+/* โลโก้ + ป้ายแบรนด์: ไม่ให้กินพื้นที่ */
+.admin-ios .admin-desktop-navbar .kasa-logo,
+.admin-ios .admin-desktop-navbar .sp-logo {
+  flex: 0 0 auto;
+  margin-right: 2px;
+}
+
+.admin-ios .admin-desktop-navbar .kasa-logo-img--light,
+.admin-ios .admin-desktop-navbar .kasa-logo-img--dark {
+  height: 34px !important;
+  max-width: 148px !important;
+}
+
+.admin-ios .admin-brand-admin-label {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  background: rgba(248, 216, 136, .14) !important;
+  border: 1px solid rgba(248, 216, 136, .34) !important;
+  color: #F8D888 !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  letter-spacing: .06em !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  white-space: nowrap !important;
+}
+
+/* แถบเมนู: เลื่อนแนวนอนได้ ไม่ตัดคำ */
+.admin-ios .admin-navbar-links {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 0;
+}
+
+.admin-ios .admin-navbar-links::-webkit-scrollbar { display: none; }
+
+.admin-ios .admin-nav-item-link,
+.admin-ios .admin-nav-dropdown-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 11px !important;
+  border-radius: 10px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+  color: rgba(255, 255, 255, .82) !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  text-decoration: none !important;
+  transition: background-color .16s ease, color .16s ease !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .admin-nav-item-link:hover,
+  .admin-ios .admin-nav-dropdown-btn:hover {
+    background: rgba(255, 255, 255, .1) !important;
+    color: #fff !important;
+  }
+}
+
+.admin-ios .admin-nav-item-link.active,
+.admin-ios .admin-nav-dropdown-btn.active,
+.admin-ios .admin-nav-dropdown.has-active > .admin-nav-dropdown-btn {
+  background: rgba(248, 216, 136, .16) !important;
+  border-color: rgba(248, 216, 136, .42) !important;
+  color: #F8D888 !important;
+  font-weight: 700 !important;
+}
+
+.admin-ios .admin-nav-item-icon { font-size: 13px !important; opacity: .9; flex: 0 0 auto; }
+.admin-ios .admin-nav-caret { font-size: 8px !important; opacity: .55; margin-left: 1px; }
+
+/* ปุ่มด้านขวา (ภาษา, ตั้งค่า, ออกจากระบบ) */
+.admin-ios .admin-desktop-navbar > a,
+.admin-ios .admin-desktop-navbar > button:not(.admin-nav-scroll-btn) {
+  flex: 0 0 auto;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+}
+
+/* ปุ่มเลื่อนซ้าย/ขวา: ให้เล็กและไม่กินที่ */
+.admin-ios .admin-nav-scroll-btn {
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  flex: 0 0 auto;
+}
+
+/* ------------------------------------------------- 2) Cookie banner */
+.admin-ios .cookie-consent,
+body.admin-ios .cookie-consent {
+  width: min(320px, calc(100vw - 24px)) !important;
+  right: 16px !important;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  left: auto !important;
+  max-height: 38vh !important;
+  padding: 14px !important;
+  border-radius: 16px !important;
+  font-size: 12.5px !important;
+  box-shadow: 0 10px 30px rgba(15, 35, 55, .22) !important;
+}
+
+.admin-ios .cookie-consent h2 { font-size: 15px !important; margin-bottom: 6px !important; }
+.admin-ios .cookie-consent p { font-size: 12.5px !important; line-height: 1.55 !important; margin-bottom: 10px !important; }
+
+.admin-ios .cookie-consent-actions button {
+  min-height: 40px !important;
+  border-radius: 11px !important;
+  font-size: 12.5px !important;
+}
+
+/* ------------------------------------------------- 3) Launchpad grid */
+/* เดิมการ์ดถูกยืดสูงเท่ากันจนมีที่ว่างด้านล่าง → ให้ชิดบนและสูงตามเนื้อหา
+   แต่ถ้าอยู่ในแถวเดียวกันให้สูงเท่ากันเฉพาะเมื่อเนื้อหาใกล้เคียง */
+.admin-ios .ceo-launchpad > div:last-child {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
+  gap: 14px !important;
+  align-items: start !important;
+}
+
+.admin-ios .ceo-cat-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: start !important;
+  height: auto !important;
+}
+
+.admin-ios .ceo-cat-card > div:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+}
+
+/* ------------------------------------------------------ 4) ปุ่มใน hero */
+.admin-ios .dash-hero-actions {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)) !important;
+  gap: 8px !important;
+  max-width: 900px;
+}
+
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 0 12px !important;
+  font-size: 12.5px !important;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  justify-content: flex-start !important;
+  text-align: left;
+}
+
+@media (max-width: 900px) {
+  .admin-ios .admin-desktop-navbar { min-height: 56px !important; padding: 6px 12px !important; }
+  .admin-ios .admin-navbar-links { gap: 1px !important; }
+  .admin-ios .admin-nav-item-link,
+  .admin-ios .admin-nav-dropdown-btn { padding: 0 9px !important; font-size: 12px !important; }
+  .admin-ios .dash-hero-actions { grid-template-columns: 1fr 1fr !important; }
+  .admin-ios .dash-hero-actions .btn-hero,
+  .admin-ios .dash-hero-actions a { min-height: 40px !important; font-size: 12px !important; }
+}
+
+@media (max-width: 520px) {
+  .admin-ios .dash-hero-actions { grid-template-columns: 1fr !important; }
+  .admin-ios .ceo-launchpad > div:last-child { grid-template-columns: 1fr !important; }
+}
+
+/* ==========================================================================
+   iOS skin v3 — แก้ topbar ล้นจอ (วัดได้ lastRight 1533 บนจอ 1280)
+   --------------------------------------------------------------------------
+   เมนูหลัก 8 หมวด + ปุ่มขวา 3 ปุ่ม รวมกันกว้าง ~1,580px จึงล้นออกนอกจอ 253px
+   วิธีแก้: ลดความกว้างต่อรายการ + ซ่อนข้อความเหลือไอคอนเมื่อจอแคบ
+   และย่อป้ายแบรนด์/ภาษา
+   ========================================================================== */
+
+/* ป้าย "ADMIN" ไม่จำเป็นบนจอแคบ */
+.admin-ios .admin-brand-admin-label {
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* เมนู: บีบระยะห่างลงอีกเมื่อจอ <= 1500px */
+@media (max-width: 1500px) {
+  .admin-ios .admin-navbar-links { gap: 0 !important; }
+  .admin-ios .admin-nav-item-link,
+  .admin-ios .admin-nav-dropdown-btn {
+    padding: 0 9px !important;
+    font-size: 12px !important;
+    gap: 4px !important;
+  }
+  .admin-ios .admin-nav-item-icon { font-size: 12px !important; }
+  .admin-ios .admin-brand-admin-label { display: none !important; }
+}
+
+/* <= 1320px: ซ่อนข้อความ เหลือไอคอน + tooltip (title มีอยู่แล้วใน <a>) */
+@media (max-width: 1320px) {
+  .admin-ios .admin-nav-item-link > span:last-child,
+  .admin-ios .admin-nav-dropdown-btn > span:nth-child(2) {
+    display: none !important;
+  }
+  .admin-ios .admin-nav-item-link,
+  .admin-ios .admin-nav-dropdown-btn {
+    width: 38px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+  }
+  .admin-ios .admin-nav-item-icon { font-size: 15px !important; }
+  .admin-ios .admin-nav-caret { display: none !important; }
+}
+
+/* ปุ่มขวา: ย่อเป็นไอคอน */
+@media (max-width: 1320px) {
+  .admin-ios .admin-desktop-navbar > a {
+    width: 34px !important;
+    min-width: 34px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+  }
+  /* เก็บ emoji/ไอคอนชิ้นแรกไว้ให้เห็น */
+  .admin-ios .admin-desktop-navbar > a > svg,
+  .admin-ios .admin-desktop-navbar > a > img { display: block !important; }
+}
+
+/* <= 1100px: ซ่อนปุ่มไม่จำเป็น เหลือเฉพาะโปรไฟล์กับออกจากระบบ */
+@media (max-width: 1100px) {
+  .admin-ios .admin-desktop-navbar > a[href*="index.php"]:not([href*="admin/index"]) { display: none !important; }
+}
+
+/* ภาษา: ให้เป็นแคปซูลเล็กมาก */
+.admin-ios .admin-desktop-navbar .lang-toggle,
+.admin-ios .admin-desktop-navbar [class*="lang"] {
+  min-width: 34px !important;
+  height: 30px !important;
+  padding: 0 8px !important;
+  font-size: 11px !important;
+  border-radius: 999px !important;
+  flex: 0 0 auto !important;
+}
+
+/* ให้แถบเมนูไม่ดันปุ่มขวาออก: จำกัดความกว้างและตัดที่ขอบแทน */
+.admin-ios .admin-navbar-links {
+  max-width: 100%;
+}
+
+/* ปุ่มเลื่อน ‹ › ไม่ต้องแสดงถ้าเนื้อหาพอดี */
+.admin-ios .admin-nav-scroll-btn[hidden] { display: none !important; }

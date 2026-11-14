@@ -186,8 +186,10 @@ $approvalLabel = [
   <title><?= e(t('แดชบอร์ดผู้ดูแล | ระบบหลังบ้าน', 'Admin Dashboard | Standard Property')) ?></title>
   <link rel="stylesheet" href="admin.css?v=<?= e((string) filemtime(__DIR__ . '/admin.css')) ?>">
   <?php lang_toggle_head(); site_controls_head(); ?>
+  <?php /* iOS skin — โหลดท้ายสุดเพื่อทับสไตล์เดิม (เฉพาะหน้านี้) */ ?>
+  <link rel="stylesheet" href="ios-admin.css?v=<?= e((string) filemtime(__DIR__ . '/ios-admin.css')) ?>">
 </head>
-<body class="has-admin-sidebar">
+<body class="has-admin-sidebar admin-ios">
 <?php require __DIR__ . '/_sidebar.php'; ?>
 
 <div class="wrap">
