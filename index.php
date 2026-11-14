@@ -1982,8 +1982,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               </div>
             </div>
             <div class="showcase-body">
+              <?php
+                /* ชิปผู้ประกาศเคยแสดงที่อยู่ซ้ำกับบรรทัด loc ด้านล่าง
+                   (เห็นเป็นชื่อเมืองสองบรรทัดติดกัน) → ส่ง location ว่าง
+                   เพื่อให้ชิปแสดงเฉพาะรูป + ชื่อผู้ประกาศ */
+                $publisherMiniRow = $listing;
+                $publisherMiniRow['location'] = '';
+              ?>
               <div class="showcase-publisher-row">
-                <?php render_publisher_mini($listing); ?>
+                <?php render_publisher_mini($publisherMiniRow); ?>
               </div>
               <div class="showcase-card-title"><?= e($listing['title']) ?></div>
               <div class="showcase-card-loc"><?= e($listing['location'] ?: '-') ?></div>

@@ -1,0 +1,295 @@
+/* ==========================================================================
+   iOS-style property card
+   --------------------------------------------------------------------------
+   ออกแบบตามหลัก Human Interface Guidelines ของ Apple:
+     • มุมโค้ง 18px + เงาบางสองชั้น (ไม่ใช่เงาหนาสีดำ)
+     • ระยะหายใจ 16px รอบเนื้อหา, ลำดับชั้นตัวอักษรชัด (title > loc > meta)
+     • ป้าย/ปุ่มบนรูปเป็น "วัสดุกระจก" (glass) อ่านง่ายบนภาพทุกโทน
+     • ปุ่มแตะ ≥ 36px, ปิด tap highlight, :active ย่อเล็กน้อย
+     • ไม่มีเส้นคั่นฟุ่มเฟือย ใช้ช่องว่างและน้ำหนักตัวอักษรแบ่งกลุ่มแทน
+   โหลดหลัง index.php เสมอ (ผ่าน site_controls_head)
+   ชื่อ divider ไม่ให้ซ้ำกับสไตล์เดิม — ใช้ .pc-* prefix
+   ========================================================================== */
+
+/* ------------------------------------------------------------- ตัวการ์ด */
+.showcase-card {
+  border: 0 !important;
+  border-radius: 20px !important;
+  background: #fff !important;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, .05),
+    0 8px 24px -6px rgba(16, 24, 40, .10) !important;
+  transition: transform .32s cubic-bezier(.22, 1, .36, 1),
+              box-shadow .32s cubic-bezier(.22, 1, .36, 1) !important;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+@media (hover: hover) {
+  .showcase-card:hover {
+    transform: translateY(-3px) !important;
+    box-shadow:
+      0 2px 4px rgba(16, 24, 40, .06),
+      0 16px 32px -8px rgba(16, 24, 40, .16) !important;
+  }
+}
+
+.showcase-card:active { transform: scale(.985) !important; }
+
+.showcase-card:focus-visible {
+  outline: 3px solid rgba(197, 160, 89, .8);
+  outline-offset: 3px;
+  border-radius: 20px;
+}
+
+/* --------------------------------------------------------------- รูปภาพ */
+.showcase-media {
+  aspect-ratio: 4 / 3 !important;
+  border-radius: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.showcase-img { transition: transform .6s cubic-bezier(.22, 1, .36, 1) !important; }
+@media (hover: hover) {
+  .showcase-card:hover .showcase-img { transform: scale(1.04) !important; }
+}
+
+/* ไล่เงาด้านล่างบาง ๆ ให้ป้ายบนรูปอ่านง่ายขึ้น */
+.showcase-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(6, 15, 28, .22) 0%, transparent 26%, transparent 68%, rgba(6, 15, 28, .30) 100%);
+}
+
+/* ------------------------------------------------------ ป้ายบนรูป (glass) */
+.showcase-badges-left {
+  top: 12px !important;
+  left: 12px !important;
+  gap: 6px !important;
+  max-width: calc(100% - 132px) !important;
+  z-index: 4;
+}
+
+.showcase-tag,
+.showcase-featured-tag {
+  height: 28px;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  background: rgba(11, 28, 51, .62) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+  color: #fff !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: .01em !important;
+  display: inline-flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(6, 15, 28, .2);
+}
+
+.showcase-featured-tag {
+  background: linear-gradient(135deg, rgba(248, 216, 136, .96), rgba(197, 160, 89, .96)) !important;
+  color: #0B1C33 !important;
+  border-color: rgba(255, 255, 255, .5) !important;
+}
+
+/* -------------------------------------------------- ปุ่มบนรูป (มุมขวา) */
+.showcase-actions-right {
+  top: 12px !important;
+  right: 12px !important;
+  gap: 8px !important;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+}
+
+/* ปุ่มวิดีโอ */
+.card-video-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  background: rgba(11, 28, 51, .6) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+  color: #fff !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(6, 15, 28, .2) !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease, transform .14s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+.card-video-pill .pill-play-icon { color: #F8D888 !important; }
+.card-video-pill .pill-text { line-height: 1; }
+
+.card-video-pill:active { transform: scale(.94); }
+
+/* หัวใจ: วงกลมขาวทึบ 36px */
+.sp-fav-card-btn,
+.showcase-fav-btn {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 0 !important;
+  background: rgba(255, 255, 255, .94) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  color: #0B1C33 !important;
+  box-shadow: 0 1px 3px rgba(6, 15, 28, .22) !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .14s cubic-bezier(.32, .72, 0, 1), background-color .16s ease, color .16s ease !important;
+}
+
+.sp-fav-card-btn:active,
+.showcase-fav-btn:active { transform: scale(.88); }
+
+.sp-fav-card-btn.is-favorite,
+.showcase-fav-btn.is-favorite {
+  background: #FF3B30 !important;
+  color: #fff !important;
+}
+
+.sp-fav-card-btn.is-favorite .heart-svg { fill: currentColor; }
+
+@media (hover: hover) {
+  .card-video-pill:hover { background: rgba(11, 28, 51, .74) !important; }
+  .sp-fav-card-btn:hover { background: #fff !important; }
+}
+
+/* ------------------------------------------------------ เนื้อหาด้านล่าง */
+.showcase-body {
+  padding: 14px 16px 16px !important;
+  background: #fff !important;
+  min-height: 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.showcase-publisher-row { margin: 0 0 2px !important; }
+
+.showcase-publisher-row .publisher-mini {
+  background: #F2F5F9 !important;
+  border: 0 !important;
+  padding: 3px 10px 3px 3px !important;
+  gap: 7px !important;
+}
+
+.showcase-publisher-row .publisher-mini-name {
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  color: #344054 !important;
+}
+
+.showcase-publisher-row .publisher-mini-loc {
+  font-size: 10.5px !important;
+  color: #8A94A6 !important;
+}
+
+/* ชื่อเรื่อง: 2 บรรทัด น้ำหนัก 700 hv ไม่ต้อง margin ก้อนใหญ่ */
+.showcase-card-title {
+  min-height: 0 !important;
+  margin: 0 !important;
+  font-size: 15.5px !important;
+  line-height: 1.32 !important;
+  font-weight: 700 !important;
+  letter-spacing: -.011em !important;
+  color: #101828 !important;
+}
+
+.showcase-card:hover .showcase-card-title { color: #101828 !important; }
+
+/* ที่ตั้ง: ไอคอนเข็มหมุด + ข้อความจาง */
+.showcase-card-loc {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+  color: #667085 !important;
+}
+
+.showcase-card-loc::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  background: currentColor;
+  opacity: .55;
+  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 0 1 1 12 6.5a2.5 0 0 1 0 5z'/></svg>") center / contain no-repeat;
+          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/></svg>") center / contain no-repeat;
+}
+
+/* แถวราคา: ไม่มีเส้นคั่น ใช้ช่องว่าง + ราคาเด่น */
+.showcase-price-row {
+  margin-top: 4px !important;
+  padding-top: 0 !important;
+  border-top: 0 !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+}
+
+.showcase-price {
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.02em !important;
+  color: #A8843F !important;
+  line-height: 1.15 !important;
+}
+
+/* สถิติ: แคปซูลเทาอ่อน */
+.showcase-stats-wrap {
+  flex: 0 0 auto;
+}
+
+.showcase-stats-wrap > * {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: #F2F5F9;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------ จอเล็ก */
+@media (max-width: 480px) {
+  .showcase-card { border-radius: 18px !important; }
+  .showcase-media { aspect-ratio: 16 / 11 !important; }
+  .showcase-body { padding: 12px 14px 14px !important; gap: 5px; }
+  .showcase-card-title { font-size: 14.5px !important; }
+  .showcase-price { font-size: 17.5px !important; }
+  .card-video-pill { height: 34px !important; min-height: 34px !important; padding: 0 10px !important; font-size: 11.5px !important; }
+  .sp-fav-card-btn, .showcase-fav-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; min-height: 34px !important; }
+  .showcase-badges-left { top: 10px !important; left: 10px !important; }
+  .showcase-actions-right { top: 10px !important; right: 10px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .showcase-card,
+  .showcase-img,
+  .card-video-pill,
+  .sp-fav-card-btn { transition: none !important; }
+  .showcase-card:hover { transform: none !important; }
+}

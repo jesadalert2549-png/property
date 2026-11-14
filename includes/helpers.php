@@ -36,7 +36,30 @@ function render_logo_html(string $href = 'index.php', string $class = ''): strin
 // ชิปโปรไฟล์เล็กมุมซ้ายล่างของรูปโพสต์: รูปโปรไฟล์ + ชื่อ + ที่ตั้ง
 function render_publisher_mini(array $post): void
 {
-    $name = trim((string)($post['publisher_name'] ?? '')) ?: (trim((string)($post['contact_name'] ?? '')) ?: 'ผู้ประกาศ');
+    /* เลือกชื่อที่ "ดูเป็นชื่อคน" ก่อน
+       ปัญหาที่พบ: users.full_name บางบัญชีเป็นตัวเลขล้วน (เช่น "0000")
+       หรือถูกตั้งเป็น username ซ้ำ ทำให้การ์ดแสดง "0000" แทนชื่อผู้ประกาศ
+       ลำดับ: full_name (ถ้าดูเป็นชื่อ) → contact_name → 'ผู้ประกาศ' */
+    $isNameLike = static function (string $s): bool {
+        $s = trim($s);
+        if ($s === '' || mb_strlen($s) < 2) {
+            return false;
+        }
+        // ตัวเลขล้วน / อักขระซ้ำ ๆ (0000, ----, ....) ไม่ใช่ชื่อ
+        if (preg_match('/^[\d\s\-_.]+$/u', $s) === 1) {
+            return false;
+        }
+        if (preg_match('/(\X)\1{2,}/u', $s) === 1 && mb_strlen(preg_replace('/[^\p{L}\p{N}]+/u', '', $s) ?? '') < 6) {
+            return false;
+        }
+        return true;
+    };
+
+    $fullName    = trim((string)($post['publisher_name'] ?? ''));
+    $contactName = trim((string)($post['contact_name'] ?? ''));
+    $name = $isNameLike($fullName)
+        ? $fullName
+        : ($isNameLike($contactName) ? $contactName : 'ผู้ประกาศ');
     $avatar = basename((string)($post['publisher_avatar'] ?? ''));
     $avatarExists = $avatar !== '' && defined('UPLOAD_DIR') && is_file(UPLOAD_DIR . 'avatars/' . $avatar);
     $location = trim((string)($post['location'] ?? ''));
@@ -149,8 +172,12 @@ function site_controls_head(): void
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
     // ระบบปุ่ม iOS — โหลดท้ายสุดเพื่อให้ค่าชนะสไตล์เฉพาะหน้าอื่น
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-buttons.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-buttons.css')) . '">' . "\n";
-    // Accessibility: skip link + dark mode + contrast helpers
+    // Accessibility: skip link + contrast helpers
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/a11y.css') . '?v=' . filemtime(__DIR__ . '/../css/a11y.css')) . '">' . "\n";
+    // การ์ดประกาศสไตล์ iOS — โหลดท้ายสุด ชนะสไตล์เฉพาะหน้า
+    if (is_file(__DIR__ . '/../css/ios-card.css')) {
+        echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-card.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-card.css')) . '">' . "\n";
+    }
     echo '<script defer src="' . $js . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
