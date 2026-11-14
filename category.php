@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/mobile_nav.php';
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
@@ -217,6 +218,7 @@ $all_slugs = available_category_slugs();
     .cat-stats-slot .property-card-stats-badge svg { stroke: #64748b !important; }
     .cat-stats-slot .stat-badge-views, .cat-stats-slot .stat-badge-clicks { color: #64748b !important; }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body class="page-category bg-[#F9F9FB] text-slate-800 antialiased" style="font-family:'Fenice Std','Noto Serif Thai','Prompt','Inter',system-ui,serif;">
 
@@ -242,6 +244,7 @@ $all_slugs = available_category_slugs();
   </div>
 </header>
 
+<?php render_mobile_nav(); ?>
 <main class="mx-auto max-w-[1240px] px-4 pb-16 pt-8 sm:px-6">
   <?php render_banner_slot('category_top', 'compact'); ?>
   <div class="relative overflow-hidden rounded-[28px] border border-slate-200 bg-gradient-to-r from-[#fdfbf8] via-white to-[#f4f8fb] p-6 shadow-soft sm:p-8">

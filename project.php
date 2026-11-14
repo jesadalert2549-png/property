@@ -4,6 +4,7 @@ require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
 current_lang();
 require_once __DIR__ . '/includes/profile_schema.php';
+require_once __DIR__ . '/includes/mobile_nav.php';
 ensure_profile_schema(db());
 
 $projectId = max(0, (int)($_GET['id'] ?? 0));
@@ -69,6 +70,10 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <?php seo_head($pageTitle, $pageDescription, $canonical); ?>
   <?php lang_toggle_head(); ?>
+  <?php /* โหลดสไตล์หลักของเว็บ (header/nav/container) — seo_head() โหลดเฉพาะ site-controls.css */ ?>
+  <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
+  <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
+  <?php render_mobile_nav_assets(); ?>
   <meta name="theme-color" content="#f7f8fa">
   <style>
     :root{--ink:#0B1C33;--muted:#64748b;--line:#e5eaf0;--brand:#C5A059;--brand-dark:#A8843F;--canvas:#F9F9FB;--white:#fff;--shadow:0 18px 45px rgba(11,28,51,.08)}
@@ -147,6 +152,7 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
       <a href="submit.php" class="nav-cta"><?= e(t('ลงประกาศฟรี', 'Post free listing')) ?></a>
       <?php render_lang_toggle(); ?>
     </nav>
+    <?php render_mobile_nav(); ?>
   </div>
 </header>
 

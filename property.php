@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/mobile_nav.php';
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
@@ -342,6 +343,7 @@ json_ld($propertyAiFaq);
       pointer-events: none;
     }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body class="page-property bg-slate-50 text-slate-800 antialiased" data-back-url="category.php?page=<?= e(rawurlencode((string)$catSlug)) ?>">
 
@@ -367,6 +369,7 @@ json_ld($propertyAiFaq);
   </div>
 </header>
 
+<?php render_mobile_nav(); ?>
 <main class="mx-auto max-w-[1240px] px-4 pb-16 pt-6 sm:px-6">
   <nav class="mb-6 flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="breadcrumb">
     <a href="index.php" class="hover:text-ink"><?= e(t('หน้าแรก', 'Home')) ?></a>

@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/mobile_nav.php';
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 current_lang();
@@ -26,6 +27,7 @@ $pageDescription = t('ติดต่อทีมงานเพื่อสอ�
   <style>
     .ad-page{min-height:70vh;padding:38px 18px 70px;background:linear-gradient(145deg,#f7f9fb,#f7f5ff)}.ad-card{max-width:850px;margin:auto;padding:clamp(22px,5vw,44px);border:1px solid #e5eaf0;border-radius:24px;background:white;box-shadow:0 20px 55px rgba(24,50,75,.1)}.ad-kicker{color:#7955d9;font-size:12px;font-weight:900;letter-spacing:.16em}.ad-card h1{margin:8px 0 10px;color:#2b2150;font-size:clamp(28px,5vw,42px);line-height:1.2}.ad-lead{color:#617286;line-height:1.8}.ad-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;margin:23px 0}.ad-option{display:flex;gap:12px;align-items:flex-start;padding:16px;border:1px solid #e5eaf0;border-radius:16px;background:#fbfcfd}.ad-option input{margin-top:4px;accent-color:#7955d9}.ad-option strong{display:block;color:#2b2150}.ad-option small{display:block;margin-top:4px;color:#64748b;line-height:1.5}.ad-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px}.ad-form label{display:grid;gap:7px;color:#334155;font-weight:700}.ad-form label.full{grid-column:1/-1}.ad-form input,.ad-form select,.ad-form textarea{width:100%;min-height:45px;padding:11px 13px;border:1px solid #cbd5e1;border-radius:11px;background:#fff;color:#2b2150;font:inherit}.ad-form textarea{min-height:110px;resize:vertical}.ad-submit{grid-column:1/-1;min-height:48px;border:0;border-radius:999px;background:#7955d9;color:white;font:inherit;font-weight:900;cursor:pointer}.ad-submit:hover{background:#583caa}.ad-footnote{margin:15px 0 0;color:#64748b;font-size:13px;line-height:1.7}.ad-contact{margin-top:22px;padding:16px;border-radius:14px;background:#f6f8fa;color:#526478}.ad-contact a{color:#583caa;font-weight:800}.ad-alert{margin:15px 0;padding:12px 14px;border-radius:12px;background:#fff7ed;color:#9a3412}.ad-nav{display:flex;justify-content:center;gap:16px;margin:18px auto 0;flex-wrap:wrap;color:#526478;font-weight:700}.ad-nav a{text-decoration:none}.ad-nav a:hover{color:#7955d9}@media(max-width:600px){.ad-options,.ad-form{grid-template-columns:1fr}.ad-form label.full,.ad-submit{grid-column:auto}}
   </style>
+  <?php render_mobile_nav_assets(); ?>
   <style>
     .ad-page{position:relative;isolation:isolate;display:grid;align-items:center;background:radial-gradient(ellipse at 12% 15%,rgba(53,105,137,.12),transparent 34%),radial-gradient(ellipse at 90% 70%,rgba(114,87,245,.12),transparent 33%),linear-gradient(145deg,#f5f8fb,#f7f5ff)}
     .ad-card{position:relative;border-color:#e6ebf0;border-radius:28px;box-shadow:0 28px 75px rgba(24,50,75,.13)}
@@ -73,6 +75,7 @@ $pageDescription = t('ติดต่อทีมงานเพื่อสอ�
     </nav>
   </div>
 </header>
+<?php render_mobile_nav(); ?>
 <main class="ad-page"><article class="ad-card">
   <span class="ad-kicker">STANDARD PROPERTY · PROMOTION</span>
   <?php if ($mode === 'report'): ?>

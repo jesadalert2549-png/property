@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * หน้าหลักเว็บไซต์ (Index Page) - ออกแบบ UI/UX Responsive + Hamburger Drawer Menu สไตล์ DDproperty
  * พัฒนาสำหรับโครงการ EasyHome v.3.0
@@ -6,6 +6,7 @@
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
+require_once __DIR__ . '/includes/mobile_nav.php';
 start_session_if_available:
 current_lang();
 
@@ -359,127 +360,17 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       border-color: #C5A059;
     }
 
-    /* ปุ่ม Hamburger Toggle (แสดงเฉพาะมือถือ) */
-    .mobile-hamburger-btn {
-      display: none;
-      background: none;
-      border: none;
-      font-size: 24px;
-      color: #ffffff;
-      cursor: pointer;
-      padding: 4px;
-      line-height: 1;
+    /* ปุ่ม Hamburger Toggle — ขนาด/สไตล์มาจาก includes/mobile_nav.php
+       (หน้าแรกใช้ navbar พื้นเข้ม จึงกำหนดเฉพาะสีให้เป็นขาว) */
+    .dd-navbar .mobile-hamburger-btn {
+      background: none !important;
+      border-color: rgba(255,255,255,.45) !important;
+      color: #ffffff !important;
     }
-
     /* ==========================================================================
-       2. Mobile Drawer Menu (เมนูด้านข้างสไตล์ DDproperty)
+       2. Mobile Drawer Menu
+       ── CSS อยู่ใน includes/mobile_nav.php (render_mobile_nav_assets) ──
        ========================================================================== */
-    .mobile-drawer-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 2000;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity 0.3s ease, visibility 0.3s ease;
-    }
-    .mobile-drawer-overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-    .mobile-drawer {
-      position: fixed;
-      top: 0;
-      right: 0;
-      transform: translateX(105%);
-      width: 310px;
-      max-width: 85vw;
-      height: 100vh;
-      background: #ffffff;
-      z-index: 2001;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      visibility: hidden;
-    }
-    .mobile-drawer.active {
-      transform: translateX(0);
-      visibility: visible;
-    }
-    .drawer-header {
-      padding: 16px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .drawer-close-btn {
-      background: none;
-      border: none;
-      font-size: 22px;
-      color: #64748b;
-      cursor: pointer;
-      padding: 4px;
-    }
-    .drawer-menu-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-      overflow-y: auto;
-      flex: 1;
-    }
-    .drawer-menu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 20px;
-      color: #261d3b;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .drawer-menu-item:hover {
-      background: #f8fafc;
-      color: #7955d9;
-    }
-    .drawer-menu-item span.arrow {
-      color: #94a3b8;
-      font-size: 14px;
-    }
-    .drawer-footer {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      text-align: center;
-      background: #ffffff;
-    }
-    .drawer-login-btn {
-      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
-      color: #0B1C33 !important;
-      text-decoration: none;
-      padding: 12px;
-      border-radius: 9999px;
-      font-weight: 800;
-      font-size: 15px;
-      display: block;
-      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .drawer-login-btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.45);
-    }
-    .drawer-download-link {
-      color: #261d3b;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
     /* ==========================================================================
        3. ส่วน Hero & Search Box (ดีไซน์ค้นหาหลัก)
        ========================================================================== */
@@ -1537,7 +1428,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         display: none !important;
       }
       .mobile-hamburger-btn {
-        display: block !important;
+        display: inline-flex !important;
         flex: 0 0 auto;
       }
       .dd-navbar {
@@ -1798,6 +1689,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     }
   </style>
   <link rel="stylesheet" href="css/home.css?v=<?= e((string) filemtime(__DIR__ . '/css/home.css')) ?>">
+  <?php /* ต้องอยู่หลัง <style> ของหน้านี้ เพื่อให้กฏ drawer/hamburger ชนะ CSS เฉพาะของหน้าแรก */ ?>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body class="home-page">
 
@@ -1849,109 +1742,34 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
   </div>
 
   <!-- ปุ่ม Hamburger สำหรับ Mobile -->
-  <button type="button" class="mobile-hamburger-btn" id="openDrawerBtn" aria-label="<?= e(t('เปิดเมนู', 'Open menu')) ?>">
-    ☰
-  </button>
+  <?php /* ปุ่ม hamburger + drawer มาจาก includes/mobile_nav.php */ ?>
+  <?php render_mobile_nav(); ?>
 </header>
 
-<!-- Mobile Drawer Component (สไตล์ DDproperty) -->
-<div class="mobile-drawer-overlay" id="drawerOverlay"></div>
-<aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true">
-  <div>
-    <!-- Header เมนู Drawer -->
-    <div class="drawer-header">
-      <?= render_logo_html('index.php') ?>
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="drawer-close-btn" id="closeDrawerBtn" aria-label="<?= e(t('ปิดเมนู', 'Close menu')) ?>">✕</button>
-      </div>
+<!-- Hero Section & Search -->
+<section class="dd-hero">
+  <div class="dd-hero-media-wrap" aria-hidden="true">
+    <?php if ($heroBg['type'] === 'video'): ?>
+      <video class="dd-hero-media" src="<?= e($heroBg['url']) ?>" autoplay muted loop playsinline preload="auto"></video>
+    <?php else: ?>
+      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="PropertyGO Hero Background" fetchpriority="high">
+    <?php endif; ?>
+    <div class="dd-hero-overlay" style="background: rgba(11, 28, 51, <?= (float)($heroBg['opacity'] ?? 0.45) ?>);"></div>
+  </div>
+
+  <div class="dd-hero-heading-wrap reveal-hero" style="text-align: center; color: #fff; margin-bottom: 8px;">
+    <span class="hero-eyebrow"><?= e(t('ค้นหาบ้านในแบบที่เป็นคุณ', 'Find a home that feels like you')) ?></span>
+    <h1><?= e(t('บ้านที่ใช่ เริ่มต้นจากทำเลที่ชอบ', 'The right home starts with the right location')) ?></h1>
+    <p><?= e(t('ค้นหาบ้าน คอนโด และอสังหาริมทรัพย์ทั่วไทย พร้อมติดต่อเจ้าของได้โดยตรง', 'Search houses, condos and properties across Thailand — contact owners directly.')) ?></p>
+  </div>
+
+  <div class="dd-search-container reveal-hero" style="--reveal-delay: 120ms;">
+    <div class="dd-tabs">
+      <button type="button" class="dd-tab active" aria-pressed="true" onclick="setTypeFilter('', this)"><?= e(t('ทั้งหมด', 'All')) ?></button>
+      <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('sale', this)"><?= e(t('ซื้อ', 'Buy')) ?></button>
+      <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('rent', this)"><?= e(t('เช่า', 'Rent')) ?></button>
     </div>
 
-    <!-- รายการเมนู Dropdown -->
-    <ul class="drawer-menu-list">
-      <li>
-        <a href="reels.php" class="drawer-menu-item" style="color:#ffffff !important; font-weight:800; background:linear-gradient(135deg, #0B1C33 0%, #172D4D 45%, #C5A059 100%) !important; border:1px solid rgba(248, 216, 136, 0.75) !important; border-radius:12px; margin:6px 14px 4px; box-shadow:0 4px 14px rgba(197,160,89,0.35);">
-          <span style="display:inline-flex; align-items:center; gap:8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-            <span><?= e(t('Property Reels (คลิปสั้นพาทัวร์)', 'Property Reels (Short Video Tours)')) ?></span>
-          </span>
-          <span class="arrow" style="color:#F8D888;">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="ai-search.php" class="drawer-menu-item" style="color:#0B1C33 !important; font-weight:800; background:rgba(197,160,89,0.14); border:1px solid rgba(197, 160, 89, 0.45); border-radius:12px; margin:0 14px 10px;">
-          <span style="display:inline-flex; align-items:center; gap:8px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-            <span><?= e(t('ค้นหาด้วย AI', 'AI Deep Search')) ?></span>
-          </span>
-          <span class="arrow" style="color:#A8843F;">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="submit-reel.php" class="drawer-menu-item" style="color:#F8D888 !important; font-weight:800; background:rgba(11,28,51,0.06); border:1px solid rgba(197, 160, 89, 0.4); border-radius:12px; margin:0 14px 10px;">
-          <span style="display:inline-flex; align-items:center; gap:8px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-            <span><?= e(t('โพสต์คลิป Reels ด่วน (30 วิ)', 'Quick Post Reel (30s)')) ?></span>
-          </span>
-          <span class="arrow" style="color:#C5A059;">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="search.php?type=sale" class="drawer-menu-item">
-          <span><?= e(t('ซื้อ', 'Buy')) ?></span>
-          <span class="arrow">⌄</span>
-        </a>
-      </li>
-      <li>
-        <a href="search.php?type=rent" class="drawer-menu-item">
-          <span><?= e(t('เช่า', 'Rent')) ?></span>
-          <span class="arrow">⌄</span>
-        </a>
-      </li>
-      <li>
-        <a href="category.php?page=house" class="drawer-menu-item">
-          <span><?= e(t('บ้านเดี่ยว', 'Houses')) ?></span>
-          <span class="arrow">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="search.php?category=commercial" class="drawer-menu-item">
-          <span><?= e(t('พาณิชย์', 'Commercial')) ?></span>
-          <span class="arrow">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="project.php" class="drawer-menu-item">
-          <span><?= e(t('โครงการใหม่', 'New Projects')) ?></span>
-          <span class="arrow">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="advertise.php" class="drawer-menu-item">
-          <span><?= e(t('ติดต่อโฆษณา', 'Advertise')) ?></span>
-          <span class="arrow">›</span>
-        </a>
-      </li>
-      <li>
-        <a href="submit.php" class="drawer-menu-item">
-          <span><?= e(t('ลงประกาศ', 'Post a listing')) ?></span>
-          <span class="arrow">⌄</span>
-        </a>
-      </li>
-      <li><?php render_lang_toggle(); ?></li>
-    </ul>
-  </div>
-
-  <!-- Footer ด้านล่างสุดของ Drawer -->
-  <div class="drawer-footer">
-    <?php if (!empty($_SESSION['user_id'])): ?>
-      <a href="<?= (($_SESSION['role'] ?? '') === 'admin') ? 'admin/index.php' : 'dashboard.php' ?>" class="drawer-login-btn"><?= e(t('แดชบอร์ด', 'Dashboard')) ?></a>
-      <a href="logout.php" class="drawer-download-link"><?= e(t('ออกจากระบบ', 'Log out')) ?></a>
-    <?php else: ?>
-      <a href="login.php" class="drawer-login-btn"><?= e(t('เข้าสู่ระบบ', 'Log in')) ?></a>
-    <?php endif; ?>
-    <a href="submit.php" class="drawer-download-link"><?= e(t('ลงประกาศขายหรือให้เช่า', 'Post a listing for sale or rent')) ?></a>
-  </div>
-</aside>
 
 <!-- Hero Section & Search -->
 <section class="dd-hero">

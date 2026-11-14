@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/mobile_nav.php';
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
@@ -222,6 +223,7 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
       box-shadow: 0 8px 24px rgba(11,28,51,.04);
     }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body style="background:#F9F9FB;">
 
@@ -246,6 +248,7 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
   </div>
 </header>
 
+<?php render_mobile_nav(); ?>
 <div class="fav-hero">
   <div class="container">
     <h1>❤️ <?= e(t('ทรัพย์ที่กดใจและบันทึกไว้', 'My Saved & Favorite Properties')) ?></h1>

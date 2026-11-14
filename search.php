@@ -2,6 +2,7 @@
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/banners.php';
+require_once __DIR__ . '/includes/mobile_nav.php';
 current_lang();
 
 $q        = isset($_GET['q']) && is_string($_GET['q']) ? trim($_GET['q']) : '';
@@ -229,13 +230,14 @@ if ($q !== '' && empty($_GET['no_log'])) {
       color: #64748b !important;
     }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body class="search-page-body">
 
 <header class="site-header">
   <div class="container header-inner">
     <?= render_logo_html('index.php') ?>
-    <button class="search-mobile-menu" type="button" aria-controls="searchSiteNav" aria-expanded="false"><span aria-hidden="true">☰</span><span><?= e(t('เมนู', 'Menu')) ?></span></button>
+    <?php render_mobile_nav(); ?>
     <nav class="site-nav search-site-nav" id="searchSiteNav" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
       <a href="index.php"><?= e(t('หน้าแรก', 'Home')) ?></a>
       <?php render_nav_dropdowns(); ?>
@@ -431,24 +433,6 @@ if ($q !== '' && empty($_GET['no_log'])) {
 </main>
 
 <?php render_to_top(); render_ux_scripts(); render_site_footer(); ?>
-<script>
-(() => {
-  const button = document.querySelector('.search-mobile-menu');
-  const menu = document.getElementById('searchSiteNav');
-  if (!button || !menu) return;
-  button.addEventListener('click', () => {
-    const open = button.getAttribute('aria-expanded') !== 'true';
-    button.setAttribute('aria-expanded', String(open));
-    menu.classList.toggle('is-open', open);
-  });
-  menu.addEventListener('click', event => {
-    if (event.target.closest('a')) {
-      menu.classList.remove('is-open');
-      button.setAttribute('aria-expanded', 'false');
-    }
-  });
-})();
-</script>
 </body>
 </html>
 

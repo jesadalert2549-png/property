@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/includes/mobile_nav.php';
 require_once __DIR__ . '/includes/seo.php';
 require_once __DIR__ . '/includes/i18n.php';
 require_once __DIR__ . '/includes/notifications.php';
@@ -137,6 +138,7 @@ $pageDesc  = t('ศูนย์รวมข้อความแจ้งเต�
       color: #fff;
     }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body style="background:#F9F9FB;">
 
@@ -162,6 +164,7 @@ $pageDesc  = t('ศูนย์รวมข้อความแจ้งเต�
   </div>
 </header>
 
+<?php render_mobile_nav(); ?>
 <div class="notif-hero">
   <div class="container">
     <h1>🔔 <?= e(t('กล่องข้อความ & การแจ้งเตือนอัจฉริยะ', 'Smart Notifications & Insights')) ?></h1>

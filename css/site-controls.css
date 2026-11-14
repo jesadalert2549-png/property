@@ -195,6 +195,12 @@ body:has(.listing-form) .site-controls,
   display: block !important;
 }
 
+/* The mobile drawer lives inside <header class="site-header"> but sits on a
+   white panel, so it must keep the DARK logo even though its ancestor is the
+   dark header. Matches index.php, where the drawer is outside the header. */
+.mobile-drawer .kasa-logo-img--light { display: block !important; }
+.mobile-drawer .kasa-logo-img--dark  { display: none !important; }
+
 /* =========================================================
    KASA Luxury Logo Accent Glow & Enhancements (disabled for clean look)
    ========================================================= */
