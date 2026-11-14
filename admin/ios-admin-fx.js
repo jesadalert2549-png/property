@@ -13,6 +13,7 @@
    ========================================================================== */
 (function () {
   'use strict';
+  window.__iosFxBoot = (window.__iosFxBoot || 0) + 1;
 
   if (window.__iosFxReady) return;
   window.__iosFxReady = true;
@@ -107,15 +108,52 @@
   /* ---------------------------------------------------------------------
      Split the leading emoji out of a button label into its own element so
      CSS can centre it inside the glass circle.
-     "📓 CEO Notebook"  ->  <span class=ios-btn-icon>📓</span><span>CEO Notebook</span>
+     "[emoji] Label" -> <span class=ios-btn-icon>[emoji]</span><span>Label</span>
      Skipped when the label already starts with an element (e.g. an svg).
      --------------------------------------------------------------------- */
   var EMOJI_RE = /^([\p{Extended_Pictographic}\u{1F300}-\u{1FAFF}\u2600-\u27BF]+)\s*/u;
 
   function splitIcon(btn) {
     if (!btn || btn.dataset.iosIconSplit === '1') return;
+
+    /* Layout A: bare text node -> "\u{1F4D3} CEO Notebook"
+       Layout B: nested spans   -> <span><span>\u25A6</span><span>Label</span></span>
+       The launchpad uses layout B, so handle both before giving up. */
     var first = btn.firstChild;
-    if (!first || first.nodeType !== 3) return; // only bare text nodes
+
+    if (first && first.nodeType === 1) {
+      var wrapper = first.querySelector('span');
+      var deepest = null;
+      if (wrapper) {
+        deepest = wrapper.querySelector('span');
+      }
+      if (deepest && deepest.textContent.trim()) {
+        var glyph = deepest.textContent.trim();
+        /* only treat it as an icon if it is a single pictographic char */
+        if (glyph.length <= 3 && /^[\p{Extended_Pictographic}\u25A0-\u25FF\u{1F300}-\u{1FAFF}]/u.test(glyph)) {
+          btn.dataset.iosIconSplit = '1';
+
+          var iconB = document.createElement('span');
+          iconB.className = 'ios-btn-icon';
+          iconB.setAttribute('aria-hidden', 'true');
+          iconB.textContent = glyph;
+
+          /* hide the original icon span, keep the label text */
+          deepest.style.display = 'none';
+
+          var labelB = document.createElement('span');
+          labelB.className = 'ios-btn-label';
+          labelB.textContent = wrapper.textContent.replace(glyph, '').trim();
+
+          wrapper.replaceWith(labelB);
+          btn.insertBefore(iconB, labelB);
+          return;
+        }
+      }
+      return; // element first child but no recognisable glyph
+    }
+
+    if (!first || first.nodeType !== 3) return;
 
     var text = first.textContent;
     var m = text.match(EMOJI_RE);
@@ -136,11 +174,69 @@
     btn.insertBefore(icon, label);
   }
 
+  /* Table row actions have no icon in the markup. Give each semantic class a
+     glyph so the four tiers read at a glance, matching the hero buttons. */
+  var ACTION_ICONS = {
+    'btn-green': '\u2713',          // check   -> approve
+    'btn-gray': '\u2013',           // dash    -> neutral / reject
+    'btn-accent': '\u21BB',         // arrow   -> relist / toggle
+    'btn-red': '\u2715',            // cross   -> delete
+    'btn-edit': '\u270E',           // pencil  -> edit
+    'btn-feature': '\u2605',        // star    -> feature
+    'btn-feature-remove': '\u2606', // hollow star -> unfeature
+    'btn-order': '\u2195'           // up-down -> reorder
+  };
+
+  function addActionIcon(btn) {
+    if (btn.dataset.iosActionIcon === '1') return;
+    if (btn.classList.contains('btn-order')) return; // already icon-only
+
+    /* Some labels already ship with a glyph (markup writes '\u2605 Feature' or
+       a <strong> star). Do not add a second one on top of it. */
+    var label = (btn.textContent || '').trim();
+    if (label && /^[\u2600-\u27BF\u{1F300}-\u{1FAFF}]/u.test(label)) {
+      btn.dataset.iosActionIcon = '1';
+      return;
+    }
+
+    btn.dataset.iosActionIcon = '1';
+
+    var glyph = null;
+    Object.keys(ACTION_ICONS).some(function (k) {
+      if (btn.classList.contains(k)) { glyph = ACTION_ICONS[k]; return true; }
+      return false;
+    });
+    if (!glyph) return;
+
+    var icon = document.createElement('span');
+    icon.className = 'ios-btn-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = glyph;
+    btn.insertBefore(icon, btn.firstChild);
+  }
+
+  /* The cookie banner is appended to <body> by site-controls.js, so a fixed
+     position put it on top of the table. Move it inside the dashboard wrap
+     once, at the end, so it scrolls with the page like a normal block. */
+  function relocateBanner() {
+    if (!document.body.classList.contains('admin-ios')) return;
+    var banner = document.querySelector('.cookie-consent');
+    var wrap = document.querySelector('.wrap');
+    if (!banner || !wrap) return;
+    if (wrap.contains(banner)) return;
+    banner.classList.add('cookie-consent--inline');
+    wrap.appendChild(banner);
+  }
+
   function splitAll() {
     if (!document.body.classList.contains('admin-ios')) return;
     document
       .querySelectorAll('.dash-hero-actions a, .ceo-cat-card a')
       .forEach(splitIcon);
+    document
+      .querySelectorAll('.btn-action')
+      .forEach(addActionIcon);
+    relocateBanner();
   }
 
   if (document.readyState === 'loading') {
@@ -148,7 +244,26 @@
   } else {
     splitAll();
   }
-  /* เผื่อ DOM ถูกวาดทีหลัง (PHP render หลังสุดของ body) */
+
+  /* The script sits in <head> and runs before PHP has streamed the card
+     markup, so a one-shot DOMContentLoaded pass can miss the launchpad.
+     Watch for late nodes and process each one once (guarded by dataset). */
+  if (window.MutationObserver) {
+    var pending = false;
+    var mo = new MutationObserver(function () {
+      if (pending) return;
+      pending = true;
+      (window.requestAnimationFrame || window.setTimeout)(function () {
+        pending = false;
+        splitAll();
+      }, 0);
+    });
+    window.addEventListener('DOMContentLoaded', function () {
+      mo.observe(document.body, { childList: true, subtree: true });
+      /* stop watching after the page settles to avoid needless work */
+      window.setTimeout(function () { mo.disconnect(); }, 8000);
+    });
+  }
   window.addEventListener('load', splitAll);
 
   if (hasHover && !reduceMotion) {

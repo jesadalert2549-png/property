@@ -188,10 +188,9 @@ $approvalLabel = [
   <?php lang_toggle_head(); site_controls_head(); ?>
   <?php /* iOS skin — โหลดท้ายสุดเพื่อทับสไตล์เดิม (เฉพาะหน้านี้) */ ?>
   <link rel="stylesheet" href="ios-admin.css?v=<?= e((string) filemtime(__DIR__ . '/ios-admin.css')) ?>">
-  <?php /* เอฟเฟกต์แตะปุ่ม: ripple ตรงตำแหน่งนิ้ว + haptic + แสงตามเมาส์
-           ใช้ async แทน defer เพราะหน้า admin มี resource หนักที่ทำให้ defer
-           ถูกเลื่อนไปจนถึง load event (วัดได้ 11 วินาที) */ ?>
-  <script async src="ios-admin-fx.js?v=<?= e((string) filemtime(__DIR__ . '/ios-admin-fx.js')) ?>"></script>
+  <?php /* ระบบปุ่มกลาง iOS 26/27 — นิยามเดียวสำหรับทุกปุ่มในหน้านี้
+           (filled / tinted / ghost / danger) โหลดหลัง ios-admin.css */ ?>
+  <link rel="stylesheet" href="ios-admin-buttons.css?v=<?= e((string) filemtime(__DIR__ . '/ios-admin-buttons.css')) ?>">
 </head>
 <body class="has-admin-sidebar admin-ios">
 <?php require __DIR__ . '/_sidebar.php'; ?>
@@ -266,12 +265,12 @@ $approvalLabel = [
           </div>
           <div style="display:flex; flex-direction:column; gap:6px;">
             <?php foreach ($catData['items'] as [$href, $icon, $label, $desc]): ?>
-              <a href="<?= e($href) ?>" style="display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:8px; background:#f8fafc; text-decoration:none; color:#1e293b; font-size:12.5px; font-weight:700; transition:all .15s;" onmouseover="this.style.background='#0B1C33';this.style.color='#fff'" onmouseout="this.style.background='#f8fafc';this.style.color='#1e293b'">
-                <span style="display:flex; align-items:center; gap:7px;">
-                  <span style="opacity:0.75;"><?= e($icon) ?></span>
-                  <span><?= e($label) ?></span>
-                </span>
-                <span style="font-size:10px; opacity:0.6;">↗</span>
+              <?php /* โครงสร้างเดียวกับปุ่ม hero: ไอคอนในวง + ข้อความ
+                       ลบ inline style เดิมทั้งหมด เพื่อให้ ios-admin-buttons.css ควบคุมได้ */ ?>
+              <a href="<?= e($href) ?>" class="launch-link">
+                <span class="ios-btn-icon" aria-hidden="true"><?= e($icon) ?></span>
+                <span class="ios-btn-label"><?= e($label) ?></span>
+                <span class="launch-chevron" aria-hidden="true">›</span>
               </a>
             <?php endforeach; ?>
           </div>
@@ -471,6 +470,10 @@ $approvalLabel = [
     <?php endif; ?>
   </div>
 </div>
+<?php /* เอฟเฟกต์แตะปุ่ม + แยกไอคอนออกจากข้อความ
+         ต้องอยู่ "ก่อน" script ของ sidebar เพราะ script นั้น throw error
+         ทำให้สคริปต์ที่ตามมาทั้งหมดไม่ถูก execute (script รันตามลำดับ) */ ?>
+<script><?= str_replace('</', '<\/', file_get_contents(__DIR__ . '/ios-admin-fx.js')) ?></script>
 </body>
 </html>
 

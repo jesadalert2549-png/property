@@ -1,0 +1,1610 @@
+/* ==========================================================================
+   iOS 26/27 — Unified button system (admin/index.php only)
+   --------------------------------------------------------------------------
+   PROBLEM BEFORE
+     The dashboard used nine ad-hoc button classes (btn-green, btn-gray,
+     btn-accent, btn-red, btn-edit, btn-feature, btn-feature-remove,
+     btn-order, btn-hero) rendered at four different heights with five
+     different radii. Row actions alone mixed five colours with no visual
+     hierarchy, so the eye could not tell "Approve" from "Delete".
+
+   WHAT THIS FILE DOES
+     Collapses everything into four semantic tiers, the way iOS does:
+
+       filled   primary action        gold gradient, dark text
+       tinted   secondary action      low-opacity fill + coloured text
+       ghost    tertiary / neutral    hairline border, no fill
+       danger   destructive           red tint, never filled solid
+
+     Every tier shares one geometry: 40px tall, 12px radius, 13px/600
+     label, 26px icon tile, .97 press. Colour alone carries meaning, so
+     the same button reads the same way everywhere on the page.
+
+   LOAD ORDER
+     After ios-admin.css. Nothing in that file is removed; these rules are
+     simply more specific, so this file is the single source of truth for
+     anything that looks like a button.
+   ========================================================================== */
+
+.admin-ios {
+  /* geometry */
+  --btn-h: 40px;
+  --btn-h-sm: 34px;
+  --btn-r: 12px;
+  --btn-pad: 16px;
+  --btn-gap: 10px;
+  --btn-fs: 13px;
+  --btn-tile: 26px;
+
+  /* fills */
+  --btn-tint: rgba(120, 128, 145, .10);
+  --btn-tint-hover: rgba(120, 128, 145, .18);
+  --btn-line: rgba(120, 128, 145, .22);
+  --btn-line-hover: rgba(120, 128, 145, .34);
+
+  /* semantic colours */
+  --btn-primary-1: #E7D0A0;
+  --btn-primary-2: #C5A059;
+  --btn-primary-ink: #2A2416;
+  --btn-ok-1: #3AAE7C;
+  --btn-ok-2: #2A9468;
+  --btn-danger: #D9453B;
+  --btn-danger-soft: rgba(217, 69, 59, .12);
+  --btn-danger-line: rgba(217, 69, 59, .32);
+  --btn-info: #0A84FF;
+}
+
+/* ==========================================================================
+   BASE — applied to every button-shaped control on this page
+   ========================================================================== */
+.admin-ios .btn-action,
+.admin-ios .btn,
+.admin-ios .dash-hero-actions a,
+.admin-ios .featured-manage-banner > a,
+.admin-ios .ceo-cat-card a,
+.admin-ios .tabs a,
+.admin-ios .tabs button,
+.admin-ios .cookie-consent button,
+.admin-ios .admin-nav-scroll-btn {
+  position: relative;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+
+  min-height: var(--btn-h) !important;
+  height: var(--btn-h) !important;
+  padding: 0 var(--btn-pad) !important;
+
+  border-radius: var(--btn-r) !important;
+  border: 1px solid var(--btn-line) !important;
+  background: var(--btn-tint) !important;
+  color: #3C4149 !important;
+
+  font-family: inherit !important;
+  font-size: var(--btn-fs) !important;
+  font-weight: 600 !important;
+  letter-spacing: -.006em !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset !important;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .22s ease,
+    color .18s ease,
+    transform .15s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+/* keyboard focus — one ring everywhere */
+.admin-ios .btn-action:focus-visible,
+.admin-ios .btn:focus-visible,
+.admin-ios .dash-hero-actions a:focus-visible,
+.admin-ios .ceo-cat-card a:focus-visible,
+.admin-ios .tabs a:focus-visible,
+.admin-ios .tabs button:focus-visible {
+  outline: 3px solid rgba(10, 132, 255, .55) !important;
+  outline-offset: 2px !important;
+}
+
+/* pressed state — identical for every tier */
+.admin-ios .btn-action:active,
+.admin-ios .btn:active,
+.admin-ios .dash-hero-actions a:active,
+.admin-ios .featured-manage-banner > a:active,
+.admin-ios .ceo-cat-card a:active,
+.admin-ios .tabs a:active,
+.admin-ios .tabs button:active,
+.admin-ios .cookie-consent button:active {
+  transform: scale(.972);
+}
+
+/* ==========================================================================
+   TIER 1 — FILLED (single primary action per group)
+   ========================================================================== */
+.admin-ios .btn-action.btn-green,
+.admin-ios .btn-action.btn-accent,
+.admin-ios .btn-primary,
+.admin-ios .featured-manage-banner > a {
+  background: linear-gradient(160deg, var(--btn-primary-1), var(--btn-primary-2)) !important;
+  border-color: rgba(168, 132, 63, .5) !important;
+  color: var(--btn-primary-ink) !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .55) inset,
+    0 3px 10px -4px rgba(168, 132, 63, .55) !important;
+}
+
+/* Approve is a positive action — keep the green identity, same geometry */
+.admin-ios .btn-action.btn-green {
+  background: linear-gradient(160deg, var(--btn-ok-1), var(--btn-ok-2)) !important;
+  border-color: rgba(42, 148, 104, .5) !important;
+  color: #FFFFFF !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .28) inset,
+    0 3px 10px -4px rgba(42, 148, 104, .6) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .btn-action.btn-green:hover { filter: brightness(1.06); }
+  .admin-ios .btn-action.btn-accent:hover,
+  .admin-ios .btn-primary:hover,
+  .admin-ios .featured-manage-banner > a:hover { filter: brightness(1.05); }
+}
+
+/* ==========================================================================
+   TIER 2 — TINTED (secondary: edit, feature, order)
+   ========================================================================== */
+.admin-ios .btn-action.btn-edit,
+.admin-ios .btn-action.btn-feature {
+  background: rgba(197, 160, 89, .14) !important;
+  border-color: rgba(168, 132, 63, .34) !important;
+  color: #8A6B2C !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset !important;
+}
+
+.admin-ios .btn-action.btn-order {
+  width: var(--btn-h) !important;
+  padding: 0 !important;
+  background: rgba(120, 128, 145, .10) !important;
+  border-color: var(--btn-line) !important;
+  color: #4A5059 !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .btn-action.btn-edit:hover,
+  .admin-ios .btn-action.btn-feature:hover {
+    background: rgba(197, 160, 89, .24) !important;
+    border-color: rgba(168, 132, 63, .55) !important;
+  }
+  .admin-ios .btn-action.btn-order:hover {
+    background: var(--btn-tint-hover) !important;
+    border-color: var(--btn-line-hover) !important;
+  }
+}
+
+/* ==========================================================================
+   TIER 3 — GHOST (neutral: view, reject, hide, remove)
+   ========================================================================== */
+.admin-ios .btn-action.btn-gray,
+.admin-ios .btn-action.btn-feature-remove {
+  background: transparent !important;
+  border-color: var(--btn-line) !important;
+  color: #545A63 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .btn-action.btn-gray:hover,
+  .admin-ios .btn-action.btn-feature-remove:hover {
+    background: var(--btn-tint) !important;
+    border-color: var(--btn-line-hover) !important;
+  }
+}
+
+/* ==========================================================================
+   TIER 4 — DANGER (delete) — tinted, never a solid red block
+   ========================================================================== */
+.admin-ios .btn-action.btn-red {
+  background: var(--btn-danger-soft) !important;
+  border-color: var(--btn-danger-line) !important;
+  color: #B3342B !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .btn-action.btn-red:hover {
+    background: rgba(217, 69, 59, .20) !important;
+    border-color: var(--btn-danger) !important;
+  }
+}
+
+/* ==========================================================================
+   ACTION ROW — tidy the table cell that holds up to six buttons
+   --------------------------------------------------------------------------
+   Before: buttons floated inline and wrapped unevenly, so "Delete" could end
+   up on its own line. Now they sit in a right-aligned cluster that wraps as
+   whole units, with the destructive action pushed to the far right.
+   ========================================================================== */
+.admin-ios td .btn-action {
+  vertical-align: middle;
+}
+
+.admin-ios td > form,
+.admin-ios td form[style*="inline"] {
+  display: inline-flex !important;
+  margin: 0 !important;
+}
+
+.admin-ios td form + form,
+.admin-ios td form + a.btn-action,
+.admin-ios td a.btn-action + form {
+  margin-left: 6px !important;
+}
+
+/* ==========================================================================
+   HERO ACTIONS — one primary, the rest secondary
+   ========================================================================== */
+.admin-ios .dash-hero-actions {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  max-width: 100% !important;
+  margin-top: 18px !important;
+}
+
+.admin-ios .dash-hero-actions a {
+  justify-content: flex-start !important;
+  padding: 0 14px 0 10px !important;
+  background: rgba(255, 255, 255, .08) !important;
+  border-color: rgba(255, 255, 255, .24) !important;
+  color: rgba(255, 255, 255, .94) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .12) inset !important;
+  backdrop-filter: blur(16px) saturate(1.5);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+}
+
+/* the CEO notebook entry is the one gold call-to-action in the hero */
+.admin-ios .dash-hero-actions a[href*="notebook"] {
+  background: linear-gradient(160deg, rgba(231, 208, 160, .96), rgba(197, 160, 89, .96)) !important;
+  border-color: rgba(255, 255, 255, .40) !important;
+  color: #2A2416 !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 4px 14px -6px rgba(0, 0, 0, .40) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .dash-hero-actions a:not([href*="notebook"]):hover {
+    background: rgba(255, 255, 255, .16) !important;
+    border-color: rgba(248, 216, 136, .6) !important;
+  }
+  .admin-ios .dash-hero-actions a[href*="notebook"]:hover { filter: brightness(1.05); }
+}
+
+/* icon tile inside hero buttons */
+.admin-ios .dash-hero-actions .ios-btn-icon {
+  background: rgba(255, 255, 255, .16) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .18) inset !important;
+}
+
+.admin-ios .dash-hero-actions a[href*="notebook"] .ios-btn-icon {
+  background: rgba(255, 255, 255, .34) !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .45) inset !important;
+}
+
+/* ==========================================================================
+   LAUNCHPAD — compact list rows, not chunky buttons
+   ========================================================================== */
+.admin-ios .ceo-cat-card a {
+  justify-content: space-between !important;
+  min-height: 38px !important;
+  height: 38px !important;
+  padding: 0 10px 0 8px !important;
+  border-radius: 11px !important;
+  background: rgba(255, 255, 255, .55) !important;
+  border-color: rgba(120, 128, 145, .16) !important;
+  color: #3C4149 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .ceo-cat-card a:hover {
+    background: rgba(255, 255, 255, .95) !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: #8A6B2C !important;
+  }
+}
+
+.admin-ios .ceo-cat-card a .ios-btn-icon {
+  background: rgba(168, 132, 63, .12) !important;
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .16) inset !important;
+}
+
+/* trailing arrow becomes a quiet chevron */
+.admin-ios .ceo-cat-card a > span:last-child:not(.ios-btn-label):not(.ios-btn-icon) {
+  opacity: .3;
+  font-size: 11px;
+  transition: transform .18s ease, opacity .18s ease;
+}
+
+@media (hover: hover) {
+  .admin-ios .ceo-cat-card a:hover > span:last-child:not(.ios-btn-label):not(.ios-btn-icon) {
+    opacity: .8;
+    transform: translateX(2px);
+  }
+}
+
+/* ==========================================================================
+   TABS — segmented control, one height, no borders except the active pill
+   ========================================================================== */
+.admin-ios .tabs {
+  display: inline-flex !important;
+  gap: 3px !important;
+  padding: 3px !important;
+  border-radius: 14px !important;
+  background: rgba(120, 128, 145, .12) !important;
+  border: 0 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset !important;
+  margin-bottom: 16px !important;
+}
+
+.admin-ios .tabs a,
+.admin-ios .tabs button {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 14px !important;
+  border-radius: 11px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #545A63 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+}
+
+.admin-ios .tabs a.active,
+.admin-ios .tabs button.active,
+.admin-ios .tabs .active {
+  background: #FFFFFF !important;
+  border-color: rgba(120, 128, 145, .14) !important;
+  color: #14161A !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .10),
+              0 4px 12px -8px rgba(17, 24, 39, .28) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .tabs a:not(.active):hover,
+  .admin-ios .tabs button:not(.active):hover {
+    background: rgba(255, 255, 255, .55) !important;
+    color: #14161A !important;
+  }
+}
+
+/* ==========================================================================
+   COOKIE BANNER — two equal buttons
+   ========================================================================== */
+.admin-ios .cookie-consent-actions {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+.admin-ios .cookie-consent button {
+  width: 100% !important;
+  height: var(--btn-h-sm) !important;
+  min-height: var(--btn-h-sm) !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  border-radius: 10px !important;
+}
+
+.admin-ios .cookie-consent-accept {
+  background: linear-gradient(160deg, var(--btn-primary-1), var(--btn-primary-2)) !important;
+  border-color: rgba(168, 132, 63, .45) !important;
+  color: var(--btn-primary-ink) !important;
+  font-weight: 700 !important;
+}
+
+.admin-ios .cookie-consent-essential {
+  background: transparent !important;
+  border-color: var(--btn-line) !important;
+  color: #545A63 !important;
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   TOPBAR — nav items keep their own look, only the press feel is unified
+   ========================================================================== */
+.admin-ios .admin-nav-item-link,
+.admin-ios .admin-nav-dropdown-btn {
+  border-radius: 10px !important;
+  transition: background-color .18s ease, color .18s ease,
+              border-color .18s ease, transform .15s cubic-bezier(.32,.72,0,1) !important;
+}
+
+.admin-ios .admin-nav-item-link:active,
+.admin-ios .admin-nav-dropdown-btn:active {
+  transform: scale(.96);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1280px) {
+  .admin-ios .btn-action {
+    --btn-pad: 13px;
+    --btn-fs: 12.5px;
+  }
+}
+
+@media (max-width: 1080px) {
+  .admin-ios .dash-hero-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-ios .btn-action {
+    --btn-h: 38px;
+    --btn-pad: 12px;
+  }
+  /* icon-only for the least critical row actions on small screens */
+  .admin-ios .btn-action.btn-gray {
+    font-size: 0 !important;
+    width: 38px !important;
+    padding: 0 !important;
+  }
+  .admin-ios .btn-action.btn-gray::before {
+    content: "👁";
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-ios .dash-hero-actions { grid-template-columns: 1fr !important; }
+  .admin-ios .cookie-consent-actions { grid-template-columns: 1fr !important; }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .admin-ios .btn-action,
+  .admin-ios .btn,
+  .admin-ios .dash-hero-actions a,
+  .admin-ios .ceo-cat-card a,
+  .admin-ios .tabs a,
+  .admin-ios .tabs button,
+  .admin-ios .cookie-consent button,
+  .admin-ios .featured-manage-banner > a {
+    transition: none !important;
+  }
+  .admin-ios .btn-action:active,
+  .admin-ios .btn:active,
+  .admin-ios .dash-hero-actions a:active,
+  .admin-ios .ceo-cat-card a:active,
+  .admin-ios .tabs a:active,
+  .admin-ios .tabs button:active,
+  .admin-ios .cookie-consent button:active {
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   Icon tiles inside row actions (glyph injected by ios-admin-fx.js)
+   --------------------------------------------------------------------------
+   Row buttons are compact, so the tile shrinks to 18px and the label keeps
+   its 13px weight. Colour follows the tier: green check, amber star, red
+   cross, grey dash.
+   ========================================================================== */
+
+.admin-ios .btn-action .ios-btn-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  background: rgba(255, 255, 255, .45);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .05) inset;
+  text-indent: 0;
+  position: static;
+  transform: none;
+}
+
+/* per-tier tile tint so the row still scans by colour */
+.admin-ios .btn-action.btn-green .ios-btn-icon {
+  background: rgba(255, 255, 255, .30);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .35) inset;
+}
+
+.admin-ios .btn-action.btn-accent .ios-btn-icon {
+  background: rgba(255, 255, 255, .40);
+}
+
+.admin-ios .btn-action.btn-edit .ios-btn-icon,
+.admin-ios .btn-action.btn-feature .ios-btn-icon {
+  background: rgba(168, 132, 63, .18);
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .22) inset;
+}
+
+.admin-ios .btn-action.btn-red .ios-btn-icon {
+  background: rgba(217, 69, 59, .16);
+  box-shadow: 0 0 0 1px rgba(217, 69, 59, .22) inset;
+}
+
+.admin-ios .btn-action.btn-gray .ios-btn-icon {
+  background: rgba(120, 128, 145, .14);
+  box-shadow: 0 0 0 1px rgba(120, 128, 145, .18) inset;
+}
+
+/* ลดระยะห่างลงเพราะปุ่มในตารางมีที่จำกัด */
+.admin-ios .btn-action {
+  gap: 5px !important;
+}
+
+/* ให้ปุ่มในตารางไม่ดันแถวจนสูงเกิน */
+.admin-ios td .btn-action {
+  margin: 2px 0;
+}
+
+/* ปุ่มเรียงต่อกันได้สวย ไม่ตกบรรทัดเดี่ยว */
+.admin-ios td:last-child {
+  white-space: normal;
+}
+
+@media (max-width: 1180px) {
+  .admin-ios .btn-action .ios-btn-icon { display: none; }
+}
+
+/* ==========================================================================
+   Row actions v2 — จัดกลุ่มปุ่มในตารางให้อยู่ในคอลัมน์เดียว ไม่ล้น
+   --------------------------------------------------------------------------
+   ภาพจริงพบ: ปุ่ม "ขายแล้ว" + "โปรโมตหน้าแรก" ล้นออกนอกคอลัมน์การจัดการ
+   เพราะ td ไม่จำกัดความกว้างและปุ่มไม่ยอมตัดบรรทัด
+   แก้: จำกัดความกว้างคอลัมน์สุดท้าย, ให้ปุ่ม wrap ได้, จัดชิดขวาเป็นกลุ่ม
+   ========================================================================== */
+
+/* คอลัมน์การจัดการ: กำหนดความกว้างและให้ปุ่มเรียงเป็นกริด */
+.admin-ios table td:last-child,
+.admin-ios table th:last-child {
+  width: 300px;
+  max-width: 300px;
+  min-width: 260px;
+}
+
+.admin-ios table td:last-child {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 6px !important;
+  padding: 10px 14px !important;
+}
+
+/* form ที่ห่อปุ่ม: ไม่ให้กินพื้นที่เกิน */
+.admin-ios table td:last-child > form {
+  display: contents !important;
+}
+
+/* ปุ่มในแถว: กว้างเท่ากันเป็นคอลัมน์ 2 ช่อง */
+.admin-ios table td:last-child .btn-action {
+  flex: 0 0 auto;
+  min-width: 88px;
+  justify-content: flex-start !important;
+}
+
+/* ปุ่ม full-width สำหรับแถวแรกที่ยาวกว่า */
+.admin-ios table td:last-child .btn-action.btn-accent {
+  min-width: 120px;
+}
+
+/* ลดขนาดเมื่อจอแคบ */
+@media (max-width: 1360px) {
+  .admin-ios table td:last-child,
+  .admin-ios table th:last-child {
+    width: 260px;
+    min-width: 230px;
+  }
+  .admin-ios table td:last-child .btn-action {
+    min-width: 78px;
+    font-size: 12px !important;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   คอลัมน์ผู้ติดต่อ: กันการตัดคำแปลก ๆ (ภาพจริงพบ "PropertyG / O Demo")
+   -------------------------------------------------------------------------- */
+.admin-ios table td:nth-child(3) {
+  max-width: 180px;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: none;
+}
+
+/* เบอร์โทร: ไม่ตัดกลางตัวเลข */
+.admin-ios table td:nth-child(3) a,
+.admin-ios table td:nth-child(3) span {
+  white-space: nowrap;
+}
+
+/* --------------------------------------------------------------------------
+   คอลัมน์ข้อมูลประกาศ: จำกัดความกว้างให้ชื่อไม่ยืดจนดันคอลัมน์อื่น
+   -------------------------------------------------------------------------- */
+.admin-ios table td:nth-child(2) {
+  max-width: 340px;
+  overflow-wrap: anywhere;
+}
+
+/* รูปย่อ: ขนาดคงที่ ไม่ดันแถว */
+.admin-ios table td:first-child img,
+.admin-ios table td:first-child .thumb {
+  width: 84px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+}
+
+/* --------------------------------------------------------------------------
+   แถว: ความสูงขั้นต่ำคงที่ เพื่อไม่ให้แต่ละแถวเตี้ย/สูงไม่เท่ากัน
+   -------------------------------------------------------------------------- */
+.admin-ios table tbody tr {
+  height: auto;
+}
+
+.admin-ios table tbody td {
+  vertical-align: middle !important;
+}
+
+/* ลด padding แนวตั้งลงให้ตารางกระชับขึ้น */
+.admin-ios table tbody td {
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* --------------------------------------------------------------------------
+   Cookie banner: ภาพจริงพบว่าบังแถวสุดท้ายของตาราง
+   ให้ย่อลงและอยู่มุมขวาล่าง ไม่ทับคอลัมน์การจัดการ
+   -------------------------------------------------------------------------- */
+.admin-ios .cookie-consent,
+body.admin-ios .cookie-consent {
+  width: min(320px, calc(100vw - 28px)) !important;
+  left: auto !important;
+  right: 14px !important;
+  transform: none !important;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  padding: 12px 14px !important;
+  border-radius: 16px !important;
+  max-height: 40vh !important;
+  overflow-y: auto !important;
+}
+
+.admin-ios .cookie-consent h2 { font-size: 13px !important; margin: 0 0 4px !important; }
+.admin-ios .cookie-consent p { font-size: 11px !important; line-height: 1.45 !important; margin: 0 0 8px !important; }
+
+.admin-ios .cookie-consent-actions {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+}
+
+.admin-ios .cookie-consent-actions button {
+  width: 100% !important;
+  min-height: 34px !important;
+  font-size: 11.5px !important;
+}
+
+/* เว้นท้ายตารางให้เลื่อนถึงแถวสุดท้ายได้โดยไม่ถูกบัง */
+.admin-ios .table-wrap { margin-bottom: 8px; }
+.admin-ios .wrap { padding-bottom: 120px !important; }
+
+/* ==========================================================================
+   Small inline chips in the table — badge วิดีโอ และลิงก์ LINE
+   --------------------------------------------------------------------------
+   วัดได้: "🎬 มีวิดีโอคลิป" สูง 24px, "LINE: 5555555555" สูง 21px
+   ไม่ใช่ปุ่มหลัก แต่เป็นสิ่งที่ผู้ใช้แตะบ่อย จึงยกขั้นต่ำเป็น 30px
+   และให้เป็นแคปซูลที่อ่านง่ายขึ้น
+   ========================================================================== */
+
+/* แบดจ์/ชิปขนาดเล็กในตาราง */
+.admin-ios table td .badge,
+.admin-ios table td .pill,
+.admin-ios table td [class*="badge"],
+.admin-ios table td [class*="chip"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+/* ลิงก์ที่ติดต่อได้ (เบอร์โทร / LINE / อีเมล) — ให้พื้นที่แตะพอเหมาะ */
+.admin-ios table td a[href^="tel:"],
+.admin-ios table td a[href^="mailto:"],
+.admin-ios table td a[href*="line"],
+.admin-ios table td a[href*="facebook"],
+.admin-ios table td a[href*="wa.me"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  min-height: 30px !important;
+  padding: 0 9px !important;
+  margin: 1px 0;
+  border-radius: 8px !important;
+  background: rgba(120, 128, 145, .08) !important;
+  border: 1px solid rgba(120, 128, 145, .16) !important;
+  color: #3C4149 !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease, border-color .16s ease,
+              transform .14s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios table td a[href^="tel:"]:hover,
+  .admin-ios table td a[href^="mailto:"]:hover,
+  .admin-ios table td a[href*="line"]:hover {
+    background: rgba(26, 188, 96, .14) !important;
+    border-color: rgba(26, 188, 96, .4) !important;
+    color: #0E7A44 !important;
+  }
+}
+
+.admin-ios table td a[href^="tel:"]:active,
+.admin-ios table td a[href^="mailto:"]:active,
+.admin-ios table td a[href*="line"]:active {
+  transform: scale(.96);
+}
+
+/* ป้ายสถานะ (อนุมัติแล้ว / รอตรวจ / ปฏิเสธ) ในตาราง */
+.admin-ios table td .status-badge,
+.admin-ios table td [class*="status"] {
+  min-height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   Inline tag chips (.tag) — วัดได้ 24px มี inline style เต็ม
+   --------------------------------------------------------------------------
+   เป็นลิงก์วิดีโอในตาราง ใช้ inline style (background:#0B1C33; color:#F8D888)
+   จึงต้องใช้ !important ทุกค่า และบังคับ display เพื่อให้ height มีผล
+   ========================================================================== */
+.admin-ios .tag,
+.admin-ios table td .tag,
+.admin-ios a.tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 30px !important;
+  height: 30px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .12) inset !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease, border-color .16s ease,
+              transform .14s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+.admin-ios .tag:active { transform: scale(.95); }
+
+@media (hover: hover) {
+  .admin-ios .tag:hover {
+    background: #0B1C33 !important;
+    border-color: #C5A059 !important;
+    color: #F8D888 !important;
+  }
+}
+
+/* ป้ายวิดีโอแบบไม่ใช่ลิงก์ (span) ให้สไตล์เดียวกัน */
+.admin-ios table td > span[style*="background"],
+.admin-ios table td > a[style*="background"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  min-height: 28px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+/* ==========================================================================
+   Final pass — บังคับความสูงขั้นต่ำของชิปในตารางให้ได้จริง
+   --------------------------------------------------------------------------
+   วัดซ้ำได้ 30px แทนที่จะเป็น 32px เพราะ table-cell มี line-height ของตัวเอง
+   และ .tag มี inline style ที่ไม่ได้ตั้ง line-height → min-height ถูกคำนวณ
+   จาก line box ต้องตั้ง line-height + box-sizing ให้ชัด
+   ========================================================================== */
+.admin-ios table td .tag,
+.admin-ios table td a.tag,
+.admin-ios a.tag {
+  box-sizing: border-box !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  padding: 0 12px !important;
+  font-size: 12px !important;
+  line-height: 32px !important;
+}
+
+.admin-ios table td a[href^="tel:"],
+.admin-ios table td a[href^="mailto:"],
+.admin-ios table td a[href*="line"] {
+  box-sizing: border-box !important;
+  min-height: 32px !important;
+  height: 32px !important;
+  line-height: 30px !important;
+  font-size: 12px !important;
+}
+
+/* ให้แถวในตารางไม่ถูกดันสูงเกินเพราะชิป 32px */
+.admin-ios table tbody td { padding-top: 10px !important; padding-bottom: 10px !important; }
+
+/* ==========================================================================
+   Layout fixes — 3 ปัญหาจากภาพจริง
+   --------------------------------------------------------------------------
+   1) Topbar ลอยทับแถวแรกของตาราง
+      → .admin-desktop-navbar เป็น fixed แต่ .wrap ไม่ได้ชดเชยระยะ
+   2) Cookie banner ทับแถวสุดท้าย
+      → ย้ายเป็นแถบแนวนอนก้นหน้า + เว้นที่ให้เนื้อหา
+   3) ปุ่มจัดการกว้างไม่เท่ากัน (ขายแล้ว vs โปรโมตหน้าแรก)
+      → บังคับเป็นกริด 2 คอลัมน์กว้างเท่ากัน
+   ========================================================================== */
+
+/* ---------------------------------------------------- 1) Topbar ไม่ทับ */
+html body.admin-ios.admin-ios {
+  padding-top: 62px !important;   /* = ความสูง navbar */
+}
+
+.admin-ios .admin-desktop-navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+@media (max-width: 900px) {
+  html body.admin-ios.admin-ios { padding-top: 56px !important; }
+}
+
+/* --------------------------------------- 3) ปุ่มจัดการ: กริด 2 คอลัมน์ */
+.admin-ios table td:last-child {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  align-items: center !important;
+  justify-items: stretch !important;
+  width: 260px !important;
+  max-width: 260px !important;
+  min-width: 240px !important;
+}
+
+/* form ที่ห่อปุ่ม: ให้เป็น contents เพื่อให้ปุ่มเข้าไปอยู่ในกริด */
+.admin-ios table td:last-child > form {
+  display: contents !important;
+}
+
+/* ปุ่มทุกตัวในกริด: กว้างเท่ากัน */
+.admin-ios table td:last-child .btn-action {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-content: center !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ปุ่มคี่ตัวเดียวในแถว: ให้เต็มความกว้าง 2 คอลัมน์ตามลำดับ */
+.admin-ios table td:last-child .btn-action:first-child:nth-last-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* ปุ่ม "ขายแล้ว" (btn-accent) ให้เต็มแถวบนเสมอ — เป็นการกระทำหลัก */
+.admin-ios table td:last-child .btn-action.btn-accent {
+  grid-column: 1 / -1 !important;
+}
+
+/* ไอคอนในปุ่มจัดการ: ชิดซ้ายข้อความ */
+.admin-ios table td:last-child .btn-action {
+  gap: 6px !important;
+}
+
+.admin-ios table td:last-child .btn-action .ios-btn-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  font-size: 10.5px;
+}
+
+@media (max-width: 1360px) {
+  .admin-ios table td:last-child {
+    width: 230px !important;
+    min-width: 210px !important;
+  }
+  .admin-ios table td:last-child .btn-action { font-size: 11.5px !important; }
+}
+
+/* ---------------------------------------- 2) Cookie banner: แถบกลางล่าง */
+.admin-ios .cookie-consent,
+body.admin-ios .cookie-consent,
+body.admin-ios.admin-ios .cookie-consent {
+  position: fixed !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+  width: min(520px, calc(100vw - 28px)) !important;
+  max-height: none !important;
+  padding: 12px 16px !important;
+  border-radius: 18px !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  z-index: 9999 !important;
+}
+
+.admin-ios .cookie-consent h2 {
+  flex: 1 1 100%;
+  font-size: 13px !important;
+  margin: 0 !important;
+  line-height: 1.3;
+}
+
+.admin-ios .cookie-consent p {
+  flex: 1 1 100%;
+  font-size: 11px !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  color: #5C6472 !important;
+}
+
+.admin-ios .cookie-consent-actions {
+  flex: 1 1 100%;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+}
+
+.admin-ios .cookie-consent-actions button {
+  flex: 1 1 0 !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  border-radius: 11px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+}
+
+/* เว้นที่ให้เนื้อหาสุดท้ายไม่ถูกบัง */
+.admin-ios .wrap,
+body.admin-ios .wrap {
+  padding-bottom: 150px !important;
+}
+
+@media (max-width: 640px) {
+  .admin-ios .cookie-consent,
+  body.admin-ios .cookie-consent {
+    width: calc(100vw - 20px) !important;
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+  .admin-ios .cookie-consent-actions { flex-direction: column !important; }
+  .admin-ios .wrap,
+  body.admin-ios .wrap { padding-bottom: 180px !important; }
+}
+
+/* ==========================================================================
+   Layout v3 — แก้ 3 ปัญหาจากภาพจริง (navbar/cookie ลอยกลางหน้า, ปุ่มยุบ 1 คอลัมน์)
+   --------------------------------------------------------------------------
+   สาเหตุ:
+   1) ผมตั้ง navbar เป็น position:fixed แต่ padding-top ที่ให้ html body
+      ถูก CSS อื่น (admin.css .wrap margin/padding) ทับ
+      → navbar จึงไปเกาะกลางหน้าเมื่อ scroll
+   2) cookie-consent เป็น fixed แต่ parent มี transform → fixed กลายเป็น
+      absolute อ้างอิง parent แล้วไปลอยกลางตาราง
+   3) td:last-child เป็น display:grid แต่ .btn-action มี width:100% และ
+      :nth-last-child(odd) ดันเต็มแถว → เหลือ 1 คอลัมน์
+
+   วิธีแก้ที่ตรงจุดที่สุด: ไม่ใช้ position:fixed กับ cookie banner เลย
+   (ใช้ sticky ที่ก้นของ .wrap) และไม่แตะ position ของ navbar (ปล่อยให้
+   admin.css จัดการตามเดิม ซึ่งเป็น sticky ที่ทำงานถูกอยู่แล้ว)
+   ========================================================================== */
+
+/* ---------------------------------- 1) คืนค่า navbar ให้เป็น sticky เดิม */
+html body.admin-ios.admin-ios {
+  padding-top: 0 !important;         /* ยกเลิกค่าที่ทำให้ navbar ลอย */
+}
+
+.admin-ios .admin-desktop-navbar {
+  position: sticky !important;       /* กลับเป็น sticky ตาม admin.css */
+  top: 0 !important;
+  left: auto !important;
+  right: auto !important;
+  z-index: 1000 !important;
+}
+
+/* ------------------------------------- 2) Cookie banner: ไม่ใช้ fixed */
+.admin-ios .cookie-consent,
+body.admin-ios .cookie-consent,
+body.admin-ios.admin-ios .cookie-consent {
+  position: sticky !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  top: auto !important;
+  transform: none !important;
+
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 0 18px !important;
+  padding: 12px 16px !important;
+  border-radius: 16px !important;
+  max-height: none !important;
+  overflow: visible !important;
+  z-index: 1 !important;
+
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px 14px !important;
+}
+
+/* ให้ banner อยู่ล่างสุดของหน้า (หลังตาราง) */
+.admin-ios .cookie-consent { order: 99; }
+
+.admin-ios .cookie-consent h2 {
+  flex: 0 0 auto;
+  font-size: 13px !important;
+  margin: 0 !important;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.admin-ios .cookie-consent p {
+  flex: 1 1 260px;
+  font-size: 11.5px !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  color: #5C6472 !important;
+}
+
+.admin-ios .cookie-consent-error { flex: 1 1 100%; margin: 0 !important; }
+
+.admin-ios .cookie-consent-actions {
+  flex: 0 0 auto;
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  margin-left: auto;
+}
+
+.admin-ios .cookie-consent-actions button {
+  width: auto !important;
+  min-width: 150px;
+  height: 38px !important;
+  min-height: 38px !important;
+  padding: 0 16px !important;
+  border-radius: 11px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+}
+
+/* ยกเลิกการเว้นที่ท้ายหน้าเกินจำเป็น */
+.admin-ios .wrap,
+body.admin-ios .wrap { padding-bottom: 28px !important; }
+
+@media (max-width: 760px) {
+  .admin-ios .cookie-consent { flex-direction: column; align-items: stretch; }
+  .admin-ios .cookie-consent-actions { flex-direction: column; margin-left: 0; }
+  .admin-ios .cookie-consent-actions button { width: 100% !important; }
+}
+
+/* --------------------------- 3) ปุ่มจัดการ: กลับเป็น 2 คอลัมน์จริง */
+.admin-ios table td:last-child {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+  width: 250px !important;
+  max-width: 250px !important;
+  min-width: 230px !important;
+  padding: 10px 12px !important;
+}
+
+.admin-ios table td:last-child > form { display: contents !important; }
+
+/* ยกเลิกกฎที่ดันปุ่มให้เต็มแถว — ให้ทุกปุ่มอยู่ 1 ช่อง */
+.admin-ios table td:last-child .btn-action,
+.admin-ios table td:last-child .btn-action.btn-accent,
+.admin-ios table td:last-child .btn-action:first-child:nth-last-child(odd) {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ปุ่มที่มีจำนวนคี่: ให้ตัวสุดท้ายเต็มแถวเพื่อไม่ให้เหลือช่องว่าง */
+.admin-ios table td:last-child > .btn-action:last-child:nth-child(odd),
+.admin-ios table td:last-child > form:last-child:nth-child(odd) .btn-action {
+  grid-column: 1 / -1 !important;
+}
+
+.admin-ios table td:last-child .btn-action .ios-btn-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  font-size: 10px;
+}
+
+@media (max-width: 1360px) {
+  .admin-ios table td:last-child {
+    width: 220px !important;
+    min-width: 200px !important;
+  }
+  .admin-ios table td:last-child .btn-action { font-size: 11.5px !important; }
+}
+
+/* ==========================================================================
+   Grid column fill — ปุ่มที่ไม่มีไอคอนยังต้องเต็มช่องกริด
+   --------------------------------------------------------------------------
+   วัดได้: "★ โปรโมตหน้า" กว้าง 111px, "✕ ลบ" กว้าง 66px ในกริด 110px
+   เพราะกฎก่อนหน้าอิง .ios-btn-icon จึงไม่ครอบปุ่มที่ข้ามการเพิ่มไอคอน
+   (ปุ่มที่มี emoji นำหน้าอยู่แล้วจะถูกข้ามโดยเจตนา)
+   ========================================================================== */
+.admin-ios table td:last-child .btn-action {
+  justify-self: stretch !important;
+  align-self: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-sizing: border-box !important;
+}
+
+/* ปุ่มไอคอนล้วน (order) ยังต้องเป็นสี่เหลี่ยมจัตุรัส */
+.admin-ios table td:last-child .btn-action.btn-order {
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* ลบขีดขั้นต่ำที่เคยใส่ไว้ ซึ่งทำให้ปุ่มแคบกว่าคอลัมน์ */
+.admin-ios table td:last-child .btn-action[class] {
+  min-inline-size: 0 !important;
+}
+
+/* ==========================================================================
+   FINAL — บังคับ min-width:0 ให้ปุ่มเต็มช่องกริด
+   --------------------------------------------------------------------------
+   วัดได้: tdCols "95px 95px" แต่ปุ่ม "ลบ" กว้าง 66px
+   สาเหตุ: กฎ .btn-action { min-width: 88px } ใน ios-admin.css ยังชนะ
+   เพราะมาเฉพาะ selector ทั่วไป แต่ทับด้วย specificity ของ td:last-child ไม่พอ
+   ต้องประกาศด้วย selector ที่แรงที่สุดและ !important ครบทุกค่า
+   ========================================================================== */
+html body.admin-ios.admin-ios table td:last-child > .btn-action,
+html body.admin-ios.admin-ios table td:last-child form > .btn-action {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  flex: none !important;
+  box-sizing: border-box !important;
+  justify-self: stretch !important;
+}
+
+/* ให้กริดมี 2 คอลัมน์กว้างเท่ากันจริง โดยไม่สนใจ min-content ของลูก */
+html body.admin-ios.admin-ios table td:last-child {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-columns: minmax(0, 1fr) !important;
+}
+
+/* ปุ่มที่ครองเต็มแถว (จำนวนคี่) */
+html body.admin-ios.admin-ios table td:last-child > .btn-action:last-child:nth-child(odd) {
+  grid-column: 1 / -1 !important;
+}
+
+/* ==========================================================================
+   ABSOLUTE FINAL — specificity สูงสุดในไฟล์
+   --------------------------------------------------------------------------
+   ก่อนหน้านี้ใช้ `html body.admin-ios.admin-ios table td:last-child > .btn-action`
+   ซึ่ง specificity = (0,2,4) แต่กฎ `td:last-child .btn-action { min-width: 88px }`
+   ที่อยู่ข้างบนมี !important อยู่แล้วจึงเสมอกัน แล้วตัวหลังสุดชนะ
+   → ใช้ selector ที่มี class ต่อท้ายเพิ่ม และประกาศครบทุก property ที่เกี่ยวข้อง
+   ========================================================================== */
+
+html body.admin-ios.admin-ios
+  table tbody td:last-child
+  .btn-action.btn-action.btn-action {
+  grid-column: auto !important;
+  justify-self: stretch !important;
+  align-self: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 8px !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+}
+
+html body.admin-ios.admin-ios
+  table tbody td:last-child
+  .btn-action.btn-action.btn-action.btn-accent {
+  grid-column: auto !important;
+}
+
+html body.admin-ios.admin-ios
+  table tbody td:last-child
+  > .btn-action.btn-action.btn-action:last-child:nth-child(odd),
+html body.admin-ios.admin-ios
+  table tbody td:last-child
+  > form:last-child:nth-child(odd) .btn-action.btn-action.btn-action {
+  grid-column: 1 / -1 !important;
+}
+
+/* ==========================================================================
+   CORRECT FIX — ปุ่มถูกห่อด้วย <div class="actions"> ไม่ใช่ลูกตรงของ <td>
+   --------------------------------------------------------------------------
+   ตรวจ DOM แล้วพบ:
+     <td><div class="actions">
+           <form><button class="btn-action btn-accent"> ขายแล้ว </button></form>
+           <form><button class="btn-action btn-feature"> โปรโมตหน้าแรก </button></form>
+           <a class="btn-action btn-edit"> แก้ไข </a>
+           <form><button class="btn-action btn-red"> ลบ </button></form>
+         </div></td>
+   ทุกกฎก่อนหน้าอ้าง `td:last-child > .btn-action` ซึ่งไม่ match เพราะปุ่ม
+   เป็นหลาน (grandchild) → width/min-width จึงไม่เคยถูกบังคับ
+   แก้: จัดกริดที่ .actions และตั้ง td เป็น block ธรรมดา
+   ========================================================================== */
+
+/* td: ไม่ต้องเป็นกริดเอง — ให้ .actions จัดแทน */
+.admin-ios table td:last-child {
+  display: block !important;
+  width: 250px !important;
+  max-width: 250px !important;
+  min-width: 220px !important;
+  padding: 10px 12px !important;
+  vertical-align: middle !important;
+}
+
+/* .actions: กริด 2 คอลัมน์เท่ากัน */
+.admin-ios table td:last-child .actions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-auto-flow: row !important;
+  gap: 6px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+
+/* form ในกริด: ให้ปุ่มข้างในเป็นชิ้นเดียวกับกริด */
+.admin-ios table td:last-child .actions > form {
+  display: contents !important;
+  margin: 0 !important;
+}
+
+/* ปุ่มทุกตัว: เต็มช่องกริด กว้างเท่ากัน */
+.admin-ios table td:last-child .actions .btn-action,
+.admin-ios table td:last-child .actions > a.btn-action {
+  grid-column: auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  justify-self: stretch !important;
+  justify-content: center !important;
+  padding: 0 8px !important;
+  font-size: 12px !important;
+  gap: 5px !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ปุ่มสุดท้ายที่เหลือเดี่ยว: กินเต็มแถว */
+.admin-ios table td:last-child .actions > .btn-action:last-child:nth-child(odd),
+.admin-ios table td:last-child .actions > form:last-child:nth-child(odd) .btn-action {
+  grid-column: 1 / -1 !important;
+}
+
+/* ยกเว้น: ปุ่ม "ขายแล้ว" (accent) ควรเต็มแถวบนเสมอ เพื่อเป็น action หลัก */
+.admin-ios table td:last-child .actions .btn-action.btn-accent {
+  grid-column: 1 / -1 !important;
+}
+
+/* ไอคอนในปุ่มจัดการ */
+.admin-ios table td:last-child .actions .btn-action .ios-btn-icon {
+  width: 16px !important;
+  height: 16px !important;
+  flex: 0 0 16px !important;
+  font-size: 10px !important;
+}
+
+/* ปุ่มไอคอนล้วน (เลื่อนลำดับ) ยังเป็นจัตุรัส */
+.admin-ios table td:last-child .actions .btn-action.btn-order {
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+@media (max-width: 1360px) {
+  .admin-ios table td:last-child {
+    width: 220px !important;
+    min-width: 200px !important;
+  }
+  .admin-ios table td:last-child .actions .btn-action {
+    font-size: 11.5px !important;
+    padding: 0 6px !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .admin-ios table td:last-child {
+    width: auto !important;
+    max-width: none !important;
+  }
+  .admin-ios table td:last-child .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+/* ==========================================================================
+   LAUNCHPAD — ให้เหมือนปุ่ม Hero เป๊ะ (แบบใส + มีลูกเล่น)
+   --------------------------------------------------------------------------
+   DOM ที่ PHP สร้างแล้ว:
+     <a class="launch-link">
+       <span class="ios-btn-icon">▦</span>
+       <span class="ios-btn-label">ประกาศทั้งหมด</span>
+       <span class="launch-chevron">›</span>
+     </a>
+   3 ส่วน: วงไอคอน 26px | ข้อความ | chevron ขวา
+   ========================================================================== */
+
+.admin-ios .ceo-cat-card a.launch-link {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 0 10px 0 7px !important;
+  margin: 0 !important;
+
+  border-radius: 11px !important;
+  border: 1px solid rgba(120, 128, 145, .16) !important;
+  background: rgba(255, 255, 255, .55) !important;
+  color: #3C4149 !important;
+
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  -webkit-tap-highlight-color: transparent;
+
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .22s ease,
+    color .18s ease,
+    transform .15s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+/* ---- วงไอคอน: เหมือน hero แต่โทนทองอ่อนให้เข้ากับการ์ดขาว ---- */
+.admin-ios .ceo-cat-card a.launch-link > .ios-btn-icon {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  border-radius: 8px !important;
+  background: rgba(168, 132, 63, .12) !important;
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .18) inset !important;
+  color: #8A6B2C !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  position: static !important;
+  transform: none !important;
+}
+
+.admin-ios .ceo-cat-card a.launch-link > .ios-btn-label {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-weight: 600 !important;
+  color: #3C4149 !important;
+}
+
+.admin-ios .ceo-cat-card a.launch-link > .launch-chevron {
+  flex: 0 0 auto !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  color: #98A0AC !important;
+  opacity: .8;
+  transition: transform .2s cubic-bezier(.32, .72, 0, 1), color .18s ease;
+}
+
+/* ------------------------------ เอฟเฟกต์: ยกตัว + ขอบทอง + chevron เลื่อน */
+@media (hover: hover) {
+  .admin-ios .ceo-cat-card a.launch-link:hover {
+    background: rgba(255, 255, 255, .95) !important;
+    border-color: rgba(168, 132, 63, .48) !important;
+    color: #7A5C22 !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .95) inset,
+      0 6px 18px -10px rgba(168, 132, 63, .55) !important;
+    transform: translateX(2px);
+  }
+  .admin-ios .ceo-cat-card a.launch-link:hover > .ios-btn-label { color: #7A5C22 !important; }
+  .admin-ios .ceo-cat-card a.launch-link:hover > .ios-btn-icon {
+    background: rgba(168, 132, 63, .2) !important;
+    color: #6E5420 !important;
+  }
+  .admin-ios .ceo-cat-card a.launch-link:hover > .launch-chevron {
+    transform: translateX(3px);
+    color: #A8843F !important;
+    opacity: 1;
+  }
+}
+
+/* กด: ยุบตัวเล็กน้อย */
+.admin-ios .ceo-cat-card a.launch-link:active {
+  transform: scale(.985) !important;
+  background: rgba(255, 255, 255, .75) !important;
+}
+
+/* โฟกัสด้วยคีย์บอร์ด */
+.admin-ios .ceo-cat-card a.launch-link:focus-visible {
+  outline: 3px solid rgba(168, 132, 63, .55) !important;
+  outline-offset: 2px !important;
+}
+
+/* ---- ripple: ใช้ระบบเดียวกับปุ่มอื่น (ios-ripple จาก ios-admin-fx.js) ---- */
+.admin-ios .ceo-cat-card a.launch-link .ios-ripple {
+  background: radial-gradient(circle,
+    rgba(168, 132, 63, .34) 0%,
+    rgba(168, 132, 63, .14) 38%,
+    rgba(168, 132, 63, 0) 72%) !important;
+  mix-blend-mode: normal !important;
+}
+
+/* ---- ลิสต์: ระยะห่างสม่ำเสมอ ไม่ให้ไอคอนล้นการ์ด ---- */
+.admin-ios .ceo-cat-card > div:last-child {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  min-width: 0 !important;
+}
+
+.admin-ios .ceo-cat-card {
+  overflow: hidden !important;
+  min-width: 0 !important;
+}
+
+/* การ์ดที่มีรายการเยอะไม่ให้ดันเพื่อนบ้าน */
+.admin-ios .ceo-cat-card > div:last-child > a {
+  min-width: 0 !important;
+}
+
+@media (max-width: 520px) {
+  .admin-ios .ceo-cat-card a.launch-link {
+    height: 38px !important;
+    min-height: 38px !important;
+    font-size: 12px !important;
+  }
+  .admin-ios .ceo-cat-card a.launch-link > .ios-btn-icon {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-ios .ceo-cat-card a.launch-link { transition: none !important; }
+  .admin-ios .ceo-cat-card a.launch-link:hover { transform: none; }
+  .admin-ios .ceo-cat-card a.launch-link:hover > .launch-chevron { transform: none; }
+}
+
+/* ==========================================================================
+   Topbar — ต้องอยู่บนสุดเสมอ ไม่ลอยมาทับ content
+   --------------------------------------------------------------------------
+   ภาพจริง: navbar ไปอยู่ที่ y≈390 ทับปุ่มใน hero
+   สาเหตุ: .admin-desktop-navbar ถูกตั้ง sticky แต่ไม่มี scroll container
+   ที่เหมาะสม + z-index ต่ำกว่า hero ที่มี isolation
+   แก้: fixed บนสุด + เว้นที่ให้ body เท่าความสูง navbar
+   ========================================================================== */
+
+html body.admin-ios.admin-ios .admin-desktop-navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  z-index: 5000 !important;
+  margin: 0 !important;
+}
+
+/* เว้นที่ใต้ navbar ให้เนื้อหาเริ่มต่ำลงมา ไม่ถูกทับ */
+html body.admin-ios.admin-ios {
+  padding-top: var(--admin-navbar-h, 62px) !important;
+}
+
+/* กำหนดความสูง navbar เป็นตัวแปร เพื่อใช้ร่วมกัน */
+html body.admin-ios.admin-ios .admin-desktop-navbar {
+  --admin-navbar-h: 62px;
+  min-height: 62px !important;
+  height: 62px !important;
+}
+
+@media (max-width: 900px) {
+  html body.admin-ios.admin-ios {
+    padding-top: 56px !important;
+  }
+  html body.admin-ios.admin-ios .admin-desktop-navbar {
+    --admin-navbar-h: 56px;
+    min-height: 56px !important;
+    height: 56px !important;
+  }
+}
+
+/* sidebar (ถ้ามี) ต้องไม่ทับ navbar */
+.admin-ios .admin-sidebar,
+.admin-ios aside.admin-sidebar {
+  z-index: 900 !important;
+}
+
+/* hero และการ์ด: ต้องอยู่ใต้ navbar */
+.admin-ios .dash-hero,
+.admin-ios .featured-manage-banner,
+.admin-ios .ceo-launchpad,
+.admin-ios .stat-cards,
+.admin-ios .table-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* dropdown ของ navbar ต้องลอยเหนือทุกอย่าง */
+.admin-ios .admin-nav-dropdown-menu {
+  z-index: 6000 !important;
+}
