@@ -529,8 +529,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       width: 100%;
     }
     .dd-search-input-wrap {
-      flex: 1;
-      min-width: 200px;
+      flex: 1 1 180px;
+      min-width: 0;
       display: flex;
       align-items: center;
       background: #ffffff;
@@ -539,6 +539,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       padding: 0 14px;
       transition: all 0.25s ease;
     }
+    .dd-search-input-wrap input { min-width: 0; }
     .dd-search-input-wrap:focus-within {
       border-color: #C5A059 !important;
       box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18) !important;
@@ -567,15 +568,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       border-color: #C5A059 !important;
       box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.18) !important;
     }
+    .dd-search-bar select,
+    .dd-btn-search { flex: 0 0 auto; }
     .dd-btn-search {
       background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
       color: #0B1C33 !important;
       border: none;
-      padding: 12px 28px;
+      padding: 12px 20px;
       border-radius: 10px;
       font-weight: 800;
-      font-size: 15px;
+      font-size: 14.5px;
       cursor: pointer;
+      white-space: nowrap;
       box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
       transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
     }
@@ -584,6 +588,213 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       transform: translateY(-2px);
       box-shadow: 0 6px 20px rgba(197, 160, 89, 0.45);
     }
+    /* ==========================================================================
+       Quick AI Search — แถบค้นหาหลัก + dropdown สิ่งอำนวยความสะดวก
+       ========================================================================== */
+    .qs-form {
+      position: relative;
+      flex-wrap: nowrap;
+      align-items: stretch;
+      gap: 8px;
+    }
+    .qs-form .qs-input-wrap {
+      flex: 1 1 auto;
+      min-width: 0;
+      padding-right: 6px;
+    }
+    .qs-search-icon { flex: 0 0 auto; }
+    .qs-form input[type="text"] { min-width: 0; }
+
+    /* ปุ่มเปิด dropdown */
+    .qs-filter-btn {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 38px;
+      margin-left: 4px;
+      padding: 0 12px;
+      border: 1px solid #dce2e9;
+      border-radius: 8px;
+      background: #f8fafc;
+      color: #334155;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .qs-filter-btn > svg:first-child { width: 15px; height: 15px; color: #64748b; }
+    .qs-filter-btn .qs-caret { width: 14px; height: 14px; color: #94a3b8; transition: transform .24s ease; }
+    .qs-filter-btn:hover { border-color: #C5A059; background: #fffdf7; color: #8C6B32; }
+    .qs-filter-btn[aria-expanded="true"] {
+      border-color: #C5A059;
+      background: #fff;
+      color: #8C6B32;
+      box-shadow: 0 0 0 3px rgba(197,160,89,.15);
+    }
+    .qs-filter-btn[aria-expanded="true"] .qs-caret { transform: rotate(180deg); }
+    .qs-filter-count {
+      display: inline-grid;
+      place-items: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #0B1C33;
+      color: #F8D888;
+      font-size: 10.5px;
+      font-weight: 900;
+    }
+
+    /* ปุ่มค้นหา AI */
+    .qs-submit {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      flex: 0 0 auto;
+      padding: 12px 18px !important;
+      white-space: nowrap;
+    }
+    .qs-submit svg { width: 15px; height: 15px; }
+
+    /* ── Dropdown panel ── */
+    .qs-panel {
+      position: absolute;
+      top: calc(100% + 10px);
+      left: 0;
+      right: 0;
+      z-index: 60;
+      background: #fff;
+      border: 1px solid #E6EBF2;
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(6, 15, 28, .22), 0 2px 8px rgba(6,15,28,.08);
+      padding: 16px;
+      opacity: 1;
+      animation: qsPop .22s cubic-bezier(.22, 1, .36, 1) both;
+    }
+    .qs-panel[hidden] { display: none; }
+    @keyframes qsPop {
+      from { opacity: 0; transform: translateY(-6px) scale(.99); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .qs-panel { animation: none; opacity: 1; }
+      .qs-option-box,
+      .qs-option-box svg { transition: none; }
+    }
+    .qs-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .qs-panel-head strong { font-size: 14px; color: #0B1C33; font-weight: 800; }
+    .qs-clear {
+      border: 0;
+      background: none;
+      color: #94a3b8;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: color .2s ease, background .2s ease;
+    }
+    .qs-clear:hover { color: #B91C1C; background: #FEF2F2; }
+
+    .qs-options {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .qs-option {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 11px;
+      border: 1.5px solid #E6EBF2;
+      border-radius: 11px;
+      background: #fbfcfe;
+      cursor: pointer;
+      transition: all .2s ease;
+      min-width: 0;
+    }
+    .qs-option:hover { border-color: rgba(197,160,89,.7); background: #fffdf7; }
+    .qs-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .qs-option-box {
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      border-radius: 6px;
+      border: 1.8px solid #cbd5e1;
+      background: #fff;
+      transition: all .18s ease;
+    }
+    .qs-option-box svg {
+      width: 12px; height: 12px;
+      opacity: 0;
+      transform: scale(.5);
+      transition: all .18s cubic-bezier(.34,1.56,.64,1);
+      color: #fff;
+    }
+    .qs-option-icon { flex: 0 0 auto; display: grid; place-items: center; width: 17px; height: 17px; color: #64748b; }
+    .qs-option-icon svg { width: 17px; height: 17px; }
+    .qs-option-text {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #334155;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .qs-option input:checked ~ .qs-option-box {
+      background: #15803D;
+      border-color: #15803D;
+      box-shadow: 0 2px 8px rgba(21,128,61,.3);
+    }
+    .qs-option input:checked ~ .qs-option-box svg { opacity: 1; transform: scale(1); }
+    .qs-option input:checked ~ .qs-option-icon { color: #15803D; }
+    .qs-option:has(input:checked) {
+      border-color: #86EFAC;
+      background: #F0FDF4;
+    }
+    .qs-option input:focus-visible ~ .qs-option-box {
+      outline: 3px solid rgba(21,128,61,.3);
+      outline-offset: 2px;
+    }
+
+    .qs-panel-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #F1F5F9;
+    }
+    .qs-panel-foot span { font-size: 11.5px; color: #94a3b8; line-height: 1.4; }
+    .qs-apply {
+      flex: 0 0 auto;
+      padding: 9px 20px;
+      border: 0;
+      border-radius: 9px;
+      background: #0B1C33;
+      color: #fff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .2s ease;
+    }
+    .qs-apply:hover { background: #C5A059; color: #0B1C33; transform: translateY(-1px); }
 
     /* ==========================================================================
        4. ส่วน Banner Cards & Showcase
@@ -694,6 +905,37 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       gap: 20px;
       width: 100%;
     }
+    /* reveal ต้องใช้ transform/opacity เท่านั้น เพื่อให้ hover -6px ยังทำงานได้ */
+    .showcase-card.reveal {
+      opacity: 0;
+      transform: translate3d(0, 22px, 0);
+      transition:
+        opacity .68s cubic-bezier(.22, 1, .36, 1),
+        transform .68s cubic-bezier(.22, 1, .36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .showcase-card.reveal.is-visible {
+      opacity: 1;
+      transform: none;
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .showcase-card.reveal.is-visible {
+      transition:
+        opacity .68s cubic-bezier(.22, 1, .36, 1) var(--reveal-delay, 0ms),
+        transform .68s cubic-bezier(.22, 1, .36, 1) var(--reveal-delay, 0ms),
+        box-shadow .32s cubic-bezier(.22, 1, .36, 1),
+        border-color .32s ease;
+    }
+    .showcase-card.reveal.is-visible:hover {
+      transform: translateY(-6px);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .showcase-card.reveal {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
     .showcase-card {
       min-width: 0;
       background: #ffffff;
@@ -722,6 +964,90 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         animation-duration: .01ms !important;
       }
     }
+
+    /* ==========================================================================
+       Scroll reveal — fade + slide ขึ้นเบา ๆ เมื่อเลื่อนถึง
+       ========================================================================== */
+    .reveal {
+      opacity: 0;
+      transform: translate3d(0, 26px, 0);
+      transition:
+        opacity .72s cubic-bezier(.22, 1, .36, 1),
+        transform .72s cubic-bezier(.22, 1, .36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .reveal.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    /* หลังเลื่อนครั้งแรก ไม่ต้องใช้ will-change แล้ว (ประหยัด GPU) */
+    .reveal.is-done { will-change: auto; }
+
+    /* ย้อนกลับ: ใช้ curve/ระยะเดียวกับตอนเข้า (แค่สั้นกว่าเล็กน้อย) จะได้รู้สึกเป็น animation
+       อันเดียวกันที่เล่นถอยหลัง ไม่ใช่คนละเอฟเฟกต์ที่มาทับ
+       สำคัญ: ต้องชนะ specificity ของ .reveal.is-visible (0,2,0) จึงเขียน selector คู่ให้เท่ากัน
+       และวางไว้ทีหลัง — JS จะถอด is-visible ออกอยู่แล้ว แต่กันเหนียวไว้ */
+    .reveal.is-visible.is-hidden-again,
+    .reveal.is-hidden-again,
+    .showcase-card.reveal.is-hidden-again {
+      opacity: 0;
+      transform: translate3d(0, 26px, 0);
+      transition:
+        opacity .55s cubic-bezier(.22, 1, .36, 1),
+        transform .55s cubic-bezier(.22, 1, .36, 1);
+      transition-delay: 0ms;               /* ย้อนกลับไม่ต้องรอ stagger → ไม่ดูกระตุก */
+      will-change: opacity, transform;
+    }
+
+    /* Hero ใช้จังหวะเฉพาะ: เนื้อหาหลักโผล่ทันทีแบบนุ่มนวล */
+    .reveal-hero {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      transition:
+        opacity .8s cubic-bezier(.22, 1, .36, 1),
+        transform .8s cubic-bezier(.22, 1, .36, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+    }
+    .reveal-hero.is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+    /* Hero ย้อนกลับ: ถอยกลับทิศเดิม (ลงล่าง) ให้เหมือนเทปเล่นถอยหลัง */
+    .reveal-hero.is-visible.is-hidden-again,
+    .reveal-hero.is-hidden-again {
+      opacity: 0;
+      transform: translate3d(0, 18px, 0);
+      transition:
+        opacity .55s cubic-bezier(.22, 1, .36, 1),
+        transform .55s cubic-bezier(.22, 1, .36, 1);
+      transition-delay: 0ms;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal,
+      .reveal-hero {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+      }
+    }
+
+    /* เครื่องมือ 3 การ์ด: เข้ามาทีละใบ */
+    .interactive-tool-card.reveal:nth-of-type(1) { --reveal-delay: 0ms; }
+    .interactive-tool-card.reveal:nth-of-type(2) { --reveal-delay: 90ms; }
+    .interactive-tool-card.reveal:nth-of-type(3) { --reveal-delay: 180ms; }
+
+    /* Hero: บล็อก submbar + หมวดแนะนำ เข้ามาต่อกันเป็นจังหวะ */
+    .reveal-hero[data-reveal-step="1"] { --reveal-delay: 60ms; }
+    .reveal-hero[data-reveal-step="2"] { --reveal-delay: 140ms; }
+    .reveal-hero[data-reveal-step="3"] { --reveal-delay: 220ms; }
+
+    /* กันภาพกระพริบระหว่างรอ observer ทำงานในจอที่แคบ (carousel แนวนอน) */
+    @media (max-width: 767px) {
+      .featured-nav.reveal { transition-duration: .55s; }
+    }
+
     .showcase-media {
       position: relative;
       aspect-ratio: 16 / 10;
@@ -1318,6 +1644,45 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         width: 100% !important;
         min-width: 100% !important;
       }
+      /* Quick AI Search บนมือถือ: ช่องพิมพ์เต็มแถว แล้วปุ่มขึ้นบรรทัดใหม่ */
+      .qs-form {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .qs-form .qs-input-wrap {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding-right: 6px;
+      }
+      .qs-filter-btn {
+        height: 36px;
+        padding: 0 10px;
+        font-size: 12px;
+      }
+      .qs-filter-btn .qs-filter-label {
+        display: none;
+      }
+      .qs-submit {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      .qs-options {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .qs-panel {
+        top: calc(100% + 8px);
+        padding: 14px;
+        border-radius: 14px;
+        max-height: 62vh;
+        overflow-y: auto;
+      }
+      .qs-panel-foot {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .qs-apply { width: 100%; }
       .featured-nav {
         grid-template-columns: none;
         grid-auto-flow: column;
@@ -1450,6 +1815,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-2px;"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
         <span><?= e(t('Property Reels', 'Property Reels')) ?></span>
       </a>
+      <a href="ai-search.php" class="dd-menu-item" title="<?= e(t('ค้นหาด้วยภาษาธรรมชาติ', 'Natural language search')) ?>"><?= e(t('ค้นหาด้วย AI', 'AI Search')) ?></a>
       <a href="project.php" class="dd-menu-item"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
       <a href="favorites.php" class="dd-menu-item" title="<?= e(t('ทรัพย์ที่บันทึกไว้', 'Saved Properties')) ?>">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:inline-block; vertical-align:-1px; color:#ef4444;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
@@ -1509,6 +1875,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
             <span><?= e(t('Property Reels (คลิปสั้นพาทัวร์)', 'Property Reels (Short Video Tours)')) ?></span>
           </span>
           <span class="arrow" style="color:#F8D888;">›</span>
+        </a>
+      </li>
+      <li>
+        <a href="ai-search.php" class="drawer-menu-item" style="color:#0B1C33 !important; font-weight:800; background:rgba(197,160,89,0.14); border:1px solid rgba(197, 160, 89, 0.45); border-radius:12px; margin:0 14px 10px;">
+          <span style="display:inline-flex; align-items:center; gap:8px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+            <span><?= e(t('ค้นหาด้วย AI', 'AI Deep Search')) ?></span>
+          </span>
+          <span class="arrow" style="color:#A8843F;">›</span>
         </a>
       </li>
       <li>
@@ -1590,35 +1965,79 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <div class="dd-hero-overlay" style="background: rgba(11, 28, 51, <?= (float)($heroBg['opacity'] ?? 0.45) ?>);"></div>
   </div>
 
-  <div class="dd-hero-heading-wrap" style="text-align: center; color: #fff; margin-bottom: 8px;">
+  <div class="dd-hero-heading-wrap reveal-hero" style="text-align: center; color: #fff; margin-bottom: 8px;">
     <span class="hero-eyebrow"><?= e(t('ค้นหาบ้านในแบบที่เป็นคุณ', 'Find a home that feels like you')) ?></span>
     <h1><?= e(t('บ้านที่ใช่ เริ่มต้นจากทำเลที่ชอบ', 'The right home starts with the right location')) ?></h1>
     <p><?= e(t('ค้นหาบ้าน คอนโด และอสังหาริมทรัพย์ทั่วไทย พร้อมติดต่อเจ้าของได้โดยตรง', 'Search houses, condos and properties across Thailand — contact owners directly.')) ?></p>
   </div>
 
-  <div class="dd-search-container">
+  <div class="dd-search-container reveal-hero" style="--reveal-delay: 120ms;">
     <div class="dd-tabs">
       <button type="button" class="dd-tab active" aria-pressed="true" onclick="setTypeFilter('', this)"><?= e(t('ทั้งหมด', 'All')) ?></button>
       <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('sale', this)"><?= e(t('ซื้อ', 'Buy')) ?></button>
       <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('rent', this)"><?= e(t('เช่า', 'Rent')) ?></button>
     </div>
 
-    <form method="get" action="search.php" class="dd-search-bar">
+    <form method="get" action="ai-search.php" class="dd-search-bar qs-form" id="quickAiForm">
       <input type="hidden" name="type" id="formTypeInput" value="">
-      
-      <div class="dd-search-input-wrap">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" name="q" placeholder="<?= e(t('ค้นหาทำเล เช่น สุขุมวิท, ภูเก็ต, ลาดพร้าว', 'Search a location, e.g. Sukhumvit, Phuket, Lat Phrao')) ?>" value="<?= e($_GET['q'] ?? '') ?>">
+
+      <div class="dd-search-input-wrap qs-input-wrap">
+        <svg class="qs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" name="q" id="quickAiInput" autocomplete="off" placeholder="<?= e(t('ค้นหาทำเล เช่น สุขุมวิท, ภูเก็ต, ลาดพร้าว', 'Search a location, e.g. Sukhumvit, Phuket, Lat Phrao')) ?>" value="<?= e($_GET['q'] ?? '') ?>">
+
+        <button type="button" class="qs-filter-btn" id="qsFilterBtn" aria-expanded="false" aria-controls="qsFilterPanel" title="<?= e(t('กรองสิ่งอำนวยความสะดวก', 'Filter by amenities')) ?>">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"></path></svg>
+          <span class="qs-filter-label"><?= e(t('สิ่งอำนวยความสะดวก', 'Amenities')) ?></span>
+          <span class="qs-filter-count" id="qsFilterCount" hidden>0</span>
+          <svg class="qs-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
       </div>
 
-      <select name="category">
+      <select name="category" id="qsCategory" class="qs-cat" aria-label="<?= e(t('ประเภทอสังหาฯ', 'Property type')) ?>">
         <option value=""><?= e(t('ทุกประเภทอสังหาฯ', 'All property types')) ?></option>
         <?php foreach (PROPERTY_CATEGORIES as $key => $label): if ($key === 'other') continue; ?>
           <option value="<?= e($key) ?>"><?= e(category_label_bi($key)) ?></option>
         <?php endforeach; ?>
       </select>
 
-      <button type="submit" class="dd-btn-search"><?= e(t('ค้นหา', 'Search')) ?></button>
+      <button type="submit" class="dd-btn-search qs-submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.2 13.6 8l4.8 1.6-4.8 1.6L12 16l-1.6-4.8L5.6 9.6 10.4 8Z"></path></svg>
+        <span><?= e(t('ค้นหาด้วย AI', 'AI Search')) ?></span>
+      </button>
+
+      <div class="qs-panel" id="qsFilterPanel" hidden>
+        <div class="qs-panel-head">
+          <strong><?= e(t('เลือกสิ่งที่ต้องมี', 'What must it have?')) ?></strong>
+          <button type="button" class="qs-clear" id="qsClear"><?= e(t('ล้างทั้งหมด', 'Clear all')) ?></button>
+        </div>
+        <div class="qs-options" role="group" aria-label="<?= e(t('สิ่งอำนวยความสะดวก', 'Amenities')) ?>">
+          <?php
+          $quickAmenities = [
+              'park'      => [t('ที่จอดรถ', 'Parking'), '<path d="M5 17h14"/><path d="M6.5 17 5 12.5 7 7h10l2 5.5L17.5 17"/><circle cx="7.5" cy="17.5" r="1.6"/><circle cx="16.5" cy="17.5" r="1.6"/>'],
+              'fitness'   => [t('ฟิตเนส', 'Fitness'), '<path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/>'],
+              'pool'      => [t('สระว่ายน้ำ', 'Pool'), '<path d="M2 16c1.5 0 1.5 1.5 3 1.5s1.5-1.5 3-1.5 1.5 1.5 3 1.5S14.5 16 16 16s1.5 1.5 3 1.5S20.5 16 22 16"/><path d="M7 13V5a2 2 0 0 1 4 0"/><path d="M17 13V5"/>'],
+              'security'  => [t('รปภ. 24 ชม.', '24h security'), '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="m9 12 2 2 4-4"/>'],
+              'furniture' => [t('พร้อมเฟอร์นิเจอร์', 'Furnished'), '<path d="M4 18v-6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M2 18h20M6 10V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/>'],
+              'elevator'  => [t('ลิฟต์', 'Elevator'), '<rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="m9 8 1.5-2L12 8"/><path d="m12 16 1.5 2L15 16"/>'],
+              'transit'   => [t('ใกล้รถไฟฟ้า', 'Near transit'), '<rect x="5" y="3" width="14" height="13" rx="3"/><path d="M5 10h14M9 16l-2 4M15 16l2 4"/>'],
+              'quiet'     => [t('บรรยากาศเงียบ', 'Quiet area'), '<path d="M3 12h3l3-4 3 8 3-4h6"/>'],
+          ];
+          foreach ($quickAmenities as $amKey => [$amLabel, $amIcon]): ?>
+            <label class="qs-option">
+              <input type="checkbox" name="am[]" value="<?= e($amKey) ?>" data-qs-amenity>
+              <span class="qs-option-box" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              </span>
+              <span class="qs-option-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><?= $amIcon ?></svg></span>
+              <span class="qs-option-text"><?= e($amLabel) ?></span>
+            </label>
+          <?php endforeach; ?>
+        </div>
+        <div class="qs-panel-foot">
+          <span><?= e(t('เลือกแล้วกดค้นหา ระบบจะกรองเฉพาะที่ตรงทุกข้อ', 'Pick options, then search — only listings with all of them')) ?></span>
+          <button type="button" class="qs-apply" id="qsApply"><?= e(t('ใช้ตัวกรอง', 'Apply')) ?></button>
+        </div>
+      </div>
     </form>
   </div>
   <nav class="home-category-icons" aria-label="<?= e(t('หมวดหมู่อสังหาริมทรัพย์', 'Property categories')) ?>">
@@ -1649,7 +2068,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
 <!-- เมนูรูปภาพตามหมวดแนะนำที่ผู้ดูแลตั้งค่า -->
 <?php if ($featuredSections): ?>
-<nav class="container featured-nav" aria-label="<?= e(t('หมวดอสังหาริมทรัพย์แนะนำ', 'Featured property categories')) ?>">
+<nav class="container featured-nav reveal" aria-label="<?= e(t('หมวดอสังหาริมทรัพย์แนะนำ', 'Featured property categories')) ?>">
   <?php foreach ($featuredSections as $featuredSection): ?>
     <?php
       $navCategory = (string)$featuredSection['category'];
@@ -1675,7 +2094,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 ?>
 <section class="section showcase-section">
   <div class="container">
-    <div class="showcase-header">
+    <div class="showcase-header reveal">
       <div class="showcase-title-wrap">
         <h2 class="showcase-title"><?= e($sectionTitle) ?></h2>
       </div>
@@ -1684,8 +2103,8 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
     <?php if ($featuredSection['listings']): ?>
       <div class="showcase-grid">
-        <?php foreach ($featuredSection['listings'] as $listing): ?>
-          <a href="property.php?id=<?= (int)$listing['id'] ?>" class="showcase-card">
+        <?php foreach ($featuredSection['listings'] as $listingIndex => $listing): ?>
+          <a href="property.php?id=<?= (int)$listing['id'] ?>" class="showcase-card reveal" style="--reveal-delay: <?= (int)$listingIndex * 80 ?>ms;">
             <?php
               $featuredFilename = $featuredImages[(int)$listing['id']] ?? '';
               $featuredImagePath = $featuredFilename ? __DIR__ . '/uploads/' . $featuredFilename : '';
@@ -1763,16 +2182,17 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 <section class="section" style="padding:48px 0; background:linear-gradient(180deg,#ffffff,#f8fafc); border-top:1px solid #eef2f6;">
   <div class="container" style="max-width:1200px; margin:0 auto; padding:0 16px;">
     
-    <div style="text-align:center; max-width:680px; margin:0 auto 36px;">
+    <div class="reveal" style="text-align:center; max-width:680px; margin:0 auto 36px;">
       <span style="font-size:11px; font-weight:800; color:#8C6B32; background:rgba(197,160,89,.14); padding:4px 14px; border-radius:999px; letter-spacing:0.12em; text-transform:uppercase;">Interactive Property Suite</span>
       <h2 style="font-size:clamp(22px, 3.2vw, 32px); font-weight:800; color:#0B1C33; margin:10px 0 8px;"><?= e(t('เครื่องมือวิเคราะห์และตัวช่วยประเมินอสังหาฯ', 'Property Analytics & Valuation Tools')) ?></h2>
       <p style="font-size:14px; color:#64748B; line-height:1.6; margin:0;"><?= e(t('คำนวณค่างวดผ่อนบ้าน คอนโด หรือสำรวจผลตอบแทนการลงทุน (Rental Yield) ได้แบบเรียลไทม์ทันที', 'Estimate home or condo monthly installments and explore Rental Yield in real-time.')) ?></p>
     </div>
 
     <div class="interactive-tools-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap:24px;">
+      <!-- แต่ละการ์ด fade เข้าเมื่อเลื่อนถึง (กำหนด delay ใน CSS ด้านล่าง) -->
       
       <!-- Card 1: เครื่องมือคำนวณเงินผ่อนบ้าน-คอนโดแบบเรียลไทม์ -->
-      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
+      <div class="interactive-tool-card reveal" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06); position:relative; overflow:hidden;">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(197,160,89,.15); color:#8C6B32;">
@@ -1835,7 +2255,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       </div>
 
       <!-- Card 2: เครื่องมือจำลองผลตอบแทนการปล่อยเช่า (Rental Yield & Investment) -->
-      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+      <div class="interactive-tool-card reveal" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(21,128,61,.12); color:#15803d;">
@@ -1882,7 +2302,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       </div>
 
       <!-- Card 3: ควิซด่วนค้นหาบ้าน/คอนโดที่ใช่คุณ (Property Matchmaker) -->
-      <div class="interactive-tool-card" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
+      <div class="interactive-tool-card reveal" style="background:#fff; border:1px solid #e2e8f0; border-radius:22px; padding:28px 24px; box-shadow:0 10px 30px rgba(11,28,51,.06);">
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <div style="display:flex; align-items:center; gap:10px;">
             <span style="display:grid; place-items:center; width:40px; height:40px; border-radius:12px; background:rgba(121,85,217,.12); color:#7955d9;">
@@ -2057,7 +2477,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
     <div style="display:flex; flex-direction:column; gap:10px;">
       <?php foreach ($homeAiFaq['mainEntity'] as $faqItem): ?>
-        <details class="dd-home-faq" style="border:1px solid #e2e8f0; border-radius:14px; background:#fafbfc; padding:14px 18px; transition:background 0.2s;">
+        <details class="dd-home-faq reveal" style="border:1px solid #e2e8f0; border-radius:14px; background:#fafbfc; padding:14px 18px; transition:background 0.2s;">
           <summary style="font-size:14px; font-weight:700; color:#0B1C33; cursor:pointer; list-style:none; display:flex; justify-content:space-between; align-items:center; gap:12px;">
             <span><?= e($faqItem['name']) ?></span>
             <span style="color:#C5A059; font-size:12px;">▼</span>
@@ -2086,6 +2506,134 @@ render_banner_slot('home_footer_above', 'compact');
 render_site_footer(); ?>
 
 <script>
+  // Safety net: ถ้า observer ล้มเหลวหรือ JS error ภายหลัง ให้เนื้อหาไม่ค้างที่ opacity 0
+  window.addEventListener('load', () => {
+    window.setTimeout(() => {
+      document.querySelectorAll('.reveal:not(.is-visible), .reveal-hero:not(.is-visible)').forEach((el) => {
+        if (el.classList.contains('is-hidden-again')) return;
+        if (document.documentElement.classList.contains('reveal-ready')) return;
+        const r = el.getBoundingClientRect();
+        if (r.bottom > 0 && r.top < window.innerHeight) {
+          el.classList.add('is-visible', 'is-done');
+        }
+      });
+    }, 1200);
+  });
+
+  // ── Scroll reveal: fade + slide เมื่อเลื่อนถึง (IntersectionObserver, CPU ต่ำ) ──
+  (function initScrollReveal() {
+    const items = Array.from(document.querySelectorAll('.reveal, .reveal-hero'));
+    if (!items.length) return;
+
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // reduced-motion / เบราว์เซอร์เก่า: โชว์ทั้งหมด ไม่ต้องทำแอนิเมชันย้อนกลับ
+    if (reduceMotion || !('IntersectionObserver' in window)) {
+      items.forEach((el) => el.classList.add('is-visible', 'is-done'));
+      return;
+    }
+    document.documentElement.classList.add('reveal-ready');
+
+    // เนื้อหาที่อยู่ใน viewport ตั้งแต่แรก (หรือกด back กลับมา) ให้โชว์ทันทีแบบไม่หน่วง
+    items.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < window.innerHeight) {
+        el.classList.add('is-visible', 'is-done');
+      }
+    });
+
+    // ── ย้อนไป-ย้อนมาได้ (reversible) ─────────────────────────────────────────
+    // ทำไมไม่ใช้ IntersectionObserver:
+    //   observer ตัดสินจาก "ตำแหน่ง" แต่ย้อนกลับได้ต้องตัดสินจาก "ทิศทาง" 
+    //   พอ element ถูกหุบแล้ว observer จะยิงซ้ำไม่หยุด เพราะจุดตัด (threshold/rootMargin)
+    //   อยู่ใกล้กันเกินไป → กระพริบ + callback ค้างคิวตีกัน (คือ flicker ที่เจอ)
+    // ฉะนั้นเปลี่ยนมาใช้ rAF ตัวเดียว อ่าน scrollY ต่อเฟรม แล้วคำนวณตำแหน่งจริงของ element
+    //   ข้อดี: 1 เฟรมตัดสินใจครั้งเดียว, ลำดับเหตุการณ์แน่นอน, ไม่มี callback ย้อนหลัง
+    //   และกำหนด "เส้นตาย" เป็น px ที่ชัดเจน + deadband ตามทิศทาง (hysteresis)
+    const vhOf = () => window.innerHeight || document.documentElement.clientHeight;
+
+    // เส้นตัด (คำนวณสดทุกเฟรม):
+    //   โผล่ : ขอบบนของ element ลอดขึ้นมาเหนือ "เส้นล่าง" (vh * IN_LINE)
+    //   หุบ  : ทำได้เฉพาะเมื่อ element "หลุดจากจอไปแล้วจริง" (ขอบบนจมลงใต้ vh + DEAD)
+    //          → ระหว่างที่ยังเห็นอยู่แม้บางส่วน จะไม่หุบเลย จึงไม่มีอาการกระพริบตอนชะลอความเร็ว
+    //          → และเพราะเกิดตอนไม่เห็นแล้ว อนิเมชันจบไปก่อนไถกลับมาเจอ = ดูเนียน
+    const IN_LINE = 0.96;   // โผล่เมื่อขอบบน element ลอดขึ้นมาในโซนล่าง 4% ของจอ
+    const OUT_DEAD = 80;    // ต้องพ้นจอลงไปเกิน 80px ถึงจะหุบ (กันการสลับไปมารัว ๆ)
+
+    const shown = (el) => el.classList.contains('is-visible');
+
+    const revealIn = (el, stagger) => {
+      el.style.transitionDelay = stagger ? '' : '0ms';
+      el.classList.remove('is-hidden-again');
+      el.classList.add('is-visible', 'is-done');
+    };
+
+    const revealOut = (el) => {
+      el.style.transitionDelay = '0ms';   // ย้อนกลับไม่ต้องรอ stagger
+      el.classList.remove('is-visible', 'is-done');
+      el.classList.add('is-hidden-again');
+    };
+
+    let lastY = window.scrollY || 0;
+    let dir = 1;            // 1 = เลื่อนลง, -1 = เลื่อนขึ้น
+    let ticking = false;
+    let idle = 0;           // เฟรมที่เลื่อนไม่ถึง 2px ติดกัน (ถือว่าหยุด)
+
+    // 1 รอบ = ตัดสินทุก element จากตำแหน่งปัจจุบัน + ทิศทาง
+    const pass = () => {
+      ticking = false;
+      const vh = vhOf();
+      const y = window.scrollY || 0;
+      const dy = y - lastY;
+
+      if (Math.abs(dy) >= 1) {
+        dir = dy > 0 ? 1 : -1;
+        idle = 0;
+      } else if (idle < 12) {
+        idle++;
+      }
+
+      const inLine = vh * IN_LINE;
+      const outLine = vh + OUT_DEAD;   // ขอบบนของ element ต้องจมลงไปเกินขอบล่างจอ + deadband
+
+      for (let i = 0; i < items.length; i++) {
+        const el = items[i];
+        // จัดกลุ่ม element ใน "แถว" เดียวกันให้ยิง stagger พร้อมกันดูเป็นระลอก
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 && r.height === 0) continue;
+        const isShown = shown(el);
+
+        if (!isShown) {
+          // จะโผล่เมื่อ: ขอบบนยังไม่เลยพ้นจอ (r.bottom > 0) และขอบบนลอดขึ้นมาเหนือเส้นล่าง
+          if (r.bottom > 0 && r.top < inLine) {
+            // เลื่อนขึ้นแล้วเจอ element ที่เพิ่งมาจากข้างบน (เช่น กระโดดด้วย anchor) → ไม่ต้องหน่วง
+            revealIn(el, dir > 0 || idle > 0);
+          }
+        } else {
+          // จะหุบเมื่อ: element หลุดลงไปใต้จอไปแล้วจริง (และผู้ใช้กำลังเลื่อนขึ้น)
+          // เงื่อนไขเดียว ไม่ผูกกับทิศทางของ frame ก่อนหน้า → ระหว่าง "ขยับเล็กน้อย" จะไม่สลับสถานะ
+          if (r.top > outLine && dir < 0) {
+            revealOut(el);
+          }
+        }
+      }
+
+      lastY = y;
+    };
+
+    const request = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(pass);
+    };
+
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request, { passive: true });
+
+    // หลังโหลด/กลับมาจาก bfcache: คำนวณใหม่ทันที 1 รอบ
+    request();
+    window.addEventListener('pageshow', request);
+  })();
+
   function setTypeFilter(val, el) {
     document.getElementById('formTypeInput').value = val;
     document.querySelectorAll('.dd-tab').forEach(tab => {
@@ -2095,6 +2643,74 @@ render_site_footer(); ?>
     el.classList.add('active');
     el.setAttribute('aria-pressed', 'true');
   }
+
+  // ── Quick AI Search: dropdown สิ่งอำนวยความสะดวก ──
+  (() => {
+    const form = document.getElementById('quickAiForm');
+    const panel = document.getElementById('qsFilterPanel');
+    const toggle = document.getElementById('qsFilterBtn');
+    const countBadge = document.getElementById('qsFilterCount');
+    const clearBtn = document.getElementById('qsClear');
+    const applyBtn = document.getElementById('qsApply');
+    if (!form || !panel || !toggle) return;
+
+    const boxes = () => Array.from(form.querySelectorAll('[data-qs-amenity]'));
+
+    const syncCount = () => {
+      const n = boxes().filter((b) => b.checked).length;
+      if (countBadge) {
+        countBadge.textContent = String(n);
+        countBadge.hidden = n === 0;
+      }
+    };
+
+    const open = () => {
+      panel.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      panel.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (panel.hidden) open(); else close();
+    });
+
+    clearBtn?.addEventListener('click', () => {
+      boxes().forEach((b) => { b.checked = false; });
+      syncCount();
+    });
+
+    applyBtn?.addEventListener('click', () => {
+      close();
+      form.requestSubmit();
+    });
+
+    boxes().forEach((b) => b.addEventListener('change', syncCount));
+    syncCount();
+
+    // ปิดเมื่อคลิกนอกกรอบ / กด Esc
+    document.addEventListener('click', (e) => {
+      if (panel.hidden) return;
+      if (!panel.contains(e.target) && !toggle.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) {
+        close();
+        toggle.focus();
+      }
+    });
+
+    // ถ้าเคยเลือกไว้แล้วกลับมา ให้คงสถานะที่เลือก (อ่านจาก URL)
+    const params = new URLSearchParams(window.location.search);
+    const picked = params.getAll('am[]');
+    if (picked.length) {
+      boxes().forEach((b) => { b.checked = picked.includes(b.value); });
+      syncCount();
+    }
+  })();
 
   // ระบบเปิด-ปิด Mobile Drawer Menu
   const openDrawerBtn = document.getElementById('openDrawerBtn');
