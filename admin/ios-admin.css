@@ -1537,3 +1537,643 @@ body.admin-ios .wrap {
   .admin-ios .scard.ios-hovering,
   .admin-ios .ceo-cat-card.ios-hovering { transform: none !important; }
 }
+
+/* ==========================================================================
+   iOS 26/27 — Glow Border Pills
+   --------------------------------------------------------------------------
+   อ้างอิงจากภาพ: ปุ่มโปร่งแสงบนพื้นเข้ม ขอบเรืองแสงทองบาง ๆ
+   โครงสร้าง:
+     [ ⬚ ]  ข้อความ            <- ไอคอนซ้าย + ข้อความ
+       ↑ วงกลมโปร่งแสง 32px มีไอคอนข้างใน 36px
+
+   นำไปใช้กับ:
+     • ปุ่มใน hero (.dash-hero-actions a / .btn-hero)
+     • ลิงก์ใน Launchpad (.ceo-cat-card a)
+     • ปุ่ม tab (.tabs a / .tabs button)
+     • ปุ่มยืนยัน/ยกเลิกใน cookie banner
+     • ปุ่ม .btn / .btn-action ทั่วไปในหน้า admin
+   ========================================================================== */
+
+/* -------- ตัวแปรเฉพาะปุ่มเรืองแสง -------- */
+.admin-ios {
+  --glow-radius: 14px;
+  --glow-bg: rgba(255, 255, 255, .07);
+  --glow-bg-hover: rgba(255, 255, 255, .13);
+  --glow-line: rgba(248, 216, 136, .42);
+  --glow-line-hover: rgba(248, 216, 136, .85);
+  --glow-text: #F4E7C8;
+  --glow-icon-bg: rgba(248, 216, 136, .14);
+  --glow-icon-text: #F8D888;
+  --glow-shadow: 0 0 0 1px rgba(248, 216, 136, .1),
+                 0 6px 22px -10px rgba(248, 216, 136, .45),
+                 0 1px 0 rgba(255, 255, 255, .1) inset;
+  --glow-shadow-hover: 0 0 0 1px rgba(248, 216, 136, .22),
+                       0 10px 30px -10px rgba(248, 216, 136, .7),
+                       0 1px 0 rgba(255, 255, 255, .2) inset;
+}
+
+/* ============================ ปุ่มใน hero ============================ */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  height: 44px !important;
+  min-height: 44px !important;
+  padding: 0 16px !important;
+  border-radius: var(--glow-radius) !important;
+  background: var(--glow-bg) !important;
+  border: 1px solid var(--glow-line) !important;
+  color: var(--glow-text) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.005em;
+  text-decoration: none !important;
+  box-shadow: var(--glow-shadow) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.4) !important;
+  backdrop-filter: blur(14px) saturate(1.4) !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .24s ease, color .18s ease, transform .16s var(--lg-ease) !important;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+}
+
+/* ไอคอนซ้าย: วงกลมโปร่งแสง */
+.admin-ios .dash-hero-actions .btn-hero::before,
+.admin-ios .dash-hero-actions a::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--glow-icon-bg);
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .18) inset;
+}
+
+@media (hover: hover) {
+  .admin-ios .dash-hero-actions .btn-hero:hover,
+  .admin-ios .dash-hero-actions a:hover {
+    background: var(--glow-bg-hover) !important;
+    border-color: var(--glow-line-hover) !important;
+    box-shadow: var(--glow-shadow-hover) !important;
+    color: #FFF6DF !important;
+    transform: translateY(-1px);
+  }
+}
+
+.admin-ios .dash-hero-actions .btn-hero:active,
+.admin-ios .dash-hero-actions a:active {
+  transform: scale(.978);
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .3),
+              0 3px 12px -6px rgba(248, 216, 136, .6) !important;
+}
+
+/* ====================== ลิงก์ใน Launchpad (พื้นขาว) ====================== */
+.admin-ios .ceo-cat-card a {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  min-height: 42px !important;
+  padding: 0 12px 0 8px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .55) !important;
+  border: 1px solid rgba(168, 132, 63, .22) !important;
+  color: #34302A !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset,
+              0 2px 8px -6px rgba(168, 132, 63, .35) !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .22s ease, transform .16s var(--lg-ease) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .ceo-cat-card a:hover {
+    background: rgba(255, 255, 255, .9) !important;
+    border-color: rgba(168, 132, 63, .55) !important;
+    color: var(--lg-gold) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .95) inset,
+                0 6px 18px -8px rgba(168, 132, 63, .55) !important;
+  }
+}
+
+.admin-ios .ceo-cat-card a:active { transform: scale(.985); }
+
+/* ============================= แท็บ ============================= */
+.admin-ios .tabs a,
+.admin-ios .tabs button {
+  border-radius: 11px !important;
+  border: 1px solid transparent !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .2s ease, color .18s ease !important;
+}
+
+.admin-ios .tabs a.active,
+.admin-ios .tabs button.active,
+.admin-ios .tabs .active {
+  border-color: rgba(168, 132, 63, .35) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset,
+              0 3px 12px -6px rgba(168, 132, 63, .45) !important;
+}
+
+/* ===================== ปุ่มยืนยัน/ยกเลิก cookie ===================== */
+.admin-ios .cookie-consent-accept {
+  background: linear-gradient(135deg, #E5CB96, #C5A059) !important;
+  border: 1px solid rgba(255, 255, 255, .3) !important;
+  color: #2A2416 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset,
+              0 4px 14px -6px rgba(168, 132, 63, .6) !important;
+}
+
+.admin-ios .cookie-consent-essential {
+  background: rgba(120, 128, 145, .1) !important;
+  border: 1px solid rgba(120, 128, 145, .24) !important;
+  color: #4A5059 !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .cookie-consent-accept:hover { filter: brightness(1.04); }
+  .admin-ios .cookie-consent-essential:hover { background: rgba(120, 128, 145, .16) !important; }
+}
+
+/* ========================== ปุ่ม .btn ทั่วไป ========================== */
+.admin-ios .btn,
+.admin-ios .btn-action {
+  border-radius: 13px !important;
+  background: rgba(255, 255, 255, .76) !important;
+  border: 1px solid rgba(168, 132, 63, .22) !important;
+  color: #34302A !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .85) inset,
+              0 3px 12px -8px rgba(17, 24, 39, .3) !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .22s ease, transform .16s var(--lg-ease) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .btn:hover,
+  .admin-ios .btn-action:hover {
+    background: rgba(255, 255, 255, .98) !important;
+    border-color: rgba(168, 132, 63, .5) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset,
+                0 6px 20px -8px rgba(168, 132, 63, .5) !important;
+  }
+}
+
+.admin-ios .btn:active,
+.admin-ios .btn-action:active { transform: scale(.972); }
+
+/* ==================== ปุ่มใน topbar: เรืองแสงบาง ๆ ==================== */
+.admin-ios .admin-nav-item-link,
+.admin-ios .admin-nav-dropdown-btn {
+  border: 1px solid transparent !important;
+  transition: background-color .18s ease, border-color .18s ease,
+              box-shadow .2s ease, color .18s ease, transform .16s var(--lg-ease) !important;
+}
+
+@media (hover: hover) {
+  .admin-ios .admin-nav-item-link:hover,
+  .admin-ios .admin-nav-dropdown-btn:hover {
+    border-color: rgba(248, 216, 136, .38) !important;
+    box-shadow: 0 0 0 1px rgba(248, 216, 136, .12),
+                0 6px 18px -10px rgba(248, 216, 136, .55) !important;
+  }
+}
+
+.admin-ios .admin-nav-item-link.active,
+.admin-ios .admin-nav-dropdown.has-active > .admin-nav-dropdown-btn {
+  border-color: rgba(248, 216, 136, .5) !important;
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .2),
+              0 6px 20px -10px rgba(248, 216, 136, .65),
+              0 1px 0 rgba(255, 255, 255, .12) inset !important;
+}
+
+/* ================== ปุ่มใน banner โปรโมต ================== */
+@media (hover: hover) {
+  .admin-ios .featured-manage-banner > a:hover {
+    border-color: rgba(168, 132, 63, .5) !important;
+    box-shadow: 0 4px 14px -8px rgba(168, 132, 63, .6) !important;
+  }
+}
+
+/* ============== ยกเลิก pseudo เดิมที่ชนกับ ::before ไอคอน ============== */
+/* หน้า hero เดิมมี ::before ทองสำหรับขีดคั่น — เราแทนด้วยวงไอคอนแล้ว */
+.admin-ios .dash-hero-actions a > svg,
+.admin-ios .dash-hero-actions .btn-hero > svg {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+}
+
+/* specific กว่าเพื่อกันไม่ให้ pseudo ไปทับไอคอนจริง */
+.admin-ios .dash-hero-actions .btn-hero > span,
+.admin-ios .dash-hero-actions a > span {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Glow pills v2 — เอาไอคอนจริงเข้าไปในวงกลม
+   --------------------------------------------------------------------------
+   v1 สร้างวงกลมด้วย ::before แต่ไอคอน (emoji ใน <a>) ยังลอยอยู่ข้างนอก
+   ทำให้เห็นเป็นวงเปล่า + emoji ต่อท้าย
+   v2 ใช้ flexbox จัดไอคอนเป็นลูกตัวแรกของ <a> แล้ววาดวงกลมด้วย ::before
+   ที่มีขนาดเท่ากันและซ้อนอยู่ข้างหลังไอคอน
+   ========================================================================== */
+
+/* ปุ่ม hero: จัดให้ไอคอน (text node แรกหรือ svg) อยู่ในวง */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  padding-left: 12px !important;
+  gap: 11px !important;
+}
+
+/* วงกลม: วางแบบ flex item แทน absolute */
+.admin-ios .dash-hero-actions .btn-hero::before,
+.admin-ios .dash-hero-actions a::before {
+  content: "" !important;
+  flex: 0 0 auto !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9px !important;
+  background: rgba(248, 216, 136, .16) !important;
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .22) inset,
+              0 2px 8px -4px rgba(248, 216, 136, .5) !important;
+  /* ดึงไอคอนจริง (content แรกของ <a>) มาวางทับ */
+  display: grid;
+  place-items: center;
+  margin-right: -22px;   /* ให้ข้อความชิดวง */
+  z-index: 2;
+  position: relative;
+}
+
+/* เนื้อหาข้อความต้องเยื้องขวาให้พ้นวง */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  text-indent: 0;
+}
+
+/* ถ้าปุ่มมี svg ให้ย้ายเข้าไปในวง */
+.admin-ios .dash-hero-actions a > svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* เว้นข้อความให้พ้นวง */
+.admin-ios .dash-hero-actions a {
+  padding-left: 50px !important;
+  position: relative;
+}
+
+/* ------------------------------------------------- Launchpad: ไอคอนในวง */
+.admin-ios .ceo-cat-card a {
+  padding-left: 46px !important;
+  position: relative;
+}
+
+.admin-ios .ceo-cat-card a > span:first-child {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid !important;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: rgba(168, 132, 63, .12);
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .18) inset;
+  font-size: 14px;
+  line-height: 1;
+  z-index: 2;
+}
+
+/* ซ่อนลูกศร ↗ ให้เหลือแต่ไอคอนหลัก (กระชับขึ้น) */
+.admin-ios .ceo-cat-card a > span:last-child {
+  opacity: .35;
+  font-size: 10px;
+}
+
+/* --------------------------------------------------- แท็บ: ไอคอนในวง */
+.admin-ios .tabs a,
+.admin-ios .tabs button {
+  padding-left: 12px !important;
+}
+
+/* ---------------------------------------- ปุ่ม cookie: ไอคอนในวงเช่นกัน */
+.admin-ios .cookie-consent-accept,
+.admin-ios .cookie-consent-essential {
+  padding-left: 14px !important;
+}
+
+/* ------------------------------ Fallback: ปุ่มที่ไม่มีไอคอน วงจะยังสวย */
+.admin-ios .dash-hero-actions a:not([href])::before {
+  opacity: .5;
+}
+
+/* ==========================================================================
+   Glow pills v3 — แก้ไอคอนซ้อนวง (ภาพจริงพบ emoji ทับวงกลม)
+   --------------------------------------------------------------------------
+   ปัญหาในภาพ: emoji ที่เป็น text node แรกของ <a> ไม่ใช่ element จึงจัด flex
+   ไม่ได้ → มันไหลไปชิดวง (::before) แล้วทับกันเป็นจุดเบลอ
+   วิธีแก้ที่แน่นอน: ไม่ใช้ flex gap กับ text node แต่ใช้ padding-left + ::before
+   เป็นวงกลมอยู่ซ้าย และปล่อยให้ข้อความ (emoji + label) เริ่มหลังวง
+   ========================================================================== */
+
+/* ปุ่ม hero: วงกลมเป็น background ไม่ใช่ flex item */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0 !important;
+  padding: 0 16px 0 52px !important;
+  text-align: left !important;
+  line-height: 1.15 !important;
+}
+
+/* วงกลมไอคอน: absolute ด้านซ้าย ไม่มี margin ที่ดันข้อความ */
+.admin-ios .dash-hero-actions .btn-hero::before,
+.admin-ios .dash-hero-actions a::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 28px !important;
+  height: 28px !important;
+  margin: 0 !important;
+  border-radius: 9px !important;
+  background: rgba(248, 216, 136, .16) !important;
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .22) inset,
+              0 2px 8px -4px rgba(248, 216, 136, .5) !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+/* ข้อความทั้งหมด (รวม emoji) เป็น flex child ที่ 2 — ไม่ทับวง */
+.admin-ios .dash-hero-actions .btn-hero > span,
+.admin-ios .dash-hero-actions a > span,
+.admin-ios .dash-hero-actions .btn-hero > svg,
+.admin-ios .dash-hero-actions a > svg {
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+  z-index: 2 !important;
+  flex: 0 0 auto;
+}
+
+/* emoji นำหน้าข้อความ: ย่อขนาดให้พอดีและจัดให้อยู่ในบรรทัดเดียว */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  font-size: 12.5px !important;
+  white-space: normal !important;
+  overflow: visible !important;
+}
+
+/* ถ้า emoji เป็น text node เดี่ยว (ไม่มี span ครอบ) — ดันให้เริ่มหลังวง */
+.admin-ios .dash-hero-actions a:not(:has(> span)) {
+  padding-left: 16px !important;
+}
+
+/* ------------------------- Launchpad: ใช้วิธีเดียวกัน ไม่ให้ไอคอนทับ */
+.admin-ios .ceo-cat-card a {
+  padding: 0 12px 0 46px !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.admin-ios .ceo-cat-card a::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 8px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9px !important;
+  background: rgba(168, 132, 63, .12) !important;
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .18) inset !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+}
+
+/* ยกเลิกกฎ v2 ที่ย้าย span แรกไป absolute (ทำให้ซ้อนกับ ::before) */
+.admin-ios .ceo-cat-card a > span:first-child {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  font-size: 13px !important;
+  z-index: 2 !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 7px;
+}
+
+/* ให้วงอยู่หลังไอคอนจริง: ไอคอน (emoji) ต้องอยู่ตำแหน่งเดียวกับวง
+   → ใช้ text-indent ลบให้ emoji ลงไปในวง */
+.admin-ios .ceo-cat-card a > span:first-child > span:first-child,
+.admin-ios .ceo-cat-card a > span:first-child > svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 14px;
+  font-size: 13px;
+  line-height: 1;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+}
+
+/* ==========================================================================
+   Glow pills v4 — วางไอคอน (emoji/svg) ไว้กลางวงกลม
+   --------------------------------------------------------------------------
+   วัดจริง: btn 257x44, padding-left 52px
+            circle ::before left 12px width 28px -> center 26px
+            emoji (text node) x=53px  -> อยู่นอกวง
+   เป้าหมายจากภาพอ้างอิง: ไอคอนต้องอยู่ "ใน" วงกลม ซ้ายสุด
+   วิธี: ใช้ text-indent ติดลบดึง text node กลับเข้าไปในวง
+         แล้วดันข้อความที่เหลือกลับด้วย padding
+   ========================================================================== */
+
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  padding-left: 50px !important;
+  text-indent: -34px !important;   /* ดึง emoji กลับเข้าเขตวง */
+  font-size: 12.5px !important;
+  line-height: 44px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* ข้อความที่เหลือ: เยื้องกลับให้อ่านง่าย */
+.admin-ios .dash-hero-actions .btn-hero > span,
+.admin-ios .dash-hero-actions a > span {
+  text-indent: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* emoji ขนาดเดียวกับวง: ย่อให้พอดี */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  letter-spacing: .01em;
+}
+
+/* ============ Launchpad: ทำแบบเดียวกัน แต่วงอยู่ที่ 8px ============ */
+.admin-ios .ceo-cat-card a {
+  padding: 0 12px 0 44px !important;
+  text-indent: -30px !important;
+  line-height: 42px !important;
+}
+
+.admin-ios .ceo-cat-card a > span:first-child {
+  text-indent: 0 !important;
+}
+
+/* ถ้าอยากให้ emoji จัดกลางวงจริง ๆ (แม่นกว่า text-indent)
+   ใช้วิธี absolute ที่มีขนาดเท่าวง แล้วซ่อนเฉพาะ emoji ในลูป */
+.admin-ios .dash-hero-actions a > .ios-btn-icon,
+.admin-ios .ceo-cat-card a > .ios-btn-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+  line-height: 1;
+  text-indent: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.admin-ios .ceo-cat-card a > .ios-btn-icon {
+  left: 8px;
+}
+
+/* ==========================================================================
+   Glow pills v5 — จัดวางไอคอน/ข้อความหลัง JS แยก emoji ออกมาแล้ว
+   --------------------------------------------------------------------------
+   DOM ใหม่: <a><span class="ios-btn-icon">📓</span><span class="ios-btn-label">CEO Notebook</span></a>
+   → จัดด้วย flex ได้ตามปกติ ไม่ต้องใช้ text-indent อีก
+   ========================================================================== */
+
+/* ยกเลิก text-indent จาก v4 */
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a,
+.admin-ios .ceo-cat-card a {
+  text-indent: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .dash-hero-actions a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 16px 0 10px !important;
+  line-height: 1.2 !important;
+}
+
+/* วงกลม: ปล่อยให้เป็นพื้นที่ของไอคอนเท่านั้น (ไม่ใช้ ::before วาดวงแล้ว) */
+.admin-ios .dash-hero-actions .btn-hero::before,
+.admin-ios .dash-hero-actions a::before {
+  display: none !important;
+}
+
+/* ไอคอน = วงกลมจริง มีทั้งพื้นและไอคอนอยู่ข้างใน */
+.admin-ios .ios-btn-icon {
+  flex: 0 0 auto !important;
+  display: grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 9px !important;
+  background: rgba(248, 216, 136, .16) !important;
+  box-shadow: 0 0 0 1px rgba(248, 216, 136, .22) inset,
+              0 2px 8px -4px rgba(248, 216, 136, .5) !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  text-indent: 0 !important;
+  position: static !important;
+  transform: none !important;
+  z-index: 2;
+}
+
+/* ข้อความ */
+.admin-ios .ios-btn-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-indent: 0 !important;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+/* ---------- Launchpad: ใช้สไตล์เดียว แต่พื้นวงเป็นสีทองอ่อน ---------- */
+.admin-ios .ceo-cat-card a {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 12px 0 8px !important;
+  min-height: 42px !important;
+  line-height: 1.2 !important;
+}
+
+.admin-ios .ceo-cat-card a::before { display: none !important; }
+
+.admin-ios .ceo-cat-card a .ios-btn-icon {
+  background: rgba(168, 132, 63, .12) !important;
+  box-shadow: 0 0 0 1px rgba(168, 132, 63, .18) inset !important;
+  font-size: 13px !important;
+}
+
+/* ปุ่ม hero ที่ไม่มี emoji (เช่นไอคอน svg อยู่แล้ว) — ให้ข้อความชิดซ้ายปกติ */
+.admin-ios .dash-hero-actions a:not(:has(.ios-btn-icon)) {
+  padding-left: 16px !important;
+}
+
+/* -------------------------------------------------- Responsive ---------- */
+@media (max-width: 1180px) {
+  .admin-ios .dash-hero-actions a { font-size: 12px !important; }
+  .admin-ios .ios-btn-icon { width: 26px !important; height: 26px !important; font-size: 13px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-ios .dash-hero-actions a,
+  .admin-ios .ceo-cat-card a { transition: none !important; }
+}

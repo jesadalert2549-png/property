@@ -104,6 +104,53 @@
     ripple(el, 0, 0);
   });
 
+  /* ---------------------------------------------------------------------
+     Split the leading emoji out of a button label into its own element so
+     CSS can centre it inside the glass circle.
+     "📓 CEO Notebook"  ->  <span class=ios-btn-icon>📓</span><span>CEO Notebook</span>
+     Skipped when the label already starts with an element (e.g. an svg).
+     --------------------------------------------------------------------- */
+  var EMOJI_RE = /^([\p{Extended_Pictographic}\u{1F300}-\u{1FAFF}\u2600-\u27BF]+)\s*/u;
+
+  function splitIcon(btn) {
+    if (!btn || btn.dataset.iosIconSplit === '1') return;
+    var first = btn.firstChild;
+    if (!first || first.nodeType !== 3) return; // only bare text nodes
+
+    var text = first.textContent;
+    var m = text.match(EMOJI_RE);
+    if (!m) return;
+
+    btn.dataset.iosIconSplit = '1';
+
+    var icon = document.createElement('span');
+    icon.className = 'ios-btn-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = m[1];
+
+    var label = document.createElement('span');
+    label.className = 'ios-btn-label';
+    label.textContent = text.slice(m[0].length);
+
+    btn.replaceChild(label, first);
+    btn.insertBefore(icon, label);
+  }
+
+  function splitAll() {
+    if (!document.body.classList.contains('admin-ios')) return;
+    document
+      .querySelectorAll('.dash-hero-actions a, .ceo-cat-card a')
+      .forEach(splitIcon);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', splitAll);
+  } else {
+    splitAll();
+  }
+  /* เผื่อ DOM ถูกวาดทีหลัง (PHP render หลังสุดของ body) */
+  window.addEventListener('load', splitAll);
+
   if (hasHover && !reduceMotion) {
     document.addEventListener('pointermove', function (e) {
       if (!scoped()) return;
