@@ -136,6 +136,25 @@ body:has(.listing-form) .site-controls,
 }
 
 .cookie-consent[hidden] { display: none; }
+
+/* หน้า login/register: กล่องฟอร์มอยู่กึ่งกลางจอและยาวเกือบเต็มความสูง
+   banner มุมขวาล่างจึงทับปุ่ม Facebook/LINE — ย่อ banner และชิดขอบล่างมากขึ้น */
+.login-wrap ~ .cookie-consent,
+.auth-page ~ .cookie-consent,
+body:has(.login-wrap) .cookie-consent {
+  width: min(340px, calc(100vw - 24px));
+  right: 12px;
+  bottom: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  max-height: 42vh;
+}
+@media (max-width: 480px) {
+  body:has(.login-wrap) .cookie-consent {
+    width: calc(100vw - 24px);
+    max-height: 38vh;
+  }
+}
 .cookie-consent h2 { margin: 0 0 8px; color: #2b2150; font-size: 18px; }
 .cookie-consent p { margin: 0 0 12px; }
 .cookie-consent .cookie-consent-error { color: #b42318; font-weight: 700; }

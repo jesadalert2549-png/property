@@ -5,7 +5,14 @@ require_once __DIR__ . '/includes/oauth.php';
 require_once __DIR__ . '/includes/auth_media.php';
 current_lang();
 
+/* ⚠ background-image ใช้ได้เฉพาะรูปภาพ — ถ้าเป็นการตั้งค่าวีดีโอ ค่า url จะเป็น .mp4
+   เบราว์เซอร์จะโหลด MP4 ทั้งไฟล์ (75 MB) แล้วทิ้ง เพราะใช้เป็น background ไม่ได้
+   ที่นี่จึงส่งเฉพาะเมื่อเป็นไฟล์รูป ส่วนวิดีโอจัดการผ่าน <video> ใน render_auth_background_media() */
 $authBgUrl = get_auth_background();
+$authBgIsImage = $authBgUrl !== '' && preg_match('/\.(jpe?g|png|webp|avif|gif|svg)$/i', $authBgUrl) === 1;
+$authBgImageCss = $authBgIsImage
+    ? "background-image: linear-gradient(135deg, rgba(9, 24, 39, .84), rgba(24, 50, 75, .58)), url('" . e($authBgUrl) . "');"
+    : 'background-image: linear-gradient(135deg, rgba(9, 24, 39, .84), rgba(24, 50, 75, .58));';
 
 $error = '';
 $success = '';
@@ -67,7 +74,7 @@ if (request_is_post()) {
   <?php site_controls_head(); lang_toggle_head(); ?>
 </head>
 <body class="auth-page">
-<div class="login-wrap" style="background-image: linear-gradient(135deg, rgba(9, 24, 39, .84), rgba(24, 50, 75, .58)), url('<?= e($authBgUrl) ?>');">
+<div class="login-wrap" style="<?= $authBgImageCss ?>">
   <?php render_auth_background_media(); ?>
   <div class="login-box auth-card--register">
     <?= render_logo_html('index.php') ?>
@@ -115,6 +122,7 @@ render_page_cta([
     'ghost'   => ['search.php', t('ดูประกาศทั้งหมด', 'View all listings')],
 ]);
 render_to_top(); render_ux_scripts();
-render_site_footer(); ?>
+render_site_footer();
+render_auth_background_script(); ?>
 </body>
 </html>

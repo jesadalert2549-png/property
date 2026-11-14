@@ -57,9 +57,84 @@ function get_auth_background(): string
 function render_auth_background_media(): void
 {
     $m = get_auth_media();
-    if ($m['type'] === 'video') {
-        echo '<video class="auth-video-bg" src="' . e($m['url']) . '" autoplay muted loop playsinline preload="auto"></video>' . "\n";
+    if ($m['type'] !== 'video') {
+        return;
     }
+
+    /* วิดีโอพื้นหลังหน้า login เดิมใช้ preload="auto" + src ตรง ๆ ทำให้เบราว์เซอร์
+       เริ่มโหลด MP4 ขนาดหลาย MB ก่อนที่ฟอร์มจะแสดง (วัดได้ ~7 วินาทีกว่าจะ load เสร็จ
+       และเกิด ERR_ABORTED ซ้ำ เพราะถูกยกเลิกกลางทาง)
+       แก้แบบเดียวกับ hero ของหน้าแรก: preload="none" + data-src + poster
+       แล้วค่อยเริ่มโหลดหลังหน้าพร้อม (ดู render_auth_background_script) */
+
+    /* ใช้ภาพพื้นหลังจากตัว CSS ของ .login-wrap เป็น poster แทน
+       (Gemini_Generated_Image เป็น PNG พื้นโปร่ง _ใช้เป็น poster ไม่ได้ จะเห็นเป็นตาราง)_ */
+    $poster = '';
+    $candidates = [
+        'uploads/prop_6ad2e524889cc6.57339303.jpg', // ภาพเดียวกับที่ .login-wrap ใช้
+        'images/auth-poster.jpg',
+        'images/auth-poster.webp',
+    ];
+    foreach ($candidates as $candidate) {
+        if (is_file(dirname(__DIR__) . '/' . $candidate)) {
+            $poster = $candidate;
+            break;
+        }
+    }
+
+    echo '<video class="auth-video-bg js-auth-video" muted loop playsinline preload="none"'
+        . ($poster !== '' ? ' poster="' . e($poster) . '"' : '')
+        . ' data-src="' . e($m['url']) . '" aria-hidden="true" tabindex="-1"></video>' . "\n";
+}
+
+/**
+ * สคริปต์โหลดวิดีโอพื้นหลังหน้า login แบบไม่บล็อกการแสดงผล
+ * วางไว้ท้าย <body> หรือ调用 render_auth_background_media() แล้วต่อด้วยฟังก์ชันนี้
+ */
+function render_auth_background_script(): void
+{
+    static $done = false;
+    if ($done) {
+        return;
+    }
+    $done = true;
+    ?>
+<script>
+(function () {
+  var v = document.querySelector('.js-auth-video');
+  if (!v) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var conn = navigator.connection || {};
+  if (reduce || conn.saveData === true || /(^|-)2g$/.test(conn.effectiveType || '')) return;
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    var src = v.getAttribute('data-src');
+    if (!src) return;
+    // รอให้วิดีโอโหลด metadata เสร็จก่อนค่อยเล่น (กัน abort เมื่อเปลี่ยน src ถี่)
+    v.addEventListener('loadeddata', function once() {
+      v.removeEventListener('loadeddata', once);
+      var p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    });
+    v.preload = 'auto';
+    v.src = src;
+    v.load();
+  }
+  var kick = function () {
+    setTimeout(function () {
+      // ถ้าผู้ใช้เริ่มพิมพ์หรือเลื่อนหน้าไปแล้ว ไม่ต้องโหลดวิดีโอให้เปลืองแบนด์วิดท์
+      if (document.hidden) return;
+      if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 5000 });
+      else start();
+    }, 3500);
+  };
+  if (document.readyState === 'complete') kick();
+  else window.addEventListener('load', kick, { once: true });
+})();
+</script>
+    <?php
 }
 
 

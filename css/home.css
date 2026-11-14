@@ -680,30 +680,47 @@ body {
 .social-auth { margin-top: 22px; }
 .social-auth-divider { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; color: #8491a0; font-size: 12.5px; font-weight: 600; text-align: center; }
 .social-auth-divider:before, .social-auth-divider:after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
-.social-auth-buttons { display: grid; gap: 11px; }
+/* ===== Social auth buttons — iOS style =====
+   แนวคิด: รับน้ำหนักด้วยปุ่มสูง 52px (>= 44pt ของ Apple), มุมโค้ง 14px,
+   ไอคอนซ้ายในวงกลม 28px, ข้อความกึ่งกลาง, :active ย่อ 0.97 ให้สัมผัสตอบสนอง */
+.social-auth-buttons { display: grid; gap: 12px; }
 .social-auth-form { display: block !important; margin: 0; }
 .social-auth-button {
   position: relative;
   display: flex;
   width: 100%;
-  min-height: 50px;
+  min-height: 52px;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  padding: 10px 18px;
-  border-radius: 12px;
+  gap: 10px;
+  padding: 0 56px 0 56px;
+  border: 1px solid transparent;
+  border-radius: 14px;
   font: inherit;
-  font-size: 14.5px;
+  font-size: 15px;
   font-weight: 700;
+  letter-spacing: -0.01em;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(11, 28, 51, 0.06);
-  transition: transform .2s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  box-shadow: 0 1px 2px rgba(11, 28, 51, .06), 0 6px 18px rgba(11, 28, 51, .07);
+  transition: transform .16s cubic-bezier(.32,.72,0,1), box-shadow .2s ease, filter .16s ease, background .2s ease;
+  will-change: transform;
 }
-.social-auth-button:hover:not(:disabled) {
-  transform: translateY(-2px);
+@media (hover: hover) {
+  .social-auth-button:hover:not(:disabled) { transform: translateY(-1px); }
 }
 .social-auth-button:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
+  transform: scale(.975);
+  filter: brightness(.96);
+  box-shadow: 0 1px 2px rgba(11, 28, 51, .1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .social-auth-button { transition: none; }
+  .social-auth-button:hover:not(:disabled),
+  .social-auth-button:active:not(:disabled) { transform: none; }
 }
 .social-auth-button:focus-visible {
   outline: 3px solid rgba(197, 160, 89, 0.5);
@@ -718,52 +735,111 @@ body {
   box-shadow: none !important;
 }
 
-/* 1) Google Button - White background */
-.social-google {
+/* 1) Google — พื้นขาวขอบบาง (ตาม guideline ของ Google) */
+.social-auth-button.social-google {
   background: #ffffff !important;
-  border: 1px solid #d1d9e2 !important;
-  color: #1e293b !important;
+  border-color: #dadce0 !important;
+  color: #1f1f1f !important;
 }
-.social-google:hover:not(:disabled) {
-  background: #f8fafc !important;
-  border-color: #4285F4 !important;
-  box-shadow: 0 8px 22px rgba(66, 133, 244, 0.18) !important;
+@media (hover: hover) {
+  .social-auth-button.social-google:hover:not(:disabled) {
+    background: #f8f9fa !important;
+    border-color: #c6cbd1 !important;
+  }
 }
 
-/* 2) LINE Button - White background like Google */
-.social-line {
-  background: #ffffff !important;
-  border: 1px solid #d1d9e2 !important;
-  color: #1e293b !important;
+/* 2) LINE — แบรนด์เขียว (ปุ่มทึบเหมือนแอป LINE) */
+.social-auth-button.social-line {
+  background: #06C755 !important;
+  border-color: #05b34c !important;
+  color: #ffffff !important;
 }
-.social-line:hover:not(:disabled) {
-  background: #f8fafc !important;
-  border-color: #06C755 !important;
-  box-shadow: 0 8px 22px rgba(6, 199, 85, 0.18) !important;
-}
-
-/* 3) Facebook Button - White background like Google */
-.social-facebook {
-  background: #ffffff !important;
-  border: 1px solid #d1d9e2 !important;
-  color: #1e293b !important;
-}
-.social-facebook:hover:not(:disabled) {
-  background: #f8fafc !important;
-  border-color: #1877F2 !important;
-  box-shadow: 0 8px 22px rgba(24, 119, 242, 0.18) !important;
+@media (hover: hover) {
+  .social-auth-button.social-line:hover:not(:disabled) {
+    background: #05b94f !important;
+  }
 }
 
+/* 3) Facebook — น้ำเงินแบรนด์ */
+.social-auth-button.social-facebook {
+  background: #1877F2 !important;
+  border-color: #1466d2 !important;
+  color: #ffffff !important;
+}
+@media (hover: hover) {
+  .social-auth-button.social-facebook:hover:not(:disabled) {
+    background: #166fe0 !important;
+  }
+}
+
+/* ไอคอนซ้าย: วงกลม 28px มีพื้นอ่อน (iOS list style) */
 .social-auth-icon {
   position: absolute;
-  left: 16px;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(11, 28, 51, .12);
+  flex: 0 0 auto;
 }
-.social-auth-privacy { margin: 14px 0 0; color: #8793a0; font-size: 11px; line-height: 1.6; text-align: center; }
-.social-auth-privacy a { color: #0B1C33; font-weight: 700; text-decoration: underline; }
+.social-auth-icon svg { display: block; }
+
+/* ปุ่มที่ยังไม่ตั้งค่า: ลดความเด่นลง แต่ยังรองรับ contrast */
+.social-auth-button:disabled { filter: grayscale(1); }
+
+/* จอเล็กมาก: ลดขอบข้อความให้พอดี */
+@media (max-width: 360px) {
+  .social-auth-button { padding: 0 14px 0 52px; font-size: 14px; }
+  .social-auth-icon { left: 12px; width: 26px; height: 26px; }
+}
+/* ข้อความความเป็นส่วนตัว: เดิม 11px ทำให้อ่านยากบนมือถือ (Apple แนะนำ >= 12px)
+   ตัวลิงก์เดิมเป็น inline ทำให้บรรทัดตัดกลางประโยคและเยื้องแปลก → ทำเป็น block */
+.social-auth-privacy {
+  margin: 16px 0 0;
+  color: #8793a0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  text-align: center;
+  text-wrap: pretty;
+  max-width: 42ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+.social-auth-privacy a {
+  color: #0B1C33;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+/* ตัวคั่น "หรือดำเนินการต่อด้วย" ให้ดูสมดุลขึ้น */
+.social-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 20px 0 14px;
+  color: #94a3b8;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.social-auth-divider::before,
+.social-auth-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #e2e8f0 30%, #e2e8f0 70%, transparent);
+}
+.social-auth-divider span { flex: 0 0 auto; }
+
+/* ช่องว่างระหว่างปุ่มหลัก (login) กับกลุ่ม social */
+.social-auth { margin-top: 20px; }
 
 .auth-links a {
   color: var(--home-ink);
@@ -1505,41 +1581,71 @@ body {
   box-shadow: 0 10px 26px rgba(197, 160, 89, 0.5) !important; 
 }
 
-/* Authentic Social Auth Button Styles */
+/* ===== Social auth — iOS style (ชุดสุดท้าย · ชนะทุกกฎก่อนหน้า) =====
+   ขนาด/มุม/น้ำหนัก ตาม Apple HIG: สูง >= 52px, radius 14px, ตัวอักษร 15px/700
+   และทุกปุ่มมีไอคอนในวงกลม 28px อยู่ซ้าย ข้อความอยู่กึ่งกลาง ------------- */
 .social-auth-button {
-  font-family: "Prompt", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  font-size: 14px !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Prompt", "Inter", "Segoe UI", Roboto, sans-serif !important;
+  font-size: 15px !important;
   font-weight: 700 !important;
-  min-height: 48px !important;
+  letter-spacing: -0.01em !important;
+  min-height: 52px !important;
+  border-radius: 14px !important;
 }
+
+/* Google — พื้นขาว ขอบบาง (ตาม Google Sign-In branding) */
 .social-auth-button.social-google {
   background: #ffffff !important;
-  color: #1f2937 !important;
-  border: 1px solid #d1d5db !important;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
+  color: #1f1f1f !important;
+  border: 1px solid #dadce0 !important;
+  box-shadow: 0 1px 2px rgba(11,28,51,.06), 0 6px 18px rgba(11,28,51,.07) !important;
 }
 .social-auth-button.social-google:hover:not(:disabled) {
-  background: #f9fafb !important;
-  border-color: #9ca3af !important;
+  background: #f8f9fa !important;
+  border-color: #c6cbd1 !important;
 }
+
+/* LINE — เขียวแบรนด์ */
 .social-auth-button.social-line {
   background: #06C755 !important;
   color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(6,199,85,0.25) !important;
+  border: 1px solid #05b34c !important;
+  box-shadow: 0 1px 2px rgba(6,199,85,.18), 0 6px 18px rgba(6,199,85,.22) !important;
 }
-.social-auth-button.social-line:hover:not(:disabled) {
-  background: #05b34c !important;
-}
+.social-auth-button.social-line:hover:not(:disabled) { background: #05b94f !important; }
+
+/* Facebook — น้ำเงินแบรนด์ */
 .social-auth-button.social-facebook {
   background: #1877F2 !important;
   color: #ffffff !important;
-  border: none !important;
-  box-shadow: 0 4px 12px rgba(24,119,242,0.25) !important;
+  border: 1px solid #1466d2 !important;
+  box-shadow: 0 1px 2px rgba(24,119,242,.18), 0 6px 18px rgba(24,119,242,.22) !important;
 }
-.social-auth-button.social-facebook:hover:not(:disabled) {
-  background: #1466d2 !important;
+.social-auth-button.social-facebook:hover:not(:disabled) { background: #166fe0 !important; }
+
+/* ข้อความกึ่งกลาง + chevron ขวาบน (iOS disclosure) */
+.social-auth-label {
+  display: block;
+  width: 100%;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+.social-auth-chevron {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+  opacity: .45;
+  pointer-events: none;
+}
+.social-google .social-auth-chevron { color: #9aa0a6; }
+.social-line .social-auth-chevron,
+.social-facebook .social-auth-chevron { color: #ffffff; opacity: .7; }
 
 
 /* Mobile zoom & pan enabled */
