@@ -197,6 +197,7 @@ $pageTitle = ($memberDisplayName) . ' (@' . $memberProfile['username'] . ') | ' 
   <link rel="stylesheet" href="css/style.css?v=<?= e((string)filemtime(__DIR__ . '/css/style.css')) ?>">
   <link rel="stylesheet" href="css/member-portal.css?v=<?= e((string)filemtime(__DIR__ . '/css/member-portal.css')) ?>">
   <?php site_controls_head(); lang_toggle_head(); ?>
+  <link rel="stylesheet" href="css/analytics.css?v=<?= e((string)filemtime(__DIR__ . '/css/analytics.css')) ?>">
 </head>
 <body class="member-portal-body member-theme-light">
 
@@ -256,6 +257,12 @@ $pageTitle = ($memberDisplayName) . ' (@' . $memberProfile['username'] . ') | ' 
             <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z"/></svg>
             <span><?= e(t('ประกาศของฉัน', 'My Listings')) ?></span>
             <span class="tt-nav-badge"><?= count($myProperties) ?></span>
+          </a>
+        </li>
+        <li>
+          <a href="#tab-analytics" class="tt-nav-item" data-tab-nav="tab-analytics" onclick="switchTab('tab-analytics')">
+            <svg viewBox="0 0 24 24"><path d="M3 13h4v8H3v-8zm7-9h4v17h-4V4zm7 5h4v12h-4V9z"/></svg>
+            <span><?= e(t('วิเคราะห์ประกาศ', 'Analytics')) ?></span>
           </a>
         </li>
         <li>
@@ -512,6 +519,260 @@ $pageTitle = ($memberDisplayName) . ' (@' . $memberProfile['username'] . ') | ' 
               <?php endforeach; ?>
             </div>
           <?php endif; ?>
+        </div>
+
+                <!-- ══ Tab Pane: วิเคราะห์ประกาศ (Analytics) ══ -->
+        <div class="tt-tab-pane" id="tab-analytics">
+          <?php
+            require_once __DIR__ . '/includes/analytics.php';
+            $analyticsDays = (int)($_GET['pa'] ?? 7);
+            if (!in_array($analyticsDays, [7, 30, 90], true)) { $analyticsDays = 7; }
+
+            $paSummary  = analytics_user_summary($pdo, (int)$_SESSION['user_id'], $analyticsDays);
+            $paDaily    = analytics_daily_views($pdo, (int)$_SESSION['user_id'], $analyticsDays <= 7 ? 7 : ($analyticsDays === 30 ? 30 : 30));
+            $paTop      = analytics_top_properties($pdo, (int)$_SESSION['user_id'], $analyticsDays, 5);
+            $paAudience = analytics_audience($pdo, (int)$_SESSION['user_id'], $analyticsDays);
+            $paMaxDaily = max(1, max(array_column($paDaily, 'count')));
+            $paViewsPct = analytics_pct_change($paSummary['views'], $paSummary['views_prev']);
+          ?>
+          <div class="pa-wrap">
+            <div class="pa-head">
+              <div>
+                <h2><?= e(t('ภาพรวมประกาศของคุณ', 'Your listing performance')) ?></h2>
+                <p><?= e(t('ดูว่าประกาศของคุณมีคนสนใจแค่ไหน และควรปรับอะไรให้ได้ผลขึ้น', 'See how your listings are doing and what to improve next.')) ?></p>
+              </div>
+              <nav class="pa-segment" aria-label="<?= e(t('ช่วงเวลา', 'Period')) ?>">
+                <?php foreach ([7 => '7 วัน', 30 => '30 วัน', 90 => '90 วัน'] as $d => $lbl): ?>
+                  <a href="?pa=<?= (int)$d ?>#tab-analytics"
+                     class="<?= $analyticsDays === $d ? 'is-active' : '' ?>"
+                     onclick="event.preventDefault();setAnalyticsDays(<?= (int)$d ?>)"><?= e($lbl) ?></a>
+                <?php endforeach; ?>
+              </nav>
+            </div>
+
+            <?php if (!$myProperties): ?>
+              <div class="pa-card">
+                <div class="pa-empty">
+                  <div class="pa-empty-icon">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 13h4v8H3v-8zm7-9h4v17h-4V4zm7 5h4v12h-4V9z"/></svg>
+                  </div>
+                  <h3><?= e(t('ยังไม่มีประกาศให้วิเคราะห์', 'No listings to analyse yet')) ?></h3>
+                  <p><?= e(t('ลงประกาศแรกของคุณ แล้วระบบจะเริ่มเก็บข้อมูลผู้เข้าชมให้อัตโนมัติ', 'Publish your first listing and we will start tracking visitors for you.')) ?></p>
+                  <a class="pa-btn" href="submit.php"><?= e(t('ลงประกาศเลย', 'Post a listing')) ?></a>
+                </div>
+              </div>
+            <?php else: ?>
+
+              <!-- ตัวเลขหลัก 4 ตัว -->
+              <div class="pa-stats">
+                <div class="pa-stat pa-stat--views">
+                  <span class="pa-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                  <span class="pa-stat-value"><?= number_format($paSummary['views']) ?></span>
+                  <span class="pa-stat-label"><?= e(t('การเข้าชม', 'Views')) ?></span>
+                  <?php if ($paViewsPct !== null): ?>
+                    <span class="pa-delta <?= $paViewsPct > 0 ? 'is-up' : ($paViewsPct < 0 ? 'is-down' : 'is-flat') ?>">
+                      <?= $paViewsPct > 0 ? '↑' : ($paViewsPct < 0 ? '↓' : '→') ?> <?= abs($paViewsPct) ?>%
+                    </span>
+                  <?php endif; ?>
+                </div>
+                <div class="pa-stat pa-stat--clicks">
+                  <span class="pa-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 9 5 12 1.8-5.2L21 14z"/><path d="M7.2 2.2 8 5.1M5.1 8 2.2 7.2M14 4.1 12 6M4.1 14 6 12"/></svg></span>
+                  <span class="pa-stat-value"><?= number_format($paSummary['clicks']) ?></span>
+                  <span class="pa-stat-label"><?= e(t('การคลิก', 'Clicks')) ?></span>
+                </div>
+                <div class="pa-stat pa-stat--favs">
+                  <span class="pa-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
+                  <span class="pa-stat-value"><?= number_format($paSummary['favorites']) ?></span>
+                  <span class="pa-stat-label"><?= e(t('บันทึกไว้', 'Saved')) ?></span>
+                </div>
+                <div class="pa-stat pa-stat--ctr">
+                  <span class="pa-stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></span>
+                  <span class="pa-stat-value"><?= $paSummary['ctr'] ?>%</span>
+                  <span class="pa-stat-label"><?= e(t('อัตราการคลิก', 'Click rate')) ?></span>
+                </div>
+              </div>
+
+              <!-- กราฟการดูรายวัน -->
+              <div class="pa-card">
+                <div class="pa-card-head">
+                  <h3><?= e(t('การเข้าชมรายวัน', 'Views per day')) ?></h3>
+                  <span class="pa-sub"><?= e(t('สูงสุด ', 'Peak ') . number_format($paMaxDaily)) ?></span>
+                </div>
+                <?php
+                  $hasDaily = array_sum(array_column($paDaily, 'count')) > 0;
+                ?>
+                <?php if (!$hasDaily): ?>
+                  <div class="pa-chart-empty"><?= e(t('ยังไม่มีข้อมูลการเข้าชมในช่วงนี้ — แชร์ลิงก์ประกาศของคุณเพื่อเริ่มเก็บข้อมูล', 'No views in this period yet. Share your listing link to start collecting data.')) ?></div>
+                <?php else: ?>
+                  <div class="pa-chart" role="img" aria-label="<?= e(t('กราฟการเข้าชมรายวัน', 'Daily views chart')) ?>">
+                    <?php foreach ($paDaily as $day):
+                      $h = analytics_bar_percent($day['count'], $paMaxDaily);
+                    ?>
+                      <div class="pa-bar-col<?= $day['count'] === 0 ? ' is-zero' : '' ?>">
+                        <span class="pa-bar-value"><?= $day['count'] > 0 ? (int)$day['count'] : '' ?></span>
+                        <span class="pa-bar" style="height:<?= $h ?>%"></span>
+                        <span class="pa-bar-label"><?= e($day['label']) ?></span>
+                      </div>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <!-- ประกาศที่ได้ผลดีที่สุด -->
+              <div class="pa-card">
+                <div class="pa-card-head">
+                  <h3><?= e(t('ประกาศที่ได้ผลดีที่สุด', 'Best performing listings')) ?></h3>
+                  <span class="pa-sub"><?= e($analyticsDays . t(' วัน', ' days')) ?></span>
+                </div>
+                <?php if (!$paTop): ?>
+                  <div class="pa-chart-empty"><?= e(t('ยังไม่มีข้อมูล', 'No data yet')) ?></div>
+                <?php else:
+                  $topMax = max(1, max(array_map(static fn($x) => (int)$x['recent_views'], $paTop)));
+                ?>
+                  <div class="pa-rank-list">
+                    <?php foreach ($paTop as $i => $p): ?>
+                      <a class="pa-rank-row" href="property.php?id=<?= (int)$p['id'] ?>" target="_blank" rel="noopener">
+                        <span class="pa-rank-num"><?= $i + 1 ?></span>
+                        <span class="pa-rank-body">
+                          <span class="pa-rank-title"><?= e($p['title']) ?></span>
+                          <span class="pa-rank-meta">
+                            <span><?= e(price_label((string)$p['type'], (int)$p['price'])) ?></span>
+                            <span>·</span>
+                            <span>❤ <?= (int)$p['favs'] ?></span>
+                          </span>
+                          <span class="pa-rank-bar"><i style="width:<?= analytics_bar_percent((int)$p['recent_views'], $topMax) ?>%"></i></span>
+                        </span>
+                        <span class="pa-rank-count"><?= number_format((int)$p['recent_views']) ?><small><?= e(t('ครั้ง', 'views')) ?></small></span>
+                      </a>
+                    <?php endforeach; ?>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <!-- ผู้ชม -->
+              <div class="pa-card">
+                <div class="pa-card-head">
+                  <h3><?= e(t('ผู้ชมของคุณ', 'Your audience')) ?></h3>
+                </div>
+                <?php
+                  $paTotal = max(0, (int)$paAudience['total']);
+                  $paMob = (int)$paAudience['devices']['mobile'];
+                  $paDesk = (int)$paAudience['devices']['desktop'];
+                  $paMobPct = $paTotal > 0 ? (int)round($paMob / $paTotal * 100) : 0;
+                  $paDeskPct = $paTotal > 0 ? 100 - $paMobPct : 0;
+                  $paRefs = $paAudience['referrers'];
+                  $paRefTotal = max(1, array_sum($paRefs));
+                  $paRefLabels = [
+                    'search' => t('ค้นหา', 'Search'),
+                    'social' => t('โซเชียล', 'Social'),
+                    'direct' => t('เข้าตรง', 'Direct'),
+                    'other'  => t('อื่น ๆ', 'Other'),
+                  ];
+                ?>
+                <?php if ($paTotal === 0): ?>
+                  <div class="pa-chart-empty"><?= e(t('ยังไม่มีข้อมูลผู้ชม', 'No audience data yet')) ?></div>
+                <?php else: ?>
+                  <div class="pa-audience">
+                    <div class="pa-meter">
+                      <div class="pa-meter-head">
+                        <span><?= e(t('มือถือ', 'Mobile')) ?> <?= $paMobPct ?>%</span>
+                        <b><?= e(t('คอมพิวเตอร์', 'Desktop')) ?> <?= $paDeskPct ?>%</b>
+                      </div>
+                      <div class="pa-meter-track">
+                        <span style="width:<?= $paMobPct ?>%"></span>
+                        <span style="width:<?= $paDeskPct ?>%"></span>
+                      </div>
+                    </div>
+                    <div class="pa-chips">
+                      <?php foreach ($paRefs as $k => $v):
+                        if ($v <= 0) continue;
+                      ?>
+                        <span class="pa-chip"><?= e($paRefLabels[$k] ?? $k) ?> <b><?= (int)round($v / $paRefTotal * 100) ?>%</b></span>
+                      <?php endforeach; ?>
+                    </div>
+                  </div>
+                <?php endif; ?>
+              </div>
+
+              <!-- สุขภาพประกาศ (คะแนน + คำแนะนำ) -->
+              <?php
+                $paHealthProp = null;
+                foreach ($myProperties as $mp) {
+                  $paHealthProp = $mp;
+                  break;
+                }
+                if ($paHealthProp) {
+                  $paHealthRow = $pdo->prepare('SELECT * FROM properties WHERE id = ? LIMIT 1');
+                  $paHealthRow->execute([(int)$paHealthProp['id']]);
+                  $paHealthData = $paHealthRow->fetch(PDO::FETCH_ASSOC) ?: null;
+                }
+              ?>
+              <?php if (!empty($paHealthData)): $h = listing_health_score($pdo, $paHealthData); ?>
+                <div class="pa-card">
+                  <div class="pa-card-head">
+                    <h3><?= e(t('ตรวจสุขภาพประกาศ', 'Listing health check')) ?></h3>
+                    <span class="pa-sub"><?= e(t('ให้คะแนนจากข้อมูลที่กรอก', 'Scored from your listing details')) ?></span>
+                  </div>
+                  <div class="pa-health">
+                    <div class="pa-score">
+                      <?php
+                        $r = 38; $circ = 2 * M_PI * $r;
+                        $offset = $circ * (1 - $h['score'] / 100);
+                        $ringColor = $h['tone'] === 'great' ? '#12805C' : ($h['tone'] === 'good' ? '#1B62B8' : ($h['tone'] === 'ok' ? '#A8843F' : '#C0392B'));
+                      ?>
+                      <div class="pa-score-ring">
+                        <svg width="92" height="92" viewBox="0 0 92 92" aria-hidden="true">
+                          <circle class="track" cx="46" cy="46" r="38" fill="none" stroke-width="8"/>
+                          <circle class="value" cx="46" cy="46" r="38" fill="none"
+                                  stroke="<?= $ringColor ?>" stroke-width="8"
+                                  stroke-dasharray="<?= round($circ, 2) ?>"
+                                  stroke-dashoffset="<?= round($offset, 2) ?>"/>
+                        </svg>
+                        <span class="num"><?= (int)$h['score'] ?><small>/100</small></span>
+                      </div>
+                      <div class="pa-score-info">
+                        <span class="pa-verdict pa-verdict--<?= e($h['tone']) ?>"><?= e($h['verdict']) ?></span>
+                        <span class="pa-score-name"><?= e((string)$paHealthData['title']) ?></span>
+                        <span class="pa-score-price"><?= e(price_label((string)$paHealthData['type'], (int)$paHealthData['price'])) ?></span>
+                      </div>
+                    </div>
+
+                    <div class="pa-checklist">
+                      <?php foreach ($h['checks'] as $c): ?>
+                        <div class="pa-check<?= $c['ok'] ? '' : ' is-missing' ?>">
+                          <span class="pa-check-dot"><?= $c['ok'] ? '✓' : '!' ?></span>
+                          <span class="pa-check-label"><?= e($c['label']) ?></span>
+                          <span class="pa-check-detail"><?= e($c['detail']) ?></span>
+                        </div>
+                      <?php endforeach; ?>
+                    </div>
+
+                    <?php if ($h['tips']): ?>
+                      <div class="pa-tips">
+                        <?php foreach ($h['tips'] as $tip): ?>
+                          <div class="pa-tip">
+                            <span class="pa-tip-icon">!</span>
+                            <span><?= e($tip) ?></span>
+                          </div>
+                        <?php endforeach; ?>
+                      </div>
+                    <?php endif; ?>
+                  </div>
+                </div>
+              <?php endif; ?>
+
+            <?php endif; ?>
+          </div>
+
+          <script>
+            /* เปลี่ยนช่วงเวลาโดยไม่ต้องโหลดหน้าใหม่ทั้งหมด */
+            function setAnalyticsDays(d) {
+              var url = new URL(window.location.href);
+              url.searchParams.set('pa', d);
+              url.hash = 'tab-analytics';
+              window.location.href = url.toString();
+            }
+          </script>
         </div>
 
                 <!-- ══ Tab Pane 2: วิดีโอ Reels ══ -->
@@ -995,6 +1256,8 @@ document.addEventListener('DOMContentLoaded', function() {
   var hash = window.location.hash;
   if (hash === '#my-posts' || hash === '#grid-listings' || hash === '#tab-listings') {
     switchTab('tab-listings');
+  } else if (hash === '#tab-analytics' || hash === '#analytics') {
+    switchTab('tab-analytics');
   } else if (hash === '#my-videos' || hash === '#tab-videos') {
     switchTab('tab-videos');
   } else if (hash === '#my-projects' || hash === '#tab-projects') {

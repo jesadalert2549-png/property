@@ -1,0 +1,795 @@
+/* ==========================================================================
+   Property Analytics — iOS style
+   --------------------------------------------------------------------------
+   หลักการออกแบบ:
+     • การ์ดมุมโค้ง 20px เงานุ่มสองชั้น พื้นขาวบนแคนวาสเทาอ่อน
+     • ตัวเลขสำคัญใช้ tabular numerals ขนาดใหญ่ (แบบ iOS Health/Wallet)
+     • ไอคอนในวงกลมสีอ่อน 44px (แบบ SF Symbols container)
+     • กราฟแท่งเรียบ ๆ ไม่มีเส้นกริด ไม่มีแกนรก
+     • ระยะหายใจ 16px, gap 14px, ตัวอักษร 13px รอง / 15px หลัก
+     • ทุกอย่างแตะได้ ≥ 44px
+   ========================================================================== */
+
+.pa-wrap {
+  --pa-bg: #F2F5F9;
+  --pa-card: #FFFFFF;
+  --pa-line: #E8EDF4;
+  --pa-ink: #101828;
+  --pa-ink-2: #475467;
+  --pa-muted: #8A94A6;
+  --pa-gold: #A8843F;
+  --pa-gold-soft: #FBF4E4;
+  --pa-green: #12805C;
+  --pa-green-soft: #E7F6EF;
+  --pa-red: #C0392B;
+  --pa-red-soft: #FDECEA;
+  --pa-blue: #1B62B8;
+  --pa-blue-soft: #EAF2FC;
+  --pa-radius: 20px;
+  --pa-ease: cubic-bezier(.32, .72, 0, 1);
+
+  display: grid;
+  gap: 14px;
+  padding: 0 8px;
+}
+
+/* ---------------------------------------------------------- หัวเรื่อง */
+.pa-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 2px;
+}
+
+.pa-head h2 {
+  margin: 0 !important;
+  font-size: 22px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--pa-ink) !important;
+  line-height: 1.2 !important;
+}
+
+.pa-head p {
+  margin: 4px 0 0 !important;
+  font-size: 13px;
+  color: var(--pa-muted);
+  line-height: 1.5;
+}
+
+/* ตัวเลือกระยะเวลา: segmented control แบบ iOS */
+.pa-segment {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 12px;
+  background: #E6EBF2;
+  gap: 2px;
+}
+
+.pa-segment a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  min-width: 48px;
+  padding: 0 12px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--pa-ink-2);
+  text-decoration: none;
+  transition: background-color .16s ease, color .16s ease, box-shadow .16s ease;
+}
+
+.pa-segment a.is-active {
+  background: #fff;
+  color: var(--pa-ink);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, .14);
+}
+
+.pa-segment a:active {
+  transform: scale(.97);
+}
+
+/* ------------------------------------------------------ การ์ดพื้นฐาน */
+.pa-card {
+  background: var(--pa-card);
+  border-radius: var(--pa-radius);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, .05), 0 8px 24px -8px rgba(16, 24, 40, .10);
+  padding: 18px;
+  overflow: hidden;
+}
+
+.pa-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.pa-card-head h3 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--pa-ink) !important;
+}
+
+.pa-card-head .pa-sub {
+  font-size: 12px;
+  color: var(--pa-muted);
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------- ตัวเลขหลัก */
+.pa-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pa-stat {
+  background: var(--pa-bg);
+  border-radius: 16px;
+  padding: 13px 14px 14px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: transform .16s var(--pa-ease);
+}
+
+/* ไอคอนมี margin ล่างของตัวเอง → ไม่ต้องเว้นซ้ำ */
+.pa-stat .pa-stat-icon { margin-bottom: 7px; }
+.pa-stat .pa-stat-value { margin-top: 0; }
+.pa-stat .pa-stat-label { margin-bottom: 2px; }
+.pa-stat .pa-delta { margin-top: 5px; }
+
+.pa-stat:active {
+  transform: scale(.985);
+}
+
+.pa-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--pa-ink-2);
+  margin-bottom: 2px;
+}
+
+.pa-stat-icon svg {
+  width: 17px;
+  height: 17px;
+  display: block;
+}
+
+.pa-stat--views .pa-stat-icon {
+  background: var(--pa-blue-soft);
+  color: var(--pa-blue);
+}
+
+.pa-stat--clicks .pa-stat-icon {
+  background: var(--pa-gold-soft);
+  color: var(--pa-gold);
+}
+
+.pa-stat--favs .pa-stat-icon {
+  background: var(--pa-red-soft);
+  color: var(--pa-red);
+}
+
+.pa-stat--ctr .pa-stat-icon {
+  background: var(--pa-green-soft);
+  color: var(--pa-green);
+}
+
+.pa-stat-value {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--pa-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pa-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ป้ายเทียบช่วงก่อน */
+.pa-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  align-self: flex-start;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-delta.is-up {
+  background: var(--pa-green-soft);
+  color: var(--pa-green);
+}
+
+.pa-delta.is-down {
+  background: var(--pa-red-soft);
+  color: var(--pa-red);
+}
+
+.pa-delta.is-flat {
+  background: #EEF1F5;
+  color: var(--pa-muted);
+}
+
+/* ------------------------------------------------------------ กราฟแท่ง */
+.pa-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 132px;
+  padding-top: 6px;
+}
+
+.pa-bar-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.pa-bar {
+  width: 100%;
+  max-width: 30px;
+  border-radius: 6px 6px 3px 3px;
+  background: linear-gradient(180deg, #D9C089 0%, #A8843F 100%);
+  min-height: 3px;
+  transition: height .4s var(--pa-ease);
+}
+
+.pa-bar-col.is-zero .pa-bar {
+  background: #E6EBF2;
+  min-height: 3px;
+}
+
+.pa-bar-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--pa-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-bar-value {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--pa-ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-chart-empty {
+  display: grid;
+  place-items: center;
+  min-height: 120px;
+  color: var(--pa-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 0 20px;
+  line-height: 1.6;
+}
+
+/* ------------------------------------------------------- รายการจัดอันดับ */
+.pa-rank-list {
+  display: grid;
+  gap: 10px;
+}
+
+.pa-rank-row {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 14px;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color .16s ease;
+}
+
+.pa-rank-row:hover {
+  background: var(--pa-bg);
+}
+
+.pa-rank-row:active {
+  background: #E9EEF5;
+}
+
+.pa-rank-num {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 9px;
+  background: var(--pa-bg);
+  color: var(--pa-ink-2);
+  font-size: 12px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-rank-row:first-child .pa-rank-num {
+  background: var(--pa-gold-soft);
+  color: var(--pa-gold);
+}
+
+.pa-rank-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pa-rank-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--pa-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pa-rank-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--pa-muted);
+  font-weight: 600;
+}
+
+.pa-rank-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: #EDF1F6;
+  overflow: hidden;
+}
+
+.pa-rank-bar>i {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #D9C089, #A8843F);
+}
+
+.pa-rank-count {
+  text-align: right;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--pa-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pa-rank-count small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--pa-muted);
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------ ผู้ชม */
+.pa-audience {
+  display: grid;
+  gap: 14px;
+}
+
+.pa-meter {
+  display: grid;
+  gap: 6px;
+}
+
+.pa-meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--pa-ink-2);
+}
+
+.pa-meter-head b {
+  font-size: 13px;
+  color: var(--pa-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-meter-track {
+  height: 8px;
+  border-radius: 999px;
+  background: #EDF1F6;
+  overflow: hidden;
+  display: flex;
+}
+
+.pa-meter-track>span {
+  display: block;
+  height: 100%;
+}
+
+.pa-meter-track>span:first-child {
+  background: linear-gradient(90deg, #6FA8E8, #1B62B8);
+  border-radius: 999px 0 0 999px;
+}
+
+.pa-meter-track>span:last-child {
+  background: #CBD5E1;
+  border-radius: 0 999px 999px 0;
+}
+
+.pa-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--pa-bg);
+  color: var(--pa-ink-2);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.pa-chip b {
+  color: var(--pa-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------- สุขภาพประกาศ */
+.pa-health {
+  display: grid;
+  gap: 14px;
+}
+
+.pa-score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pa-score-ring {
+  position: relative;
+  flex: 0 0 auto;
+  width: 92px;
+  height: 92px;
+  display: grid;
+  place-items: center;
+}
+
+.pa-score-ring svg {
+  transform: rotate(-90deg);
+  display: block;
+}
+
+.pa-score-ring .track {
+  stroke: #EDF1F6;
+}
+
+.pa-score-ring .value {
+  stroke-linecap: round;
+  transition: stroke-dashoffset .6s ease;
+}
+
+.pa-score-ring .num {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--pa-ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.pa-score-ring .num small {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pa-muted);
+  margin-left: 1px;
+}
+
+.pa-score-info {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+
+.pa-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.pa-verdict--great {
+  background: var(--pa-green-soft);
+  color: var(--pa-green);
+}
+
+.pa-verdict--good {
+  background: var(--pa-blue-soft);
+  color: var(--pa-blue);
+}
+
+.pa-verdict--ok {
+  background: var(--pa-gold-soft);
+  color: var(--pa-gold);
+}
+
+.pa-verdict--low {
+  background: var(--pa-red-soft);
+  color: var(--pa-red);
+}
+
+.pa-score-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--pa-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pa-score-price {
+  font-size: 12.5px;
+  color: var(--pa-muted);
+  font-weight: 600;
+}
+
+/* รายการตรวจ */
+.pa-checklist {
+  display: grid;
+  gap: 8px;
+}
+
+.pa-check {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  background: var(--pa-bg);
+}
+
+.pa-check-dot {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--pa-green-soft);
+  color: var(--pa-green);
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.pa-check.is-missing .pa-check-dot {
+  background: var(--pa-red-soft);
+  color: var(--pa-red);
+}
+
+.pa-check-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--pa-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pa-check-detail {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--pa-muted);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* คำแนะนำ */
+.pa-tips {
+  display: grid;
+  gap: 8px;
+}
+
+.pa-tip {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 10px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  background: var(--pa-gold-soft);
+  border: 1px solid rgba(168, 132, 63, .18);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #6B5223;
+}
+
+.pa-tip-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: rgba(168, 132, 63, .18);
+  color: var(--pa-gold);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* ------------------------------------------------------ สถานะว่าง */
+.pa-empty {
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  padding: 44px 20px;
+  text-align: center;
+}
+
+.pa-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--pa-bg);
+  color: var(--pa-muted);
+}
+
+.pa-empty h3 {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: var(--pa-ink) !important;
+}
+
+.pa-empty p {
+  margin: 0 !important;
+  font-size: 13px;
+  color: var(--pa-muted);
+  line-height: 1.6;
+  max-width: 34ch;
+}
+
+.pa-empty .pa-btn {
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #E5CB96, #C5A059);
+  color: #0B1C33;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(197, 160, 89, .3);
+}
+
+.pa-empty .pa-btn:active {
+  transform: scale(.97);
+}
+
+/* ------------------------------------------------------------ มือถือ */
+@media (max-width: 900px) {
+  .pa-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pa-stat-value {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 520px) {
+  .pa-card {
+    padding: 15px;
+    border-radius: 18px;
+  }
+
+  .pa-head h2 {
+    font-size: 20px !important;
+  }
+
+  .pa-chart {
+    height: 112px;
+    gap: 4px;
+  }
+
+  .pa-bar-label {
+    font-size: 9px;
+  }
+
+  .pa-bar-value {
+    font-size: 9.5px;
+  }
+
+  .pa-score-ring {
+    width: 80px;
+    height: 80px;
+  }
+
+  .pa-score-ring .num {
+    font-size: 21px;
+  }
+
+  .pa-wrap {
+    padding: 0;
+    gap: 12px;
+  }
+
+  .pa-stats {
+    gap: 8px;
+  }
+
+  .pa-stat {
+    padding: 12px;
+    border-radius: 14px;
+  }
+
+  .pa-stat-value {
+    font-size: 20px;
+  }
+
+  .pa-stat-label {
+    font-size: 11.5px;
+  }
+
+  .pa-card {
+    padding: 14px;
+  }
+
+  .pa-card-head h3 {
+    font-size: 14px !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .pa-bar,
+  .pa-score-ring .value,
+  .pa-stat,
+  .pa-segment a {
+    transition: none !important;
+  }
+}
