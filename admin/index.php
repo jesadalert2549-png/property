@@ -188,6 +188,10 @@ $approvalLabel = [
   <?php lang_toggle_head(); site_controls_head(); ?>
   <?php /* iOS skin — โหลดท้ายสุดเพื่อทับสไตล์เดิม (เฉพาะหน้านี้) */ ?>
   <link rel="stylesheet" href="ios-admin.css?v=<?= e((string) filemtime(__DIR__ . '/ios-admin.css')) ?>">
+  <?php /* เอฟเฟกต์แตะปุ่ม: ripple ตรงตำแหน่งนิ้ว + haptic + แสงตามเมาส์
+           ใช้ async แทน defer เพราะหน้า admin มี resource หนักที่ทำให้ defer
+           ถูกเลื่อนไปจนถึง load event (วัดได้ 11 วินาที) */ ?>
+  <script async src="ios-admin-fx.js?v=<?= e((string) filemtime(__DIR__ . '/ios-admin-fx.js')) ?>"></script>
 </head>
 <body class="has-admin-sidebar admin-ios">
 <?php require __DIR__ . '/_sidebar.php'; ?>

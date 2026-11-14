@@ -1403,3 +1403,137 @@ body.admin-ios .wrap {
   .admin-ios .wrap,
   body.admin-ios .wrap { padding-bottom: 210px !important; }
 }
+
+/* ==========================================================================
+   iOS 26/27 — tactile effects (ทำงานคู่กับ ios-admin-fx.js)
+   --------------------------------------------------------------------------
+   • วงแสงกระจกเกิดตรงจุดที่นิ้วแตะ แล้วขยายจางหาย (specular ripple)
+   • ปุ่มยุบตัว .96 ระหว่างกด คืนตัวด้วยสปริง
+   • แสงไล่ตามเมาส์บนเดสก์ท็อป (ตัวแปร --fx-x/--fx-y จาก JS)
+   ========================================================================== */
+
+/* ต้องมี relative + overflow hidden เพื่อให้วงแสงถูกตัดในกรอบปุ่ม */
+.admin-ios .scard,
+.admin-ios .ceo-cat-card,
+.admin-ios .ceo-cat-card a,
+.admin-ios .dash-hero-actions a,
+.admin-ios .dash-hero-actions .btn-hero,
+.admin-ios .btn,
+.admin-ios .btn-action,
+.admin-ios .featured-manage-banner > a,
+.admin-ios .admin-nav-item-link,
+.admin-ios .admin-nav-dropdown-btn,
+.admin-ios .tabs a,
+.admin-ios .tabs button,
+.admin-ios .pill {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  transform: translateZ(0); /* ให้ blur/sprite เนียนบน Safari */
+}
+
+/* ------------------------------------------------ วงแสงขยายจากจุดที่แตะ */
+.ios-ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle,
+      rgba(255, 255, 255, .55) 0%,
+      rgba(255, 255, 255, .28) 34%,
+      rgba(255, 255, 255, 0) 70%);
+  transform: scale(0);
+  opacity: .9;
+  animation: ios-ripple-out .62s cubic-bezier(.22, 1, .36, 1) forwards;
+  mix-blend-mode: screen;
+}
+
+/* บนพื้นเข้ม ใช้แสงทองเพื่อให้เห็นชัด */
+.admin-ios .admin-nav-item-link .ios-ripple,
+.admin-ios .admin-nav-dropdown-btn .ios-ripple,
+.admin-ios .dash-hero-actions a .ios-ripple,
+.admin-ios .dash-hero-actions .btn-hero .ios-ripple {
+  background: radial-gradient(circle,
+      rgba(248, 216, 136, .62) 0%,
+      rgba(248, 216, 136, .26) 36%,
+      rgba(248, 216, 136, 0) 72%);
+  mix-blend-mode: normal;
+}
+
+@keyframes ios-ripple-out {
+  0%   { transform: scale(0);   opacity: .85; }
+  55%  { opacity: .55; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+
+/* --------------------------------------------------- ปุ่มยุบตัวขณะกด */
+.admin-ios .scard.ios-pressing,
+.admin-ios .ceo-cat-card.ios-pressing,
+.admin-ios .dash-hero-actions a.ios-pressing,
+.admin-ios .btn.ios-pressing,
+.admin-ios .admin-nav-item-link.ios-pressing,
+.admin-ios .admin-nav-dropdown-btn.ios-pressing,
+.admin-ios .tabs a.ios-pressing,
+.admin-ios .tabs button.ios-pressing,
+.admin-ios .ceo-cat-card a.ios-pressing,
+.admin-ios .featured-manage-banner > a.ios-pressing {
+  transform: scale(.962) !important;
+  transition: transform .12s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+/* ---------------------------------- แสงไล่ตามเมาส์ (เฉพาะเมื่อ hover จริง) */
+.admin-ios .scard.ios-hovering::after,
+.admin-ios .ceo-cat-card.ios-hovering::after,
+.admin-ios .ceo-cat-card a.ios-hovering::after,
+.admin-ios .dash-hero-actions a.ios-hovering::after,
+.admin-ios .tabs a.ios-hovering::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: radial-gradient(220px 160px at var(--fx-x, 50%) var(--fx-y, 50%),
+      rgba(255, 255, 255, .30), transparent 70%);
+  opacity: 0;
+  transition: opacity .22s ease;
+}
+
+.admin-ios .scard.ios-hovering::after,
+.admin-ios .ceo-cat-card.ios-hovering::after,
+.admin-ios .ceo-cat-card a.ios-hovering::after,
+.admin-ios .dash-hero-actions a.ios-hovering::after,
+.admin-ios .tabs a.ios-hovering::after { opacity: 1; }
+
+/* ให้เนื้อหาอยู่เหนือเอฟเฟกต์ */
+.admin-ios .scard > *,
+.admin-ios .ceo-cat-card > *,
+.admin-ios .ceo-cat-card a > *,
+.admin-ios .dash-hero-actions a > *,
+.admin-ios .tabs a > * { position: relative; z-index: 1; }
+
+/* ------------------------------------------ ยกตัว/เงาชัดขึ้นเมื่อ hover */
+@media (hover: hover) {
+  .admin-ios .scard.ios-hovering {
+    transform: translateY(-2px) !important;
+    box-shadow:
+      0 1px 1px rgba(255, 255, 255, .95) inset,
+      0 20px 42px -14px rgba(17, 24, 39, .26),
+      0 3px 8px rgba(17, 24, 39, .06) !important;
+  }
+  .admin-ios .ceo-cat-card.ios-hovering {
+    transform: translateY(-2px) !important;
+  }
+}
+
+/* ------------------------------------------------ เคารพ reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ios-ripple { display: none !important; }
+  .admin-ios .scard.ios-pressing,
+  .admin-ios .ceo-cat-card.ios-pressing,
+  .admin-ios .dash-hero-actions a.ios-pressing,
+  .admin-ios .btn.ios-pressing { transform: none !important; }
+  .admin-ios .scard.ios-hovering,
+  .admin-ios .ceo-cat-card.ios-hovering { transform: none !important; }
+}
