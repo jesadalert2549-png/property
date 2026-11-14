@@ -1608,3 +1608,153 @@ html body.admin-ios.admin-ios .admin-desktop-navbar {
 .admin-ios .admin-nav-dropdown-menu {
   z-index: 6000 !important;
 }
+
+/* ==========================================================================
+   Round 11 - every remaining text field and select, as rounded glass
+   --------------------------------------------------------------------------
+   The search pill is fine, but form controls that are NOT inside the pill
+   still paint as flat grey rectangles with square corners - for example the
+   username / handle field under the profile, and the quick filter inputs in
+   the admin panel. This block gives every text-like control the same
+   treatment: a 12px radius, a translucent white fill, a hairline light edge
+   and a soft focus ring.
+   ========================================================================== */
+
+body input[type="text"],
+body input[type="search"],
+body input[type="email"],
+body input[type="password"],
+body input[type="url"],
+body input[type="tel"],
+body input[type="number"],
+body input[type="date"],
+body select,
+body textarea {
+  box-sizing: border-box !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid rgba(255, 255, 255, .78) !important;
+  border-radius: 12px !important;
+
+  background-color: rgba(255, 255, 255, .72) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .82) 0%,
+    rgba(255, 255, 255, .56) 100%) !important;
+
+  -webkit-backdrop-filter: blur(18px) saturate(1.7) !important;
+  backdrop-filter: blur(18px) saturate(1.7) !important;
+
+  color: #14161A !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(120, 128, 145, .08) inset,
+    0 0 0 1px rgba(120, 128, 145, .10),
+    0 1px 2px rgba(17, 24, 39, .05),
+    0 6px 18px -12px rgba(17, 24, 39, .20) !important;
+
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .22s ease !important;
+}
+
+body textarea {
+  min-height: 110px !important;
+  padding: 12px 14px !important;
+  line-height: 1.6 !important;
+  resize: vertical;
+}
+
+body input::placeholder,
+body textarea::placeholder {
+  color: #8A94A6 !important;
+  opacity: 1;
+}
+
+body input:focus,
+body select:focus,
+body textarea:focus {
+  outline: none !important;
+  border-color: rgba(168, 132, 63, .55) !important;
+  background-color: rgba(255, 255, 255, .92) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 0 0 3px rgba(168, 132, 63, .16),
+    0 2px 4px rgba(17, 24, 39, .07),
+    0 10px 24px -12px rgba(168, 132, 63, .28) !important;
+}
+
+/* native select arrow, redrawn to match the glass style */
+body select {
+  padding-right: 38px !important;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, .82) 0%, rgba(255, 255, 255, .56) 100%),
+    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: center, right 14px center !important;
+  background-size: auto, 12px 8px !important;
+  cursor: pointer;
+}
+
+/* checkbox / radio must keep their native shape */
+body input[type="checkbox"],
+body input[type="radio"],
+body input[type="range"],
+body input[type="color"],
+body input[type="file"] {
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+body input[type="checkbox"],
+body input[type="radio"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  accent-color: #A8843F;
+}
+
+/* buttons and submits are handled elsewhere - do not double-style them */
+body input[type="submit"],
+body input[type="button"],
+body input[type="reset"],
+body input[type="image"] {
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* fallback for browsers without backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body input[type="text"],
+  body input[type="search"],
+  body input[type="email"],
+  body input[type="password"],
+  body input[type="tel"],
+  body input[type="number"],
+  body select,
+  body textarea {
+    background: rgba(255, 255, 255, .96) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body input,
+  body select,
+  body textarea { transition: none !important; }
+}

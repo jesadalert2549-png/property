@@ -1,0 +1,1570 @@
+/* ==========================================================================
+   Member portal — iOS 26/27 skin
+   --------------------------------------------------------------------------
+   Dashboard only. Loaded last on dashboard.php and scoped to
+   body.member-portal-body so nothing here can leak into other pages.
+
+   Design language (Liquid Glass, iOS 26/27):
+     - Layered canvas: two soft radial washes over a vertical gradient
+     - Frosted surfaces: rgba(255,255,255,.72) + blur(28px) saturate(1.8)
+     - Hairline strokes at 10% opacity instead of grey borders
+     - One gold accent, four semantic states, nothing else coloured
+     - Geometry: 26px cards, 12px controls, 40px touch targets
+     - Type: SF stack, weight 600-700, tabular numerals for stats
+     - Motion: 0.32s cubic-bezier(.34,1.2,.64,1), press .97
+   ========================================================================== */
+
+body.member-portal-body {
+  --im-canvas: #EEF1F6;
+  --im-glass: rgba(255, 255, 255, .72);
+  --im-glass-2: rgba(255, 255, 255, .86);
+  --im-hair: rgba(60, 60, 67, .10);
+  --im-stroke: rgba(255, 255, 255, .75);
+  --im-ink: #14161A;
+  --im-ink-2: #3C4149;
+  --im-muted: #7C8290;
+  --im-gold: #A8843F;
+  --im-gold-1: #E7D0A0;
+  --im-gold-2: #C5A059;
+  --im-ok: #2A9468;
+  --im-danger: #D9453B;
+  --im-r-lg: 26px;
+  --im-r-md: 18px;
+  --im-r-sm: 12px;
+  --im-ease: cubic-bezier(.34, 1.2, .64, 1);
+  --im-shadow:
+    0 1px 1px rgba(255, 255, 255, .9) inset,
+    0 10px 30px -12px rgba(17, 24, 39, .18),
+    0 2px 6px rgba(17, 24, 39, .05);
+  --im-shadow-hover:
+    0 1px 1px rgba(255, 255, 255, .95) inset,
+    0 18px 40px -14px rgba(17, 24, 39, .24),
+    0 3px 8px rgba(17, 24, 39, .06);
+}
+
+/* ======================================================== พื้นหลังมีมิติ */
+body.member-portal-body {
+  background:
+    radial-gradient(1100px 620px at 10% -6%, rgba(197, 160, 89, .16), transparent 62%),
+    radial-gradient(900px 540px at 94% 2%, rgba(86, 132, 200, .14), transparent 60%),
+    linear-gradient(180deg, #F4F6FA 0%, var(--im-canvas) 40%, #E6EBF3 100%) !important;
+  background-attachment: fixed !important;
+  color: var(--im-ink) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Prompt", "Inter", "Segoe UI", system-ui, sans-serif !important;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================== Topbar */
+body.member-portal-body .tt-header,
+body.member-portal-body .tt-topbar,
+body.member-portal-body .tt-header-bar {
+  background: rgba(255, 255, 255, .76) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  border-bottom: 1px solid var(--im-hair) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset !important;
+  color: var(--im-ink) !important;
+}
+
+/* ช่องค้นหาใน topbar */
+body.member-portal-body .tt-header-search input,
+body.member-portal-body .tt-header-search {
+  background: rgba(120, 128, 145, .09) !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px !important;
+  min-height: 38px !important;
+  color: var(--im-ink) !important;
+  font-size: 13.5px !important;
+  transition: background-color .18s ease, border-color .18s ease, box-shadow .2s ease;
+}
+
+body.member-portal-body .tt-header-search:focus-within {
+  background: #fff !important;
+  border-color: rgba(168, 132, 63, .45) !important;
+  box-shadow: 0 0 0 3px rgba(168, 132, 63, .14) !important;
+}
+
+/* ============================================================== Sidebar */
+body.member-portal-body .tt-sidebar {
+  background: var(--im-glass) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  backdrop-filter: blur(28px) saturate(1.8);
+  border-right: 1px solid var(--im-hair) !important;
+  border-radius: 0 var(--im-r-md) var(--im-r-md) 0 !important;
+  box-shadow: 1px 0 0 rgba(255, 255, 255, .7) inset;
+}
+
+body.member-portal-body .tt-nav-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-height: 42px !important;
+  padding: 0 12px !important;
+  border-radius: var(--im-r-sm) !important;
+  color: var(--im-ink-2) !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: background-color .18s ease, color .18s ease, transform .15s var(--im-ease) !important;
+}
+
+body.member-portal-body .tt-nav-item svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  opacity: .72;
+  transition: opacity .18s ease;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-nav-item:hover {
+    background: rgba(120, 128, 145, .10) !important;
+    color: var(--im-ink) !important;
+  }
+  body.member-portal-body .tt-nav-item:hover svg { opacity: 1; }
+}
+
+body.member-portal-body .tt-nav-item:active { transform: scale(.985); }
+
+body.member-portal-body .tt-nav-item.active {
+  background: rgba(255, 255, 255, .95) !important;
+  color: var(--im-ink) !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .08),
+    0 6px 16px -10px rgba(17, 24, 39, .30) !important;
+}
+
+body.member-portal-body .tt-nav-item.active svg { opacity: 1; color: var(--im-gold); }
+
+body.member-portal-body .tt-nav-badge {
+  margin-left: auto;
+  display: inline-grid !important;
+  place-items: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  background: rgba(120, 128, 145, .14) !important;
+  color: var(--im-muted) !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+  box-shadow: none !important;
+}
+
+body.member-portal-body .tt-nav-item.active .tt-nav-badge {
+  background: rgba(168, 132, 63, .16) !important;
+  color: var(--im-gold) !important;
+}
+
+body.member-portal-body .tt-sidebar-divider {
+  height: 1px !important;
+  margin: 12px 8px !important;
+  background: var(--im-hair) !important;
+  border: 0 !important;
+}
+
+/* ============================================================ Profile hero */
+body.member-portal-body .tt-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(11, 28, 51, .96) 0%, rgba(24, 48, 79, .92) 58%, rgba(168, 132, 63, .82) 138%) !important;
+  border: 0 !important;
+  border-radius: var(--im-r-lg) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .18) inset,
+    0 -1px 0 rgba(0, 0, 0, .12) inset,
+    0 18px 48px -18px rgba(11, 28, 51, .55) !important;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+/* specular highlight */
+body.member-portal-body .tt-profile-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(560px 180px at 8% 0%, rgba(255, 255, 255, .16), transparent 70%),
+    radial-gradient(420px 220px at 96% 100%, rgba(248, 216, 136, .14), transparent 72%);
+}
+
+body.member-portal-body .tt-profile-hero > * { position: relative; z-index: 1; }
+
+body.member-portal-body .tt-hero-title-row,
+body.member-portal-body .tt-hero-handle,
+body.member-portal-body .tt-hero-meta-col {
+  color: #fff !important;
+}
+
+body.member-portal-body .tt-hero-handle { color: rgba(255, 255, 255, .68) !important; }
+
+/* อวตาร: วงกลมขอบทอง */
+body.member-portal-body .tt-hero-avatar-box,
+body.member-portal-body .tt-hero-avatar-fallback {
+  border: 2px solid rgba(248, 216, 136, .55) !important;
+  box-shadow:
+    0 0 0 4px rgba(248, 216, 136, .12),
+    0 8px 24px -10px rgba(0, 0, 0, .5) !important;
+  border-radius: 50% !important;
+  overflow: hidden;
+}
+
+body.member-portal-body .tt-hero-avatar-fallback {
+  background: linear-gradient(160deg, rgba(255, 255, 255, .22), rgba(255, 255, 255, .08)) !important;
+  color: #FBE9BE !important;
+  font-weight: 700 !important;
+}
+
+/* สถิติใน hero */
+body.member-portal-body .tt-hero-stats { gap: 10px !important; }
+
+body.member-portal-body .tt-stat-col {
+  background: rgba(255, 255, 255, .10) !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 14px !important;
+  padding: 10px 14px !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .14) inset;
+}
+
+body.member-portal-body .tt-stat-col strong,
+body.member-portal-body .tt-stat-col b {
+  color: #fff !important;
+  font-variant-numeric: tabular-nums;
+}
+
+body.member-portal-body .tt-stat-col span,
+body.member-portal-body .tt-stat-col small {
+  color: rgba(255, 255, 255, .66) !important;
+  font-size: 11.5px !important;
+}
+
+/* ================================================================ Tabs */
+body.member-portal-body .tt-tab-bar,
+body.member-portal-body .tt-tab-nav {
+  display: inline-flex !important;
+  gap: 3px !important;
+  padding: 3px !important;
+  border-radius: 14px !important;
+  background: rgba(120, 128, 145, .12) !important;
+  border: 0 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset !important;
+}
+
+body.member-portal-body .tt-tab-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 32px !important;
+  padding: 0 14px !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  background: transparent !important;
+  color: #545A63 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
+  transition: background-color .18s ease, color .18s ease, box-shadow .2s ease !important;
+}
+
+body.member-portal-body .tt-tab-button.active {
+  background: #fff !important;
+  border-color: rgba(120, 128, 145, .14) !important;
+  color: var(--im-ink) !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .10), 0 4px 12px -8px rgba(17, 24, 39, .28) !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tab-button:not(.active):hover {
+    background: rgba(255, 255, 255, .55) !important;
+    color: var(--im-ink) !important;
+  }
+}
+
+body.member-portal-body .tt-tab-badge {
+  display: inline-grid !important;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px !important;
+  border-radius: 999px !important;
+  background: rgba(120, 128, 145, .16) !important;
+  color: var(--im-muted) !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+body.member-portal-body .tt-tab-button.active .tt-tab-badge {
+  background: rgba(168, 132, 63, .16) !important;
+  color: var(--im-gold) !important;
+}
+
+/* ================================================================ ปุ่ม */
+/* ระดับ 1: filled (ปุ่มหลัก) */
+body.member-portal-body .tt-btn-gold {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 40px !important;
+  padding: 0 18px !important;
+  border-radius: var(--im-r-sm) !important;
+  border: 1px solid rgba(168, 132, 63, .45) !important;
+  background: linear-gradient(160deg, var(--im-gold-1), var(--im-gold-2)) !important;
+  color: #2A2416 !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .55) inset,
+    0 3px 10px -4px rgba(168, 132, 63, .55) !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: filter .18s ease, transform .15s var(--im-ease), box-shadow .2s ease !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-btn-gold:hover { filter: brightness(1.05); }
+}
+
+body.member-portal-body .tt-btn-gold:active { transform: scale(.97); }
+
+/* ระดับ 2: tinted (ปุ่มรอง) */
+body.member-portal-body .tt-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  min-height: 38px !important;
+  padding: 0 14px !important;
+  border-radius: var(--im-r-sm) !important;
+  border: 1px solid var(--im-hair) !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: var(--im-ink-2) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .18s ease, border-color .18s ease,
+              color .18s ease, transform .15s var(--im-ease) !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-action-btn:hover {
+    background: #fff !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: var(--im-gold) !important;
+  }
+}
+
+body.member-portal-body .tt-action-btn:active { transform: scale(.97); }
+
+/* ปุ่มที่ทำลาย (ลบ) */
+body.member-portal-body .tt-action-btn.is-danger,
+body.member-portal-body .tt-action-btn[data-danger] {
+  color: var(--im-danger) !important;
+  border-color: rgba(217, 69, 59, .28) !important;
+  background: rgba(217, 69, 59, .08) !important;
+}
+
+/* โฟกัสทุกปุ่ม */
+body.member-portal-body .tt-btn-gold:focus-visible,
+body.member-portal-body .tt-action-btn:focus-visible,
+body.member-portal-body .tt-nav-item:focus-visible,
+body.member-portal-body .tt-tab-button:focus-visible {
+  outline: 3px solid rgba(168, 132, 63, .55) !important;
+  outline-offset: 2px !important;
+}
+
+/* ================================================================ การ์ด */
+body.member-portal-body .tt-card,
+body.member-portal-body .tt-video-card,
+body.member-portal-body .tt-card-tile-link,
+body.member-portal-body .tt-empty-feed {
+  background: var(--im-glass) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  backdrop-filter: blur(28px) saturate(1.8);
+  border: 1px solid var(--im-stroke) !important;
+  border-radius: var(--im-r-md) !important;
+  box-shadow: var(--im-shadow) !important;
+  overflow: hidden;
+  transition: transform .24s var(--im-ease), box-shadow .24s ease !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-video-card:hover,
+  body.member-portal-body .tt-card-tile-link:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--im-shadow-hover) !important;
+  }
+}
+
+body.member-portal-body .tt-video-card:active,
+body.member-portal-body .tt-card-tile-link:active { transform: scale(.985); }
+
+/* รูป/วิดีโอในการ์ด */
+body.member-portal-body .tt-video-media-wrap {
+  border-radius: 14px !important;
+  overflow: hidden;
+  background: #E6EBF3 !important;
+}
+
+body.member-portal-body .tt-video-media-wrap img,
+body.member-portal-body .tt-video-media-wrap video {
+  transition: transform .5s var(--im-ease);
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-video-card:hover .tt-video-media-wrap img { transform: scale(1.04); }
+}
+
+/* ป้ายบนการ์ด: glass pill */
+body.member-portal-body .tt-video-badge,
+body.member-portal-body .tt-tile-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  min-height: 26px !important;
+  padding: 0 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  background: rgba(11, 28, 51, .58) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  color: #fff !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(6, 15, 28, .2) !important;
+}
+
+/* ข้อความในการ์ด */
+body.member-portal-body .tt-tile-title {
+  font-size: 14.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: -.011em !important;
+  color: var(--im-ink) !important;
+  line-height: 1.35 !important;
+}
+
+body.member-portal-body .tt-tile-meta {
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  color: var(--im-muted) !important;
+  line-height: 1.4 !important;
+}
+
+body.member-portal-body .tt-tile-overlay {
+  background: linear-gradient(180deg, transparent 42%, rgba(11, 28, 51, .68) 100%) !important;
+}
+
+/* ====================================================== empty states */
+body.member-portal-body .tt-empty-feed {
+  padding: 46px 24px !important;
+  text-align: center;
+}
+
+body.member-portal-body .tt-empty-circle,
+body.member-portal-body .tt-card-empty-bg {
+  display: grid !important;
+  place-items: center;
+  width: 64px !important;
+  height: 64px !important;
+  margin: 0 auto 16px !important;
+  border-radius: 50% !important;
+  background: rgba(120, 128, 145, .10) !important;
+  color: var(--im-muted) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset !important;
+}
+
+body.member-portal-body .tt-empty-circle svg {
+  width: 26px !important;
+  height: 26px !important;
+  opacity: .8;
+}
+
+body.member-portal-body .tt-empty-title {
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: var(--im-ink) !important;
+  letter-spacing: -.015em;
+  margin: 0 0 6px !important;
+}
+
+body.member-portal-body .tt-empty-desc {
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  color: var(--im-muted) !important;
+  max-width: 44ch;
+  margin: 0 auto 18px !important;
+}
+
+body.member-portal-body .tt-empty-actions {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+/* ============================================================ ฟอร์ม */
+body.member-portal-body .tt-dark-field,
+body.member-portal-body .tt-dark-input {
+  width: 100% !important;
+  min-height: 42px !important;
+  padding: 0 14px !important;
+  border-radius: var(--im-r-sm) !important;
+  border: 1px solid var(--im-hair) !important;
+  background: rgba(255, 255, 255, .72) !important;
+  color: var(--im-ink) !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  transition: border-color .18s ease, box-shadow .2s ease, background-color .18s ease !important;
+}
+
+body.member-portal-body textarea.tt-dark-input {
+  padding: 12px 14px !important;
+  min-height: 110px !important;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+body.member-portal-body .tt-dark-input::placeholder,
+body.member-portal-body .tt-dark-field::placeholder {
+  color: #98A0AC !important;
+}
+
+body.member-portal-body .tt-dark-input:focus,
+body.member-portal-body .tt-dark-field:focus {
+  outline: none !important;
+  background: #fff !important;
+  border-color: rgba(168, 132, 63, .5) !important;
+  box-shadow: 0 0 0 3px rgba(168, 132, 63, .14) !important;
+}
+
+/* ==================================================== Bottom nav (มือถือ) */
+body.member-portal-body .tt-bottom-nav {
+  background: rgba(255, 255, 255, .82) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.8);
+  backdrop-filter: blur(28px) saturate(1.8);
+  border-top: 1px solid var(--im-hair) !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+}
+
+body.member-portal-body .tt-bottom-item {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-height: 48px;
+  color: var(--im-muted) !important;
+  font-size: 10.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: color .18s ease, transform .15s var(--im-ease) !important;
+}
+
+body.member-portal-body .tt-bottom-item.active { color: var(--im-gold) !important; }
+body.member-portal-body .tt-bottom-item:active { transform: scale(.94); }
+
+/* =============================================================== Toast */
+body.member-portal-body .tt-toast {
+  border-radius: 14px !important;
+  background: rgba(20, 22, 26, .92) !important;
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, .5) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+/* ============================================================ Responsive */
+@media (max-width: 900px) {
+  body.member-portal-body .tt-profile-hero { border-radius: 22px !important; }
+  body.member-portal-body .tt-nav-item { min-height: 44px !important; }
+  body.member-portal-body .tt-btn-gold,
+  body.member-portal-body .tt-action-btn { min-height: 40px !important; }
+}
+
+/* ===================================================== Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  body.member-portal-body .tt-video-card,
+  body.member-portal-body .tt-card-tile-link,
+  body.member-portal-body .tt-nav-item,
+  body.member-portal-body .tt-tab-button,
+  body.member-portal-body .tt-btn-gold,
+  body.member-portal-body .tt-action-btn {
+    transition: none !important;
+  }
+  body.member-portal-body .tt-video-card:hover,
+  body.member-portal-body .tt-card-tile-link:hover,
+  body.member-portal-body .tt-btn-gold:active,
+  body.member-portal-body .tt-action-btn:active { transform: none !important; }
+}
+
+/* ==========================================================================
+   Override pass — some values were still losing to member-portal.css
+   --------------------------------------------------------------------------
+   Measured on the real page before this block:
+     .tt-nav-item.active  background  rgb(254,243,199)  (amber, not white)
+     .tt-btn-gold         background  linear-gradient(#B38E46,#94712A)
+     .tt-video-card       radius      14px (expected 18px)
+     body                 background-image  none (gradient dropped)
+     .tt-action-btn       background  transparent
+
+   member-portal.css declares these with body-scoped selectors, so matching
+   its specificity is not enough. Each rule below repeats the class inside
+   the selector and adds !important, which is deterministic regardless of
+   the order the two files are combined in.
+   ========================================================================== */
+
+/* ---- canvas: gradient must survive ---- */
+html body.member-portal-body.member-portal-body {
+  background-color: #EEF1F6 !important;
+  background-image:
+    radial-gradient(1100px 620px at 10% -6%, rgba(197, 160, 89, .16), transparent 62%),
+    radial-gradient(900px 540px at 94% 2%, rgba(86, 132, 200, .14), transparent 60%),
+    linear-gradient(180deg, #F4F6FA 0%, #EEF1F6 40%, #E6EBF3 100%) !important;
+  background-attachment: fixed !important;
+  background-repeat: no-repeat !important;
+}
+
+/* ---- sidebar nav: active = white pill ---- */
+body.member-portal-body .tt-nav-item.tt-nav-item.active {
+  background: rgba(255, 255, 255, .96) !important;
+  color: #14161A !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .08),
+    0 6px 16px -10px rgba(17, 24, 39, .30) !important;
+  border: 1px solid rgba(168, 132, 63, .22) !important;
+}
+
+body.member-portal-body .tt-nav-item.tt-nav-item.active svg {
+  color: #A8843F !important;
+  opacity: 1 !important;
+}
+
+body.member-portal-body .tt-nav-item.tt-nav-item.active .tt-nav-badge {
+  background: rgba(168, 132, 63, .16) !important;
+  color: #A8843F !important;
+}
+
+body.member-portal-body .tt-nav-item.tt-nav-item:not(.active) {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  color: #3C4149 !important;
+}
+
+/* ---- primary button ---- */
+body.member-portal-body .tt-btn-gold.tt-btn-gold {
+  background: linear-gradient(160deg, #E7D0A0 0%, #C5A059 100%) !important;
+  background-color: #C5A059 !important;
+  color: #2A2416 !important;
+  border: 1px solid rgba(168, 132, 63, .45) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .55) inset,
+    0 3px 10px -4px rgba(168, 132, 63, .55) !important;
+}
+
+/* ---- secondary button ---- */
+body.member-portal-body .tt-action-btn.tt-action-btn {
+  background: rgba(255, 255, 255, .78) !important;
+  border: 1px solid rgba(60, 60, 67, .12) !important;
+  color: #3C4149 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-action-btn.tt-action-btn:hover {
+    background: #FFFFFF !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: #A8843F !important;
+  }
+}
+
+/* ---- cards ---- */
+body.member-portal-body .tt-video-card.tt-video-card,
+body.member-portal-body .tt-card-tile-link.tt-card-tile-link,
+body.member-portal-body .tt-empty-feed.tt-empty-feed {
+  background: rgba(255, 255, 255, .72) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
+  backdrop-filter: blur(28px) saturate(1.8) !important;
+  border: 1px solid rgba(255, 255, 255, .78) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 1px 1px rgba(255, 255, 255, .9) inset,
+    0 10px 30px -12px rgba(17, 24, 39, .18),
+    0 2px 6px rgba(17, 24, 39, .05) !important;
+}
+
+/* ---- sidebar surface ---- */
+body.member-portal-body .tt-sidebar.tt-sidebar {
+  background: rgba(255, 255, 255, .72) !important;
+  -webkit-backdrop-filter: blur(28px) saturate(1.8) !important;
+  backdrop-filter: blur(28px) saturate(1.8) !important;
+  border-right: 1px solid rgba(60, 60, 67, .10) !important;
+  border-radius: 0 18px 18px 0 !important;
+}
+
+/* ---- tabs ---- */
+body.member-portal-body .tt-tab-button.tt-tab-button {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 11px !important;
+  color: #545A63 !important;
+}
+
+body.member-portal-body .tt-tab-button.tt-tab-button.active {
+  background: #FFFFFF !important;
+  border-color: rgba(120, 128, 145, .14) !important;
+  color: #14161A !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .10), 0 4px 12px -8px rgba(17, 24, 39, .28) !important;
+}
+
+/* ---- hero surface ---- */
+body.member-portal-body .tt-profile-hero.tt-profile-hero {
+  background:
+    linear-gradient(135deg, rgba(11, 28, 51, .96) 0%, rgba(24, 48, 79, .92) 58%, rgba(168, 132, 63, .82) 138%) !important;
+  border: 0 !important;
+  border-radius: 26px !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .18) inset,
+    0 -1px 0 rgba(0, 0, 0, .12) inset,
+    0 18px 48px -18px rgba(11, 28, 51, .55) !important;
+}
+
+/* ---- hero text must stay light ---- */
+body.member-portal-body .tt-profile-hero h1,
+body.member-portal-body .tt-profile-hero h2,
+body.member-portal-body .tt-profile-hero .tt-hero-name {
+  color: #FFFFFF !important;
+}
+
+body.member-portal-body .tt-profile-hero p,
+body.member-portal-body .tt-profile-hero .tt-hero-handle,
+body.member-portal-body .tt-profile-hero .tt-hero-meta {
+  color: rgba(255, 255, 255, .70) !important;
+}
+
+/* ---- stat chips in hero ---- */
+body.member-portal-body .tt-profile-hero .tt-stat-col {
+  background: rgba(255, 255, 255, .10) !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 14px !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+body.member-portal-body .tt-profile-hero .tt-stat-col strong {
+  color: #FFFFFF !important;
+}
+
+/* ==========================================================================
+   Round 2 — แก้ 5 ปัญหาจากภาพจริง
+   --------------------------------------------------------------------------
+   1) แท็บใช้คลาส .tt-tabs-row / .tt-tabs-nav (ไม่ใช่ .tt-tab-bar ที่ผมเดา)
+      จึงยังเป็นพื้น navy ทึบจาก member-portal.css
+   2) hero สูง 855px เพราะ .tt-profile-hero ครอบทั้งส่วนบน ไม่ได้จำกัดเฉพาะ
+      แถบโปรไฟล์ → พื้น navy ยืดลงมาถึงการ์ด
+   3) การ์ด 6 ใบสูง 297px ทั้งที่ไม่มีรูป (มีแต่ไอคอนจาง)
+   4) ชื่อผู้ใช้กับปุ่ม "แก้ไขโปรไฟล์" ซ้อนกัน
+   5) ไอคอน sidebar หลากสี ควรเป็นโทนเดียว
+   ========================================================================== */
+
+/* ---------------------------------------------------- 1) แท็บ: segmented */
+body.member-portal-body .tt-tabs-row {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin-bottom: 16px !important;
+}
+
+body.member-portal-body .tt-tabs-nav {
+  display: inline-flex !important;
+  flex-wrap: nowrap;
+  gap: 3px !important;
+  padding: 3px !important;
+  border-radius: 14px !important;
+  background: rgba(120, 128, 145, .12) !important;
+  border: 0 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset !important;
+  max-width: 100% !important;
+  overflow-x: auto !important;
+  scrollbar-width: none;
+}
+
+body.member-portal-body .tt-tabs-nav::-webkit-scrollbar { display: none; }
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  flex: 0 0 auto !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 13px !important;
+  border-radius: 11px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+  color: #545A63 !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+  transition: background-color .18s ease, color .18s ease, box-shadow .2s ease !important;
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button svg {
+  width: 15px !important;
+  height: 15px !important;
+  fill: currentColor;
+  opacity: .7;
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button.active {
+  background: #FFFFFF !important;
+  border-color: rgba(120, 128, 145, .14) !important;
+  color: #14161A !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(17, 24, 39, .10),
+              0 4px 12px -8px rgba(17, 24, 39, .28) !important;
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button.active svg { opacity: 1; color: #A8843F; }
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tabs-nav .tt-tab-button:not(.active):hover {
+    background: rgba(255, 255, 255, .6) !important;
+    color: #14161A !important;
+  }
+}
+
+/* ปุ่มเรียงลำดับ (sort pills) ให้เข้ากัน */
+body.member-portal-body .tt-sort-pill {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(120, 128, 145, .18) !important;
+  background: rgba(255, 255, 255, .7) !important;
+  color: #545A63 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease !important;
+}
+
+body.member-portal-body .tt-sort-pill.active {
+  background: rgba(168, 132, 63, .14) !important;
+  border-color: rgba(168, 132, 63, .40) !important;
+  color: #8A6B2C !important;
+  font-weight: 700 !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-sort-pill:not(.active):hover {
+    background: #fff !important;
+    border-color: rgba(168, 132, 63, .35) !important;
+    color: #8A6B2C !important;
+  }
+}
+
+/* ------------------------------------------- 2) hero: จำกัดความสูงพื้นเข้ม */
+/* พื้น navy ต้องอยู่เฉพาะบล็อกโปรไฟล์ ไม่ยืดลงมาถึงการ์ด */
+body.member-portal-body .tt-profile-hero.tt-profile-hero {
+  height: auto !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+
+/* ถ้า hero มีลูกที่ดันความสูง ให้จำกัดที่ส่วนหัวเท่านั้น */
+body.member-portal-body .tt-profile-hero > .tt-hero-body,
+body.member-portal-body .tt-profile-hero > form,
+body.member-portal-body .tt-profile-hero > .tt-dark-field,
+body.member-portal-body .tt-profile-hero > .tt-tabs-row,
+body.member-portal-body .tt-profile-hero > .tt-tab-pane {
+  background: #FFFFFF !important;
+  color: #14161A !important;
+  border-radius: 18px !important;
+  margin-top: 16px !important;
+  padding: 18px !important;
+  box-shadow: 0 1px 1px rgba(255, 255, 255, .9) inset,
+              0 10px 30px -14px rgba(17, 24, 39, .22) !important;
+}
+
+/* ชื่อผู้ใช้ + ปุ่มแก้ไข: จัดเป็นแถว ไม่ซ้อน */
+body.member-portal-body .tt-hero-title-row,
+body.member-portal-body .tt-hero-name-row {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* ------------------------------------------ 3) การ์ด: สูงตามเนื้อหา */
+body.member-portal-body .tt-video-card,
+body.member-portal-body .tt-card-tile-link {
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: start !important;
+}
+
+/* กริดการ์ด: ให้ชิดบน ไม่ยืด */
+body.member-portal-body .tt-feed-grid,
+body.member-portal-body .tt-videos-grid,
+body.member-portal-body .tt-card-grid {
+  align-items: start !important;
+}
+
+/* ช่องสื่อในการ์ด: ให้สูงคงที่สวย ๆ ไม่ยืดตามการ์ด */
+body.member-portal-body .tt-video-media-wrap {
+  aspect-ratio: 16 / 10 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  background: linear-gradient(160deg, #E9EEF6, #DDE4EE) !important;
+}
+
+/* ไอคอนบ้านจาง ๆ ให้เข้มขึ้นและอยู่กลาง */
+body.member-portal-body .tt-video-media-wrap svg,
+body.member-portal-body .tt-card-empty-bg svg {
+  width: 34px !important;
+  height: 34px !important;
+  opacity: .38 !important;
+  color: #8A94A6 !important;
+}
+
+/* --------------------------------- 4) ป้ายสถานะ/ชื่อ ในการ์ดให้ไม่ซ้อน */
+body.member-portal-body .tt-video-card .tt-video-badge,
+body.member-portal-body .tt-card-tile-link .tt-tile-badge {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 2;
+}
+
+body.member-portal-body .tt-video-card,
+body.member-portal-body .tt-card-tile-link {
+  position: relative !important;
+}
+
+/* ------------------------------------- 5) sidebar: ไอคอนโทนเดียว */
+body.member-portal-body .tt-nav-item svg,
+body.member-portal-body .tt-nav-item svg path,
+body.member-portal-body .tt-nav-item svg circle,
+body.member-portal-body .tt-nav-item svg rect,
+body.member-portal-body .tt-nav-item svg polygon {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+body.member-portal-body .tt-nav-item {
+  color: #4A5059 !important;
+}
+
+body.member-portal-body .tt-nav-item.active {
+  color: #14161A !important;
+}
+
+body.member-portal-body .tt-nav-item.active svg {
+  color: #A8843F !important;
+}
+
+/* ปุ่มใน sidebar (เช่น ลงคลิป) ให้เป็น glass pill ไม่ใช่สีทองเข้ม */
+body.member-portal-body .tt-sidebar .tt-btn-gold,
+body.member-portal-body .tt-sidebar a[class*="gold"],
+body.member-portal-body .tt-sidebar a[href*="submit"] {
+  background: rgba(168, 132, 63, .13) !important;
+  border: 1px solid rgba(168, 132, 63, .34) !important;
+  color: #8A6B2C !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  font-size: 13px !important;
+  text-decoration: none !important;
+  transition: background-color .18s ease, border-color .18s ease !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-sidebar .tt-btn-gold:hover,
+  body.member-portal-body .tt-sidebar a[href*="submit"]:hover {
+    background: rgba(168, 132, 63, .22) !important;
+    border-color: rgba(168, 132, 63, .55) !important;
+  }
+}
+
+/* ------------------------------------------------ ระยะห่างให้โปร่ง */
+body.member-portal-body .tt-sidebar {
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+}
+
+body.member-portal-body .tt-nav-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+@media (max-width: 900px) {
+  body.member-portal-body .tt-tabs-nav .tt-tab-button span:not(.tt-tab-badge) {
+    display: none !important;
+  }
+  body.member-portal-body .tt-tabs-nav .tt-tab-button {
+    padding: 0 11px !important;
+  }
+}
+
+/* ==========================================================================
+   Round 3 — แก้ 6 ปัญหาจากภาพจริง
+   --------------------------------------------------------------------------
+   โครงสร้างการ์ดที่ตรวจได้:
+     <div class="tt-video-card">
+       <a class="tt-card-tile-link">          ← radius ซ้อนชั้นใน
+         <div class="tt-video-media-wrap">...
+
+   1) แถบ navy 2 ชั้นกลางหน้า เพราะ .tt-video-grid/.tt-feed มีพื้นเข้ม
+   2) การ์ดมีช่องขาวด้านบน เพราะ media wrap ไม่เต็มความกว้าง
+   3) วงไอคอนบ้านใหญ่เกิน (SVG ถูกขยายเต็มช่อง)
+   4) แถบราคาเป็น gradient เทา อ่านยาก
+   5) ปุ่ม topbar หลายสี
+   6) ปุ่ม sidebar สูงไม่เท่าเมนู
+   ========================================================================== */
+
+/* --------------------------------- 1) ลบพื้นเข้มของกริด/ฟีด */
+body.member-portal-body .tt-video-grid,
+body.member-portal-body .tt-feed,
+body.member-portal-body .tt-tab-pane,
+body.member-portal-body .tt-feed-body {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* --------------------------------- 2) การ์ด: ลูกชั้นในไม่ต้องมี radius */
+body.member-portal-body .tt-video-card .tt-card-tile-link {
+  display: block !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+  height: auto !important;
+  text-decoration: none !important;
+}
+
+/* การ์ดชั้นนอกถือ radius + clip เพียงชั้นเดียว */
+body.member-portal-body .tt-video-card {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  height: auto !important;
+}
+
+/* สื่อ: เต็มความกว้างการ์ด ไม่มีขอบขาว */
+body.member-portal-body .tt-video-media-wrap {
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  aspect-ratio: 16 / 10 !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  position: relative;
+  background: linear-gradient(160deg, #EAEFF6, #DCE3EE) !important;
+}
+
+body.member-portal-body .tt-video-media-wrap img,
+body.member-portal-body .tt-video-media-wrap video {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+}
+
+/* --------------------------------- 3) ไอคอนบ้าน: ขนาดพอดี ไม่ขยายเต็มช่อง */
+body.member-portal-body .tt-video-media-wrap > svg,
+body.member-portal-body .tt-video-media-wrap > .tt-card-empty-bg,
+body.member-portal-body .tt-card-empty-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  margin: auto !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .6) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset !important;
+  color: #8A94A6 !important;
+}
+
+body.member-portal-body .tt-video-media-wrap > svg {
+  padding: 16px !important;
+  box-sizing: border-box !important;
+  fill: currentColor !important;
+}
+
+body.member-portal-body .tt-card-empty-bg svg {
+  width: 22px !important;
+  height: 22px !important;
+  opacity: .8 !important;
+}
+
+/* --------------------------------- 4) แถบข้อมูลล่างการ์ด: พื้นขาว遜 */
+body.member-portal-body .tt-video-card .tt-video-info,
+body.member-portal-body .tt-video-card .tt-card-foot,
+body.member-portal-body .tt-video-card > div:not(.tt-video-media-wrap) {
+  background: #FFFFFF !important;
+  color: #14161A !important;
+  padding: 12px 14px !important;
+  border-top: 1px solid rgba(60, 60, 67, .08) !important;
+}
+
+/* ราคา: เน้นด้วยทอง ไม่ใช่พื้นเทา */
+body.member-portal-body .tt-video-card .tt-price,
+body.member-portal-body .tt-video-card .tt-card-price,
+body.member-portal-body .tt-video-card [class*="price"] {
+  background: transparent !important;
+  background-image: none !important;
+  color: #A8843F !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  letter-spacing: -.01em;
+  padding: 0 !important;
+  box-shadow: none !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --------------------------------- 5) Topbar: ปุ่มโทนเดียว */
+body.member-portal-body .tt-header .tt-btn-gold,
+body.member-portal-body .tt-topbar .tt-btn-gold,
+body.member-portal-body .tt-header a[class*="gold"],
+body.member-portal-body .tt-header a[href*="submit-reel"] {
+  background: rgba(168, 132, 63, .14) !important;
+  border: 1px solid rgba(168, 132, 63, .34) !important;
+  color: #8A6B2C !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+body.member-portal-body .tt-header a,
+body.member-portal-body .tt-topbar a {
+  border-radius: 11px !important;
+  min-height: 36px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease !important;
+}
+
+/* ปุ่ม Dashboard/หลังบ้าน: ให้เป็นปุ่มหลักเดียว */
+body.member-portal-body .tt-header a[href="admin/index.php"],
+body.member-portal-body .tt-header a[href*="dashboard"] {
+  background: rgba(255, 255, 255, .8) !important;
+  border: 1px solid rgba(60, 60, 67, .12) !important;
+  color: #3C4149 !important;
+  padding: 0 14px !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-header a[href="admin/index.php"]:hover {
+    background: #fff !important;
+    border-color: rgba(168, 132, 63, .4) !important;
+    color: #8A6B2C !important;
+  }
+}
+
+/* --------------------------------- 6) Sidebar: ทุกปุ่มสูงเท่ากัน 42px */
+body.member-portal-body .tt-sidebar a,
+body.member-portal-body .tt-sidebar .tt-nav-item,
+body.member-portal-body .tt-sidebar .tt-btn-gold {
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+}
+
+body.member-portal-body .tt-sidebar .tt-btn-gold {
+  background: rgba(168, 132, 63, .13) !important;
+  border: 1px solid rgba(168, 132, 63, .32) !important;
+  color: #8A6B2C !important;
+  box-shadow: none !important;
+  justify-content: center !important;
+}
+
+/* ปุ่ม logout: เป็น ghost */
+body.member-portal-body .tt-sidebar a[href*="logout"] {
+  background: transparent !important;
+  border: 1px solid rgba(60, 60, 67, .14) !important;
+  color: #545A63 !important;
+  justify-content: flex-start !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-sidebar a[href*="logout"]:hover {
+    background: rgba(217, 69, 59, .08) !important;
+    border-color: rgba(217, 69, 59, .3) !important;
+    color: #B3342B !important;
+  }
+}
+
+/* ป้ายยีลด์ใน sidebar: เป็นแคปซูลทองจาง */
+body.member-portal-body .tt-sidebar [class*="badge"],
+body.member-portal-body .tt-sidebar [class*="pill"] {
+  margin-left: auto;
+  display: inline-grid !important;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px !important;
+  border-radius: 999px !important;
+  background: rgba(120, 128, 145, .14) !important;
+  color: #7C8290 !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  box-shadow: none !important;
+}
+
+/* --------------------------------------------- ระยะห่างส่วนหัวฟีด */
+body.member-portal-body .tt-feed-head,
+body.member-portal-body .tt-tabs-row {
+  margin-bottom: 14px !important;
+}
+
+body.member-portal-body .tt-video-grid {
+  gap: 16px !important;
+}
+
+/* ==========================================================================
+   Round 4 — แก้ 5 ปัญหาจากภาพจริง (ตรวจ DOM แล้ว)
+   --------------------------------------------------------------------------
+   DOM จริง:
+     .tt-card-tile-link            ← 149px สูง (เต็มการ์ด)
+       .tt-video-media-wrap        ← 238x149
+         .tt-card-empty-bg         ← "⌂" อยู่ใน flow (ไม่ได้ absolute)
+         .tt-video-badge           ← absolute top 11 left 11
+         .tt-tile-overlay          ← GRADIENT absolute y=73 h=77
+           .tt-tile-price          ← y=97 อยู่ใต้ gradient → ถูกทับ
+           .tt-tile-meta > .tt-tile-title  ← สีขาวอยู่บน gradient
+
+   ปัญหา:
+   1) .tt-card-empty-bg ไม่อยู่ absolute → เบียด overlay ขึ้นมา
+   2) gradient overlay สูง 77px ทับ price ที่ y=97
+   3) price/meta/title อยู่ใน overlay จึงต้องอยู่ "เหนือ" gradient (z-index)
+   4) ปุ่มแก้ไข/ลบ 28px ลอยในช่องรูป ไม่มีพื้นรอง
+   5) hero ยังมีแถบ navy คาดกลางหน้า
+   ========================================================================== */
+
+/* ---------------------- 1) placeholder ของmedia อยู่กลาง ไม่กินพื้นที่ */
+body.member-portal-body .tt-card-empty-bg {
+  position: absolute !important;
+  inset: 0 !important;
+  margin: auto !important;
+  display: grid !important;
+  place-items: center !important;
+
+  width: 52px !important;
+  height: 52px !important;
+  border-radius: 50% !important;
+  top: 42% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  inset-inline: auto !important;
+  inset-block: auto !important;
+
+  background: rgba(255, 255, 255, .72) !important;
+  border: 1px solid rgba(255, 255, 255, .9) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset,
+              0 6px 18px -10px rgba(17, 24, 39, .3) !important;
+  color: #8A94A6 !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  z-index: 1 !important;
+}
+
+/* ---------------------- 2) overlay: ให้พอดี ไม่ทับราคา */
+body.member-portal-body .tt-tile-overlay {
+  position: absolute !important;
+  inset: auto 0 0 0 !important;
+  top: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 26px 12px 11px !important;
+  display: block !important;
+  background: linear-gradient(180deg,
+    rgba(11, 28, 51, 0) 0%,
+    rgba(11, 28, 51, .55) 42%,
+    rgba(11, 28, 51, .88) 100%) !important;
+  z-index: 2 !important;
+  box-sizing: border-box !important;
+}
+
+/* ---------------------- 3) ข้อความใน overlay: อยู่เหนือ gradient */
+body.member-portal-body .tt-tile-overlay > * {
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+body.member-portal-body .tt-tile-price {
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 0 3px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  color: #FBE9BE !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: -.015em !important;
+  line-height: 1.2 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45) !important;
+  font-variant-numeric: tabular-nums;
+}
+
+body.member-portal-body .tt-tile-meta {
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+}
+
+body.member-portal-body .tt-tile-title {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  color: #FFFFFF !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .4) !important;
+}
+
+body.member-portal-body .tt-tile-views {
+  flex: 0 0 auto !important;
+  height: 20px !important;
+  padding: 0 7px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .18) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #FFFFFF !important;
+  font-size: 10.5px !important;
+  font-weight: 700 !important;
+  line-height: 20px !important;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none !important;
+}
+
+/* ---------------------- 4) ปุ่มแก้ไข/ลบ: วงกลมขาว มีพื้นรอง */
+body.member-portal-body .tt-tile-floating-actions {
+  position: absolute !important;
+  top: 9px !important;
+  right: 9px !important;
+  display: flex !important;
+  gap: 6px !important;
+  z-index: 4 !important;
+}
+
+body.member-portal-body .tt-tile-floating-actions form {
+  display: contents !important;
+  margin: 0 !important;
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn,
+body.member-portal-body .tt-tile-floating-actions button {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba(255, 255, 255, .6) !important;
+  background: rgba(255, 255, 255, .92) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.6) !important;
+  backdrop-filter: blur(12px) saturate(1.6) !important;
+  color: #3C4149 !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  box-shadow: 0 1px 3px rgba(6, 15, 28, .25) !important;
+  cursor: pointer;
+  transition: transform .14s cubic-bezier(.32, .72, 0, 1), background-color .16s ease !important;
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.delete {
+  color: #D9453B !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:hover {
+    background: #FFFFFF !important;
+    transform: scale(1.06);
+  }
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active {
+  transform: scale(.9);
+}
+
+/* ---------------------- 5) hero: กันแถบ navy คาดกลางหน้า */
+body.member-portal-body .tt-profile-hero {
+  padding-bottom: 20px !important;
+}
+
+body.member-portal-body .tt-profile-hero + * {
+  margin-top: 0 !important;
+}
+
+/* ถ้ามีแถบเข้มหลัง hero ให้โปร่งใส */
+body.member-portal-body .tt-hero-strip,
+body.member-portal-body .tt-profile-strip {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+/* ---------------------- Media: ให้ overlay เริ่มที่ก้นการ์ดถูกต้อง */
+body.member-portal-body .tt-video-media-wrap {
+  position: relative !important;
+  display: block !important;
+  overflow: hidden !important;
+}
+
+/* ป้ายหมวด (ขาย/เช่า): กระจกเข้ม */
+body.member-portal-body .tt-video-badge {
+  position: absolute !important;
+  top: 9px !important;
+  left: 9px !important;
+  z-index: 4 !important;
+  background: rgba(11, 28, 51, .62) !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+  color: #FFFFFF !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+/* ==========================================================================
+   Round 5 — บังคับสีราคา/ชื่อบน overlay ให้ชนะชี้ขาด
+   --------------------------------------------------------------------------
+   วัดได้: .tt-tile-price color = rgb(168,132,63) แทน #FBE9BE
+   แปลว่ามีกฎที่ specific กว่ายังชนะ (น่าจะ .tt-card-tile-link .tt-tile-price
+   หรือ inline จาก member-portal.css)
+   ใช้ selector ซ้ำคลาส + !important และประกาศครบทุก property ที่เกี่ยวกับสี
+   ========================================================================== */
+
+body.member-portal-body .tt-card-tile-link .tt-tile-overlay .tt-tile-price.tt-tile-price {
+  color: #FBE9BE !important;
+  -webkit-text-fill-color: #FBE9BE !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .5) !important;
+  font-size: 14.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 0 3px 0 !important;
+  margin: 0 !important;
+  display: block !important;
+  width: auto !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+body.member-portal-body .tt-card-tile-link .tt-tile-overlay .tt-tile-title.tt-tile-title {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .45) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.35 !important;
+  opacity: 1 !important;
+}
+
+body.member-portal-body .tt-card-tile-link .tt-tile-overlay .tt-tile-views.tt-tile-views {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  background: rgba(255, 255, 255, .20) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* badge หมวด: ให้กระจกเข้มชัดเจน */
+body.member-portal-body .tt-card-tile-link .tt-video-media-wrap .tt-video-badge.tt-video-badge {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  background: rgba(11, 28, 51, .66) !important;
+  border: 1px solid rgba(255, 255, 255, .3) !important;
+  opacity: 1 !important;
+}
+
+/* placeholder: ให้เห็นชัดเป็นวงขาวกลางการ์ด */
+body.member-portal-body .tt-card-tile-link .tt-video-media-wrap .tt-card-empty-bg.tt-card-empty-bg {
+  position: absolute !important;
+  top: 46% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  inset: auto !important;
+  width: 50px !important;
+  height: 50px !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .85) !important;
+  border: 1px solid rgba(255, 255, 255, .95) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .95) inset,
+              0 6px 16px -8px rgba(17, 24, 39, .35) !important;
+  color: #7C8290 !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+  z-index: 1 !important;
+  overflow: visible !important;
+}

@@ -1,0 +1,2352 @@
+/* ==========================================================================
+   iOS 26/27 Liquid Glass buttons - member dashboard
+   --------------------------------------------------------------------------
+   SAFETY NOTES
+     * This file is CSS only. It contains no PHP, no markup and no JS, so it
+       cannot corrupt the source files it styles.
+     * Every rule is scoped under body.member-portal-body, so it cannot affect
+       the public site, the admin panel or the auth pages.
+     * Nothing is deleted or hidden that carries meaning; the rules only restyle
+       controls that already exist.
+     * Loaded last on dashboard.php via the two-link block already present.
+
+   WHAT LIQUID GLASS MEANS HERE
+     The iOS 26/27 control language: a translucent slab of glass with a
+     hairline light edge on top, a soft inner highlight, a wide diffuse shadow
+     underneath, and content that sits on the material rather than in it.
+     Interaction is spring-loaded: the glass compresses under the finger and
+     rebounds, the edge brightens, and a specular sheen follows the pointer.
+   ========================================================================== */
+
+body.member-portal-body {
+  /* ---- glass tokens ---- */
+  --lg-glass:        rgba(255, 255, 255, .62);
+  --lg-glass-strong: rgba(255, 255, 255, .82);
+  --lg-glass-dim:    rgba(255, 255, 255, .38);
+  --lg-blur:         blur(24px) saturate(1.7);
+
+  --lg-edge:         rgba(255, 255, 255, .85);
+  --lg-edge-dim:     rgba(255, 255, 255, .55);
+  --lg-hair:         rgba(60, 60, 67, .09);
+
+  --lg-ink:          #14161A;
+  --lg-ink-2:        #3C4149;
+  --lg-ink-3:        #6B7280;
+
+  --lg-gold:         #A8843F;
+  --lg-gold-light:   #E7D0A0;
+  --lg-gold-deep:    #8A6B2C;
+  --lg-gold-tint:    rgba(168, 132, 63, .13);
+  --lg-gold-line:    rgba(168, 132, 63, .34);
+
+  --lg-danger:       #D9453B;
+  --lg-danger-tint:  rgba(217, 69, 59, .10);
+  --lg-danger-line:  rgba(217, 69, 59, .30);
+
+  --lg-r:            13px;
+  --lg-r-lg:         18px;
+  --lg-r-pill:       999px;
+  --lg-h:            42px;
+  --lg-h-sm:         36px;
+  --lg-h-xs:         30px;
+
+  --lg-spring:       cubic-bezier(.34, 1.2, .64, 1);
+  --lg-quick:        cubic-bezier(.32, .72, 0, 1);
+
+  /* shadow stack: inner top highlight, ambient, contact */
+  --lg-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 -1px 0 rgba(255, 255, 255, .25) inset,
+    0 1px 2px rgba(17, 24, 39, .06),
+    0 8px 24px -12px rgba(17, 24, 39, .22);
+  --lg-shadow-hover:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(255, 255, 255, .35) inset,
+    0 2px 4px rgba(17, 24, 39, .08),
+    0 16px 34px -14px rgba(17, 24, 39, .28);
+  --lg-shadow-press:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 1px 2px rgba(17, 24, 39, .10);
+}
+
+/* ==========================================================================
+   BASE GLASS - the shared material for every control on this page
+   ========================================================================== */
+
+body.member-portal-body .tt-nav-item,
+body.member-portal-body .tt-tabs-nav .tt-tab-button,
+body.member-portal-body .tt-btn-gold,
+body.member-portal-body .tt-action-btn,
+body.member-portal-body .tt-sort-pill,
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn,
+body.member-portal-body .tt-empty-actions a,
+body.member-portal-body .tt-empty-actions button,
+body.member-portal-body .tt-sidebar a,
+body.member-portal-body .tt-topbar a,
+body.member-portal-body .tt-header a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  box-sizing: border-box;
+  min-height: var(--lg-h);
+  padding: 0 15px;
+
+  border: 1px solid var(--lg-edge);
+  border-radius: var(--lg-r);
+
+  background: var(--lg-glass);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+
+  color: var(--lg-ink-2);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.006em;
+  line-height: 1.2;
+  text-decoration: none;
+  white-space: nowrap;
+
+  box-shadow: var(--lg-shadow);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  cursor: pointer;
+  isolation: isolate;
+
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .26s ease,
+    color .18s ease,
+    transform .18s var(--lg-spring);
+}
+
+/* ---- specular sheen: a light that travels with the pointer ---- */
+body.member-portal-body .tt-nav-item::before,
+body.member-portal-body .tt-tabs-nav .tt-tab-button::before,
+body.member-portal-body .tt-btn-gold::before,
+body.member-portal-body .tt-action-btn::before,
+body.member-portal-body .tt-sort-pill::before,
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn::before,
+body.member-portal-body .tt-sidebar a::before,
+body.member-portal-body .tt-topbar a::before,
+body.member-portal-body .tt-header a::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    120px 80px at var(--lg-x, 50%) var(--lg-y, 50%),
+    rgba(255, 255, 255, .55),
+    rgba(255, 255, 255, 0) 72%);
+  transition: opacity .25s ease;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-nav-item:hover::before,
+  body.member-portal-body .tt-tabs-nav .tt-tab-button:hover::before,
+  body.member-portal-body .tt-btn-gold:hover::before,
+  body.member-portal-body .tt-action-btn:hover::before,
+  body.member-portal-body .tt-sort-pill:hover::before,
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:hover::before,
+  body.member-portal-body .tt-sidebar a:hover::before,
+  body.member-portal-body .tt-topbar a:hover::before,
+  body.member-portal-body .tt-header a:hover::before {
+    opacity: 1;
+  }
+}
+
+/* content sits above the sheen */
+body.member-portal-body .tt-nav-item > *,
+body.member-portal-body .tt-tabs-nav .tt-tab-button > *,
+body.member-portal-body .tt-btn-gold > *,
+body.member-portal-body .tt-action-btn > *,
+body.member-portal-body .tt-sort-pill > *,
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn > *,
+body.member-portal-body .tt-sidebar a > *,
+body.member-portal-body .tt-topbar a > *,
+body.member-portal-body .tt-header a > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- press: glass compresses and the edge brightens ---- */
+body.member-portal-body .tt-nav-item:active,
+body.member-portal-body .tt-tabs-nav .tt-tab-button:active,
+body.member-portal-body .tt-btn-gold:active,
+body.member-portal-body .tt-action-btn:active,
+body.member-portal-body .tt-sort-pill:active,
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active,
+body.member-portal-body .tt-sidebar a:active,
+body.member-portal-body .tt-topbar a:active,
+body.member-portal-body .tt-header a:active {
+  transform: scale(.966);
+  box-shadow: var(--lg-shadow-press);
+  transition-duration: .1s;
+}
+
+/* ---- keyboard focus: one ring everywhere ---- */
+body.member-portal-body .tt-nav-item:focus-visible,
+body.member-portal-body .tt-tabs-nav .tt-tab-button:focus-visible,
+body.member-portal-body .tt-btn-gold:focus-visible,
+body.member-portal-body .tt-action-btn:focus-visible,
+body.member-portal-body .tt-sort-pill:focus-visible,
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:focus-visible,
+body.member-portal-body .tt-sidebar a:focus-visible,
+body.member-portal-body .tt-topbar a:focus-visible,
+body.member-portal-body .tt-header a:focus-visible {
+  outline: 3px solid rgba(168, 132, 63, .55);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-action-btn:hover,
+  body.member-portal-body .tt-sort-pill:not(.active):hover,
+  body.member-portal-body .tt-sidebar a:hover:not(.active),
+  body.member-portal-body .tt-header a:hover,
+  body.member-portal-body .tt-topbar a:hover {
+    background: var(--lg-glass-strong);
+    border-color: var(--lg-gold-line);
+    color: var(--lg-gold-deep);
+    box-shadow: var(--lg-shadow-hover);
+  }
+}
+
+/* ==========================================================================
+   SIDEBAR NAVIGATION
+   ========================================================================== */
+
+body.member-portal-body .tt-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+body.member-portal-body .tt-nav-item {
+  justify-content: flex-start;
+  width: 100%;
+  min-height: var(--lg-h);
+  padding: 0 12px;
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  color: var(--lg-ink-2);
+  text-align: left;
+}
+
+body.member-portal-body .tt-nav-item::before { display: none; }
+
+body.member-portal-body .tt-nav-item svg {
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  fill: currentColor;
+  stroke: currentColor;
+  opacity: .7;
+  transition: opacity .18s ease, color .18s ease;
+}
+
+body.member-portal-body .tt-nav-item.active {
+  background: var(--lg-glass-strong);
+  border-color: var(--lg-edge);
+  color: var(--lg-ink);
+  font-weight: 700;
+  box-shadow: var(--lg-shadow);
+}
+
+body.member-portal-body .tt-nav-item.active svg {
+  color: var(--lg-gold);
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-nav-item:hover:not(.active) {
+    background: var(--lg-glass-dim);
+    border-color: var(--lg-edge-dim);
+    color: var(--lg-ink);
+  }
+  body.member-portal-body .tt-nav-item:hover svg { opacity: 1; }
+}
+
+/* badge */
+body.member-portal-body .tt-nav-badge {
+  margin-left: auto;
+  display: inline-grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  padding: 0 6px;
+  border-radius: var(--lg-r-pill);
+  background: rgba(120, 128, 145, .14);
+  color: var(--lg-ink-3);
+  font-size: 10.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  box-shadow: none;
+}
+
+body.member-portal-body .tt-nav-item.active .tt-nav-badge {
+  background: var(--lg-gold-tint);
+  color: var(--lg-gold);
+}
+
+/* ==========================================================================
+   PRIMARY / SECONDARY / DESTRUCTIVE
+   ========================================================================== */
+
+/* primary: gold glass */
+body.member-portal-body .tt-btn-gold {
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .34) 0%,
+      rgba(255, 255, 255, 0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%);
+  border-color: rgba(255, 255, 255, .5);
+  color: #2A2416;
+  font-weight: 700;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .7) inset,
+    0 -1px 0 rgba(120, 90, 30, .18) inset,
+    0 1px 2px rgba(17, 24, 39, .10),
+    0 8px 22px -10px rgba(168, 132, 63, .62);
+}
+
+body.member-portal-body .tt-btn-gold::before {
+  background: radial-gradient(
+    140px 90px at var(--lg-x, 50%) var(--lg-y, 50%),
+    rgba(255, 255, 255, .75),
+    rgba(255, 255, 255, 0) 74%);
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-btn-gold:hover {
+    filter: brightness(1.04);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .85) inset,
+      0 -1px 0 rgba(120, 90, 30, .18) inset,
+      0 2px 4px rgba(17, 24, 39, .12),
+      0 14px 30px -12px rgba(168, 132, 63, .72);
+  }
+}
+
+/* secondary: plain glass */
+body.member-portal-body .tt-action-btn {
+  background: var(--lg-glass);
+  border-color: var(--lg-edge);
+  color: var(--lg-ink-2);
+}
+
+/* destructive */
+body.member-portal-body .tt-action-btn.is-danger,
+body.member-portal-body .tt-action-btn[data-danger] {
+  background: var(--lg-danger-tint);
+  border-color: var(--lg-danger-line);
+  color: var(--lg-danger);
+  font-weight: 700;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-action-btn.is-danger:hover,
+  body.member-portal-body .tt-action-btn[data-danger]:hover {
+    background: rgba(217, 69, 59, .18);
+    border-color: var(--lg-danger);
+    color: #B3342B;
+  }
+}
+
+/* ==========================================================================
+   SEGMENTED TABS
+   ========================================================================== */
+
+body.member-portal-body .tt-tabs-row {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+body.member-portal-body .tt-tabs-nav {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 3px;
+  max-width: 100%;
+  padding: 3px;
+  border: 1px solid var(--lg-edge-dim);
+  border-radius: 15px;
+  background: rgba(120, 128, 145, .11);
+  -webkit-backdrop-filter: blur(18px) saturate(1.5);
+  backdrop-filter: blur(18px) saturate(1.5);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+body.member-portal-body .tt-tabs-nav::-webkit-scrollbar { display: none; }
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button {
+  flex: 0 0 auto;
+  height: var(--lg-h-sm);
+  min-height: var(--lg-h-sm);
+  padding: 0 13px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  box-shadow: none;
+  color: var(--lg-ink-3);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button::before { display: none; }
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+  opacity: .7;
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button.active {
+  background: rgba(255, 255, 255, .96);
+  border-color: var(--lg-edge);
+  color: var(--lg-ink);
+  font-weight: 700;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 1px 2px rgba(17, 24, 39, .10),
+    0 6px 16px -10px rgba(17, 24, 39, .34);
+}
+
+body.member-portal-body .tt-tabs-nav .tt-tab-button.active svg {
+  color: var(--lg-gold);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   SORT PILLS
+   ========================================================================== */
+
+body.member-portal-body .tt-sort-pill {
+  height: var(--lg-h-xs);
+  min-height: var(--lg-h-xs);
+  padding: 0 12px;
+  border-radius: var(--lg-r-pill);
+  font-size: 12px;
+}
+
+body.member-portal-body .tt-sort-pill.active {
+  background: var(--lg-gold-tint);
+  border-color: var(--lg-gold-line);
+  color: var(--lg-gold-deep);
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   CARD OVERLAY BUTTONS - circular glass discs on the photo
+   ========================================================================== */
+
+body.member-portal-body .tt-tile-floating-actions {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  display: flex;
+  gap: 6px;
+  z-index: 4;
+}
+
+body.member-portal-body .tt-tile-floating-actions form {
+  display: contents;
+  margin: 0;
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn,
+body.member-portal-body .tt-tile-floating-actions button {
+  width: var(--lg-h-xs);
+  height: var(--lg-h-xs);
+  min-width: var(--lg-h-xs);
+  min-height: var(--lg-h-xs);
+  padding: 0;
+  border: 1px solid var(--lg-edge);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .92);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  color: var(--lg-ink-2);
+  font-size: 13px;
+  line-height: 1;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 3px rgba(6, 15, 28, .26),
+    0 6px 16px -8px rgba(6, 15, 28, .3);
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.delete { color: var(--lg-danger); }
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.edit { color: var(--lg-ink-2); }
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:hover {
+    background: #fff;
+    transform: scale(1.08);
+  }
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active {
+  transform: scale(.88);
+}
+
+/* ==========================================================================
+   TOPBAR / HEADER CONTROLS
+   ========================================================================== */
+
+body.member-portal-body .tt-topbar a,
+body.member-portal-body .tt-header a {
+  min-height: var(--lg-h-sm);
+  padding: 0 13px;
+  border-radius: var(--lg-r-pill);
+  font-size: 12.5px;
+}
+
+body.member-portal-body .tt-topbar a[href*="submit-reel"],
+body.member-portal-body .tt-header a[href*="submit-reel"] {
+  background: var(--lg-gold-tint);
+  border-color: var(--lg-gold-line);
+  color: var(--lg-gold-deep);
+  font-weight: 700;
+}
+
+body.member-portal-body .tt-sidebar a[href*="logout"] {
+  background: transparent;
+  border-color: var(--lg-hair);
+  box-shadow: none;
+  color: var(--lg-ink-3);
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-sidebar a[href*="logout"]:hover {
+    background: var(--lg-danger-tint);
+    border-color: var(--lg-danger-line);
+    color: #B3342B;
+  }
+}
+
+/* search field inside the topbar */
+body.member-portal-body .tt-header-search,
+body.member-portal-body .tt-header-search input {
+  min-height: var(--lg-h-sm);
+  border: 1px solid var(--lg-edge-dim);
+  border-radius: var(--lg-r);
+  background: var(--lg-glass);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  color: var(--lg-ink);
+  font-size: 13px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .8) inset;
+}
+
+body.member-portal-body .tt-header-search:focus-within,
+body.member-portal-body .tt-header-search input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--lg-gold-line);
+  box-shadow: 0 0 0 3px rgba(168, 132, 63, .14);
+}
+
+/* ==========================================================================
+   BOTTOM NAV (mobile)
+   ========================================================================== */
+
+body.member-portal-body .tt-bottom-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  min-height: 48px;
+  color: var(--lg-ink-3);
+  font-size: 10.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color .18s ease, transform .16s var(--lg-quick);
+}
+
+body.member-portal-body .tt-bottom-item.active { color: var(--lg-gold); }
+body.member-portal-body .tt-bottom-item:active { transform: scale(.92); }
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 900px) {
+  body.member-portal-body {
+    --lg-h: 44px;
+    --lg-h-sm: 38px;
+  }
+
+  body.member-portal-body .tt-tabs-nav .tt-tab-button span:not(.tt-tab-badge) {
+    display: none;
+  }
+
+  body.member-portal-body .tt-tabs-nav .tt-tab-button {
+    padding: 0 11px;
+  }
+}
+
+/* ==========================================================================
+   FALLBACK - no backdrop-filter: use a solid slab instead of see-through mud
+   ========================================================================== */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.member-portal-body .tt-nav-item.active,
+  body.member-portal-body .tt-action-btn,
+  body.member-portal-body .tt-sort-pill,
+  body.member-portal-body .tt-topbar a,
+  body.member-portal-body .tt-header a {
+    background: #FFFFFF;
+  }
+
+  body.member-portal-body .tt-btn-gold {
+    background: linear-gradient(160deg, #E7D0A0, #B08D45);
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  body.member-portal-body .tt-nav-item,
+  body.member-portal-body .tt-tabs-nav .tt-tab-button,
+  body.member-portal-body .tt-btn-gold,
+  body.member-portal-body .tt-action-btn,
+  body.member-portal-body .tt-sort-pill,
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn,
+  body.member-portal-body .tt-sidebar a,
+  body.member-portal-body .tt-topbar a,
+  body.member-portal-body .tt-header a,
+  body.member-portal-body .tt-bottom-item {
+    transition: none;
+  }
+
+  body.member-portal-body .tt-nav-item:active,
+  body.member-portal-body .tt-tabs-nav .tt-tab-button:active,
+  body.member-portal-body .tt-btn-gold:active,
+  body.member-portal-body .tt-action-btn:active,
+  body.member-portal-body .tt-sort-pill:active,
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active,
+  body.member-portal-body .tt-sidebar a:active,
+  body.member-portal-body .tt-topbar a:active,
+  body.member-portal-body .tt-header a:active,
+  body.member-portal-body .tt-bottom-item:active {
+    transform: none;
+  }
+
+  body.member-portal-body .tt-nav-item::before,
+  body.member-portal-body .tt-tabs-nav .tt-tab-button::before,
+  body.member-portal-body .tt-btn-gold::before,
+  body.member-portal-body .tt-action-btn::before,
+  body.member-portal-body .tt-sort-pill::before,
+  body.member-portal-body .tt-sidebar a::before,
+  body.member-portal-body .tt-topbar a::before,
+  body.member-portal-body .tt-header a::before {
+    display: none;
+  }
+}
+/* ==========================================================================
+   Round 2 - remove the dark bands and square patches left by the old theme
+   --------------------------------------------------------------------------
+   Measured from the rendered screenshot:
+
+   1) Dark navy bands appear above the hero, between the hero and the tabs,
+      and again under the card grid. They come from wrapper elements in
+      member-portal.css that paint their own background; the glass controls
+      sit on top of them and the result looks like stripes.
+
+   2) The edit/delete buttons inside the photo sit in a white rectangle
+      instead of floating as circular discs. That rectangle is the old
+      .tt-tile-actions container which still has a background and padding.
+
+   3) The hero keeps a 2px gold border-bottom from the old design, which now
+      reads as a stray outline under a rounded card.
+
+   4) The card has radius 18px outside and 14px inside, so two curves are
+      visible at the corners.
+
+   Everything below is CSS only and scoped to the member dashboard.
+   ========================================================================== */
+
+/* ---------------------------------------------- 1) kill the dark bands */
+body.member-portal-body .tt-layout,
+body.member-portal-body .tt-main,
+body.member-portal-body .tt-content,
+body.member-portal-body .tt-body,
+body.member-portal-body .tt-main-inner,
+body.member-portal-body .tt-feed-wrap,
+body.member-portal-body .tt-pane-wrap {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* any direct child section that paints navy behind the glass */
+body.member-portal-body .tt-profile-hero ~ *,
+body.member-portal-body .tt-profile-hero + * {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* hero: no leftover gold rule, no outer ring */
+body.member-portal-body .tt-profile-hero,
+body.member-portal-body .tt-profile-hero.tt-profile-hero {
+  border: 0 !important;
+  border-bottom: 0 !important;
+  outline: none !important;
+}
+
+/* the wrapper that holds tabs + feed must be plain */
+body.member-portal-body .tt-tabs-row,
+body.member-portal-body .tt-feed,
+body.member-portal-body .tt-tab-panes {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ------------------------------------- 2) circular discs, no white box */
+body.member-portal-body .tt-tile-actions,
+body.member-portal-body .tt-card-actions,
+body.member-portal-body .tt-media-actions {
+  position: absolute !important;
+  top: 9px !important;
+  right: 9px !important;
+  display: flex !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  width: auto !important;
+  height: auto !important;
+  z-index: 4 !important;
+}
+
+body.member-portal-body .tt-tile-actions form {
+  display: contents !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* the discs themselves */
+body.member-portal-body .tt-tile-actions a,
+body.member-portal-body .tt-tile-actions button,
+body.member-portal-body .tt-card-actions a,
+body.member-portal-body .tt-card-actions button {
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255, 255, 255, .7) !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .94) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+  color: #3C4149 !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 3px rgba(6, 15, 28, .24),
+    0 6px 14px -8px rgba(6, 15, 28, .3) !important;
+  transition: transform .14s cubic-bezier(.32, .72, 0, 1), background-color .16s ease !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tile-actions a:hover,
+  body.member-portal-body .tt-tile-actions button:hover {
+    background: #FFFFFF !important;
+    transform: scale(1.07);
+  }
+}
+
+body.member-portal-body .tt-tile-actions a:active,
+body.member-portal-body .tt-tile-actions button:active {
+  transform: scale(.9);
+}
+
+/* -------------------------------------------- 3) one curve per card */
+body.member-portal-body .tt-video-card,
+body.member-portal-body .tt-video-card.tt-video-card {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+body.member-portal-body .tt-video-card .tt-card-tile-link,
+body.member-portal-body .tt-video-card .tt-video-media-wrap,
+body.member-portal-body .tt-video-card .tt-tile-overlay {
+  border-radius: 0 !important;
+}
+
+/* the first and last child keep the parent curve */
+body.member-portal-body .tt-video-card > :first-child,
+body.member-portal-body .tt-video-card .tt-card-tile-link > :first-child {
+  border-top-left-radius: 18px !important;
+  border-top-right-radius: 18px !important;
+}
+
+body.member-portal-body .tt-video-card > :last-child,
+body.member-portal-body .tt-video-card .tt-card-tile-link > :last-child {
+  border-bottom-left-radius: 18px !important;
+  border-bottom-right-radius: 18px !important;
+}
+
+/* ------------------------------------ 4) photo area: neutral, no white */
+body.member-portal-body .tt-video-media-wrap {
+  background: linear-gradient(160deg, #E9EEF6 0%, #DCE3EE 100%) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+/* placeholder disc, centred and small */
+body.member-portal-body .tt-video-media-wrap .tt-card-empty-bg,
+body.member-portal-body .tt-card-empty-bg {
+  position: absolute !important;
+  top: 46% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  inset: auto !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .78) !important;
+  border: 1px solid rgba(255, 255, 255, .95) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .95) inset,
+              0 4px 12px -6px rgba(17, 24, 39, .3) !important;
+  color: #8A94A6 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  z-index: 1 !important;
+}
+
+/* ------------------------------------------ 5) grid breathing room */
+body.member-portal-body .tt-video-grid {
+  gap: 16px !important;
+  align-items: start !important;
+}
+
+body.member-portal-body .tt-feed-head,
+body.member-portal-body .tt-tabs-row {
+  margin-bottom: 14px !important;
+}
+
+/* sidebar column: no dark filler below the last item */
+body.member-portal-body .tt-sidebar,
+body.member-portal-body .tt-sidebar.tt-sidebar {
+  background: rgba(255, 255, 255, .55) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.6) !important;
+  backdrop-filter: blur(24px) saturate(1.6) !important;
+  border-right: 1px solid rgba(60, 60, 67, .09) !important;
+  border-radius: 0 20px 20px 0 !important;
+  box-shadow: 1px 0 0 rgba(255, 255, 255, .68) inset !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.member-portal-body .tt-tile-actions a,
+  body.member-portal-body .tt-tile-actions button {
+    transition: none !important;
+  }
+  body.member-portal-body .tt-tile-actions a:hover,
+  body.member-portal-body .tt-tile-actions button:hover {
+    transform: none;
+  }
+}
+/* ==========================================================================
+   Round 3 - the two real defects found by measuring the DOM
+   --------------------------------------------------------------------------
+   Measured values:
+
+   .tt-card-empty-bg   x=-24  y=-24  w=50  h=50
+     The placeholder disc is positioned OUTSIDE the card, top-left. My earlier
+     rule set top/left to 46%/50% and then immediately reset them with
+     `inset: auto`, which cancelled the offset. Because the element also has a
+     transform, it lands at a negative coordinate.
+
+   .tt-tile-floating-actions  x=136  y=10  w=94  h=55
+     background rgb(255,255,255), radius "0 0 18px 18px"
+     This container is what paints the white rectangle behind the two round
+     buttons. It only needs to be an invisible positioning box.
+
+   .tt-toast  y=-6  h=43  bg rgba(20,22,26,.92)
+     This is the dark band near the top of the screenshot, not the navbar.
+     It is simply the toast sliding in, and it hides itself afterwards.
+   ========================================================================== */
+
+/* ------------------------------------------- 1) placeholder disc, centred */
+body.member-portal-body .tt-video-card .tt-card-empty-bg,
+body.member-portal-body .tt-card-empty-bg.tt-card-empty-bg {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .8) !important;
+  border: 1px solid rgba(255, 255, 255, .95) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 4px 12px -6px rgba(17, 24, 39, .32) !important;
+  color: #8A94A6 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  z-index: 1 !important;
+  pointer-events: none;
+}
+
+/* --------------------------------- 2) floating actions: invisible box only */
+body.member-portal-body .tt-tile-floating-actions.tt-tile-floating-actions {
+  position: absolute !important;
+  top: 9px !important;
+  right: 9px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 6px !important;
+
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+
+  padding: 0 !important;
+  margin: 0 !important;
+
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  overflow: visible !important;
+  z-index: 4 !important;
+}
+
+/* the two discs */
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.tt-tile-btn {
+  display: inline-grid !important;
+  place-items: center !important;
+
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+
+  border: 1px solid rgba(255, 255, 255, .72) !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .94) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+
+  color: #3C4149 !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  text-decoration: none !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 3px rgba(6, 15, 28, .22),
+    0 5px 12px -7px rgba(6, 15, 28, .34) !important;
+
+  transition:
+    background-color .16s ease,
+    box-shadow .2s ease,
+    transform .14s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.delete {
+  color: #D9453B !important;
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn.edit {
+  color: #3C4149 !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:hover {
+    background: #FFFFFF !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 1) inset,
+      0 2px 5px rgba(6, 15, 28, .26),
+      0 8px 18px -8px rgba(6, 15, 28, .4) !important;
+    transform: scale(1.08);
+  }
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active {
+  transform: scale(.88);
+}
+
+body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:focus-visible {
+  outline: 3px solid rgba(168, 132, 63, .55);
+  outline-offset: 2px;
+}
+
+/* --------------------------- 3) photo: neutral fill, single top curve only */
+body.member-portal-body .tt-video-card .tt-video-media-wrap {
+  background: linear-gradient(160deg, #E9EEF6 0%, #DCE3EE 100%) !important;
+  border-radius: 18px 18px 0 0 !important;
+  overflow: hidden !important;
+}
+
+/* --------------------------- 4) the overlay owns the bottom curve */
+body.member-portal-body .tt-video-card .tt-tile-overlay {
+  border-radius: 0 0 18px 18px !important;
+}
+
+/* --------------------------- 5) card shell: one curve, clipped */
+body.member-portal-body .tt-video-card {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  background: rgba(255, 255, 255, .72) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.7) !important;
+  backdrop-filter: blur(24px) saturate(1.7) !important;
+  border: 1px solid rgba(255, 255, 255, .8) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .06),
+    0 10px 26px -14px rgba(17, 24, 39, .26) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn {
+    transition: none !important;
+  }
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:hover,
+  body.member-portal-body .tt-tile-floating-actions .tt-tile-btn:active {
+    transform: none;
+  }
+}
+/* ==========================================================================
+   Round 4 - the placeholder disc, solved for good
+   --------------------------------------------------------------------------
+   Measured on the live element:
+
+     position  absolute
+     top 0px  left 0px  right 188px  bottom 98.75px   (i.e. inset: 0 188 98.75 0)
+     transform matrix(1,0,0,1,-25,-25)                (translate(-25px,-25px))
+     parent    .tt-video-media-wrap  238 x 149  position relative
+
+   So the element is pinned to the top-left with odd right/bottom offsets and
+   then shifted up-left by half its own size. The result is x=-24 y=-24,
+   which is why it appears to jump outside the card.
+
+   My previous selectors used `.tt-card-empty-bg.tt-card-empty-bg` but the rule
+   list came back empty, which means they never matched at all - the element
+   likely also carries an inline style or sits under a different ancestor than
+   I assumed. The fix below avoids the fight entirely: centre it with
+   inset:0 + margin:auto, which wins over any explicit offset, and neutralise
+   the transform explicitly.
+   ========================================================================== */
+
+body .tt-video-media-wrap > .tt-card-empty-bg,
+body.member-portal-body .tt-video-media-wrap > .tt-card-empty-bg,
+body.member-portal-body .tt-card-empty-bg[class] {
+  position: absolute !important;
+
+  /* inset: 0 + auto margins centres the box regardless of width/height,
+     and overrides the top/left/right/bottom pair set elsewhere. */
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  inset: 0 !important;
+
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+
+  margin: auto !important;          /* this is the centring, not top/left */
+  padding: 0 !important;
+
+  transform: none !important;        /* kill the translate(-25,-25) */
+
+  display: grid !important;
+  place-items: center !important;
+
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .8) !important;
+  border: 1px solid rgba(255, 255, 255, .95) !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 4px 12px -6px rgba(17, 24, 39, .32) !important;
+
+  color: #8A94A6 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+
+  z-index: 1 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+/* if the element is a plain div with an icon glyph inside, keep it centred */
+body .tt-video-media-wrap > .tt-card-empty-bg > *,
+body.member-portal-body .tt-card-empty-bg > * {
+  display: block;
+  margin: auto;
+  line-height: 1;
+}
+
+/* the media wrapper must be the positioning context */
+body .tt-video-media-wrap,
+body.member-portal-body .tt-video-media-wrap {
+  position: relative !important;
+  overflow: hidden !important;
+}
+/* ==========================================================================
+   Round 5 - the two navy boxes found by scanning for dark surfaces
+   --------------------------------------------------------------------------
+   Measured on the live page:
+
+   .tt-tabs-sort    y=293  w=182  h=36   background rgba(11,28,51,.80)
+     The sort group (Latest / Popular / Price) sits in a solid navy pill next
+     to the segmented tab bar. Two different materials side by side is what
+     makes the header look mismatched. It becomes the same glass capsule as
+     the tabs.
+
+   .tt-avatar-uploading-spinner   y=121  w=108  h=108  background rgba(11,28,51,.85)
+     A 108px dark disc on top of the profile card. It should be a small
+     centred spinner, not a slab.
+
+   Also fixes the placeholder disc, which was still at x=-25 y=-25 because a
+   competing rule forced margin to 0 and left the translate(-50%,-50%) with
+   nothing to centre against.
+   ========================================================================== */
+
+/* ---------------------------------------- 1) sort group: glass, not navy */
+body.member-portal-body .tt-tabs-sort {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+
+  height: 36px !important;
+  min-height: 36px !important;
+  width: auto !important;
+
+  padding: 3px !important;
+  margin: 0 !important;
+
+  background: rgba(120, 128, 145, .11) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, .55) !important;
+  border-radius: 14px !important;
+
+  -webkit-backdrop-filter: blur(18px) saturate(1.5) !important;
+  backdrop-filter: blur(18px) saturate(1.5) !important;
+
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset !important;
+  box-sizing: border-box !important;
+}
+
+body.member-portal-body .tt-tabs-sort > * {
+  flex: 0 0 auto !important;
+}
+
+/* ------------------------------------- 2) spinner: small disc, centred */
+body.member-portal-body .tt-avatar-uploading-spinner {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  background: rgba(20, 22, 26, .55) !important;
+  border: 1px solid rgba(255, 255, 255, .28) !important;
+  border-radius: 50% !important;
+
+  -webkit-backdrop-filter: blur(12px) !important;
+  backdrop-filter: blur(12px) !important;
+  box-shadow: 0 2px 10px rgba(6, 15, 28, .3) !important;
+
+  z-index: 10 !important;
+  overflow: hidden !important;
+}
+
+body.member-portal-body .tt-avatar-uploading-spinner[hidden],
+body.member-portal-body .tt-avatar-uploading-spinner:not(.is-active) {
+  display: none !important;
+}
+
+/* ---------------------------------- 3) placeholder disc: force centring */
+/* margin was being reset to 0 by a later rule, so the translate had no
+   reference box. Top/left 50% + translate(-50%,-50%) needs no margin. */
+body.member-portal-body .tt-video-media-wrap .tt-card-empty-bg,
+body.member-portal-body .tt-video-card .tt-card-empty-bg {
+  position: absolute !important;
+
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  inset: auto !important;
+
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  min-height: 46px !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, .82) !important;
+  border: 1px solid rgba(255, 255, 255, .95) !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 4px 12px -6px rgba(17, 24, 39, .3) !important;
+
+  color: #8A94A6 !important;
+  font-size: 19px !important;
+  line-height: 1 !important;
+  text-align: center !important;
+
+  z-index: 1 !important;
+  pointer-events: none !important;
+  overflow: visible !important;
+}
+
+/* -------------------------------- 4) toast: only visible when it is shown */
+body.member-portal-body .tt-toast {
+  top: 14px !important;
+  bottom: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) translateY(-140%) !important;
+
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: min(420px, calc(100vw - 32px)) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 10px 16px !important;
+
+  border-radius: 14px !important;
+  background: rgba(20, 22, 26, .92) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.5) !important;
+  backdrop-filter: blur(20px) saturate(1.5) !important;
+  box-shadow: 0 12px 30px -12px rgba(0, 0, 0, .55) !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+
+  transition: transform .32s cubic-bezier(.34, 1.2, .64, 1), opacity .2s ease !important;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 9999 !important;
+}
+
+body.member-portal-body .tt-toast.is-visible,
+body.member-portal-body .tt-toast.show,
+body.member-portal-body .tt-toast[style*="display: block"] {
+  transform: translateX(-50%) translateY(0) !important;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* -------------------------------- 5) the panel must wrap content evenly */
+/* In the screenshot the white panel is narrower than the tabs row and is
+   offset left, which reads as two different columns. Give the panel and the
+   tab bar the same horizontal rhythm. */
+body.member-portal-body .tt-tab-pane.active {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+body.member-portal-body .tt-empty-feed,
+body.member-portal-body .tt-video-grid {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* the empty-state card inside the panel: full width of the panel, centred */
+body.member-portal-body .tt-empty-feed {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 56px 24px !important;
+  border-radius: 20px !important;
+  text-align: center !important;
+  background: rgba(255, 255, 255, .82) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.6) !important;
+  backdrop-filter: blur(24px) saturate(1.6) !important;
+  border: 1px solid rgba(255, 255, 255, .85) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .05),
+    0 12px 28px -16px rgba(17, 24, 39, .22) !important;
+}
+
+/* the button inside the empty state */
+body.member-portal-body .tt-empty-actions a,
+body.member-portal-body .tt-empty-actions button {
+  min-height: 40px !important;
+  padding: 0 18px !important;
+  border-radius: 12px !important;
+  background: rgba(255, 255, 255, .9) !important;
+  border: 1px solid rgba(120, 128, 145, .22) !important;
+  color: #3C4149 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 2px 6px -3px rgba(17, 24, 39, .18) !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-empty-actions a:hover,
+  body.member-portal-body .tt-empty-actions button:hover {
+    background: #FFFFFF !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: #8A6B2C !important;
+  }
+}
+
+body.member-portal-body .tt-empty-actions a:active,
+body.member-portal-body .tt-empty-actions button:active {
+  transform: scale(.97);
+}
+/* ==========================================================================
+   Round 6 - remove the last navy brand chips from the header
+   --------------------------------------------------------------------------
+   Scanned every element for a dark fill and found three left over:
+
+     a.tt-btn-brand.tt-btn-navy        y=15  w=77  h=34
+       background linear-gradient(135deg, rgb(11,28,51), ...)
+       This is the "post a reel" button - a solid navy block next to a gold
+       button and a white search field.
+
+     span.tt-brand-badge               y=19  w=57  h=25
+       background rgb(11,28,51) - the ADMIN pill.
+
+     a.tt-btn-brand.tt-btn-dark        y=15  w=93  h=34
+       dark border, reads as a third colour.
+
+   They are all converted to the same translucent glass family used by every
+   other control on the page, so the header stops looking like a patchwork.
+   ========================================================================== */
+
+/* -------------------------------- 1) navy "post reel" chip -> gold glass */
+body.member-portal-body a.tt-btn-navy,
+body.member-portal-body a.tt-btn-brand.tt-btn-navy {
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .34) 0%,
+      rgba(255, 255, 255, 0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+  background-color: #C9A65F !important;
+  border: 1px solid rgba(255, 255, 255, .5) !important;
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .7) inset,
+    0 -1px 0 rgba(120, 90, 30, .18) inset,
+    0 2px 6px -3px rgba(168, 132, 63, .5) !important;
+}
+
+/* any svg or span inside it inherits the dark ink */
+body.member-portal-body a.tt-btn-navy svg,
+body.member-portal-body a.tt-btn-navy span {
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  stroke: currentColor !important;
+}
+
+/* -------------------------------- 2) dark variant chip -> plain glass */
+body.member-portal-body a.tt-btn-dark,
+body.member-portal-body a.tt-btn-brand.tt-btn-dark {
+  background: rgba(255, 255, 255, .72) !important;
+  background-image: none !important;
+  border: 1px solid rgba(255, 255, 255, .85) !important;
+  color: #3C4149 !important;
+  -webkit-text-fill-color: #3C4149 !important;
+  font-weight: 600 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .06) !important;
+}
+
+body.member-portal-body a.tt-btn-dark svg,
+body.member-portal-body a.tt-btn-dark span {
+  color: #3C4149 !important;
+  -webkit-text-fill-color: #3C4149 !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body a.tt-btn-dark:hover {
+    background: #FFFFFF !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: #8A6B2C !important;
+    -webkit-text-fill-color: #8A6B2C !important;
+  }
+}
+
+/* -------------------------------- 3) ADMIN badge -> gold tint capsule */
+body.member-portal-body .tt-brand-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 10px !important;
+  margin: 0 !important;
+
+  background: rgba(168, 132, 63, .14) !important;
+  background-image: none !important;
+  border: 1px solid rgba(168, 132, 63, .32) !important;
+  border-radius: 999px !important;
+
+  color: #8A6B2C !important;
+  -webkit-text-fill-color: #8A6B2C !important;
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: .05em !important;
+  line-height: 1 !important;
+
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .6) inset !important;
+  text-shadow: none !important;
+}
+
+/* -------------------------------- 4) header surface: white glass, not navy */
+body.member-portal-body .tt-app-header,
+body.member-portal-body header.tt-app-header {
+  background: rgba(255, 255, 255, .78) !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
+  backdrop-filter: blur(24px) saturate(1.8) !important;
+  border-bottom: 1px solid rgba(60, 60, 67, .09) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+  color: #14161A !important;
+}
+
+/* the gold "admin" button keeps its gradient but loses any navy ring */
+body.member-portal-body a.tt-btn-gold.tt-btn-brand {
+  border-color: rgba(255, 255, 255, .5) !important;
+}
+
+/* -------------------------------- 5) kill the remaining navy accents */
+body.member-portal-body .tt-brand-mark,
+body.member-portal-body .tt-logo-mark {
+  background: rgba(168, 132, 63, .16) !important;
+  background-image: none !important;
+  color: #8A6B2C !important;
+  border-color: rgba(168, 132, 63, .3) !important;
+}
+
+/* any element still painting rgb(11,28,51) as a solid fill on this page */
+body.member-portal-body [style*="background:#0B1C33"],
+body.member-portal-body [style*="background: #0B1C33"],
+body.member-portal-body [style*="background:#0b1c33"] {
+  background: rgba(168, 132, 63, .14) !important;
+  background-image: none !important;
+  color: #8A6B2C !important;
+}
+
+/* the PRIMARY "post a listing" button must stay the one gold call to action */
+body.member-portal-body a.tt-btn-gold:not(.tt-btn-brand) {
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .34) 0%,
+      rgba(255, 255, 255, 0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+  background-color: #C9A65F !important;
+  border-color: rgba(255, 255, 255, .5) !important;
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  font-weight: 700 !important;
+}
+/* ==========================================================================
+   Round 7 - the final two navy areas
+   --------------------------------------------------------------------------
+   After round 6 the scan still reports navy on:
+
+   1) span.tt-brand-badge  y=20  w=58  h=24
+        background rgb(11,28,51) - solid, not touched yet because the earlier
+        rule only targeted .tt-brand-badge without the body scope it needed.
+
+   2) div.tt-profile-hero  y=92  w=860  h=676
+        a navy gradient covering 676px of vertical space. The profile card
+        should be a compact header, not a wall of colour. It becomes white
+        glass with a thin gold accent bar, so the page reads light throughout.
+
+   The remaining two kinds are intentional and stay:
+     .tt-video-badge     a 26px capsule on top of each photo, needs contrast
+     .tt-tile-overlay    the gradient that makes the price legible on a photo
+   ========================================================================== */
+
+/* --------------------------------- 1) ADMIN badge: gold tint, no navy */
+html body.member-portal-body .tt-brand-badge,
+body.member-portal-body span.tt-brand-badge,
+body.member-portal-body .tt-app-header .tt-brand-badge {
+  background: rgba(168, 132, 63, .16) !important;
+  background-color: rgba(168, 132, 63, .16) !important;
+  background-image: none !important;
+  border: 1px solid rgba(168, 132, 63, .34) !important;
+  color: #8A6B2C !important;
+  -webkit-text-fill-color: #8A6B2C !important;
+  text-shadow: none !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset !important;
+}
+
+/* --------------------------------- 2) profile hero: white glass, not navy */
+html body.member-portal-body .tt-profile-hero,
+body.member-portal-body div.tt-profile-hero {
+  background: rgba(255, 255, 255, .84) !important;
+  background-color: rgba(255, 255, 255, .84) !important;
+  background-image: none !important;
+
+  -webkit-backdrop-filter: blur(28px) saturate(1.7) !important;
+  backdrop-filter: blur(28px) saturate(1.7) !important;
+
+  border: 1px solid rgba(255, 255, 255, .9) !important;
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .05),
+    0 14px 32px -18px rgba(17, 24, 39, .24) !important;
+
+  /* stop it from being a 676px wall */
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 20px !important;
+  overflow: hidden !important;
+}
+
+/* a slim gold rule replaces the heavy navy block as the accent */
+html body.member-portal-body .tt-profile-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 3px !important;
+  border-radius: 22px 22px 0 0 !important;
+  background: linear-gradient(90deg,
+    rgba(168, 132, 63, 0),
+    rgba(168, 132, 63, .85) 22%,
+    rgba(197, 160, 89, .9) 50%,
+    rgba(168, 132, 63, .85) 78%,
+    rgba(168, 132, 63, 0)) !important;
+  pointer-events: none;
+}
+
+body.member-portal-body .tt-profile-hero { position: relative !important; }
+
+/* text inside the hero: dark ink on white, not white on navy */
+body.member-portal-body .tt-profile-hero h1,
+body.member-portal-body .tt-profile-hero h2,
+body.member-portal-body .tt-profile-hero .tt-hero-name,
+body.member-portal-body .tt-profile-hero .tt-hero-handle,
+body.member-portal-body .tt-profile-hero .tt-hero-title-row,
+body.member-portal-body .tt-profile-hero .tt-hero-meta,
+body.member-portal-body .tt-profile-hero .tt-hero-meta-col,
+body.member-portal-body .tt-profile-hero strong,
+body.member-portal-body .tt-profile-hero b {
+  color: #14161A !important;
+  -webkit-text-fill-color: #14161A !important;
+  text-shadow: none !important;
+}
+
+body.member-portal-body .tt-profile-hero p,
+body.member-portal-body .tt-profile-hero small,
+body.member-portal-body .tt-profile-hero span:not(.tt-brand-badge):not(.tt-stat-col):not(.tt-verified-dot) {
+  color: #6B7280 !important;
+  -webkit-text-fill-color: #6B7280 !important;
+}
+
+/* keep the name itself strongly readable */
+body.member-portal-body .tt-profile-hero .tt-hero-name,
+body.member-portal-body .tt-profile-hero h1 {
+  font-weight: 800 !important;
+  letter-spacing: -.022em !important;
+}
+
+/* avatar: light ring instead of gold-on-navy */
+body.member-portal-body .tt-profile-hero .tt-hero-avatar-box,
+body.member-portal-body .tt-profile-hero .tt-hero-avatar-fallback {
+  border: 2px solid rgba(168, 132, 63, .45) !important;
+  box-shadow:
+    0 0 0 4px rgba(168, 132, 63, .10),
+    0 4px 14px -6px rgba(17, 24, 39, .28) !important;
+  background: rgba(168, 132, 63, .10) !important;
+  color: #8A6B2C !important;
+}
+
+/* stat chips: light capsules */
+body.member-portal-body .tt-profile-hero .tt-stat-col,
+body.member-portal-body .tt-profile-hero .tt-hero-stats > * {
+  background: rgba(242, 245, 249, .95) !important;
+  background-image: none !important;
+  border: 1px solid rgba(120, 128, 145, .14) !important;
+  border-radius: 14px !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+}
+
+body.member-portal-body .tt-profile-hero .tt-stat-col strong,
+body.member-portal-body .tt-profile-hero .tt-stat-col b {
+  color: #14161A !important;
+  -webkit-text-fill-color: #14161A !important;
+}
+
+body.member-portal-body .tt-profile-hero .tt-stat-col span,
+body.member-portal-body .tt-profile-hero .tt-stat-col small {
+  color: #7C8290 !important;
+  -webkit-text-fill-color: #7C8290 !important;
+}
+
+/* buttons inside the hero were white-on-navy; make them normal glass */
+body.member-portal-body .tt-profile-hero .tt-btn-gold {
+  background:
+    linear-gradient(160deg,
+      rgba(255, 255, 255, .34) 0%,
+      rgba(255, 255, 255, 0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  border-color: rgba(255, 255, 255, .5) !important;
+}
+
+body.member-portal-body .tt-profile-hero .tt-action-btn {
+  background: rgba(255, 255, 255, .9) !important;
+  border-color: rgba(120, 128, 145, .18) !important;
+  color: #3C4149 !important;
+  -webkit-text-fill-color: #3C4149 !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-profile-hero .tt-action-btn:hover {
+    background: #fff !important;
+    border-color: rgba(168, 132, 63, .45) !important;
+    color: #8A6B2C !important;
+    -webkit-text-fill-color: #8A6B2C !important;
+  }
+}
+
+/* cover image inside the hero (if any) keeps its own curve */
+body.member-portal-body .tt-profile-hero .tt-hero-cover,
+body.member-portal-body .tt-profile-hero img.tt-hero-bg {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+/* ==========================================================================
+   Round 8 - reset the `background` SHORTHAND, not just background-image
+   --------------------------------------------------------------------------
+   Inspecting every matching rule on .tt-profile-hero showed:
+
+     member-portal.css  .member-portal-body .tt-profile-hero
+       background: linear-gradient(135deg, #0B1C33 ...)   <- shorthand
+
+   Because it is declared with the shorthand, a later rule that only sets
+   `background-image: none` still leaves the shorthand's gradient painted.
+   The only reliable reset is the shorthand itself.
+   ========================================================================== */
+
+html body.member-portal-body.member-portal-body .tt-profile-hero,
+html body.member-portal-body.member-portal-body div.tt-profile-hero {
+  background: rgba(255, 255, 255, .86) !important;
+  background-image: none !important;
+  background-color: rgba(255, 255, 255, .86) !important;
+  background-size: auto !important;
+
+  -webkit-backdrop-filter: blur(28px) saturate(1.7) !important;
+  backdrop-filter: blur(28px) saturate(1.7) !important;
+
+  border: 1px solid rgba(255, 255, 255, .92) !important;
+  border-radius: 22px !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 1px 2px rgba(17, 24, 39, .05),
+    0 14px 32px -18px rgba(17, 24, 39, .24) !important;
+
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  padding: 20px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+/* slim gold accent rule across the top edge */
+html body.member-portal-body.member-portal-body .tt-profile-hero::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  top: 0 !important;
+  height: 3px !important;
+  border-radius: 22px 22px 0 0 !important;
+  background: linear-gradient(90deg,
+    rgba(168, 132, 63, 0),
+    rgba(168, 132, 63, .8) 22%,
+    rgba(197, 160, 89, .9) 50%,
+    rgba(168, 132, 63, .8) 78%,
+    rgba(168, 132, 63, 0)) !important;
+  pointer-events: none !important;
+}
+
+/* the card body inside the hero, if it has its own dark fill */
+html body.member-portal-body.member-portal-body .tt-profile-hero > div,
+html body.member-portal-body.member-portal-body .tt-profile-hero > section {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ink: dark text on the light surface */
+html body.member-portal-body.member-portal-body .tt-profile-hero h1,
+html body.member-portal-body.member-portal-body .tt-profile-hero h2,
+html body.member-portal-body.member-portal-body .tt-profile-hero h3,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-hero-name,
+html body.member-portal-body.member-portal-body .tt-profile-hero strong,
+html body.member-portal-body.member-portal-body .tt-profile-hero b {
+  color: #14161A !important;
+  -webkit-text-fill-color: #14161A !important;
+  text-shadow: none !important;
+}
+
+html body.member-portal-body.member-portal-body .tt-profile-hero p,
+html body.member-portal-body.member-portal-body .tt-profile-hero small,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-hero-handle,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-hero-meta {
+  color: #6B7280 !important;
+  -webkit-text-fill-color: #6B7280 !important;
+  text-shadow: none !important;
+}
+
+/* stat capsules on the light surface */
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-stat-col {
+  background: #F2F5F9 !important;
+  background-image: none !important;
+  border: 1px solid rgba(120, 128, 145, .14) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-stat-col strong,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-stat-col b {
+  color: #14161A !important;
+  -webkit-text-fill-color: #14161A !important;
+}
+
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-stat-col span,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-stat-col small {
+  color: #7C8290 !important;
+  -webkit-text-fill-color: #7C8290 !important;
+}
+
+/* avatar ring */
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-hero-avatar-box,
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-hero-avatar-fallback {
+  background: rgba(168, 132, 63, .10) !important;
+  background-image: none !important;
+  border: 2px solid rgba(168, 132, 63, .45) !important;
+  color: #8A6B2C !important;
+  box-shadow: 0 0 0 4px rgba(168, 132, 63, .08),
+              0 4px 14px -6px rgba(17, 24, 39, .25) !important;
+}
+
+/* buttons inside the hero */
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-btn-gold {
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.34) 0%, rgba(255,255,255,0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  border-color: rgba(255, 255, 255, .5) !important;
+}
+
+html body.member-portal-body.member-portal-body .tt-profile-hero .tt-action-btn {
+  background: rgba(255, 255, 255, .9) !important;
+  background-image: none !important;
+  border: 1px solid rgba(120, 128, 145, .18) !important;
+  color: #3C4149 !important;
+  -webkit-text-fill-color: #3C4149 !important;
+}
+
+/* ADMIN badge - final pass with the same high-specificity approach */
+html body.member-portal-body.member-portal-body .tt-brand-badge {
+  background: rgba(168, 132, 63, .16) !important;
+  background-image: none !important;
+  border: 1px solid rgba(168, 132, 63, .34) !important;
+  color: #8A6B2C !important;
+  -webkit-text-fill-color: #8A6B2C !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .55) inset !important;
+}
+
+/* white header bar for the member app */
+html body.member-portal-body.member-portal-body .tt-app-header {
+  background: rgba(255, 255, 255, .8) !important;
+  background-image: none !important;
+  border-bottom: 1px solid rgba(60, 60, 67, .09) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .9) inset !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.8) !important;
+  backdrop-filter: blur(24px) saturate(1.8) !important;
+}
+
+/* ==========================================================================
+   Round 10 - search field as Liquid Glass
+   --------------------------------------------------------------------------
+   The field is three nested boxes:
+
+     .tt-header-search       outer layout box
+     .tt-search-input-wrap   the visible pill
+     .tt-search-input        the text field
+
+   Only the middle one paints. It carries a translucent white fill, a hairline
+   light edge, an inner top highlight, a wide soft shadow, and a saturate +
+   blur backdrop so the header behind it shows through. That combination is
+   what separates glass from a grey rectangle.
+   ========================================================================== */
+
+/* ---- outer box: layout only ---- */
+html body.member-portal-body.member-portal-body .tt-header-search {
+  background: transparent !important;
+  background-image: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* ---- the glass pane ---- */
+html body.member-portal-body.member-portal-body .tt-search-input-wrap {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+
+  width: 100% !important;
+  height: 42px !important;
+  min-height: 42px !important;
+  padding: 0 15px 0 13px !important;
+  box-sizing: border-box !important;
+
+  border: 1px solid rgba(255, 255, 255, .78) !important;
+  border-radius: 999px !important;
+
+  /* translucent white, not grey */
+  background:
+    linear-gradient(180deg,
+      rgba(255, 255, 255, .82) 0%,
+      rgba(255, 255, 255, .58) 100%) !important;
+  background-color: rgba(255, 255, 255, .68) !important;
+
+  -webkit-backdrop-filter: blur(22px) saturate(1.9) !important;
+  backdrop-filter: blur(22px) saturate(1.9) !important;
+
+  box-shadow:
+    /* inner top highlight - the raised edge */
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    /* inner bottom shade - gives thickness */
+    0 -1px 0 rgba(120, 128, 145, .10) inset,
+    /* outer hairline */
+    0 0 0 1px rgba(120, 128, 145, .10),
+    /* contact shadow */
+    0 1px 2px rgba(17, 24, 39, .06),
+    /* ambient lift */
+    0 8px 22px -12px rgba(17, 24, 39, .22) !important;
+
+  overflow: hidden !important;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .24s ease !important;
+}
+
+/* a moving sheen across the pane, matching the other glass controls */
+html body.member-portal-body.member-portal-body .tt-search-input-wrap::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, .55) 0%,
+    rgba(255, 255, 255, .12) 38%,
+    rgba(255, 255, 255, 0) 62%) !important;
+  opacity: .9;
+  z-index: 0;
+}
+
+@media (hover: hover) {
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap:hover {
+    border-color: rgba(255, 255, 255, .95) !important;
+    background-color: rgba(255, 255, 255, .76) !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 1) inset,
+      0 -1px 0 rgba(120, 128, 145, .10) inset,
+      0 0 0 1px rgba(120, 128, 145, .12),
+      0 2px 4px rgba(17, 24, 39, .07),
+      0 12px 26px -12px rgba(17, 24, 39, .26) !important;
+  }
+}
+
+/* focused: warmer edge, stronger diffusion */
+html body.member-portal-body.member-portal-body .tt-search-input-wrap:focus-within {
+  border-color: rgba(168, 132, 63, .55) !important;
+  background-color: rgba(255, 255, 255, .9) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(120, 128, 145, .08) inset,
+    0 0 0 3px rgba(168, 132, 63, .16),
+    0 2px 4px rgba(17, 24, 39, .07),
+    0 12px 26px -12px rgba(168, 132, 63, .30) !important;
+}
+
+/* ---- magnifier ---- */
+html body.member-portal-body.member-portal-body .tt-search-input-wrap > svg,
+html body.member-portal-body.member-portal-body .tt-search-input-wrap > .tt-search-icon {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 0 0 17px !important;
+  width: 17px !important;
+  height: 17px !important;
+  margin: 0 !important;
+  color: #6B7280 !important;
+  stroke: currentColor !important;
+  opacity: 1;
+  pointer-events: none;
+}
+
+/* ---- the text field: invisible, sits on the pane ---- */
+html body.member-portal-body.member-portal-body .tt-search-input {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+
+  margin: 0 !important;
+  padding: 0 !important;
+
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+
+  color: #14161A !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: -.005em !important;
+  line-height: 42px !important;
+
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+html body.member-portal-body.member-portal-body .tt-search-input::placeholder {
+  color: #8A94A6 !important;
+  opacity: 1;
+  font-weight: 500;
+}
+
+html body.member-portal-body.member-portal-body .tt-search-input::-webkit-search-cancel-button,
+html body.member-portal-body.member-portal-body .tt-search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+/* ---- clear button ---- */
+html body.member-portal-body.member-portal-body .tt-search-input-wrap > button {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 0 0 auto !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 1px solid rgba(255, 255, 255, .7) !important;
+  border-radius: 50% !important;
+  background: rgba(120, 128, 145, .14) !important;
+  color: #5C6472 !important;
+  font-size: 12px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .7) inset !important;
+  transition: background-color .16s ease, transform .14s ease !important;
+}
+
+@media (hover: hover) {
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap > button:hover {
+    background: rgba(120, 128, 145, .26) !important;
+    color: #3C4149 !important;
+  }
+}
+
+html body.member-portal-body.member-portal-body .tt-search-input-wrap > button:active {
+  transform: scale(.9);
+}
+
+/* ---- small screens ---- */
+@media (max-width: 600px) {
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 13px !important;
+    gap: 8px !important;
+  }
+  html body.member-portal-body.member-portal-body .tt-search-input {
+    font-size: 13px !important;
+    line-height: 40px !important;
+  }
+}
+
+/* ---- browsers without backdrop-filter get a solid pane, not mud ---- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap {
+    background: rgba(255, 255, 255, .95) !important;
+  }
+}
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap,
+  html body.member-portal-body.member-portal-body .tt-search-input-wrap > button {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Round 11 - every remaining text field and select, as rounded glass
+   --------------------------------------------------------------------------
+   The search pill is fine, but form controls that are NOT inside the pill
+   still paint as flat grey rectangles with square corners - for example the
+   username / handle field under the profile, and the quick filter inputs in
+   the admin panel. This block gives every text-like control the same
+   treatment: a 12px radius, a translucent white fill, a hairline light edge
+   and a soft focus ring.
+   ========================================================================== */
+
+body input[type="text"],
+body input[type="search"],
+body input[type="email"],
+body input[type="password"],
+body input[type="url"],
+body input[type="tel"],
+body input[type="number"],
+body input[type="date"],
+body select,
+body textarea {
+  box-sizing: border-box !important;
+  min-height: 40px !important;
+  padding: 0 14px !important;
+
+  border: 1px solid rgba(255, 255, 255, .78) !important;
+  border-radius: 12px !important;
+
+  background-color: rgba(255, 255, 255, .72) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .82) 0%,
+    rgba(255, 255, 255, .56) 100%) !important;
+
+  -webkit-backdrop-filter: blur(18px) saturate(1.7) !important;
+  backdrop-filter: blur(18px) saturate(1.7) !important;
+
+  color: #14161A !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(120, 128, 145, .08) inset,
+    0 0 0 1px rgba(120, 128, 145, .10),
+    0 1px 2px rgba(17, 24, 39, .05),
+    0 6px 18px -12px rgba(17, 24, 39, .20) !important;
+
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .22s ease !important;
+}
+
+body textarea {
+  min-height: 110px !important;
+  padding: 12px 14px !important;
+  line-height: 1.6 !important;
+  resize: vertical;
+}
+
+body input::placeholder,
+body textarea::placeholder {
+  color: #8A94A6 !important;
+  opacity: 1;
+}
+
+body input:focus,
+body select:focus,
+body textarea:focus {
+  outline: none !important;
+  border-color: rgba(168, 132, 63, .55) !important;
+  background-color: rgba(255, 255, 255, .92) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 0 0 3px rgba(168, 132, 63, .16),
+    0 2px 4px rgba(17, 24, 39, .07),
+    0 10px 24px -12px rgba(168, 132, 63, .28) !important;
+}
+
+/* native select arrow, redrawn to match the glass style */
+body select {
+  padding-right: 38px !important;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, .82) 0%, rgba(255, 255, 255, .56) 100%),
+    url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat, no-repeat !important;
+  background-position: center, right 14px center !important;
+  background-size: auto, 12px 8px !important;
+  cursor: pointer;
+}
+
+/* checkbox / radio must keep their native shape */
+body input[type="checkbox"],
+body input[type="radio"],
+body input[type="range"],
+body input[type="color"],
+body input[type="file"] {
+  border-radius: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+}
+
+body input[type="checkbox"],
+body input[type="radio"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  accent-color: #A8843F;
+}
+
+/* buttons and submits are handled elsewhere - do not double-style them */
+body input[type="submit"],
+body input[type="button"],
+body input[type="reset"],
+body input[type="image"] {
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* fallback for browsers without backdrop-filter */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body input[type="text"],
+  body input[type="search"],
+  body input[type="email"],
+  body input[type="password"],
+  body input[type="tel"],
+  body input[type="number"],
+  body select,
+  body textarea {
+    background: rgba(255, 255, 255, .96) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body input,
+  body select,
+  body textarea { transition: none !important; }
+}
+
+/* ==========================================================================
+   Round 12 - the @username chip becomes a glass capsule
+   --------------------------------------------------------------------------
+   Measured before:
+     .tt-hero-handle  71x26  radius 0  bg rgb(241,245,249)  padding 0
+                       border 1px rgb(226,232,240)
+
+   A flat grey rectangle with square corners inside an otherwise all-glass
+   card. It now uses the same translucent material as the search pill, with a
+   small gold tint so it reads as an identity marker rather than a button.
+   ========================================================================== */
+
+body.member-portal-body .tt-hero-handle,
+html body.member-portal-body.member-portal-body .tt-hero-handle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  width: auto !important;
+  height: 26px !important;
+  min-height: 26px !important;
+  padding: 0 11px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+
+  border: 1px solid rgba(255, 255, 255, .8) !important;
+  border-radius: 999px !important;
+
+  background-color: rgba(168, 132, 63, .12) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .55) 0%,
+    rgba(255, 255, 255, .18) 100%) !important;
+
+  -webkit-backdrop-filter: blur(14px) saturate(1.6) !important;
+  backdrop-filter: blur(14px) saturate(1.6) !important;
+
+  color: #8A6B2C !important;
+  -webkit-text-fill-color: #8A6B2C !important;
+  text-shadow: none !important;
+
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .9) inset,
+    0 -1px 0 rgba(168, 132, 63, .10) inset,
+    0 0 0 1px rgba(168, 132, 63, .14),
+    0 2px 6px -3px rgba(168, 132, 63, .28) !important;
+
+  transition:
+    background-color .18s ease,
+    border-color .18s ease,
+    box-shadow .22s ease,
+    transform .15s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+@media (hover: hover) {
+  body.member-portal-body .tt-hero-handle:hover {
+    background-color: rgba(168, 132, 63, .18) !important;
+    border-color: rgba(255, 255, 255, .95) !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .95) inset,
+      0 0 0 1px rgba(168, 132, 63, .22),
+      0 4px 10px -4px rgba(168, 132, 63, .34) !important;
+  }
+}
+
+body.member-portal-body .tt-hero-handle:active {
+  transform: scale(.96);
+}
+
+/* the wrapper row must keep it on the same baseline as the name */
+body.member-portal-body .tt-hero-title-row {
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+
+/* if the handle is a link, no underline */
+body.member-portal-body a.tt-hero-handle,
+body.member-portal-body a.tt-hero-handle:visited {
+  text-decoration: none !important;
+  color: #8A6B2C !important;
+  -webkit-text-fill-color: #8A6B2C !important;
+}
+
+body.member-portal-body a.tt-hero-handle:focus-visible {
+  outline: 3px solid rgba(168, 132, 63, .55) !important;
+  outline-offset: 2px !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.member-portal-body .tt-hero-handle { transition: none !important; }
+  body.member-portal-body .tt-hero-handle:active { transform: none; }
+}

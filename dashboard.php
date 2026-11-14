@@ -198,6 +198,8 @@ $pageTitle = ($memberDisplayName) . ' (@' . $memberProfile['username'] . ') | ' 
   <link rel="stylesheet" href="css/member-portal.css?v=<?= e((string)filemtime(__DIR__ . '/css/member-portal.css')) ?>">
   <?php site_controls_head(); lang_toggle_head(); ?>
   <link rel="stylesheet" href="css/analytics.css?v=<?= e((string)filemtime(__DIR__ . '/css/analytics.css')) ?>">
+  <?php /* iOS 26/27 skin for the member portal — loaded last so it wins */ ?>
+  <link rel="stylesheet" href="css/ios-member.css?v=<?= e((string)filemtime(__DIR__ . '/css/ios-member.css')) ?>">
 </head>
 <body class="member-portal-body member-theme-light">
 
