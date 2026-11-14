@@ -37,18 +37,29 @@ $pageDesc  = t('ศูนย์รวมข้อความแจ้งเต�
       margin-bottom: 30px;
       border-bottom: 2px solid rgba(197, 160, 89, 0.35);
     }
-    .notif-hero h1 {
-      margin: 0 0 6px;
-      font-size: clamp(22px, 3vw, 28px);
-      font-weight: 800;
+    /* ⚠ css/style.css มีกฎ h1,h2,h3,h4 { color: var(--primary) } = navy เข้ม
+       และโหลดหลัง <style> นี้ ทำให้หัวข้อจมบนพื้น navy (contrast 1.0)
+       ต้องระบุสีขาวให้เฉพาะเจาะจง */
+    .notif-hero h1,
+    .notif-hero h2,
+    .notif-hero h3 {
+      margin: 0 0 6px !important;
+      font-size: clamp(22px, 3vw, 28px) !important;
+      font-weight: 800 !important;
+      line-height: 1.28 !important;
+      letter-spacing: -0.015em;
+      color: #ffffff !important;
       display: flex;
       align-items: center;
       gap: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
     }
     .notif-hero p {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.82);
+      margin: 0 !important;
+      color: rgba(255, 255, 255, 0.82) !important;
       font-size: 13.5px;
+      line-height: 1.6;
+      max-width: 62ch;
     }
 
     .notif-list-box {
