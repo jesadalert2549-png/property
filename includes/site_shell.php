@@ -98,11 +98,46 @@ function render_page_cta(array $cfg = []): void
 }
 
 // สคริปต์ UX กลาง: แถบความคืบหน้า + ปุ่มกลับขึ้นด้านบน
+// + เติม skip-link / landmark ให้หน้าที่ยังไม่มี (accessibility)
 function render_ux_scripts(): void
 {
     ?>
     <script>
       (() => {
+        /* ---- Accessibility bootstrap ----
+           ทำให้ทุกหน้าได้ประโยชน์โดยไม่ต้องแก้ markup ทีละไฟล์:
+           1) เพิ่ม skip link ถ้ายังไม่มี
+           2) ให้ <main> มี id + tabindex=-1 เพื่อรับโฟกัสจากการกระโดด
+           3) เติม role="main" ให้ main ที่ยังไม่มี landmark */
+        (() => {
+          /* หน้าแรก verwendet <section class="dd-hero"> เป็นเนื้อหาหลัก ไม่มี <main>
+             → ตรวจ main ก่อน ถ้าไม่มีให้ใช้ element เนื้อหาหลักที่รู้จัก แล้วค่อย fallback body */
+          const main = document.querySelector('main')
+            || document.querySelector('.dd-hero')
+            || document.querySelector('.project-main')
+            || document.querySelector('.search-main, #searchResults')
+            || document.body;
+          if (main && !main.id) main.id = 'main-content';
+          if (main && main !== document.body) {
+            if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1');
+            if (!main.getAttribute('role')) main.setAttribute('role', 'main');
+          }
+          if (document.querySelector('.skip-to-content')) return;
+          const target = main && main.id ? '#' + main.id : '#main-content';
+          const link = document.createElement('a');
+          link.className = 'skip-to-content';
+          link.href = target;
+          link.textContent = '<?= e(t('ข้ามไปยังเนื้อหาหลัก', 'Skip to main content')) ?>';
+          link.addEventListener('click', (e) => {
+            const el = document.querySelector(target);
+            if (!el) return;
+            e.preventDefault();
+            el.focus({ preventScroll: true });
+            el.scrollIntoView({ block: 'start', behavior: 'auto' });
+          });
+          document.body.insertBefore(link, document.body.firstChild);
+        })();
+
         const bar = document.createElement('div');
         bar.className = 'scroll-progress';
         document.body.prepend(bar);

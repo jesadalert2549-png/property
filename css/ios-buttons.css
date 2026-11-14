@@ -64,14 +64,56 @@
               opacity .18s ease;
 }
 
-/* ปุ่มไอคอนล้วน: ต้องเป็นสี่เหลี่ยมจัตุรัส 44x44 */
-.dd-icon-btn,
-.qs-filter-btn {
+/* ปุ่มไอคอนล้วน: ต้องเป็นสี่เหลี่ยมจัตุรัส 44x44
+   ⚠ .qs-filter-btn ไม่อยู่ใน kelompok นี้ เพราะภายในมีข้อความ
+   "สิ่งอำนวยความสะดวก" + badge ตัวเลข — ถ้าบังคับ width 44px ข้อความจะล้น
+   ออกมาเป็นแถบขาวกลางช่องค้นหา (เห็นชัดใน dark mode) */
+.dd-icon-btn {
   width: var(--ios-btn-h-sm);
   min-width: var(--ios-btn-h-sm);
   padding: 0;
   border-radius: 12px;
 }
+
+/* ปุ่มตัวกรอง: ต้องกว้างตามเนื้อหา แต่สูงขั้นต่ำ 44px */
+.qs-filter-btn {
+  width: auto;
+  min-width: 0;
+  max-width: 100%;
+  min-height: var(--ios-btn-h-sm);
+  padding: 0 12px;
+  border-radius: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ปุ่ม "ค้นหาด้วย AI"
+   ── ตัวอย่างที่พบใน browser: ถ้าปุ่มได้พื้นทองอ่อน (linear-gradient C5A059→A8843F)
+      ตัวอักษร navy #0B1C33 จะให้ contrast ~3.3 ซึ่งอ่านได้
+   ── แต่เมื่อสไตล์อื่นให้พื้นเป็น navy เข้ม (เช่น .dd-btn-search ถูกครอบด้วย
+      navbar ที่มี background navy) ตัวอักษร navy จะจมเป็น ratio 1.0
+   ── ใช้สีเข้มอ่อนกว่าเดิม (#1A1204) เพื่อให้อยู่ได้ทั้งพื้นทองสว่างและกึ่งเข้ม */
+.dd-btn-search,
+.qs-submit {
+  color: #10151F !important;
+}
+.dd-btn-search span,
+.qs-submit span {
+  color: #10151F !important;
+  font-weight: 800;
+}
+.dd-btn-search svg,
+.qs-submit svg { stroke: #10151F !important; color: #10151F !important; }
+
+/* ปุ่มใน header (nav-cta "ลงประกาศฟรี", dd-btn-login) — พื้นทอง ตัวอักษรเข้ม */
+.nav-cta,
+.dd-btn-login,
+.dd-navbar .nav-cta,
+.dd-navbar .dd-btn-login {
+  color: #10151F !important;
+}
+.dd-navbar .nav-cta span,
+.dd-navbar .dd-btn-login span { color: #10151F !important; }
 
 /* ------------------------------------------------------- ขนาดที่ใหญ่ขึ้น */
 .btn-block,

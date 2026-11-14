@@ -1134,13 +1134,18 @@ body {
   box-shadow: 0 8px 26px rgba(6, 15, 28, 0.35);
 }
 
-/* Menu items: dark navy text at top over transparent hero, white text when scrolled */
+/* Menu items
+   ── เดิมสไตล์นี้เขียนสำหรับ navbar พื้น "โปร่งใส" ที่ลอยบน hero:
+      ข้อความ navy เข้ม + เงาขาว เพื่อให้อ่านออกบนภาพสว่าง
+   ── แต่ navbar ปัจจุบันมี background #0B1C33 ทึบ (index.php) ทำให้
+      ข้อความ navy อยู่บนพื้น navy → contrast ratio 1.08 อ่านไม่ออก
+   ── แก้เป็นตัวอักษรสว่างบนพื้นเข้ม ทั้งตอนอยู่บนสุดและตอน scroll */
 .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle,
 .dd-navbar:not(.scrolled) .dd-desktop-menu > .dd-menu-item {
-  color: #0B1C33 !important;
-  font-weight: 800;
+  color: #E2E8F0 !important;
+  font-weight: 700;
   font-size: 14.5px;
-  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.35);
+  text-shadow: none !important;
   transition: color 0.2s ease;
 }
 .dd-navbar.scrolled .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle,
@@ -1152,7 +1157,7 @@ body {
 }
 .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle:hover,
 .dd-navbar:not(.scrolled) .dd-desktop-menu > .dd-menu-item:hover {
-  color: #8C6B32 !important;
+  color: #E3C078 !important;
 }
 .dd-navbar.scrolled .dd-desktop-menu .nav-dropdown > .nav-dropdown-toggle:hover,
 .dd-navbar.scrolled .dd-desktop-menu > .dd-menu-item:hover {
@@ -1183,11 +1188,13 @@ body {
   color: #FFFFFF !important;
 }
 
-/* Translucent pill buttons at top (.dd-icon-btn) - matches user's design */
+/* Translucent pill buttons at top (.dd-icon-btn)
+   ── เดิม: พื้นดำโปร่ง 18% บน navbar navy + ตัวอักษร navy → ratio 1.08 อ่านไม่ออก
+   ── แก้: ตัวอักษรสว่าง ขอบอ่อน เพื่อให้อ่านได้ทั้ง light/dark */
 .dd-navbar:not(.scrolled) .dd-icon-btn {
-  color: #0B1C33 !important;
-  border: 1px solid rgba(11, 28, 51, 0.35) !important;
-  background: rgba(0, 0, 0, 0.18) !important;
+  color: #E2E8F0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background: rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   font-weight: 700;
@@ -1198,9 +1205,9 @@ body {
   transition: all .2s ease;
 }
 .dd-navbar:not(.scrolled) .dd-icon-btn:hover {
-  background: rgba(0, 0, 0, 0.28) !important;
-  border-color: #0B1C33 !important;
-  color: #0B1C33 !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(197, 160, 89, 0.6) !important;
+  color: #E3C078 !important;
 }
 .dd-navbar.scrolled .dd-icon-btn {
   color: #FFFFFF !important;

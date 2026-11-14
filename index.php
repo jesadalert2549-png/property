@@ -232,15 +232,18 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       border-bottom: 1px solid rgba(197, 160, 89, 0.35) !important;
       box-shadow: 0 8px 26px rgba(6, 15, 28, 0.45) !important;
     }
+    /* ⚠ เดิมตั้ง color:#0B1C33 (น้ำเงินเข้ม) บนพื้น #0B1C33 ที่บรรทัด 231
+       ทำให้เมนูทุกตัวกลายเป็นน้ำเงินบนน้ำเงิน อ่านไม่ออก (contrast ratio 1.08)
+       และ text-shadow ขาวยิ่งกลบให้จางลง — ต้องเป็นตัวอักษรสว่างบนพื้นเข้ม */
     .dd-navbar:not(.scrolled) .dd-menu-item,
     .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown-toggle {
-      color: #0B1C33 !important;
-      font-weight: 800 !important;
-      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+      color: #E8EDF4 !important;
+      font-weight: 700 !important;
+      text-shadow: none !important;
     }
     .dd-navbar:not(.scrolled) .dd-menu-item:hover,
     .dd-navbar:not(.scrolled) .dd-desktop-menu .nav-dropdown-toggle:hover {
-      color: #8C6B32 !important;
+      color: #E3C078 !important;
     }
     .dd-navbar:not(.scrolled) .nav-caret {
       border-color: #0B1C33 !important;

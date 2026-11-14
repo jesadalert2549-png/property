@@ -149,6 +149,8 @@ function site_controls_head(): void
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
     // ระบบปุ่ม iOS — โหลดท้ายสุดเพื่อให้ค่าชนะสไตล์เฉพาะหน้าอื่น
     echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-buttons.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-buttons.css')) . '">' . "\n";
+    // Accessibility: skip link + dark mode + contrast helpers
+    echo '<link rel="stylesheet" href="' . e(site_asset_url('css/a11y.css') . '?v=' . filemtime(__DIR__ . '/../css/a11y.css')) . '">' . "\n";
     echo '<script defer src="' . $js . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
