@@ -20,7 +20,7 @@
     0 1px 2px rgba(16, 24, 40, .05),
     0 8px 24px -6px rgba(16, 24, 40, .10) !important;
   transition: transform .32s cubic-bezier(.22, 1, .36, 1),
-              box-shadow .32s cubic-bezier(.22, 1, .36, 1) !important;
+    box-shadow .32s cubic-bezier(.22, 1, .36, 1) !important;
   overflow: hidden;
   isolation: isolate;
 }
@@ -34,7 +34,9 @@
   }
 }
 
-.showcase-card:active { transform: scale(.985) !important; }
+.showcase-card:active {
+  transform: scale(.985) !important;
+}
 
 .showcase-card:focus-visible {
   outline: 3px solid rgba(197, 160, 89, .8);
@@ -50,9 +52,14 @@
   overflow: hidden;
 }
 
-.showcase-img { transition: transform .6s cubic-bezier(.22, 1, .36, 1) !important; }
+.showcase-img {
+  transition: transform .6s cubic-bezier(.22, 1, .36, 1) !important;
+}
+
 @media (hover: hover) {
-  .showcase-card:hover .showcase-img { transform: scale(1.04) !important; }
+  .showcase-card:hover .showcase-img {
+    transform: scale(1.04) !important;
+  }
 }
 
 /* ไล่เงาด้านล่างบาง ๆ ให้ป้ายบนรูปอ่านง่ายขึ้น */
@@ -130,14 +137,27 @@
   transition: background-color .16s ease, transform .14s cubic-bezier(.32, .72, 0, 1) !important;
 }
 
-.card-video-pill .pill-play-icon { color: #F8D888 !important; }
-.card-video-pill .pill-text { line-height: 1; }
+.card-video-pill .pill-play-icon {
+  color: #F8D888 !important;
+}
 
-.card-video-pill:active { transform: scale(.94); }
+.card-video-pill .pill-text {
+  line-height: 1;
+}
 
-/* หัวใจ: วงกลมขาวทึบ 36px */
+.card-video-pill:active {
+  transform: scale(.94);
+}
+
+/* หัวใจ: วงกลมขาวทึบ 36px
+   ⚠ ต้อง position: relative + z-index เพื่อให้อยู่เหนือ ::after ของ
+   .showcase-media (gradient overlay ที่มี position:absolute; z-index:1)
+   เดิมปุ่มเป็น position:static ทำให้ z-index:10 ที่เขียนไว้ไม่มีผล
+   แล้วเงา gradient วาดทับหัวใจจนหายไป */
 .sp-fav-card-btn,
 .showcase-fav-btn {
+  position: relative !important;
+  z-index: 6 !important;
   display: inline-grid !important;
   place-items: center !important;
   width: 36px !important;
@@ -157,7 +177,9 @@
 }
 
 .sp-fav-card-btn:active,
-.showcase-fav-btn:active { transform: scale(.88); }
+.showcase-fav-btn:active {
+  transform: scale(.88);
+}
 
 .sp-fav-card-btn.is-favorite,
 .showcase-fav-btn.is-favorite {
@@ -165,11 +187,18 @@
   color: #fff !important;
 }
 
-.sp-fav-card-btn.is-favorite .heart-svg { fill: currentColor; }
+.sp-fav-card-btn.is-favorite .heart-svg {
+  fill: currentColor;
+}
 
 @media (hover: hover) {
-  .card-video-pill:hover { background: rgba(11, 28, 51, .74) !important; }
-  .sp-fav-card-btn:hover { background: #fff !important; }
+  .card-video-pill:hover {
+    background: rgba(11, 28, 51, .74) !important;
+  }
+
+  .sp-fav-card-btn:hover {
+    background: #fff !important;
+  }
 }
 
 /* ------------------------------------------------------ เนื้อหาด้านล่าง */
@@ -182,7 +211,9 @@
   gap: 6px;
 }
 
-.showcase-publisher-row { margin: 0 0 2px !important; }
+.showcase-publisher-row {
+  margin: 0 0 2px !important;
+}
 
 .showcase-publisher-row .publisher-mini {
   background: #F2F5F9 !important;
@@ -213,7 +244,9 @@
   color: #101828 !important;
 }
 
-.showcase-card:hover .showcase-card-title { color: #101828 !important; }
+.showcase-card:hover .showcase-card-title {
+  color: #101828 !important;
+}
 
 /* ที่ตั้ง: ไอคอนเข็มหมุด + ข้อความจาง */
 .showcase-card-loc {
@@ -234,7 +267,7 @@
   background: currentColor;
   opacity: .55;
   -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 0 1 1 12 6.5a2.5 0 0 1 0 5z'/></svg>") center / contain no-repeat;
-          mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/></svg>") center / contain no-repeat;
+  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/></svg>") center / contain no-repeat;
 }
 
 /* แถวราคา: ไม่มีเส้นคั่น ใช้ช่องว่าง + ราคาเด่น */
@@ -259,7 +292,7 @@
   flex: 0 0 auto;
 }
 
-.showcase-stats-wrap > * {
+.showcase-stats-wrap>* {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -275,21 +308,63 @@
 
 /* ------------------------------------------------------------ จอเล็ก */
 @media (max-width: 480px) {
-  .showcase-card { border-radius: 18px !important; }
-  .showcase-media { aspect-ratio: 16 / 11 !important; }
-  .showcase-body { padding: 12px 14px 14px !important; gap: 5px; }
-  .showcase-card-title { font-size: 14.5px !important; }
-  .showcase-price { font-size: 17.5px !important; }
-  .card-video-pill { height: 34px !important; min-height: 34px !important; padding: 0 10px !important; font-size: 11.5px !important; }
-  .sp-fav-card-btn, .showcase-fav-btn { width: 34px !important; height: 34px !important; min-width: 34px !important; min-height: 34px !important; }
-  .showcase-badges-left { top: 10px !important; left: 10px !important; }
-  .showcase-actions-right { top: 10px !important; right: 10px !important; }
+  .showcase-card {
+    border-radius: 18px !important;
+  }
+
+  .showcase-media {
+    aspect-ratio: 16 / 11 !important;
+  }
+
+  .showcase-body {
+    padding: 12px 14px 14px !important;
+    gap: 5px;
+  }
+
+  .showcase-card-title {
+    font-size: 14.5px !important;
+  }
+
+  .showcase-price {
+    font-size: 17.5px !important;
+  }
+
+  .card-video-pill {
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 11.5px !important;
+  }
+
+  .sp-fav-card-btn,
+  .showcase-fav-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+
+  .showcase-badges-left {
+    top: 10px !important;
+    left: 10px !important;
+  }
+
+  .showcase-actions-right {
+    top: 10px !important;
+    right: 10px !important;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .showcase-card,
   .showcase-img,
   .card-video-pill,
-  .sp-fav-card-btn { transition: none !important; }
-  .showcase-card:hover { transform: none !important; }
+  .sp-fav-card-btn {
+    transition: none !important;
+  }
+
+  .showcase-card:hover {
+    transform: none !important;
+  }
 }

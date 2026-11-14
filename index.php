@@ -1007,25 +1007,54 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       gap: 5px;
       z-index: 10;
     }
+    /* ⚠ สำคัญ: ห้ามใส่ position:static ที่นี่
+       เดิมปุ่มถูกบังคับให้ static ทำให้ z-index ที่ rule อื่นตั้งไว้ไม่มีผล
+       → ::after (gradient overlay ของ .showcase-media, z-index:1) วาดทับ
+       จนเห็นเป็นวงกลมเปล่าไม่มีหัวใจ
+       ตอนนี้ปล่อยให้ position มาจาก ios-card.css (relative) */
     .showcase-actions-right .sp-fav-card-btn,
     .showcase-fav-btn {
-      position: static !important;
+      position: relative !important;
+      z-index: 6 !important;
       top: auto !important;
       right: auto !important;
-      width: 28px !important;
-      height: 28px !important;
+      width: 36px !important;
+      height: 36px !important;
       border-radius: 50% !important;
-      background: rgba(255, 255, 255, 0.85) !important;
-      backdrop-filter: blur(6px) !important;
-      -webkit-backdrop-filter: blur(6px) !important;
-      border: 1px solid rgba(255, 255, 255, 0.8) !important;
+      background: rgba(255, 255, 255, 0.94) !important;
+      backdrop-filter: blur(12px) !important;
+      -webkit-backdrop-filter: blur(12px) !important;
+      border: 1px solid rgba(255, 255, 255, 0.55) !important;
       display: grid !important;
       place-items: center !important;
+      /* ต้องมีสีสำหรับ stroke="currentColor" ของ SVG หัวใจ */
+      color: #1E293B !important;
       font-size: 14px !important;
       cursor: pointer !important;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.14) !important;
-      transition: transform 0.2s, background 0.2s !important;
+      box-shadow: 0 1px 3px rgba(6, 15, 28, 0.22) !important;
+      transition: transform 0.16s cubic-bezier(.32,.72,0,1), background 0.16s !important;
       margin: 0 !important;
+    }
+
+    /* ไอคอนหัวใจ: บังคับให้วาดเส้นชัดเจนและเหนือ overlay */
+    .showcase-fav-btn .heart-svg {
+      display: block !important;
+      width: 18px !important;
+      height: 18px !important;
+      stroke: currentColor !important;
+      stroke-width: 2 !important;
+      fill: none !important;
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .showcase-fav-btn.is-favorite .heart-svg {
+      fill: currentColor !important;
+    }
+    .showcase-fav-btn.is-favorite {
+      background: #FF3B30 !important;
+      color: #FFFFFF !important;
+      border-color: #E0322A !important;
     }
     .showcase-actions-right .sp-fav-card-btn:hover,
     .showcase-fav-btn:hover {

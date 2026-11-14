@@ -1,0 +1,742 @@
+/* ==========================================================================
+   Header tidy-up — จัดเมนูให้อ่านง่าย ลดความรก
+   --------------------------------------------------------------------------
+   ปัญหาเดิม: เมนูบนแถวเดียว 10 รายการ (หน้าแรก / ซื้อ / เช่า / ค้นหาทรัพย์ /
+   ที่ชอบ / แจ้งเตือน / โครงการใหม่ / เข้าสู่ระบบ / ลงประกาศฟรี / EN)
+   → แน่น ไม่มีลำดับความสำคัญ และเมื่อ CSS ยังโหลดไม่ครบจะดูซ้อนกัน
+
+   หลักที่ใช้:
+     • แบ่งเป็น 3 กลุ่ม: นำทางหลัก | บัญชี (ไอคอน) | ปุ่มหลัก (CTA)
+     • ลดข้อความในเมนูเหลือคำสั้น ใช้ไอคอน + tooltip สำหรับบัญชี
+     • เส้นคั่นบาง ๆ ระหว่างกลุ่ม (แบบ iOS navigation bar)
+     • ปุ่ม CTA เด่นเพียงปุ่มเดียว
+   ========================================================================== */
+
+/* ----------------------------------------------------- ระยะห่างที่พอดี */
+.site-header .header-inner {
+  gap: 16px;
+}
+
+.site-header .site-nav {
+  gap: 2px;
+  align-items: center;
+}
+
+/* ------------------------------------------------- เมนูนำทางหลัก (ข้อความ) */
+.site-header .site-nav > a,
+.site-header .site-nav > .nav-dropdown > .nav-dropdown-toggle {
+  height: 38px;
+  padding: 0 12px !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, .88) !important;
+  transition: background-color .16s ease, color .16s ease !important;
+}
+
+@media (hover: hover) {
+  .site-header .site-nav > a:hover,
+  .site-header .site-nav > .nav-dropdown > .nav-dropdown-toggle:hover {
+    background: rgba(255, 255, 255, .1) !important;
+    color: #fff !important;
+  }
+}
+
+.site-header .site-nav > a:active,
+.site-header .site-nav > .nav-dropdown > .nav-dropdown-toggle:active {
+  background: rgba(255, 255, 255, .16) !important;
+  transform: scale(.98);
+}
+
+/* ------------------------------------- เมนูบัญชี (ที่ชอบ / แจ้งเตือน) เป็นไอคอน */
+/* เก็บข้อความไว้ให้ screen reader อ่าน แต่ซ่อนด้วยตาเปล่า */
+.site-header .site-nav > a[href="favorites.php"],
+.site-header .site-nav > a[href="notifications.php"] {
+  position: relative;
+  width: 40px;
+  min-width: 40px;
+  padding: 0 !important;
+  justify-content: center !important;
+  font-size: 0 !important;
+  gap: 0;
+}
+
+.site-header .site-nav > a[href="favorites.php"] > *,
+.site-header .site-nav > a[href="notifications.php"] > * {
+  font-size: 0;
+}
+
+/* ตัวอักษรที่ซ่อนไม่ให้ screen reader พลาด: ใส่ชื่อด้วย aria-label ที่ PHP
+   มีอยู่แล้วไม่ได้ → ใช้ ::before แสดง emoji กลับมาแทน */
+.site-header .site-nav > a[href="favorites.php"]::before {
+  content: "❤";
+  font-size: 17px;
+  line-height: 1;
+}
+.site-header .site-nav > a[href="notifications.php"]::before {
+  content: "🔔";
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* badge ตัวเลข: ให้ลอยมุมขวาบนแบบ iOS */
+.site-header .site-nav > a[href="favorites.php"] .sp-fav-count-badge,
+.site-header .site-nav > a[href="notifications.php"] .sp-notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px !important;
+  border-radius: 999px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  line-height: 16px !important;
+  text-align: center;
+  box-shadow: 0 0 0 2px #0B1C33;
+}
+
+/* ------------------------------------------------- เส้นคั่นระหว่างกลุ่ม */
+.site-header .site-nav > a[href="favorites.php"]::after {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  width: 1px;
+  height: 20px;
+  margin-top: -10px;
+  background: rgba(255, 255, 255, .18);
+  pointer-events: none;
+}
+
+/* ------------------------------------------------------- ปุ่มหลัก (CTA) */
+.site-header .site-nav > a.nav-cta {
+  height: 40px;
+  margin-left: 8px;
+  padding: 0 18px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(135deg, #E5CB96, #C5A059) !important;
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+  font-size: 14px !important;
+  box-shadow: 0 2px 8px rgba(197, 160, 89, .35);
+  border: 0 !important;
+}
+
+@media (hover: hover) {
+  .site-header .site-nav > a.nav-cta:hover {
+    background: linear-gradient(135deg, #F0DCB0, #D0AC68) !important;
+    color: #0B1C33 !important;
+    box-shadow: 0 4px 14px rgba(197, 160, 89, .48);
+    transform: translateY(-1px);
+  }
+}
+
+.site-header .site-nav > a.nav-cta:active {
+  transform: scale(.97);
+  box-shadow: 0 1px 4px rgba(197, 160, 89, .35);
+}
+
+/* ------------------------------------------------------ เข้าสู่ระบบ */
+.site-header .site-nav > a[href="login.php"],
+.site-header .site-nav > a[href="logout.php"],
+.site-header .site-nav > a[href="dashboard.php"],
+.site-header .site-nav > a[href="admin/index.php"] {
+  color: rgba(255, 255, 255, .82) !important;
+}
+
+/* ------------------------------------------------------ ตัวสลับภาษา */
+.site-header .site-nav .lang-toggle {
+  height: 34px;
+  padding: 0 10px !important;
+  margin-left: 4px;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: rgba(255, 255, 255, .9) !important;
+  background: rgba(255, 255, 255, .06) !important;
+}
+
+@media (hover: hover) {
+  .site-header .site-nav .lang-toggle:hover {
+    background: rgba(255, 255, 255, .14) !important;
+    border-color: rgba(197, 160, 89, .6) !important;
+    color: #E3C078 !important;
+  }
+}
+
+/* -------------------------------------------- ลดจำนวนเมนูตามความกว้างจอ */
+/* 1280-1150: ซ่อน "โครงการใหม่" (เข้าถึงได้จากหน้าแรกและ drawer) */
+@media (max-width: 1280px) {
+  .site-header .site-nav > a[href="project.php"] { display: none !important; }
+}
+
+/* 1150-1050: ซ่อน "ค้นหาทรัพย์" (ใช้ ซื้อ/เช่า แทน) */
+@media (max-width: 1150px) {
+  .site-header .site-nav > a[href="search.php"]:not(.nav-cta) { display: none !important; }
+}
+
+/* ต่ำกว่า 1050: ซ่อนข้อความบัญชี เหลือไอคอน */
+@media (max-width: 1050px) {
+  .site-header .site-nav > a[href="login.php"] { display: none !important; }
+}
+
+/* --------------------------------------------------------------- มือถือ */
+@media (max-width: 900px) {
+  .site-header .site-nav { display: none; }
+}
+
+/* ลดการเคลื่อนไหว */
+@media (prefers-reduced-motion: reduce) {
+  .site-header .site-nav > a,
+  .site-header .site-nav .nav-cta {
+    transition: none !important;
+  }
+}
+
+/* ==========================================================================
+   Tidy v2 — ปรับเพิ่มให้โปร่งและสบายตาขึ้น (โหลดหลังชุดแรก)
+   --------------------------------------------------------------------------
+   เปลี่ยนที่สำคัญ:
+     1) Navbar สูงขึ้น 76px เพื่อให้โลโก้ไม่เบียดเมนู
+     2) ตัดรายการที่ซ้ำกันออกจากแถวหลัก (หน้าแรก / ค้นหาทรัพย์)
+        เพราะ "ซื้อ / เช่า" พาไปหน้าค้นหาได้อยู่แล้ว และโลโก้ก็กลับหน้าแรกได้
+        → เหลือ 6 รายการหลัก + ปุ่ม ซึ่งหายใจได้จริง
+     3) ที่ชอบ / แจ้งเตือน เป็นไอคอนล้วน แยกกลุ่มด้วยเส้นบาง
+     4) ตัวอักษร 13.5px น้ำหนัก 500 (เดิม 600 และใหญ่กว่า) เพื่อลดความแน่น
+   ถ้าต้องการรายการที่ซ่อนไว้ ยังเข้าถึงได้จาก hamburger drawer บนมือถือ
+   และจากหน้าแรก
+   ========================================================================== */
+
+/* ------------------------------------------------------- ความสูง navbar */
+.site-header .header-inner {
+  min-height: 76px;
+  gap: 20px;
+  padding: 0 20px;
+}
+
+/* --------------------------------------------------- ซ่อนรายการที่ซ้ำ */
+/* หน้าแรก: โลโก้ทำหน้าที่นี้อยู่แล้ว */
+.site-header .site-nav > a[href="index.php"] { display: none !important; }
+/* ค้นหาทรัพย์: ซื้อ/เช่า พาไปหน้าค้นหาอยู่แล้ว */
+.site-header .site-nav > a[href="search.php"]:not(.nav-cta) { display: none !important; }
+
+/* ------------------------------------------- ระยะห่าง/ตัวอักษรที่โปร่งขึ้น */
+.site-header .site-nav {
+  gap: 4px;
+}
+
+.site-header .site-nav > a,
+.site-header .site-nav > .nav-dropdown > .nav-dropdown-toggle {
+  height: 36px;
+  padding: 0 14px !important;
+  border-radius: 10px !important;
+  font-size: 13.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, .84) !important;
+}
+
+@media (hover: hover) {
+  .site-header .site-nav > a:hover,
+  .site-header .site-nav > .nav-dropdown > .nav-dropdown-toggle:hover {
+    background: rgba(255, 255, 255, .09) !important;
+    color: #FFFFFF !important;
+  }
+}
+
+/* ---------------------------------------------------- ไอคอนบัญชี 36px */
+.site-header .site-nav > a[href="favorites.php"],
+.site-header .site-nav > a[href="notifications.php"] {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 !important;
+}
+
+/* -------------------------------------------------- เส้นคั่นก่อนกลุ่มบัญชี */
+.site-header .site-nav > a[href="favorites.php"]::after {
+  height: 18px;
+  margin-top: -9px;
+  left: -3px;
+  background: rgba(255, 255, 255, .14);
+}
+
+/* ------------------------------------------------ เส้นคั่นก่อนปุ่ม CTA */
+.site-header .site-nav > a.nav-cta::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 1px;
+  height: 18px;
+  margin-top: -9px;
+  background: rgba(255, 255, 255, .14);
+  pointer-events: none;
+}
+
+.site-header .site-nav > a.nav-cta {
+  position: relative;
+  height: 40px;
+  margin-left: 12px;
+  padding: 0 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+/* --------------------------------------------------- ตัวสลับภาษา 32px */
+.site-header .site-nav .lang-toggle {
+  height: 32px;
+  padding: 0 10px !important;
+  margin-left: 6px;
+  font-size: 11.5px !important;
+}
+
+/* ------------------------------------------------ โลโก้: ไม่ให้เบียดเมนู */
+.site-header .kasa-logo,
+.site-header .sp-logo {
+  flex: 0 0 auto;
+  margin-right: 4px;
+}
+
+.site-header .kasa-logo-img--light,
+.site-header .kasa-logo-img--dark {
+  height: 44px !important;
+  max-width: 190px !important;
+}
+
+/* ---------------------------------------- จอแคบ: ค่อย ๆ ตัดตามลำดับสำคัญ */
+@media (max-width: 1320px) {
+  .site-header .site-nav > a[href="project.php"] { display: none !important; }
+  .site-header .site-nav > a[href="advertise.php"] { display: none !important; }
+}
+
+@media (max-width: 1150px) {
+  .site-header .site-nav > a[href="login.php"],
+  .site-header .site-nav > a[href="logout.php"] { display: none !important; }
+}
+
+@media (max-width: 1024px) {
+  .site-header .site-nav .lang-toggle { display: none !important; }
+}
+
+@media (max-width: 900px) {
+  .site-header .header-inner { min-height: 64px; padding: 0 14px; }
+  .site-header .kasa-logo-img--light,
+  .site-header .kasa-logo-img--dark { height: 38px !important; max-width: 165px !important; }
+}
+
+/* ==========================================================================
+   Tidy v3 — จัดกลุ่มปุ่มขวาของ navbar ให้สมส่วน
+   --------------------------------------------------------------------------
+   ปัญหาที่เห็นในภาพ: ปุ่ม "ลงคลิป Reels / ลงประกาศ / แดชบอร์ด / ออกจากระบบ / EN"
+   ถูกอัดรวมกันด้วยขนาดต่างกัน (มี inline style และ CSS 3 ชุดทับกัน)
+   → ข้อความเบียดกันจนอ่านไม่ออก และความสูงไม่เท่ากัน
+
+   แก้โดย:
+     • บังคับความสูงเท่ากันทุกปุ่ม (36px), radius 999px, ระยะห่าง 8px
+     • ให้ "ลงคลิป Reels" เป็นปุ่มรอง (outline ทอง) ไม่ใช่ปุ่มทึบ
+     • "แดชบอร์ด" เป็นปุ่มหลักเพียงปุ่มเดียว
+     • "ออกจากระบบ" เป็นไอคอนล้วน (ที่เหลือข้อความยาวเกิน)
+     • ตัวสลับภาษาเป็นแคปซูลเล็กแยกปลายสุด
+   ========================================================================== */
+
+.site-header .dd-nav-right {
+  gap: 8px !important;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* -------------------------------------------------- ปุ่มทุกตัวในกลุ่มขวา */
+.site-header .dd-nav-right > a,
+.site-header .dd-nav-right > .lang-toggle {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  font-family: "Prompt", "Inter", system-ui, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  letter-spacing: 0 !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  background: rgba(255, 255, 255, .07) !important;
+  color: #E8EDF4 !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color .16s ease, border-color .16s ease, color .16s ease, transform .14s cubic-bezier(.32,.72,0,1) !important;
+}
+
+.site-header .dd-nav-right > a:active { transform: scale(.96); }
+
+@media (hover: hover) {
+  .site-header .dd-nav-right > a:hover {
+    background: rgba(255, 255, 255, .14) !important;
+    border-color: rgba(197, 160, 89, .6) !important;
+    color: #E3C078 !important;
+  }
+}
+
+/* --------------------------------------------------- ลงคลิป Reels (รอง) */
+/* inline style ใน HTML เป็นตัวการที่ทำให้เพี้ยน — บังคับทับให้เรียบร้อย */
+.site-header .dd-nav-right > a[href="submit-reel.php"] {
+  background: rgba(248, 216, 136, .1) !important;
+  border: 1px solid rgba(248, 216, 136, .5) !important;
+  color: #F3D493 !important;
+  font-weight: 700 !important;
+  box-shadow: none !important;
+}
+
+@media (hover: hover) {
+  .site-header .dd-nav-right > a[href="submit-reel.php"]:hover {
+    background: rgba(248, 216, 136, .18) !important;
+    border-color: rgba(248, 216, 136, .8) !important;
+    color: #FFF0C4 !important;
+  }
+}
+
+.site-header .dd-nav-right > a[href="submit-reel.php"] svg {
+  color: #F3D493 !important;
+  flex: 0 0 auto;
+}
+
+/* -------------------------------------------------- ลงประกาศ (รอง) */
+.site-header .dd-nav-right > a[href="submit.php"] {
+  background: rgba(255, 255, 255, .07) !important;
+  border-color: rgba(255, 255, 255, .22) !important;
+  color: #E8EDF4 !important;
+  font-weight: 600 !important;
+}
+
+/* ---------------------------------------------- แดชบอร์ด (ปุ่มหลักเดียว) */
+.site-header .dd-nav-right > a[href="dashboard.php"],
+.site-header .dd-nav-right > a[href="admin/index.php"] {
+  background: linear-gradient(135deg, #E5CB96, #C5A059) !important;
+  border-color: transparent !important;
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+  padding: 0 18px !important;
+  box-shadow: 0 2px 8px rgba(197, 160, 89, .3) !important;
+}
+
+@media (hover: hover) {
+  .site-header .dd-nav-right > a[href="dashboard.php"]:hover,
+  .site-header .dd-nav-right > a[href="admin/index.php"]:hover {
+    background: linear-gradient(135deg, #F0DCB0, #D0AC68) !important;
+    color: #0B1C33 !important;
+    box-shadow: 0 4px 12px rgba(197, 160, 89, .45) !important;
+    transform: translateY(-1px);
+  }
+}
+
+/* ------------------------------------------- ออกจากระบบ (ไอคอนล้วน 36px) */
+.site-header .dd-nav-right > a[href="logout.php"] {
+  width: 36px !important;
+  min-width: 36px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+  overflow: hidden;
+}
+
+.site-header .dd-nav-right > a[href="logout.php"]::before {
+  content: "⏻";
+  font-size: 15px;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------ เข้าสู่ระบบ */
+.site-header .dd-nav-right > a[href="login.php"] {
+  background: linear-gradient(135deg, #E5CB96, #C5A059) !important;
+  border-color: transparent !important;
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+  padding: 0 18px !important;
+  box-shadow: 0 2px 8px rgba(197, 160, 89, .3) !important;
+}
+
+/* ------------------------------------------------------ ตัวสลับภาษา */
+.site-header .dd-nav-right > .lang-toggle {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 11px !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  background: rgba(255, 255, 255, .06) !important;
+  border-color: rgba(255, 255, 255, .2) !important;
+  color: rgba(255, 255, 255, .88) !important;
+  margin-left: 2px !important;
+}
+
+/* เส้นคั่นระหว่างกลุ่ม "แชร์/โพสต์" กับ "บัญชี" */
+.site-header .dd-nav-right > a[href="dashboard.php"],
+.site-header .dd-nav-right > a[href="admin/index.php"],
+.site-header .dd-nav-right > a[href="login.php"] {
+  margin-left: 6px !important;
+  position: relative;
+}
+
+.site-header .dd-nav-right > a[href="dashboard.php"]::before,
+.site-header .dd-nav-right > a[href="admin/index.php"]::before,
+.site-header .dd-nav-right > a[href="login.php"]::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 1px;
+  height: 18px;
+  margin-top: -9px;
+  background: rgba(255, 255, 255, .16);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------- ลดตามความกว้างจอ */
+/* 1400px: ซ่อนปุ่ม "ลงประกาศ" (มี "ลงประกาศกับเรา" ในเมนูซ้ายอยู่แล้ว) */
+@media (max-width: 1400px) {
+  .site-header .dd-nav-right > a[href="submit.php"] { display: none !important; }
+}
+
+/* 1280px: ซ่อนข้อความ "ลงคลิป Reels" เหลือไอคอน */
+@media (max-width: 1280px) {
+  .site-header .dd-nav-right > a[href="submit-reel.php"] {
+    width: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+  }
+}
+
+/* 1120px: ซ่อนตัวสลับภาษา */
+@media (max-width: 1120px) {
+  .site-header .dd-nav-right > .lang-toggle { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header .dd-nav-right > a,
+  .site-header .dd-nav-right > .lang-toggle { transition: none !important; }
+}
+
+/* ==========================================================================
+   Tidy v4 — บังคับขนาดปุ่มให้เท่ากันจริง (36px ทุกปุ่ม)
+   --------------------------------------------------------------------------
+   วัดจากเบราว์เซอร์แล้วพบ ปุ่มใน .dd-nav-right สูงไม่เท่ากัน: [48, 44, 40]
+   และ "ลงประกาศ" กว้างแค่ 44px ทั้งที่มีข้อความ 9 ตัว → ข้อความถูกตัดจนอ่านไม่ออก
+
+   สาเหตุ: <style> ใน index.php ถูก parse หลัง header-tidy.css และมี
+   .dd-icon-btn ที่ใช้ padding/font-size ของตัวเอง + inline style บน <a>
+   จึงต้องใช้ specificity ที่สูงกว่า (html body + !important ทุกค่า)
+   ========================================================================== */
+
+html body .site-header .dd-nav-right {
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+/* ทุกปุ่มในกลุ่ม: สูง 36px เท่ากัน, กว้างตามเนื้อหา (ไม่ถูกบีบ) */
+html body .site-header .dd-nav-right > a,
+html body .site-header .dd-nav-right > a.dd-icon-btn,
+html body .site-header .dd-nav-right > a.dd-btn-login,
+html body .site-header .dd-nav-right > a[href="submit-reel.php"],
+html body .site-header .dd-nav-right > a[href="submit.php"],
+html body .site-header .dd-nav-right > a[href="login.php"],
+html body .site-header .dd-nav-right > a[href="logout.php"],
+html body .site-header .dd-nav-right > a[href="dashboard.php"],
+html body .site-header .dd-nav-right > a[href="admin/index.php"] {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 36px !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* ไอคอนล้วน: สี่เหลี่ยมจัตุรัส 36px */
+html body .site-header .dd-nav-right > a[href="logout.php"] {
+  width: 36px !important;
+  min-width: 36px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+}
+
+/* ตัวสลับภาษา: ให้สูงเท่ากลุ่ม (เดิม 40px + พื้นขาว) */
+html body .site-header .dd-nav-right > .lang-toggle {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 36px !important;
+  background: rgba(255, 255, 255, .08) !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+/* ปุ่ม "เข้าสู่ระบบ" / "แดชบอร์ด": ตัวอักษรต้องเข้มบนพื้นทอง */
+html body .site-header .dd-nav-right > a[href="login.php"],
+html body .site-header .dd-nav-right > a[href="dashboard.php"],
+html body .site-header .dd-nav-right > a[href="admin/index.php"] {
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+  padding: 0 18px !important;
+}
+
+/* ปุ่ม "ลงประกาศ": ให้เห็นข้อความครบ */
+html body .site-header .dd-nav-right > a[href="submit.php"] {
+  min-width: auto !important;
+  padding: 0 16px !important;
+}
+
+/* ==========================================================================
+   Tidy v5 — แก้ selector ให้ตรงกับหน้าแรก
+   --------------------------------------------------------------------------
+   หน้าแรกใช้ <header class="dd-navbar"> ไม่ใช่ .site-header
+   → กฎทั้งหมดใน v3/v4 ที่ขึ้นต้นด้วย .site-header ไม่เคย match เลย
+   ชุดนี้จึงครอบทั้ง .dd-navbar และ .site-header ไว้ด้วยกัน
+
+   ค่าที่วัดได้ก่อนแก้: ความสูง 3 ขนาด [48, 44, 40] และ "ลงประกาศ" กว้าง 44px
+   ทั้งที่มีข้อความ 9 ตัว → ถูกตัดจนอ่านไม่ออก
+   ========================================================================== */
+
+/* ทุกปุ่มใน .dd-nav-right (ทั้งหน้าแรกและหน้าอื่น) สูง 36px เท่ากัน */
+html body .dd-navbar .dd-nav-right > a,
+html body .dd-navbar .dd-nav-right > a.dd-icon-btn,
+html body .dd-navbar .dd-nav-right > a.dd-btn-login,
+html body .site-header .dd-nav-right > a {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  width: auto !important;
+  min-width: auto !important;
+  padding: 0 15px !important;
+  border-radius: 999px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  flex: 0 0 auto !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+/* "ลงประกาศ" ต้องเห็นข้อความครบ */
+html body .dd-navbar .dd-nav-right > a[href="submit.php"] {
+  padding: 0 16px !important;
+}
+
+/* "ลงคลิป Reels": พื้นทองจางแบบ inline — คงไว้แต่ปรับขนาด */
+html body .dd-navbar .dd-nav-right > a[href="submit-reel.php"] {
+  padding: 0 15px !important;
+  color: #F3D493 !important;
+  font-weight: 700 !important;
+}
+
+/* "ออกจากระบบ": ไอคอนล้วน 36x36 */
+html body .dd-navbar .dd-nav-right > a[href="logout.php"] {
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  padding: 0 !important;
+  font-size: 0 !important;
+}
+
+/* "เข้าสู่ระบบ" / "แดชบอร์ด": ปุ่มหลักพื้นทอง ตัวอักษรเข้ม */
+html body .dd-navbar .dd-nav-right > a[href="login.php"],
+html body .dd-navbar .dd-nav-right > a[href="dashboard.php"],
+html body .dd-navbar .dd-nav-right > a[href="admin/index.php"] {
+  padding: 0 18px !important;
+  color: #0B1C33 !important;
+  font-weight: 800 !important;
+}
+
+/* ตัวสลับภาษา: สูงเท่ากลุ่ม (เดิม 40px และพื้นขาว) */
+html body .dd-navbar .dd-nav-right > .lang-toggle,
+html body .site-header .dd-nav-right > .lang-toggle {
+  box-sizing: border-box !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 12px !important;
+  border-radius: 999px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: rgba(255, 255, 255, .08) !important;
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+/* ระยะห่างสม่ำเสมอ + แยกกลุ่มด้วยเส้นบาง */
+html body .dd-navbar .dd-nav-right {
+  gap: 8px !important;
+  align-items: center !important;
+}
+
+html body .dd-navbar .dd-nav-right > a[href="login.php"],
+html body .dd-navbar .dd-nav-right > a[href="dashboard.php"],
+html body .dd-navbar .dd-nav-right > a[href="admin/index.php"] {
+  position: relative;
+  margin-left: 6px !important;
+}
+
+html body .dd-navbar .dd-nav-right > a[href="login.php"]::before,
+html body .dd-navbar .dd-nav-right > a[href="dashboard.php"]::before,
+html body .dd-navbar .dd-nav-right > a[href="admin/index.php"]::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 1px;
+  height: 18px;
+  margin-top: -9px;
+  background: rgba(255, 255, 255, .16);
+  pointer-events: none;
+}
+
+/* ลดจำนวนปุ่มตามความกว้างจอ */
+@media (max-width: 1400px) {
+  html body .dd-navbar .dd-nav-right > a[href="submit.php"] { display: none !important; }
+}
+
+@media (max-width: 1280px) {
+  html body .dd-navbar .dd-nav-right > a[href="submit-reel.php"] {
+    width: 36px !important;
+    min-width: 36px !important;
+    padding: 0 !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+  }
+}
+
+@media (max-width: 1120px) {
+  html body .dd-navbar .dd-nav-right > .lang-toggle { display: none !important; }
+}

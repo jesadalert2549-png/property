@@ -178,6 +178,10 @@ function site_controls_head(): void
     if (is_file(__DIR__ . '/../css/ios-card.css')) {
         echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-card.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-card.css')) . '">' . "\n";
     }
+    // จัดระเบียบ header/navbar
+    if (is_file(__DIR__ . '/../css/header-tidy.css')) {
+        echo '<link rel="stylesheet" href="' . e(site_asset_url('css/header-tidy.css') . '?v=' . filemtime(__DIR__ . '/../css/header-tidy.css')) . '">' . "\n";
+    }
     echo '<script defer src="' . $js . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
     echo '<script defer src="' . e(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
