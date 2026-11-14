@@ -1,0 +1,990 @@
+/* ==========================================================================
+   PropertyGO AI Deep Search — UI styles
+   Mobile-first, matching the existing navy / champagne-gold theme
+   ========================================================================== */
+
+.ai-search-page {
+  --ai-ink: #0B1C33;
+  --ai-gold: #C5A059;
+  --ai-gold-dark: #A8843F;
+  --ai-line: #E6EBF2;
+  --ai-ok: #15803D;
+  --ai-ok-bg: #ECFDF5;
+  --ai-warn: #B45309;
+  --ai-warn-bg: #FFFBEB;
+  --ai-muted: #64748B;
+  --ai-ease: cubic-bezier(.22, 1, .36, 1);
+  background: #F7F9FC;
+}
+
+.ai-search-page .sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────── */
+.ai-hero {
+  position: relative;
+  padding: 132px 16px 40px;
+  background:
+    radial-gradient(120% 90% at 50% 0%, #1B3252 0%, #0B1C33 55%, #060F1C 100%);
+  overflow: hidden;
+}
+
+/* The site-wide cookie consent card is fixed at right:18px / bottom:74px and up to
+   460px wide, sitting on top of the bottom-right of the viewport. On short screens
+   it can overlap the example chips, so add clearance only where it actually can. */
+.ai-search-page .ai-hero {
+  padding-bottom: 96px;
+}
+
+@media (max-height: 820px) and (min-width: 1024px) {
+  .ai-search-page .ai-hero {
+    padding-bottom: 150px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .ai-search-page .ai-examples {
+    max-width: 680px;
+    justify-content: center;
+  }
+}
+
+.ai-hero::after {
+  content: '';
+  position: absolute;
+  inset: auto -10% -55% -10%;
+  height: 60%;
+  background: radial-gradient(closest-side, rgba(197, 160, 89, .28), transparent 72%);
+  pointer-events: none;
+}
+
+.ai-hero-inner {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.ai-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #F8D888;
+  background: rgba(197, 160, 89, .16);
+  border: 1px solid rgba(248, 216, 136, .45);
+}
+
+.ai-hero h1 {
+  margin: 16px 0 10px;
+  color: #fff;
+  font-size: clamp(26px, 4.2vw, 44px);
+  line-height: 1.22;
+  letter-spacing: -.02em;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, .28);
+}
+
+.ai-hero > .ai-hero-inner > p {
+  margin: 0 auto;
+  max-width: 640px;
+  color: rgba(255, 255, 255, .78);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* ── Search box ──────────────────────────────────────────────────── */
+.ai-search-form {
+  margin: 26px auto 0;
+  max-width: 760px;
+}
+
+.ai-search-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 8px 8px 16px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1.5px solid rgba(255, 255, 255, .85);
+  box-shadow: 0 18px 46px rgba(4, 12, 24, .34);
+  transition: box-shadow .28s var(--ai-ease), border-color .28s ease, transform .28s var(--ai-ease);
+}
+
+.ai-search-box:focus-within {
+  border-color: rgba(197, 160, 89, .9);
+  box-shadow: 0 20px 54px rgba(4, 12, 24, .4), 0 0 0 4px rgba(197, 160, 89, .18);
+}
+
+.ai-search-icon {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  color: var(--ai-muted);
+}
+
+.ai-search-box input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  padding: 12px 4px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ai-ink);
+}
+
+.ai-search-box input::placeholder {
+  color: #9AA7B8;
+}
+
+.ai-search-submit {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 96px;
+  padding: 13px 22px;
+  border: 0;
+  border-radius: 13px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0B1C33;
+  background: linear-gradient(135deg, #C5A059, #A8843F);
+  box-shadow: 0 6px 18px rgba(197, 160, 89, .38);
+  cursor: pointer;
+  transition: transform .22s var(--ai-ease), box-shadow .22s ease, filter .22s ease;
+}
+
+.ai-search-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 24px rgba(197, 160, 89, .48);
+}
+
+.ai-search-submit:active:not(:disabled) {
+  transform: scale(.97);
+}
+
+.ai-search-submit:disabled {
+  opacity: .72;
+  cursor: progress;
+}
+
+.ai-btn-spinner {
+  display: none;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  border: 2px solid rgba(11, 28, 51, .28);
+  border-top-color: #0B1C33;
+  animation: aiSpin .7s linear infinite;
+}
+
+.ai-search-submit.is-loading .ai-btn-spinner { display: inline-block; }
+.ai-search-submit.is-loading .ai-btn-label { display: none; }
+
+@keyframes aiSpin { to { transform: rotate(360deg); } }
+
+/* ── Active quick filters (มาจากหน้าแรก) ──────────────────────── */
+.ai-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  justify-content: center;
+  margin: 18px auto 0;
+  max-width: 760px;
+}
+
+.ai-active-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: rgba(236, 253, 245, .14);
+  border: 1px solid rgba(134, 239, 172, .5);
+  color: #C7F9D8;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all .2s ease;
+}
+
+.ai-active-chip > svg:first-child {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  opacity: .9;
+}
+
+.ai-active-chip .ai-chip-x {
+  width: 11px;
+  height: 11px;
+  margin-left: 1px;
+  opacity: .55;
+  transition: opacity .18s ease;
+}
+
+.ai-active-chip:hover {
+  background: rgba(236, 253, 245, .24);
+  border-color: #86EFAC;
+  color: #fff;
+}
+
+.ai-active-chip:hover .ai-chip-x { opacity: 1; }
+
+.ai-active-chip.is-static {
+  background: rgba(255, 255, 255, .09);
+  border-color: rgba(255, 255, 255, .22);
+  color: #DCE6F2;
+  cursor: default;
+}
+
+/* ── Example chips ───────────────────────────────────────────────── */
+.ai-examples {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px auto 0;
+  max-width: 820px;
+}
+
+.ai-examples-label {
+  color: rgba(255, 255, 255, .6);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.ai-example-chip {
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, .24);
+  background: rgba(255, 255, 255, .07);
+  color: #E9EEF6;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .24s var(--ai-ease);
+  text-align: left;
+}
+
+.ai-example-chip:hover {
+  background: rgba(197, 160, 89, .2);
+  border-color: rgba(248, 216, 136, .6);
+  color: #FFF3D6;
+  transform: translateY(-1px);
+}
+
+.ai-engine-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, .52);
+  font-size: 11.5px;
+}
+
+.ai-engine-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4ADE80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, .2);
+}
+
+/* ── Results ─────────────────────────────────────────────────────── */
+.ai-results {
+  padding: 34px 16px 60px;
+}
+
+.ai-results-inner {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.ai-placeholder {
+  padding: 52px 20px;
+  text-align: center;
+  color: var(--ai-muted);
+}
+
+.ai-placeholder-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: #fff;
+  border: 1px solid var(--ai-line);
+  box-shadow: 0 8px 24px rgba(11, 28, 51, .06);
+  color: var(--ai-gold);
+}
+
+.ai-placeholder-icon svg { width: 30px; height: 30px; }
+
+.ai-placeholder h2 {
+  margin: 0 0 6px;
+  color: var(--ai-ink);
+  font-size: 18px;
+}
+
+.ai-placeholder p { margin: 0; font-size: 13.5px; }
+
+/* The site-wide cookie card is fixed bottom-right and can cover the top of the
+   results area on small screens. Keep the result column clear of it. */
+.ai-search-page .ai-results {
+  padding-bottom: 140px;
+}
+
+@media (max-width: 991px) {
+  .ai-search-page .ai-results-inner {
+    padding-top: 6px;
+  }
+}
+
+/* Summary bar */
+.ai-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--ai-line);
+  box-shadow: 0 6px 20px rgba(11, 28, 51, .05);
+}
+
+.ai-summary-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ai-summary-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ai-ink);
+  font-size: 15.5px;
+  font-weight: 800;
+}
+
+.ai-summary-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 26px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #0B1C33;
+  background: rgba(197, 160, 89, .22);
+}
+
+.ai-summary-sub {
+  color: var(--ai-muted);
+  font-size: 12.5px;
+}
+
+.ai-criteria {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.ai-criteria-chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #F4F7FB;
+  border: 1px solid var(--ai-line);
+  color: #45566B;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.ai-relax-note {
+  display: flex;
+  gap: 10px;
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: var(--ai-warn-bg);
+  border: 1px solid #FDE68A;
+  color: #7C4A03;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ai-relax-note svg {
+  flex: 0 0 auto;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  color: var(--ai-warn);
+}
+
+/* Cards */
+.ai-list {
+  display: grid;
+  gap: 16px;
+}
+
+.ai-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--ai-line);
+  box-shadow: 0 6px 22px rgba(11, 28, 51, .06);
+  overflow: hidden;
+  transition: transform .3s var(--ai-ease), box-shadow .3s var(--ai-ease), border-color .3s ease;
+}
+
+.ai-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(197, 160, 89, .5);
+  box-shadow: 0 18px 40px rgba(11, 28, 51, .12);
+}
+
+.ai-card-media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: #0B1C33;
+  overflow: hidden;
+}
+
+.ai-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .6s var(--ai-ease);
+}
+
+.ai-card:hover .ai-card-media img { transform: scale(1.04); }
+
+.ai-card-media.is-empty {
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, .35);
+}
+
+.ai-card-media.is-empty svg { width: 40px; height: 40px; }
+
+.ai-rank {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(11, 28, 51, .82);
+  border: 1px solid rgba(248, 216, 136, .55);
+  color: #F8D888;
+  font-size: 13px;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+}
+
+.ai-score {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(236, 253, 245, .95);
+  border: 1px solid #86EFAC;
+  color: var(--ai-ok);
+  font-size: 13px;
+  font-weight: 900;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(21, 128, 61, .18);
+}
+
+.ai-score small {
+  font-size: 9.5px;
+  font-weight: 700;
+  opacity: .7;
+}
+
+.ai-card-body {
+  padding: 16px 18px 18px;
+  min-width: 0;
+}
+
+.ai-card-topline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.ai-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: .02em;
+  background: #EEF2F7;
+  color: #475569;
+}
+
+.ai-tag.is-sale { background: rgba(11, 28, 51, .9); color: #fff; }
+.ai-tag.is-rent { background: rgba(197, 160, 89, .22); color: #7A5C1F; }
+
+.ai-card-title {
+  display: block;
+  margin: 0 0 4px;
+  color: var(--ai-ink);
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 800;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.ai-card-title:hover { color: var(--ai-gold-dark); }
+
+.ai-card-loc {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 10px;
+  color: var(--ai-muted);
+  font-size: 12.5px;
+}
+
+.ai-card-loc svg { width: 13px; height: 13px; flex: 0 0 auto; }
+
+.ai-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.ai-price {
+  color: var(--ai-gold-dark);
+  font-size: 19px;
+  font-weight: 900;
+  letter-spacing: -.01em;
+}
+
+.ai-price-orig {
+  color: #94A3B8;
+  font-size: 12.5px;
+  text-decoration: line-through;
+}
+
+.ai-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.ai-spec {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 9px;
+  background: #F6F9FC;
+  border: 1px solid var(--ai-line);
+  color: #44556B;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.ai-spec svg { width: 12px; height: 12px; opacity: .75; }
+
+/* ── Result cards ───────────────────────────────────────────────── */
+.ai-card {
+  position: relative;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.ai-card-topline {
+  min-width: 0;
+}
+
+.ai-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Empty-cover state.
+   On mobile the card is a single column, so a full-bleed empty tile wastes
+   ~200px of vertical space. Collapse it to a slim strip. The strip must still
+   span the full card width (not shrink-to-fit) and keeps a small home glyph. */
+.ai-card .ai-card-media.is-empty {
+  min-height: 0 !important;
+  width: 100%;
+  height: 64px !important;
+  aspect-ratio: auto !important;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 10px;
+  overflow: hidden;
+  background: linear-gradient(120deg, #16294A 0%, #0B1C33 70%), #0B1C33;
+}
+
+.ai-card-media.is-empty > svg {
+  width: 20px;
+  height: 20px;
+  opacity: .55;
+  color: rgba(248, 216, 136, .8);
+}
+
+/* Badges flow inside the strip instead of being absolutely positioned,
+   so they can never overhang the tile edges. */
+.ai-card-media.is-empty .ai-rank,
+.ai-card-media.is-empty .ai-score {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  transform: none;
+  flex: 0 0 auto;
+}
+
+/* Cards without a cover shrink the media column so the content gets the space */
+@media (min-width: 720px) {
+  .ai-card.no-cover {
+    grid-template-columns: 168px minmax(0, 1fr);
+  }
+  .ai-card.no-cover .ai-card-media.is-empty {
+    height: auto;
+    min-height: 132px;
+    width: 168px;
+    align-self: stretch;
+  }
+  .ai-card.no-cover .ai-card-media.is-empty > svg {
+    width: 44px;
+    height: 44px;
+    opacity: .5;
+    color: rgba(248, 216, 136, .75);
+  }
+  .ai-card.no-cover .ai-card-media.is-empty .ai-rank,
+  .ai-card.no-cover .ai-card-media.is-empty .ai-score {
+    top: 12px;
+    transform: none;
+  }
+}
+
+/* When a card has no specs, the explain block shouldn't hug the price */
+.ai-specs:empty {
+  display: none;
+}
+
+.ai-explain {
+  min-width: 0;
+  border-radius: 13px;
+  border: 1px solid var(--ai-line);
+  background: #FBFCFE;
+  padding: 12px 13px;
+  display: grid;
+  gap: 9px;
+}
+
+.ai-explain-group {
+  display: grid;
+  gap: 5px;
+}
+
+.ai-explain-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.ai-explain-label.is-ok { color: var(--ai-ok); }
+.ai-explain-label.is-warn { color: var(--ai-warn); }
+.ai-explain-label.is-unknown { color: #6B7280; }
+
+.ai-explain-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.ai-explain-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.ai-explain-list li svg {
+  flex: 0 0 auto;
+  width: 13px;
+  height: 13px;
+  margin-top: 2px;
+}
+
+.ai-explain-group.is-ok li { color: #166534; }
+.ai-explain-group.is-ok li svg { color: var(--ai-ok); }
+.ai-explain-group.is-warn li svg { color: var(--ai-warn); }
+.ai-explain-group.is-unknown li svg { color: #9CA3AF; }
+.ai-explain-group.is-unknown li { color: #6B7280; }
+
+.ai-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ai-view-btn {
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 11px 16px;
+  border-radius: 11px;
+  background: var(--ai-ink);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background .22s ease, transform .22s var(--ai-ease);
+}
+
+.ai-view-btn:hover {
+  background: #16294A;
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+/* More results toggle */
+.ai-more-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.ai-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 26px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ai-line);
+  background: #fff;
+  color: var(--ai-ink);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all .24s var(--ai-ease);
+}
+
+.ai-more-btn:hover {
+  border-color: rgba(197, 160, 89, .7);
+  background: #FFFCF5;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(197, 160, 89, .18);
+}
+
+.ai-more-btn svg { width: 15px; height: 15px; transition: transform .28s var(--ai-ease); }
+.ai-more-btn.is-open svg { transform: rotate(180deg); }
+
+/* Loading skeleton */
+.ai-loading {
+  display: grid;
+  gap: 16px;
+  padding: 8px 0;
+}
+
+.ai-skeleton {
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid var(--ai-line);
+  overflow: hidden;
+}
+
+.ai-skeleton-media {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(100deg, #EEF2F7 30%, #F8FAFC 50%, #EEF2F7 70%);
+  background-size: 220% 100%;
+  animation: aiShimmer 1.4s infinite linear;
+}
+
+.ai-skeleton-body { padding: 16px 18px; display: grid; gap: 9px; }
+
+.ai-skeleton-line {
+  height: 11px;
+  border-radius: 6px;
+  background: linear-gradient(100deg, #EEF2F7 30%, #F8FAFC 50%, #EEF2F7 70%);
+  background-size: 220% 100%;
+  animation: aiShimmer 1.4s infinite linear;
+}
+
+.ai-skeleton-line.w-60 { width: 60%; }
+.ai-skeleton-line.w-40 { width: 40%; }
+.ai-skeleton-line.w-85 { width: 85%; }
+
+@keyframes aiShimmer {
+  0% { background-position: 220% 0; }
+  100% { background-position: -20% 0; }
+}
+
+/* Error / empty */
+.ai-message {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  padding: 44px 20px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px dashed #D9E1EC;
+  color: var(--ai-muted);
+}
+
+.ai-message strong { color: var(--ai-ink); font-size: 15.5px; }
+.ai-message p { margin: 0; font-size: 13.5px; line-height: 1.6; max-width: 480px; }
+
+.ai-message.is-error { border-color: #FECACA; background: #FEF2F2; color: #991B1B; }
+
+.ai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* ── Tablet ──────────────────────────────────────────────────────── */
+@media (min-width: 720px) {
+  .ai-hero { padding: 150px 24px 52px; }
+
+  .ai-card {
+    grid-template-columns: 300px minmax(0, 1fr);
+  }
+
+  .ai-card-media {
+    aspect-ratio: auto;
+    height: 100%;
+    min-height: 240px;
+  }
+
+  .ai-card-body { padding: 20px 22px 20px; }
+  .ai-list { gap: 18px; }
+}
+
+@media (min-width: 1024px) {
+  .ai-card { grid-template-columns: 340px minmax(0, 1fr); }
+  .ai-card-media { min-height: 260px; }
+}
+
+/* ── Mobile refinements ──────────────────────────────────────────── */
+@media (max-width: 560px) {
+  .ai-hero { padding: calc(96px + env(safe-area-inset-top, 0px)) 14px 32px; }
+  .ai-hero h1 { font-size: 24px; }
+  .ai-hero > .ai-hero-inner > p { font-size: 13.5px; }
+
+  .ai-search-box {
+    padding: 6px 6px 6px 12px;
+    border-radius: 15px;
+    gap: 6px;
+  }
+
+  .ai-search-box input { font-size: 15px; padding: 11px 2px; }
+
+  .ai-search-submit {
+    min-width: 0;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 11px;
+  }
+
+  .ai-examples { gap: 6px; }
+  .ai-example-chip { padding: 7px 11px; font-size: 11.5px; }
+
+  .ai-results { padding: 22px 12px 48px; }
+
+  .ai-summary { padding: 14px; border-radius: 14px; }
+  .ai-summary-head { width: 100%; }
+
+  .ai-card-body { padding: 14px 14px 16px; }
+  .ai-price { font-size: 18px; }
+  .ai-explain { padding: 11px; }
+}
+
+/* The site-wide cookie consent card is fixed at the bottom-right
+   (right:18px / bottom:74px, up to 460px wide). Leave clear space at the end
+   of the results so it never sits on top of a card. */
+@media (min-width: 1024px) {
+  .ai-search-page .ai-results {
+    padding-bottom: 120px;
+  }
+}
+
+@media (max-width: 560px) {
+  .ai-search-page .ai-results {
+    padding-bottom: 200px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-card,
+  .ai-card-media img,
+  .ai-search-submit,
+  .ai-example-chip,
+  .ai-more-btn,
+  .ai-skeleton-media,
+  .ai-skeleton-line {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
