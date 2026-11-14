@@ -61,18 +61,29 @@ $pageDesc  = t('รวมรายการบ้าน คอนโด ที�
       margin-bottom: 32px;
       border-bottom: 2px solid rgba(197, 160, 89, 0.35);
     }
-    .fav-hero h1 {
-      margin: 0 0 8px;
-      font-size: clamp(22px, 3.2vw, 30px);
-      font-weight: 800;
+    /* ⚠ css/style.css มีกฎ h1,h2,h3,h4 { color: var(--primary) } =
+       น้ำเงินเข้มบนพื้นน้ำเงินเข้มของ .fav-hero → contrast 1.0 อ่านไม่ออก
+       จึงต้องระบุให้เฉพาะเจาะจงและใช้ !important เพื่อชนะกฎรวม */
+    .fav-hero h1,
+    .fav-hero h2,
+    .fav-hero h3 {
+      margin: 0 0 8px !important;
+      font-size: clamp(22px, 3.2vw, 30px) !important;
+      font-weight: 800 !important;
+      line-height: 1.28 !important;
+      letter-spacing: -0.015em;
+      color: #ffffff !important;
       display: flex;
       align-items: center;
       gap: 12px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, .25);
     }
     .fav-hero p {
-      margin: 0;
-      color: rgba(255, 255, 255, 0.8);
+      margin: 0 !important;
+      color: rgba(255, 255, 255, 0.82) !important;
       font-size: 14px;
+      line-height: 1.6;
+      max-width: 62ch;
     }
     .fav-card-grid {
       display: grid;
