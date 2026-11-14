@@ -73,7 +73,6 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
   <?php /* โหลดสไตล์หลักของเว็บ (header/nav/container) — seo_head() โหลดเฉพาะ site-controls.css */ ?>
   <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <link rel="stylesheet" href="css/theme-utilities.css?v=<?= e((string) filemtime(__DIR__ . '/css/theme-utilities.css')) ?>">
-  <?php render_mobile_nav_assets(); ?>
   <meta name="theme-color" content="#f7f8fa">
   <style>
     :root{--ink:#0B1C33;--muted:#64748b;--line:#e5eaf0;--brand:#C5A059;--brand-dark:#A8843F;--canvas:#F9F9FB;--white:#fff;--shadow:0 18px 45px rgba(11,28,51,.08)}
@@ -131,6 +130,7 @@ $projectPublisherAvatarExists = $projectPublisherAvatar !== '' && is_file(__DIR_
       pointer-events: auto;
     }
   </style>
+  <?php render_mobile_nav_assets(); ?>
 </head>
 <body class="page-project">
 <header class="site-header">

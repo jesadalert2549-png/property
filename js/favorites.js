@@ -127,8 +127,27 @@
   }
 
   // ซิงก์สถานะตอนโหลดหน้าเว็บ
+  // ⚡ เดิมยิง fetch ที่ DOMContentLoaded → กินเวลา ~435 ms ของ load event
+  // ตอนนี้เลื่อนไปหลังหน้าโหลดเสร็จ (ผู้ใช้เห็นใจก่อน แล้วสถานะหัวใจค่อยอัปเดต)
+  function syncOnLoad() {
+    try {
+      const resp = fetch(getApiEndpoint('api/favorites.php'));
+      return resp;
+    } catch (e) { return null; }
+  }
+
   document.addEventListener('DOMContentLoaded', async () => {
     try {
+      const schedule = (fn) => {
+        if ('requestIdleCallback' in window) requestIdleCallback(fn, { timeout: 2500 });
+        else setTimeout(fn, 600);
+      };
+      const afterLoad = () => new Promise((resolve) => {
+        if (document.readyState === 'complete') return resolve();
+        window.addEventListener('load', () => resolve(), { once: true });
+      });
+      await afterLoad();
+      await new Promise((r) => schedule(r));
       const resp = await fetch(getApiEndpoint('api/favorites.php'));
       const data = await resp.json();
       if (data.ok) {
@@ -197,11 +216,17 @@
     } catch(e) {}
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', syncNotifications);
-  } else {
-    syncNotifications();
+  // ⚡ เลื่อนไปยิงหลังหน้าหลักโหลดเสร็จ (เดิมยิงที่ DOMContentLoaded → ทำให้ load ช้า 235-435 ms)
+  // badge เป็นแค่ตัวเลขเล็ก ๆ ไม่จำเป็นต้องรอ — ถ้ารอแล้วค่อยขึ้นก็ยังดูปกติ
+  function schedule() {
+    var run = function () {
+      if ('requestIdleCallback' in window) requestIdleCallback(syncNotifications, { timeout: 3000 });
+      else setTimeout(syncNotifications, 800);
+    };
+    if (document.readyState === 'complete') run();
+    else window.addEventListener('load', run, { once: true });
   }
+  schedule();
 })();
 
 

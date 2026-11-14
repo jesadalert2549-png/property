@@ -1405,6 +1405,19 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       }
     }
 
+    /* ลดรายการเมนูลงเป็นขั้น ๆ ตามความกว้าง — เดิมเริ่มที่ 1120px ซึ่งสายเกินไป
+       ทำให้จอ 1200-1400px มีของล้นออกนอกจอ (ปุ่ม 🌐 EN ไปโผล่ที่ x=1462 บนจอ 1366) */
+    @media (max-width: 1400px) {
+      .dd-desktop-menu .dd-menu-item[href="advertise.php"] { display: none !important; }
+    }
+    @media (max-width: 1300px) {
+      .dd-desktop-menu .dd-menu-item[href="favorites.php"],
+      .dd-desktop-menu .dd-menu-item[href="notifications.php"] { display: none !important; }
+      .dd-nav-right .dd-icon-btn[href="submit.php"] { display: none !important; }
+    }
+    @media (max-width: 1200px) {
+      .dd-desktop-menu .dd-menu-item[href="project.php"] { display: none !important; }
+    }
     @media (max-width: 1120px) {
       .dd-desktop-menu .dd-menu-item[href="advertise.php"] {
         display: none !important;
@@ -1748,37 +1761,34 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
 
 <!-- Hero Section & Search -->
 <section class="dd-hero">
-  <div class="dd-hero-media-wrap" aria-hidden="true">
-    <?php if ($heroBg['type'] === 'video'): ?>
-      <video class="dd-hero-media" src="<?= e($heroBg['url']) ?>" autoplay muted loop playsinline preload="auto"></video>
-    <?php else: ?>
-      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="PropertyGO Hero Background" fetchpriority="high">
-    <?php endif; ?>
-    <div class="dd-hero-overlay" style="background: rgba(11, 28, 51, <?= (float)($heroBg['opacity'] ?? 0.45) ?>);"></div>
-  </div>
-
-  <div class="dd-hero-heading-wrap reveal-hero" style="text-align: center; color: #fff; margin-bottom: 8px;">
-    <span class="hero-eyebrow"><?= e(t('ค้นหาบ้านในแบบที่เป็นคุณ', 'Find a home that feels like you')) ?></span>
-    <h1><?= e(t('บ้านที่ใช่ เริ่มต้นจากทำเลที่ชอบ', 'The right home starts with the right location')) ?></h1>
-    <p><?= e(t('ค้นหาบ้าน คอนโด และอสังหาริมทรัพย์ทั่วไทย พร้อมติดต่อเจ้าของได้โดยตรง', 'Search houses, condos and properties across Thailand — contact owners directly.')) ?></p>
-  </div>
-
-  <div class="dd-search-container reveal-hero" style="--reveal-delay: 120ms;">
-    <div class="dd-tabs">
-      <button type="button" class="dd-tab active" aria-pressed="true" onclick="setTypeFilter('', this)"><?= e(t('ทั้งหมด', 'All')) ?></button>
-      <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('sale', this)"><?= e(t('ซื้อ', 'Buy')) ?></button>
-      <button type="button" class="dd-tab" aria-pressed="false" onclick="setTypeFilter('rent', this)"><?= e(t('เช่า', 'Rent')) ?></button>
-    </div>
-
-
-<!-- Hero Section & Search -->
-<section class="dd-hero">
   <!-- Dynamic Hero Media Layer (Auto-scaled for desktop & mobile) -->
   <div class="dd-hero-media-wrap" aria-hidden="true">
     <?php if ($heroBg['type'] === 'video'): ?>
-      <video class="dd-hero-media" src="<?= e($heroBg['url']) ?>" autoplay muted loop playsinline preload="auto"></video>
+      <?php
+      /* วิดีโอ hero เป็น 4K ~75 MB — เดิม preload="auto" ทำให้เบราว์เซอร์โหลดทันที
+         แล้ว abort/restart ซ้ำ จนหน้าโหลดเกิน 400 MB ต่อครั้ง
+         แก้: preload="none" + poster เป็นรูปเล็ก + เล่นเมื่อ idle
+         (ไม่ใช้ไฟล์ 1.5 MB เป็น poster เพราะกินเวลาโหลดมากกว่าที่ประหยัดได้) */
+      $heroPoster = '';
+      $posterCandidates = [
+          'images/hero-poster.jpg',
+          'images/hero-poster.webp',
+          'uploads/hero/hero-20261103-111224-24d430b8.jpg', // 50 KB ภาพนิ่งใช้แทนได้
+          'images/hero/hero-20261103-111224-24d430b8.jpg',
+      ];
+      foreach ($posterCandidates as $candidate) {
+          if (is_file(__DIR__ . '/' . $candidate)) {
+              $heroPoster = $candidate;
+              break;
+          }
+      }
+      ?>
+      <video class="dd-hero-media js-hero-video" muted loop playsinline preload="none"
+             <?php if ($heroPoster !== ''): ?>poster="<?= e($heroPoster) ?>"<?php endif; ?>
+             data-src="<?= e($heroBg['url']) ?>"
+             aria-hidden="true" tabindex="-1"></video>
     <?php else: ?>
-      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="PropertyGO Hero Background" fetchpriority="high">
+      <img class="dd-hero-media" src="<?= e($heroBg['url']) ?>" alt="PropertyGO Hero Background" fetchpriority="high" decoding="async">
     <?php endif; ?>
     <div class="dd-hero-overlay" style="background: rgba(11, 28, 51, <?= (float)($heroBg['opacity'] ?? 0.45) ?>);"></div>
   </div>
@@ -1936,7 +1946,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
             ?>
             <div class="showcase-media<?= $hasVideo ? ' has-hover-video' : '' ?>"<?= $hasVideo ? ' data-card-video="' . e($videoUrl) . '"' : '' ?>>
               <?php if ($hasVideo): ?>
-                <video class="showcase-hover-video" src="<?= e($videoUrl) ?>" autoplay muted loop playsinline preload="metadata" poster="<?= e($featuredImageUrl) ?>"></video>
+                <?php /* เดิม src= + autoplay ทำให้การ์ดทุกใบโหลดวิดีโอ 8 MB อัตโนมัติ
+                         (หน้าแรกมีวิดีโอ 3-5 ตัว = 25-40 MB โดยไม่จำเป็น)
+                         แก้: preload="none" + ไม่มี src จนกว่าจะ hover/แตะ */ ?>
+                <video class="showcase-hover-video" muted loop playsinline preload="none"
+                       data-lazy-video="<?= e($videoUrl) ?>"
+                       poster="<?= e($featuredImageUrl) ?>" aria-hidden="true" tabindex="-1"></video>
               <?php endif; ?>
               <?php if ($featuredImageExists): ?>
                 <img src="<?= e($featuredImageUrl) ?>" class="showcase-img" alt="<?= e($listing['title']) ?>" loading="lazy" decoding="async" width="640" height="441">
@@ -2612,17 +2627,27 @@ render_site_footer(); ?>
       return videoEl;
     };
 
-    // Initialize pre-rendered video if exists
+    // ⚠ ไม่เล่นทันทีตอน init — เดิมบรรทัดนี้ทำให้การ์ดทุกใบโหลดวิดีโอพร้อมกัน
+    // ตอนเปิดหน้า (หน้าแรกมีวิดีโอหลายตัว × 8 MB = หลายสิบ MB โดยไม่จำเป็น)
+    // ตอนนี้ตั้งค่าไว้เลย แต่จะโหลด src จริงเมื่อ hover/แตะ/เลื่อนเข้าจอเท่านั้น
     if (videoEl) {
       videoEl.muted = true;
       videoEl.volume = 0.85;
-      videoEl.play().catch(() => {});
-      mediaWrap.classList.add('video-playing');
       updateSoundUI(true);
     }
 
-    const startPlay = () => {
+    // ติด src ให้วิดีโอ (เรียกครั้งแรกเท่านั้น)
+    const ensureVideoSrc = () => {
       const v = getOrCreateVideo();
+      if (!v.getAttribute('src') || v.getAttribute('src') === '') {
+        const lazySrc = v.getAttribute('data-lazy-video') || videoSrc;
+        if (lazySrc) { v.src = lazySrc; }
+      }
+      return v;
+    };
+
+    const startPlay = () => {
+      const v = ensureVideoSrc();
       const playPromise = v.play();
       if (playPromise !== undefined) {
         playPromise.then(() => {
@@ -2738,5 +2763,58 @@ render_site_footer(); ?>
 </a>
 
 <script src="js/app.js?v=<?= time() ?>"></script>
+<script>
+/* Hero video: วิดีโอเป็น 4K ~75 MB — ห้ามโหลดระหว่างที่หน้าหลักยังโหลดไม่เสร็จ
+   ลำดับ: 1) แสดง poster (50 KB) ทันที  2) รอ load + idle 4s  3) ค่อยต่อวิดีโอ
+   - ข้ามการโหลดทันทีถ้าเน็ตช้า (effectiveType 2g/slow-2g) / saveData / reduced-motion
+   - หยุดเล่นเมื่อเลื่อนออกจากจอ (ประหยัด CPU/แบต) */
+(function () {
+  var v = document.querySelector('.js-hero-video');
+  if (!v) return;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var conn = navigator.connection || {};
+  var saveData = conn.saveData === true;
+  var slowNet = /(^|-)2g$/.test(conn.effectiveType || '');
+  if (reduce || saveData || slowNet) return; // ใช้ poster แทน
+
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    var src = v.getAttribute('data-src');
+    if (!src) return;
+    v.src = src;
+    v.load();
+    var p = v.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
+  function schedule() {
+    setTimeout(function () {
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(start, { timeout: 3000 });
+      } else {
+        start();
+      }
+    }, 4000);
+  }
+
+  if (document.readyState === 'complete') {
+    schedule();
+  } else {
+    window.addEventListener('load', schedule, { once: true });
+  }
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!started) return;
+        if (e.isIntersecting) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+        else { v.pause(); }
+      });
+    }, { threshold: 0.05 }).observe(v);
+  }
+})();
+</script>
 </body>
 </html>

@@ -29,6 +29,21 @@ body {
   gap: 22px;
 }
 
+/* จอ 1200-1400px: เมนู 9 รายการ + ปุ่ม 3 ปุ่ม รวมกันเกินความกว้าง
+   ทำให้นุ่มท้ายแถบทับกันและหลุดขอบขวา → ค่อย ๆ บีบระยะห่างลง */
+@media (max-width: 1400px) {
+  .dd-navbar { padding: 10px 20px; }
+  .dd-nav-left, .dd-nav-right { gap: 14px; }
+  .dd-desktop-menu { gap: 13px; margin-left: 4px; }
+  .dd-menu-item, .dd-navbar .nav-dropdown-toggle { font-size: 13.5px; }
+}
+@media (max-width: 1280px) {
+  .dd-nav-left, .dd-nav-right { gap: 10px; }
+  .dd-desktop-menu { gap: 10px; margin-left: 0; }
+  .dd-menu-item, .dd-navbar .nav-dropdown-toggle { font-size: 13px; }
+  .dd-navbar .nav-cta, .dd-navbar .dd-btn-login { padding: 8px 13px !important; font-size: 12.5px !important; }
+}
+
 .dd-logo {
   gap: 10px;
   color: #FFFFFF;

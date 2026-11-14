@@ -98,6 +98,16 @@ body { margin:0; background:var(--shell-bg); color:var(--shell-navy); font-famil
 .site-shell-footer nav a { color:#cbd5e1; font-size:14px; text-decoration:none; }
 .site-shell-footer nav a:hover { color:#fff; }
 .site-shell-copy { width:min(1120px,calc(100% - 32px)); margin:0 auto; padding:18px 0; border-top:1px solid rgba(255,255,255,.08); color:#94a3b8; font-size:13px; }
+/* ที่จอ 1366px เมนู 9 รายการ + 3 ปุ่ม (≈1200px) บวกโลโก้ (≈240px) เกินความกว้าง
+   ทำให้ปุ่มท้ายแถบทับกันและหลุดขอบขวา → ยุบเป็น hamburger ตั้งแต่ 1200px */
+@media (max-width:1200px) {
+  .site-shell-nav { gap:12px; padding:12px 18px; }
+  .site-shell-menu { gap:16px; margin-left:14px; }
+  .site-shell-actions { gap:10px; }
+  .site-shell-actions .site-shell-outline { padding:8px 13px; font-size:13px; }
+  .site-shell-primary { padding:8px 16px; font-size:13px; }
+}
+@media (max-width:1100px) { .site-shell-menu,.site-shell-actions { display:none; } .site-shell-menu-button { display:block; } }
 @media (max-width:992px) { .site-shell-menu,.site-shell-actions { display:none; } .site-shell-menu-button { display:block; } }
 @media (max-width:768px) { .site-shell-nav { height:64px; padding:10px 16px; } .site-shell-footer-inner { grid-template-columns:1fr; gap:24px; } .site-shell-title { font-size:22px; } .site-shell-form-box { padding:20px; } }
 
