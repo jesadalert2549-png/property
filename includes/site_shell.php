@@ -138,6 +138,71 @@ function render_ux_scripts(): void
           document.body.insertBefore(link, document.body.firstChild);
         })();
 
+        /* ---- Theme toggle ----
+           ลำดับความสำคัญ: ค่าที่ผู้ใช้เลือก (localStorage) → ค่าจากระบบ
+           ใส่ <html data-theme> ตั้งแต่ก่อน CSS ทํางานจึงไม่กระพริบ        */
+        (() => {
+          const KEY = 'pg-theme';
+          const root = document.documentElement;
+          const sysDark = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          try {
+            const saved = localStorage.getItem(KEY);
+            if (saved === 'dark' || saved === 'light') root.setAttribute('data-theme', saved);
+            else root.setAttribute('data-theme', sysDark() ? 'dark' : 'light');
+          } catch (e) {
+            root.setAttribute('data-theme', sysDark() ? 'dark' : 'light');
+          }
+
+          // ถ้าผู้ใช้ยังไม่เลือกเอง ให้ตามระบบเมื่อระบบเปลี่ยน
+          if (window.matchMedia) {
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => {
+              try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+              root.setAttribute('data-theme', sysDark() ? 'dark' : 'light');
+              syncBtn();
+            });
+          }
+
+          const SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"></path></svg>';
+          const MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"></path></svg>';
+
+          let btn = null;
+          function syncBtn() {
+            if (!btn) return;
+            const dark = root.getAttribute('data-theme') === 'dark';
+            btn.innerHTML = (dark ? SUN : MOON) + '<span>' + (dark ? '<?= e(t('สว่าง', 'Light')) ?>' : '<?= e(t('มืด', 'Dark')) ?>') + '</span>';
+            btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+            btn.title = dark ? '<?= e(t('สลับเป็นโหมดสว่าง', 'Switch to light mode')) ?>' : '<?= e(t('สลับเป็นโหมดมืด', 'Switch to dark mode')) ?>';
+          }
+
+          function mount() {
+            if (document.querySelector('.theme-toggle')) return;
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'theme-toggle';
+            btn.setAttribute('aria-label', '<?= e(t('สลับโหมดมืด/สว่าง', 'Toggle dark mode')) ?>');
+            // วางใน navbar ถ้ามี ไม่งั้นลอยมุมขวาล่าง
+            const slot =
+              document.querySelector('.dd-nav-right') ||
+              document.querySelector('.site-shell-actions') ||
+              document.querySelector('.site-nav');
+            if (slot) slot.insertBefore(btn, slot.firstChild);
+            else document.body.appendChild(btn);
+            syncBtn();
+            btn.addEventListener('click', () => {
+              const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+              root.classList.add('theme-switching');
+              root.setAttribute('data-theme', next);
+              try { localStorage.setItem(KEY, next); } catch (e) {}
+              syncBtn();
+              requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theme-switching')));
+            });
+          }
+
+          if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mount);
+          else mount();
+        })();
+
         const bar = document.createElement('div');
         bar.className = 'scroll-progress';
         document.body.prepend(bar);

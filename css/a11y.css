@@ -98,20 +98,15 @@ button:focus:not(:focus-visible) {
 
 /* ------------------------------------------------------------ 5) Dark mode */
 /* ใช้ตัวแปรกลางแล้วให้ทุกพื้นผิวสว่างเปลี่ยนตาม ถ้าไม่ได้ตั้งไว้จะใช้ค่าเดิม */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --dm-canvas: #0B1420;
-    --dm-surface: #121C2A;
-    --dm-surface-2: #182434;
-    --dm-line: #24344a;
-    --dm-text: #E8EDF4;
-    --dm-text-dim: #9FB0C4;
-    --dm-gold: #E3C078;
-  }
-
-  html {
-    color-scheme: dark;
-  }
+html[data-theme="dark"] {
+  --dm-canvas: #0B1420;
+  --dm-surface: #121C2A;
+  --dm-surface-2: #182434;
+  --dm-line: #24344a;
+  --dm-text: #E8EDF4;
+  --dm-text-dim: #9FB0C4;
+  --dm-gold: #E3C078;
+  color-scheme: dark;
 
   /* index.php (และหน้าอื่น) ตั้ง background ที่ html/home-page —— ถ้าไม่ครอบ
      body จะกลายเป็น rgba(0,0,0,0) แล้วเห็นพื้นขาวของ html ข้างหลัง */
@@ -316,7 +311,7 @@ button:focus:not(:focus-visible) {
 /* หน้าแรกมีบล็อกจำนวนมากที่ตั้งพื้นขาวด้วย inline style
    (FAQ box, กล่อง Yield, badge SMART MATCH, publisher-mini, lang-toggle)
    selector แบบ attribute ช่วยจับได้โดยไม่ต้องแก้ markup ทีละจุด */
-@media (prefers-color-scheme: dark) {
+html[data-theme="dark"] {
   [style*="background:#fff"],
   [style*="background: #fff"],
   [style*="background:#fafafa"],
@@ -397,7 +392,7 @@ button:focus:not(:focus-visible) {
 /* ปุ่ม/ป้าย/แถบที่มี inline style พื้นขาว-เทาอ่อน (rgb 246-255)
  ใช้ attribute + pseudo ไม่ได้ จึงใช้ตระกูล selector กว้างๆ ที่Known ว่าเป็น
  องค์ประกอบ UI เล็กๆ ซึ่งไม่ควรมีพื้นสว่างบนธีมมืด */
-@media (prefers-color-scheme: dark) {
+html[data-theme="dark"] {
 .dd-hero [style*="background:#fff"],
 .dd-hero [style*="background: #fff"],
 .dd-hero [style*="background:#f"],

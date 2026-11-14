@@ -2048,7 +2048,7 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
               <span><?= e(t('ราคาอสังหาริมทรัพย์:', 'Property price:')) ?></span>
               <strong style="color:#0B1C33; font-size:15px;" id="calcPriceDisplay">3,000,000 <?= e(t('บาท', 'THB')) ?></strong>
             </div>
-            <input type="range" id="calcPriceRange" min="500000" max="25000000" step="100000" value="3000000" style="width:100%; accent-color:#C5A059; cursor:pointer;">
+            <input type="range" id="calcPriceRange" aria-label="<?= e(t('งบประมาณที่ต้องการผ่อน (บาท)', 'Target mortgage budget (THB)')) ?>" min="500000" max="25000000" step="100000" value="3000000" style="width:100%; accent-color:#C5A059; cursor:pointer;">
             <div style="display:flex; justify-content:space-between; font-size:11px; color:#94a3b8; margin-top:2px;">
               <span><?= e(t('5 แสน', '500K')) ?></span>
               <span><?= e(t('10 ล้าน', '10M')) ?></span>
@@ -2108,11 +2108,11 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         <div style="display:flex; flex-direction:column; gap:16px;">
           <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('ราคาซื้ออสังหาริมทรัพย์ (บาท)', 'Property purchase price (THB)')) ?></label>
-            <input type="number" id="yieldBuyPrice" value="2800000" step="50000" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
+            <input type="number" id="yieldBuyPrice" aria-label="<?= e(t('ราคาซื้อ (บาท)', 'Purchase price (THB)')) ?>" value="2800000" step="50000" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
           </div>
           <div>
             <label style="display:block; font-size:12.5px; font-weight:700; color:#475569; margin-bottom:4px;"><?= e(t('ค่าเช่าที่คาดว่าจะได้รับ (บาท/เดือน)', 'Expected rental income (THB/month)')) ?></label>
-            <input type="number" id="yieldRentPrice" value="14000" step="500" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
+            <input type="number" id="yieldRentPrice" aria-label="<?= e(t('ค่าเช่าต่อเดือน (บาท)', 'Monthly rent (THB)')) ?>" value="14000" step="500" style="width:100%; padding:10px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; font-weight:700; color:#0B1C33; box-sizing:border-box;">
           </div>
 
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:2px;">
