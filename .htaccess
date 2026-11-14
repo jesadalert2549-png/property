@@ -48,6 +48,19 @@ RewriteRule ^sitemap\.xml$ sitemap_xml.php [L]
     </FilesMatch>
     # ป้องกันบั๊กแคชของบราวเซอร์เวลามีการบีบอัด
     Header append Vary: Accept-Encoding
+
+    # ===== Security Headers =====
+    # ห้ามเบราว์เซอร์เดาชนิดไฟล์เอง (กัน MIME sniffing attack)
+    Header always set X-Content-Type-Options "nosniff"
+    # ห้ามเว็บอื่นฝังเว็บเราใน iframe (กัน clickjacking)
+    Header always set X-Frame-Options "SAMEORIGIN"
+    # ส่ง referrer แบบจำกัด — ไม่รั่ว path ภายในให้เว็บภายนอก
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    # ปิด API ที่เว็บนี้ไม่ได้ใช้ (กล้อง/ไมค์/ตำแหน่ง)
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=()"
+    # บังคับ HTTPS เป็นเวลา 1 ปี — เปิดใช้เฉพาะเมื่อติดตั้ง SSL แล้ว
+    # (ถ้ายังใช้ http://localhost อยู่ ให้คอมเมนต์บรรทัดนี้ไว้)
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
 </IfModule>
 
 # ห้ามเปิดไฟล์ฐานข้อมูลหรือไฟล์บันทึก

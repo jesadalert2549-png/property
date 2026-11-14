@@ -25,6 +25,13 @@ _qa_*
 _rv*
 _myprobe*
 
+# One-off QA / debug scripts written at repo root (curl-login probes, page checks)
+# ไฟล์กลุ่มนี้ไม่ได้ใช้ใน production และเปิดเผยข้อมูลภายใน
+test_*.php
+check_*.php
+debug_*.php
+tmp_*.php
+
 # Uploaded user content (avatars, property photos, videos)
 uploads/**
 !uploads/.htaccess
