@@ -174,8 +174,13 @@ if (!function_exists('ai_search_fallback_candidates')) {
             }
         }
 
-        // ลองครั้งที่ 2: ผ่อนประเภทอสังหาฯ ออกด้วย แต่ยังคงการซื้อ/เช่า
-        // (ผู้ใช้จะเห็นข้อความแจ้งชัดว่าประเภทอสังหาฯ ไม่ตรงตามที่ขอ)
+        // ถ้าผู้ใช้ระบุประเภทอสังหาฯ ไว้ชัดเจน (เช่น "บ้าน") → ไม่ผ่อนประเภทออก
+        // เพราะหาบ้านแต่ได้คอนโดมาจะทำให้สับสน ปล่อยให้หน้าผลลัพธ์แจ้งว่า "ไม่พบ" ตรงกว่า
+        if (!empty($criteria['category'])) {
+            return [];
+        }
+
+        // ไม่ระบุประเภท → เสนอรายการทั่วไปที่ยังตรงการซื้อ/เช่า
         $stmt = $pdo->prepare($sql . implode(' AND ', $where) . '
             ORDER BY p.price ASC, p.created_at DESC LIMIT ' . (int)$limit);
         $stmt->execute($params);
@@ -197,6 +202,44 @@ if (!function_exists('ai_search_price_is_sane')) {
         if ($budgetMax !== null && $budgetMax > 0) {
             // เกินงบเกิน 3 เท่า = ถือว่าหลุดบริบทการค้นหา
             return $price <= $budgetMax * 3;
+        }
+        return true;
+    }
+}
+
+if (!function_exists('ai_search_title_is_sane')) {
+    /**
+     * คัดกรองประกาศที่หัวข้อไม่มีความหมาย (ข้อมูลขยะ/พิมพ์ค้าง/ตัวอักษรซ้ำ)
+     * เช่น "าาาาาาาาาา", "test", "ทดสอบ", "-" ไม่ให้ขึ้นผลการค้นหา
+     */
+    function ai_search_title_is_sane(array $row): bool
+    {
+        $title = trim((string)($row['title'] ?? ''));
+        if ($title === '') {
+            return false;
+        }
+        // ต้องมีตัวอักษร/ตัวเลขจริงอย่างน้อย 2 ตัว
+        if (preg_match_all('/[\p{L}\p{N}]/u', $title) < 2) {
+            return false;
+        }
+        // ตัวอักษรเดียวกันซ้ำตั้งแต่ 4 ตัวขึ้นไป = ขยะ (เช่น "าาาาา", "aaaaa", "kkkkkkk")
+        if (preg_match('/(\X)\1{3,}/u', $title) === 1) {
+            return false;
+        }
+        // คำทดสอบที่ไม่ได้สือความหมาย (ตรงทั้งชื่อ หรือขึ้นต้นด้วยคำทดสอบ)
+        $lower = mb_strtolower($title);
+        $junk = ['test', 'test test', 'ทดสอบ', 'ทดสอบระบบ', 'test property', 'untitled', 'ไม่มีชื่อ', 'nameless', 'null', 'undefined'];
+        if (in_array($lower, $junk, true)) {
+            return false;
+        }
+        foreach (['ทดสอบ', 'test ', 'untitled', 'draft ', 'ตัวอย่าง'] as $prefix) {
+            if (mb_strpos($lower, $prefix) === 0) {
+                return false;
+            }
+        }
+        // ชื่อสั้นเกินไปจนไม่บอกอะไร (เช่น "สวย", "ดี", "aaa") = ไม่สือความหมาย
+        if (mb_strlen(preg_replace('/[^\p{L}\p{N}]+/u', '', $title) ?? '') < 4) {
+            return false;
         }
         return true;
     }
@@ -535,6 +578,9 @@ if (!function_exists('ai_search_run')) {
             if (!ai_search_price_is_sane($row, $budgetMax)) {
                 continue;
             }
+            if (!ai_search_title_is_sane($row)) {
+                continue;
+            }
             $eval = ai_search_evaluate($row, $criteria, $weights);
             if (!$eval['passed']) {
                 continue;
@@ -561,6 +607,9 @@ if (!function_exists('ai_search_run')) {
                 if (!ai_search_price_is_sane($row, $budgetMax)) {
                     continue;
                 }
+                if (!ai_search_title_is_sane($row)) {
+                    continue;
+                }
                 $eval = ai_search_evaluate($row, $criteria, $weights);
                 $scored[] = ['row' => $row] + $eval;
             }
@@ -579,23 +628,32 @@ if (!function_exists('ai_search_run')) {
                 return strcmp((string)($b['row']['created_at'] ?? ''), (string)($a['row']['created_at'] ?? ''));
             });
 
-            $relaxedParts = [];
-            if (!empty($criteria['budget_max'])) {
-                $relaxedParts[] = t('งบประมาณ', 'budget');
-            }
-            if (!empty($criteria['locations'])) {
-                $relaxedParts[] = t('ทำเล', 'location');
-            }
-            if (!empty($criteria['bedrooms_min']) || !empty($criteria['bathrooms_min'])) {
-                $relaxedParts[] = t('จำนวนห้อง', 'room count');
-            }
-            if ($relaxedParts) {
-                $relaxNote = t(
-                    'ยังไม่พบประกาศที่ตรงทุกเงื่อนไข จึงผ่อนคลายเงื่อนไข: ' . implode(', ', $relaxedParts) . ' และเรียงรายการที่ใกล้เคียงที่สุดให้คุณ',
-                    'No listing matched every condition, so we relaxed: ' . implode(', ', $relaxedParts) . ' and sorted the closest matches.'
-                );
+            if (!$scored) {
+                // ไม่มีอะไรเลยแม้แต่รายการใกล้เคียง
+                $relaxNote = t('ไม่พบประกาศที่ตรงกับเงื่อนไขในระบบ ลองระบุทำเลหรืองบประมาณใหม่', 'No listings matched your criteria. Try a different location or budget.');
             } else {
-                $relaxNote = t('ยังไม่พบประกาศที่ตรงเงื่อนไข ลองระบุทำเลหรืองบประมาณเพิ่มเติม', 'No listings matched. Try adding a location or budget.');
+                $relaxedParts = [];
+                if (!empty($criteria['budget_max'])) {
+                    $relaxedParts[] = t('งบประมาณ', 'budget');
+                }
+                if (!empty($criteria['locations'])) {
+                    $relaxedParts[] = t('ทำเล', 'location');
+                }
+                if (!empty($criteria['bedrooms_min']) || !empty($criteria['bathrooms_min'])) {
+                    $relaxedParts[] = t('จำนวนห้อง', 'room count');
+                }
+                if (!empty($criteria['amenities'])) {
+                    $relaxedParts[] = t('สิ่งอำนวยความสะดวก', 'amenities');
+                }
+                if (!empty($criteria['transit'])) {
+                    $relaxedParts[] = t('ใกล้รถไฟฟ้า', 'near transit');
+                }
+                $relaxNote = $relaxedParts
+                    ? t(
+                        'ไม่พบประกาศที่ตรงทุกเงื่อนไข จึงผ่อนเงื่อนไข: ' . implode(', ', $relaxedParts) . ' และเรียงรายการที่ใกล้เคียงที่สุดให้คุณ',
+                        'No listing matched every condition, so we relaxed: ' . implode(', ', $relaxedParts) . ' and sorted the closest matches.'
+                    )
+                    : t('ไม่พบประกาศที่ตรงทุกเงื่อนไข แสดงรายการที่ใกล้เคียงที่สุดแทน', 'No listing matched every condition; showing the closest matches.');
             }
         }
 
