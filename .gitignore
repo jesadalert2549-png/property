@@ -14,3 +14,25 @@ uploads/*
 *.mjs
 *.txt
 test_cookie*.txt
+
+# Temporary / one-off scripts (DB probes, dashboard backups, QA dumps)
+# ห้าม commit เด็ดขาด — ไฟล์กลุ่มนี้ต่อ DB ตรงและหลุดข้อมูลได้
+._*
+_tmp_*
+_probe_*
+_bak_*
+_qa_*
+_rv*
+_myprobe*
+
+# Uploaded user content (avatars, property photos, videos)
+uploads/**
+!uploads/.htaccess
+!uploads/**/.htaccess
+!uploads/hero/
+!uploads/auth/
+
+# Local tooling
+node_modules/
+.vscode/
+*.log

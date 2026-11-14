@@ -60,6 +60,12 @@ RewriteRule ^sitemap\.xml$ sitemap_xml.php [L]
     Require all denied
 </FilesMatch>
 
+# ห้ามเปิดไฟล์ชั่วคราว/ทดสอบ (เช่น _tmp_*.php, _probe_*.php, _bak_*.php) จากภายนอก
+# ไฟล์กลุ่มนี้ต่อ DB ตรง ๆ ถ้าเปิดได้จะหลุด schema และข้อมูลผู้ใช้
+<FilesMatch "^_.*\.(php|sql|json|txt|html?)$">
+    Require all denied
+</FilesMatch>
+
 # ===== เปิดเมื่อขึ้น Hostinger แล้วและติดตั้ง SSL เรียบร้อยแล้วเท่านั้น =====
 # ถ้าเปิดตอนใช้ XAMPP จะเข้าเว็บบนเครื่องไม่ได้ จึงคอมเมนต์ไว้
 #
