@@ -1273,5 +1273,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<?php
+/* Footnavbar (iOS Liquid Glass) — แสดงเฉพาะมือถือ/iPad (≤1199px) */
+require_once __DIR__ . '/includes/footnav.php';
+render_glass_footnav('dashboard');
+?>
 </body>
 </html>

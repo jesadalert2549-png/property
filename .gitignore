@@ -31,6 +31,12 @@ test_*.php
 check_*.php
 debug_*.php
 tmp_*.php
+qa_*.php
+qa-*.php
+
+# เครื่องมือ/ผลวัดชั่วคราวที่รากโปรเจกต์ (Playwright, CDP profiler, dump)
+.qa-pw/
+_*.png
 
 # Uploaded user content (avatars, property photos, videos)
 uploads/**

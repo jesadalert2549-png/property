@@ -1568,3 +1568,89 @@ body.member-portal-body .tt-card-tile-link .tt-video-media-wrap .tt-card-empty-b
   z-index: 1 !important;
   overflow: visible !important;
 }
+
+/* ==========================================================================
+   iPhone — แท็บแดชบอร์ด (ประกาศ / Reels / โครงการ / รายการโปรด / ตั้งค่า)
+   --------------------------------------------------------------------------
+   เดิมบนจอเล็ก: ไอคอน + ชื่อแท็บถูกซ่อน เหลือแต่ตัวเลข "0" → ดูไม่ออกว่าแท็บไหนคืออะไร
+   แท็บ "ตั้งค่า" ไม่มีตัวเลขจึงกลายเป็นปุ่มว่าง และมีเส้นทองใต้แท็บ active ค้างอยู่
+   แก้: segmented control แบบ iOS เต็มความกว้าง 5 ช่องเท่ากัน
+        ไอคอนด้านบน + ชื่อสั้นด้านล่าง + ตัวเลขเป็น badge เล็กมุมขวาบน
+   ========================================================================== */
+@media (max-width: 900px) {
+  body.member-portal-body .tt-tabs-row {
+    flex-direction: row !important;
+    overflow: visible !important;
+  }
+  body.member-portal-body .tt-tabs-nav {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    gap: 2px !important;
+    padding: 3px !important;
+    border-radius: 14px !important;
+    overflow: visible !important;
+  }
+  body.member-portal-body .tt-tabs-nav .tt-tab-button {
+    position: relative !important;
+    flex-direction: column !important;
+    gap: 2px !important;
+    height: 50px !important;
+    min-height: 50px !important;
+    min-width: 0 !important;
+    padding: 5px 2px 4px !important;
+    border-radius: 11px !important;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  /* เอาเส้นทองใต้แท็บ (จาก member-portal.css) ออก — ใช้พื้นขาวแบบ iOS แทน */
+  body.member-portal-body .tt-tabs-nav .tt-tab-button::after,
+  body.member-portal-body .tt-tabs-nav .tt-tab-button.active::after {
+    display: none !important;
+    content: none !important;
+  }
+  /* แสดงไอคอนกลับมา */
+  body.member-portal-body .tt-tabs-nav .tt-tab-button svg {
+    display: block !important;
+    width: 18px !important;
+    height: 18px !important;
+    flex: 0 0 auto !important;
+  }
+  /* แสดงชื่อแท็บกลับมา (ตัวเล็ก ตัดด้วย … ถ้ายาวเกิน) */
+  body.member-portal-body .tt-tabs-nav .tt-tab-button span:not(.tt-tab-badge) {
+    display: block !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 10.5px !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.01em !important;
+  }
+  /* ตัวเลขเป็น badge เล็กมุมขวาบนของไอคอน */
+  body.member-portal-body .tt-tabs-nav .tt-tab-badge {
+    position: absolute !important;
+    top: 3px !important;
+    left: calc(50% + 6px) !important;
+    min-width: 16px !important;
+    height: 16px !important;
+    padding: 0 4px !important;
+    font-size: 9.5px !important;
+    line-height: 16px !important;
+    pointer-events: none;
+  }
+  body.member-portal-body .tt-tabs-nav .tt-tab-button:active {
+    transform: scale(.95);
+  }
+}
+
+@media (max-width: 360px) {
+  body.member-portal-body .tt-tabs-nav .tt-tab-button span:not(.tt-tab-badge) {
+    font-size: 9.5px !important;
+  }
+  body.member-portal-body .tt-tabs-nav .tt-tab-button svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+}

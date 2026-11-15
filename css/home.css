@@ -1180,6 +1180,22 @@ body {
 .dd-navbar .nav-dropdown-col > a { color: #0B1C33 !important; }
 .dd-navbar .nav-dropdown-col > a:hover { background: #F9F5EC; color: #8C6B32 !important; }
 
+/* glass pill บน navbar ตั้ง -webkit-text-fill-color ขาว !important แล้ว inherit
+   ลงแผงเมนู ทำให้ลิงก์ขาวบนพื้นขาว (มองไม่เห็น) — reset ให้กลับไปใช้ color เดิม */
+.dd-navbar .nav-dropdown-panel {
+  color: #0B1C33;
+  -webkit-text-fill-color: #0B1C33;
+}
+.dd-navbar .nav-dropdown-heading {
+  -webkit-text-fill-color: #A8843F;
+}
+.dd-navbar .nav-dropdown-col > a {
+  -webkit-text-fill-color: #0B1C33;
+}
+.dd-navbar .nav-dropdown-col > a:hover {
+  -webkit-text-fill-color: #8C6B32;
+}
+
 /* Buttons & hamburger */
 .dd-navbar:not(.scrolled) .mobile-hamburger-btn {
   color: #0B1C33 !important;
@@ -1272,32 +1288,28 @@ body {
   padding: 7px 15px !important;
 }
 
-/* Logo: dark text logo at top, white text logo when scrolled */
-.dd-navbar:not(.scrolled) .kasa-logo-img--light {
-  display: block !important;
+/* Logo: dark text logo on light navbar (desktop top), white text logo when scrolled or on mobile/dark bar */
+@media (min-width: 1200px) {
+  .dd-navbar:not(.scrolled) .kasa-logo-img--light {
+    display: block !important;
+  }
+  .dd-navbar:not(.scrolled) .kasa-logo-img--dark {
+    display: none !important;
+  }
+  .dd-navbar.scrolled .kasa-logo-img--light {
+    display: none !important;
+  }
+  .dd-navbar.scrolled .kasa-logo-img--dark {
+    display: block !important;
+  }
 }
-.dd-navbar:not(.scrolled) .kasa-logo-img--dark {
-  display: none !important;
-}
-.dd-navbar.scrolled .kasa-logo-img--light {
-  display: none !important;
-}
-.dd-navbar.scrolled .kasa-logo-img--dark {
-  display: block !important;
-}
-
-/* Logo: dark text logo at top, white text logo when scrolled */
-.dd-navbar:not(.scrolled) .kasa-logo-img--light {
-  display: block !important;
-}
-.dd-navbar:not(.scrolled) .kasa-logo-img--dark {
-  display: none !important;
-}
-.dd-navbar.scrolled .kasa-logo-img--light {
-  display: none !important;
-}
-.dd-navbar.scrolled .kasa-logo-img--dark {
-  display: block !important;
+@media (max-width: 1199px) {
+  .dd-navbar .kasa-logo-img--light {
+    display: none !important;
+  }
+  .dd-navbar .kasa-logo-img--dark {
+    display: block !important;
+  }
 }
 
 /* Search controls remain high-contrast and easy to operate */

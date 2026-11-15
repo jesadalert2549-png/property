@@ -167,6 +167,33 @@ json_ld($propertyAiFaq);
     .publisher-profile-link { color:inherit;text-decoration:none;transition:border-color .18s,box-shadow .18s; }
     .publisher-profile-link:hover { border-color:#c8b7ed;box-shadow:0 8px 22px #38285d12; }
     .publisher-eyebrow { width:100%;margin:0;color:#728094;font-size:11px; }
+
+    /* iOS-style visual environment intelligence panel */
+    .env-panel { position:relative; overflow:hidden; border:1px solid rgba(255,255,255,.75); border-radius:28px; background:linear-gradient(145deg,#fff 0%,#f5f7fb 58%,#edf2f8 100%); box-shadow:0 18px 50px rgba(11,28,51,.09),inset 0 1px 0 #fff; }
+    .env-panel::before { content:""; position:absolute; width:260px; height:260px; top:-150px; right:-90px; border-radius:50%; background:radial-gradient(circle,rgba(197,160,89,.18),transparent 70%); pointer-events:none; }
+    .env-card { position:relative; min-width:0; padding:18px; border:1px solid rgba(226,232,240,.8); border-radius:22px; background:rgba(255,255,255,.78); box-shadow:0 8px 24px rgba(11,28,51,.055),inset 0 1px 0 #fff; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+    .env-weather-value { font-size:28px; line-height:1; font-weight:850; letter-spacing:-.04em; color:#0B1C33; }
+    .env-mini-label { margin-top:6px; color:#64748b; font-size:11px; font-weight:700; }
+    .env-sun-dial { position:relative; width:100%; max-width:270px; margin:4px auto 0; }
+    .env-sun-dial svg { display:block; width:100%; height:auto; overflow:visible; }
+    .env-sun-dial text { font-family:system-ui,sans-serif; }
+    .env-route-line { fill:none; stroke:#c5a059; stroke-width:4; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 2px 3px rgba(197,160,89,.38)); }
+    .env-route-dot { fill:#0b1c33; stroke:#fff; stroke-width:3; }
+    .env-route-dest { fill:#c5a059; stroke:#fff; stroke-width:3; }
+    .env-route-svg { width:100%; height:150px; border-radius:16px; background:linear-gradient(145deg,#f7f9fc,#eaf0f6); }
+    .env-risk-row { display:flex; align-items:center; gap:12px; padding:13px 14px; border:1px solid #e6ebf1; border-radius:17px; background:rgba(255,255,255,.8); }
+    .env-risk-icon { display:grid; flex:0 0 40px; width:40px; height:40px; place-items:center; border-radius:14px; background:#f1f5f9; color:#516174; }
+    .env-risk-icon svg { width:20px; height:20px; }
+    .env-status-pill { display:inline-flex; align-items:center; gap:5px; padding:5px 9px; border:1px solid #dce4ed; border-radius:999px; background:#f6f8fb; color:#526174; font-size:10px; font-weight:800; white-space:nowrap; }
+    .env-live-dot { width:7px; height:7px; border-radius:50%; background:#22a06b; box-shadow:0 0 0 3px rgba(34,160,107,.12); }
+    .env-route-input { min-width:0; width:100%; border:1px solid #dbe2eb; border-radius:14px; padding:12px 14px; color:#0b1c33; background:rgba(255,255,255,.92); outline:none; }
+    .env-route-input:focus { border-color:#c5a059; box-shadow:0 0 0 3px rgba(197,160,89,.15); }
+    .env-route-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; min-height:44px; padding:0 16px; border:1px solid rgba(255,255,255,.75); border-radius:14px; background:linear-gradient(135deg,#0b1c33,#203a5c); color:#fff; font-size:13px; font-weight:800; box-shadow:0 6px 16px rgba(11,28,51,.2); cursor:pointer; }
+    .env-route-btn:disabled { opacity:.55; cursor:wait; }
+    .env-preset { padding:7px 10px; border:1px solid #e0e6ed; border-radius:999px; background:#fff; color:#45566b; font-size:11px; font-weight:700; cursor:pointer; }
+    .env-preset:hover { border-color:#c5a059; color:#795d2d; }
+    @media(max-width:640px) { .env-panel { border-radius:22px; } .env-card { padding:15px; border-radius:19px; } }
+
     @media(max-width:640px) {
       .property-gallery-track {
         display:flex !important;
@@ -623,7 +650,9 @@ json_ld($propertyAiFaq);
     </div>
   </section>
 
-  <section class="mt-10 rounded-2xl sm:rounded-3xl bg-[#faf7ff] p-4 sm:p-8 shadow-soft border border-slate-200/80">
+  <?php require_once __DIR__ . '/includes/environment_snapshot.php'; render_environment_snapshot($p); ?>
+
+<section class="mt-10 rounded-2xl sm:rounded-3xl bg-[#faf7ff] p-4 sm:p-8 shadow-soft border border-slate-200/80">
     <div class="grid gap-6 grid-cols-1 lg:grid-cols-[0.85fr_1.15fr]">
       <div>
         <p class="text-xs font-bold uppercase tracking-[.18em] text-accent">Financial Health & Decision Tool</p>
@@ -1386,3 +1415,4 @@ render_to_top();
     }
   })();
 </script>
+

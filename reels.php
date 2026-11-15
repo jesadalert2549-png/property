@@ -2087,5 +2087,10 @@ $pageDesc  = t('รับชมคลิปวิดีโอสั้นพา�
   playSlide(0);
 })();
 </script>
+<?php
+/* iOS Bottom Navigation — แสดงหน้า Reels เฉพาะ */
+require_once __DIR__ . '/includes/ios_bottom_nav.php';
+render_ios_bottom_nav('reels');
+?>
 </body>
 </html>

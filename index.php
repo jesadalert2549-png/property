@@ -176,6 +176,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     json_ld(generate_site_navigation_schema());
     json_ld(generate_homepage_ai_faq_schema());
   ?>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css?v=<?= e((string) filemtime(__DIR__ . '/css/style.css')) ?>">
   <?php lang_toggle_head(); ?>
   <style>
@@ -282,10 +285,13 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #C5A059;
     }
     .dd-desktop-menu {
-      display: flex;
       gap: 20px;
       margin-left: 20px;
       align-items: center;
+    }
+    /* เมนูเดสก์ท็อปแสดงเฉพาะจอใหญ่ ≥1200px — ต่ำกว่านั้นใช้ ซื้อ/เช่า pills + drawer + footnavbar */
+    @media (max-width: 1199px) {
+      .dd-desktop-menu { display: none !important; }
     }
     .dd-desktop-menu .nav-dropdown-toggle {
       color: #ffffff !important;
@@ -307,41 +313,64 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #C5A059 !important;
     }
     .dd-icon-btn {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      padding: 6px 12px;
-      border-radius: 9999px;
-      font-size: 13px;
+      /* Liquid Glass Effect - เข้มขึ้น */
+      background: rgba(255, 255, 255, 0.18);
+      -webkit-backdrop-filter: blur(20px) saturate(1.8);
+      backdrop-filter: blur(20px) saturate(1.8);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.25) inset,
+        0 4px 18px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(197, 160, 89, 0.15);
+      
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       color: #ffffff;
       text-decoration: none;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       white-space: nowrap;
     }
     .dd-icon-btn:hover {
-      background: rgba(197, 160, 89, 0.16);
-      border-color: #C5A059;
-      color: #E4C688;
+      background: rgba(255, 255, 255, 0.28);
+      border-color: rgba(248, 216, 136, 0.7);
+      color: #FFE7A6;
+      box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.35) inset,
+        0 8px 24px rgba(197, 160, 89, 0.35),
+        0 0 0 1px rgba(248, 216, 136, 0.4);
+      transform: translateY(-2px);
     }
     .dd-btn-login {
-      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
+      /* Gold Liquid Glass - เข้มขึ้น */
+      background: linear-gradient(135deg, #F0D490 0%, #D9BD72 50%, #C5A059 100%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.5) inset,
+        0 4px 18px rgba(197, 160, 89, 0.5),
+        0 0 0 1px rgba(168, 132, 63, 0.3);
+      
       color: #0B1C33 !important;
-      padding: 8px 20px;
-      border-radius: 9999px;
+      padding: 10px 24px;
+      border-radius: 12px;
       font-weight: 800;
       font-size: 14px;
       text-decoration: none;
-      box-shadow: 0 4px 14px rgba(197, 160, 89, 0.35);
-      transition: all 0.25s cubic-bezier(.22, 1, .36, 1);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       white-space: nowrap;
     }
     .dd-btn-login:hover {
-      background: linear-gradient(135deg, #D4AF67 0%, #B58F48 100%) !important;
+      background: linear-gradient(135deg, #F8DDA0 0%, #E3C780 50%, #D0A863 100%) !important;
+      box-shadow: 
+        0 2px 0 rgba(255, 255, 255, 0.6) inset,
+        0 8px 24px rgba(197, 160, 89, 0.6),
+        0 0 0 1px rgba(248, 216, 136, 0.5);
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(197, 160, 89, 0.45);
     }
     .dd-admin-stats-btn {
       display: inline-flex;
@@ -1212,51 +1241,152 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       color: #64748B !important;
     }
 
-    /* Flagship Property Reels Buttons & Floating Action Pill (Luxury Theme Match) */
+    /* Flagship Property Reels Button — Apple Liquid Glass (this pill only) */
     .reels-flagship-nav-btn {
       display: inline-flex !important;
       align-items: center !important;
       gap: 6px !important;
       padding: 6px 15px !important;
       border-radius: 999px !important;
-      background: linear-gradient(135deg, #0B1C33 0%, #172D4D 45%, #C5A059 100%) !important;
+      position: relative !important;
+      isolation: isolate !important;
+      overflow: hidden !important;
+      border: 0.5px solid rgba(255, 255, 255, 0.45) !important;
+      background-color: rgba(255, 255, 255, 0.12) !important;
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.30) 0%,
+          rgba(255, 255, 255, 0.06) 46%,
+          rgba(255, 255, 255, 0.10) 100%) !important;
+      -webkit-backdrop-filter: blur(18px) saturate(1.9) brightness(1.12) !important;
+      backdrop-filter: blur(18px) saturate(1.9) brightness(1.12) !important;
       color: #ffffff !important;
       font-family: 'Prompt', -apple-system, sans-serif !important;
       font-size: 13px !important;
-      font-weight: 800 !important;
-      letter-spacing: 0.02em !important;
+      font-weight: 700 !important;
+      letter-spacing: 0.01em !important;
       text-decoration: none !important;
-      box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4), 0 2px 6px rgba(11, 28, 51, 0.5) !important;
-      border: 1.5px solid rgba(248, 216, 136, 0.75) !important;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
-      position: relative !important;
-      overflow: hidden !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
-      animation: reelsGoldPulse 2.4s infinite ease-in-out !important;
+      text-shadow: 0 1px 2px rgba(6, 15, 28, 0.35) !important;
+      -webkit-text-fill-color: #ffffff !important;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.45) inset,
+        0 -1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 0 0 1px rgba(248, 216, 136, 0.28),
+        0 2px 5px rgba(6, 15, 28, 0.28),
+        0 10px 24px -12px rgba(197, 160, 89, 0.75) !important;
+      transition:
+        background-color .22s ease,
+        border-color .22s ease,
+        box-shadow .26s ease,
+        transform .16s cubic-bezier(.32, .72, 0, 1) !important;
     }
-    .reels-flagship-nav-btn:hover {
-      transform: translateY(-2px) scale(1.06) !important;
-      background: linear-gradient(135deg, #C5A059 0%, #A8843F 100%) !important;
-      color: #0B1C33 !important;
-      text-shadow: none !important;
-      box-shadow: 0 6px 24px rgba(197, 160, 89, 0.6) !important;
-      border-color: #ffffff !important;
+    /* children ride above the sheen layer */
+    .reels-flagship-nav-btn > svg,
+    .reels-flagship-nav-btn > span {
+      position: relative !important;
+      z-index: 2 !important;
+    }
+    /* specular sheen that sweeps across the glass on hover */
+    .reels-flagship-nav-btn::before {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      z-index: 1 !important;
+      border-radius: inherit !important;
+      pointer-events: none !important;
+      background: linear-gradient(115deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.55) 46%,
+        rgba(255, 244, 214, 0.35) 54%,
+        transparent 78%) !important;
+      transform: translateX(-130%) !important;
+      transition: transform .7s cubic-bezier(.32, .72, 0, 1) !important;
+    }
+    .reels-flagship-nav-btn:hover::before {
+      transform: translateX(130%) !important;
+    }
+    /* live gold caustic blob drifting inside the glass */
+    .reels-flagship-nav-btn::after {
+      content: "" !important;
+      position: absolute !important;
+      width: 46px !important;
+      height: 46px !important;
+      left: -12px !important;
+      top: -14px !important;
+      z-index: 0 !important;
+      border-radius: 50% !important;
+      pointer-events: none !important;
+      background: radial-gradient(circle,
+        rgba(248, 216, 136, 0.55) 0%,
+        rgba(248, 216, 136, 0) 70%) !important;
+      filter: blur(6px) !important;
+      animation: reelsGoldDrift 5.5s infinite ease-in-out !important;
+    }
+    @keyframes reelsGoldDrift {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: .75; }
+      33%      { transform: translate(58px, 4px) scale(1.25); opacity: 1; }
+      66%      { transform: translate(26px, 10px) scale(.9); opacity: .55; }
+    }
+    .reels-flagship-nav-btn:hover,
+    .dd-navbar:not(.scrolled) .reels-flagship-nav-btn:hover,
+    .dd-navbar.scrolled .reels-flagship-nav-btn:hover {
+      transform: translateY(-1px) !important;
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      text-shadow: 0 1px 2px rgba(6, 15, 28, 0.45) !important;
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.42) 0%,
+          rgba(255, 255, 255, 0.14) 46%,
+          rgba(255, 255, 255, 0.20) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.7) !important;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.6) inset,
+        0 -1px 0 rgba(255, 255, 255, 0.10) inset,
+        0 4px 8px rgba(6, 15, 28, 0.3),
+        0 14px 30px -12px rgba(197, 160, 89, 0.9) !important;
+    }
+    .reels-flagship-nav-btn svg,
+    .dd-navbar:not(.scrolled) .reels-flagship-nav-btn svg,
+    .dd-navbar.scrolled .reels-flagship-nav-btn svg {
+      color: #FBE7B6 !important;
+    }
+
+    /* Override nav scrolled state so reels button ALWAYS stays glassy */
+    .dd-navbar:not(.scrolled) .reels-flagship-nav-btn,
+    .dd-navbar.scrolled .reels-flagship-nav-btn {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      background-color: rgba(255, 255, 255, 0.14) !important;
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.32) 0%,
+          rgba(255, 255, 255, 0.07) 46%,
+          rgba(255, 255, 255, 0.12) 100%) !important;
+      border-color: rgba(255, 255, 255, 0.5) !important;
     }
     .reels-flagship-nav-btn:active {
-      transform: scale(0.96) !important;
+      transform: translateY(1px) scale(.97) !important;
+      box-shadow:
+        0 2px 6px rgba(6, 15, 28, .3) inset,
+        0 0 0 1px rgba(248, 216, 136, .3) !important;
     }
+    .reels-flagship-nav-btn:focus-visible {
+      outline: 2px solid rgba(248, 216, 136, .8) !important;
+      outline-offset: 2px !important;
+    }
+    .reels-flagship-nav-btn svg { color: #F8D888 !important; }
     .reels-flagship-nav-btn .flame-icon {
       font-size: 14px;
       display: inline-block;
       animation: flameWiggle 1.6s infinite ease-in-out;
     }
-    @keyframes reelsGoldPulse {
-      0%, 100% {
-        box-shadow: 0 4px 18px rgba(197, 160, 89, 0.4), 0 2px 6px rgba(11, 28, 51, 0.5);
-      }
-      50% {
-        box-shadow: 0 4px 26px rgba(197, 160, 89, 0.75), 0 0 14px rgba(248, 216, 136, 0.6);
-      }
+    @media (prefers-reduced-motion: reduce) {
+      .reels-flagship-nav-btn,
+      .reels-flagship-nav-btn::before,
+      .reels-flagship-nav-btn::after,
+      .reels-flagship-nav-btn .flame-icon { animation: none !important; transition: none !important; }
+      .reels-flagship-nav-btn::before { display: none !important; }
     }
     @keyframes flameWiggle {
       0%, 100% { transform: rotate(0deg) scale(1); }
@@ -1264,7 +1394,9 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       75% { transform: rotate(8deg) scale(1.15); }
     }
 
-    /* Floating Reels Action Pill on Mobile & Tablet (Cohesive Luxury Design & Perfect Placement) */
+    /* Floating Reels Action Pill — Apple Liquid Glass (this pill only).
+       Real glass: translucent white layer + backdrop blur/saturate over the
+       hero, inner specular sheen, drifting gold caustic and liquid press. */
     .reels-floating-fab {
       position: fixed;
       bottom: 24px;
@@ -1275,30 +1407,108 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       gap: 8px;
       padding: 10px 18px;
       border-radius: 999px;
-      background: linear-gradient(135deg, #0B1C33 0%, #182E4B 50%, #8C6B32 85%, #C5A059 100%);
+      overflow: hidden;
+      isolation: isolate;
+      border: 0.5px solid rgba(255, 255, 255, 0.55);
+      background-color: rgba(255, 255, 255, 0.14);
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.34) 0%,
+          rgba(255, 255, 255, 0.07) 46%,
+          rgba(255, 255, 255, 0.12) 100%);
       color: #ffffff !important;
       font-family: 'Prompt', -apple-system, sans-serif !important;
       font-size: 13.5px;
-      font-weight: 800;
+      font-weight: 700;
       letter-spacing: 0.02em;
       text-decoration: none !important;
-      border: 1.5px solid rgba(248, 216, 136, 0.85);
-      box-shadow: 0 8px 24px rgba(11, 28, 51, 0.55), 0 4px 16px rgba(197, 160, 89, 0.45);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      text-shadow: 0 1px 2px rgba(6, 15, 28, 0.35);
+      -webkit-text-fill-color: #ffffff;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.5) inset,
+        0 -1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 0 0 1px rgba(248, 216, 136, 0.25),
+        0 4px 10px rgba(6, 15, 28, 0.35),
+        0 16px 36px -14px rgba(197, 160, 89, 0.8);
+      backdrop-filter: blur(20px) saturate(1.9) brightness(1.12);
+      -webkit-backdrop-filter: blur(20px) saturate(1.9) brightness(1.12);
+      transition:
+        background-color .22s ease,
+        border-color .22s ease,
+        box-shadow .26s ease,
+        transform .16s cubic-bezier(.32, .72, 0, 1);
       animation: fabFloat 3s infinite ease-in-out;
       cursor: pointer;
     }
+    /* children ride above the sheen layer */
+    .reels-floating-fab > svg,
+    .reels-floating-fab > span {
+      position: relative;
+      z-index: 2;
+    }
+    /* specular sheen sweeping across on hover */
+    .reels-floating-fab::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(115deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.55) 46%,
+        rgba(255, 244, 214, 0.35) 54%,
+        transparent 78%);
+      transform: translateX(-130%);
+      transition: transform .7s cubic-bezier(.32, .72, 0, 1);
+    }
+    .reels-floating-fab:hover::before { transform: translateX(130%); }
+    /* drifting gold caustic blob inside the glass */
+    .reels-floating-fab::after {
+      content: "";
+      position: absolute;
+      width: 56px;
+      height: 56px;
+      left: -14px;
+      top: -18px;
+      z-index: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle,
+        rgba(248, 216, 136, 0.55) 0%,
+        rgba(248, 216, 136, 0) 70%);
+      filter: blur(7px);
+      animation: reelsGoldDrift 5.5s infinite ease-in-out;
+    }
     .reels-floating-fab:hover {
-      transform: translateY(-4px) scale(1.06);
-      border-color: #ffffff;
-      box-shadow: 0 12px 32px rgba(197, 160, 89, 0.65), 0 4px 18px rgba(11, 28, 51, 0.6);
+      transform: translateY(-3px) scale(1.04);
+      background-color: rgba(255, 255, 255, 0.24);
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.46) 0%,
+          rgba(255, 255, 255, 0.16) 46%,
+          rgba(255, 255, 255, 0.22) 100%);
+      border-color: rgba(255, 255, 255, 0.75);
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.65) inset,
+        0 -1px 0 rgba(255, 255, 255, 0.10) inset,
+        0 0 0 1px rgba(248, 216, 136, 0.45),
+        0 8px 18px rgba(6, 15, 28, 0.4),
+        0 20px 44px -14px rgba(197, 160, 89, 0.95);
       color: #ffffff !important;
     }
     .reels-floating-fab:active {
-      transform: scale(0.95);
+      transform: translateY(1px) scale(.96);
+      background-color: rgba(255, 255, 255, 0.3);
+      box-shadow:
+        0 2px 8px rgba(6, 15, 28, 0.35) inset,
+        0 0 0 1px rgba(248, 216, 136, 0.3);
     }
+    .reels-floating-fab:focus-visible {
+      outline: 2px solid rgba(248, 216, 136, .8);
+      outline-offset: 3px;
+    }
+    .reels-floating-fab svg { color: #FBE7B6; }
     .reels-floating-fab .fab-flame {
       font-size: 16px;
       display: inline-block;
@@ -1309,11 +1519,20 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       font-weight: 900;
       padding: 2.5px 8px;
       border-radius: 999px;
-      background: rgba(248, 216, 136, 0.22);
-      border: 1px solid rgba(248, 216, 136, 0.6);
-      color: #F8D888;
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #FFF2CE;
       text-transform: uppercase;
       letter-spacing: 0.06em;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .reels-floating-fab,
+      .reels-floating-fab::before,
+      .reels-floating-fab::after,
+      .reels-floating-fab .fab-flame { animation: none !important; transition: none !important; }
+      .reels-floating-fab::before { display: none; }
     }
 
     @keyframes fabFloat {
@@ -1323,6 +1542,11 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       50% {
         transform: translateY(-5px);
       }
+    }
+    @keyframes reelsGoldDrift {
+      0%, 100% { transform: translate(0, 0) scale(1); opacity: .75; }
+      33%      { transform: translate(68px, 8px) scale(1.25); opacity: 1; }
+      66%      { transform: translate(30px, 14px) scale(.9); opacity: .55; }
     }
 
     /* Coordinated Position for Scroll-To-Top button (Sits neatly above the FAB, never overlapping) */
@@ -1337,11 +1561,15 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       z-index: 999 !important;
     }
 
-    /* Override nav scrolled state so reels button ALWAYS stays vibrant */
+    /* Override nav scrolled state so reels button ALWAYS stays glassy */
     .dd-navbar:not(.scrolled) .reels-flagship-nav-btn,
     .dd-navbar.scrolled .reels-flagship-nav-btn {
       color: #ffffff !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+      background-image:
+        linear-gradient(180deg,
+          rgba(255, 255, 255, 0.30) 0%,
+          rgba(255, 255, 255, 0.06) 46%,
+          rgba(255, 255, 255, 0.10) 100%) !important;
     }
 
     /* Video on card hover styles */
@@ -1430,7 +1658,6 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     }
 
     @media (min-width: 993px) and (max-width: 1100px) {
-      .dd-desktop-menu .dd-menu-item[href="favorites.php"],
       .dd-desktop-menu .dd-menu-item[href="notifications.php"],
       .dd-desktop-menu .dd-menu-item[href="advertise.php"] {
         display: none !important;
@@ -1443,7 +1670,6 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       .dd-desktop-menu .dd-menu-item[href="advertise.php"] { display: none !important; }
     }
     @media (max-width: 1300px) {
-      .dd-desktop-menu .dd-menu-item[href="favorites.php"],
       .dd-desktop-menu .dd-menu-item[href="notifications.php"] { display: none !important; }
       .dd-nav-right .dd-icon-btn[href="submit.php"] { display: none !important; }
     }
@@ -1468,25 +1694,181 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       }
     }
 
-    @media (max-width: 992px) {
-      .dd-desktop-menu, .dd-nav-right {
+    /* Desktop: ซ่อนปุ่ม ซื้อ/เช่า ของ navbar มือถือ (มี dropdown ซื้อ/เช่าในเมนูหลักแล้ว)
+       ไม่เช่นนั้นจะเหลือข้อความล้นออกมาที่มุมขวาของ navbar */
+    @media (min-width: 1200px) {
+      .dd-mobile-quick { display: none !important; }
+    }
+
+    /* มือถือ + iPad: เหลือเฉพาะปุ่ม ซื้อ/เช่า glass pill — เมนูเต็มอยู่ใน drawer + footnavbar
+       (เมนูเดสก์ท็อปถูกปิดที่ base rule + max-width:1199px ด้านบน) */
+    @media (max-width: 1199px) {
+      .dd-nav-right {
         display: none !important;
       }
-      .mobile-hamburger-btn {
-        display: inline-flex !important;
-        flex: 0 0 auto;
+      /* Mobile navbar: เหลือเฉพาะปุ่ม ซื้อ / เช่า (Apple Liquid Glass) — เมนูอื่นอยู่ใน drawer + footnavbar */
+      .dd-mobile-quick .nav-dropdown-panel { display: none !important; }
+      .dd-mobile-quick .nav-caret { display: none !important; }
+
+      /* Force dark-mode logo (WHITE text 'Property GO' + rich gold buildings) on mobile */
+      .dd-navbar .kasa-logo-img--light,
+      .dd-navbar:not(.scrolled) .kasa-logo-img--light,
+      .dd-navbar.scrolled .kasa-logo-img--light {
+        display: none !important;
       }
+      .dd-navbar .kasa-logo-img--dark,
+      .dd-navbar:not(.scrolled) .kasa-logo-img--dark,
+      .dd-navbar.scrolled .kasa-logo-img--dark {
+        display: block !important;
+      }
+
+      /* ---------- iPhone layout: [โลโก้ขาวทอง] [ซื้อ เช่า Glass] [☰ Glass] ---------- */
       .dd-navbar {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 8px !important;
         position: fixed !important;
-        min-height: 62px;
-        left: 0;
-        right: 0;
-        padding: 8px 16px;
-        background: rgba(11, 28, 51, 0.96) !important;
-        border-bottom: 1px solid rgba(197, 160, 89, 0.28);
-        box-shadow: 0 5px 18px rgba(6, 15, 28, 0.22);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        min-height: 58px !important;
+        padding: calc(6px + env(safe-area-inset-top, 0px)) 14px 6px !important;
+        background: rgba(11, 28, 51, 0.88) !important;
+        border-bottom: 0.5px solid rgba(248, 216, 136, 0.3) !important;
+        box-shadow: 0 4px 20px rgba(6, 15, 28, 0.45) !important;
+        backdrop-filter: blur(24px) saturate(190%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(190%) !important;
+        z-index: 1000 !important;
+      }
+
+      .dd-nav-left {
+        display: flex !important;
+        align-items: center !important;
+        min-width: 0 !important;
+        gap: 8px !important;
+      }
+      .dd-nav-left .dd-logo,
+      .dd-nav-left .kasa-logo,
+      .dd-nav-left .sp-logo {
+        flex: 0 1 auto !important;
+        max-width: min(44vw, 160px) !important;
+        min-width: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+      }
+      .dd-nav-left .kasa-logo-img {
+        height: 34px !important;
+        max-height: 36px !important;
+        max-width: 100% !important;
+        width: auto !important;
+        object-fit: contain !important;
+        object-position: left center !important;
+        filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.5)) !important;
+      }
+
+      /* ปุ่ม ซื้อ / เช่า สไตล์ iOS Modern — Segmented Control แบบ Floating Glass */
+      .dd-mobile-quick {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 3px !important;
+        padding: 3px !important;
+        border-radius: 14px !important;
+        background: rgba(255, 255, 255, 0.15) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+        backdrop-filter: blur(16px) saturate(1.6) !important;
+        border: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+        box-shadow: 0 2px 0 rgba(255, 255, 255, 0.2) inset, 
+                    0 4px 12px rgba(0, 0, 0, 0.25) !important;
+        flex: 0 0 auto !important;
+      }
+      .dd-navbar .dd-mobile-quick .dd-menu-item {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 56px !important;
+        padding: 5px 14px !important;
+        min-height: 28px !important;
+        border-radius: 11px !important;
+        background: transparent !important;
+        border: none !important;
+     box-shadow: none !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-family: 'Prompt', -apple-system, BlinkMacSystemFont, sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        letter-spacing: -0.01em !important;
+        line-height: 1.2 !important;
+        white-space: nowrap !important;
+        text-decoration: none !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
+        transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        -webkit-tap-highlight-color: transparent !important;
+        position: relative !important;
+      }
+      /* Active/Current page state */
+      .dd-navbar .dd-mobile-quick .dd-menu-item.active,
+      .dd-navbar .dd-mobile-quick .dd-menu-item:active {
+        background: rgba(255, 255, 255, 0.92) !important;
+        color: #0B1C33 !important;
+        -webkit-text-fill-color: #0B1C33 !important;
+        font-weight: 700 !important;
+        text-shadow: none !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 
+                    0 1px 0 rgba(255, 255, 255, 1) inset !important;
+      }
+      .dd-navbar .dd-mobile-quick .dd-menu-item:hover {
+        background: rgba(255, 255, 255, 0.22) !important;
+      }
+      .dd-navbar .dd-mobile-quick .dd-menu-item:active {
+        transform: scale(0.96) !important;
+      }
+
+      /* ปุ่ม Hamburger: Apple Liquid Glass สีทองแชมเปญ สอดคล้องกับปุ่มซื้อ/เช่า */
+      .dd-navbar .mobile-hamburger-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        min-height: 36px !important;
+        max-width: 36px !important;
+        max-height: 36px !important;
+        padding: 0 !important;
+        border-radius: 11px !important;
+        background: linear-gradient(135deg, #F8D888 0%, #DDBE74 52%, #C5A059 100%) !important;
+        border: 1px solid rgba(255, 244, 214, 0.8) !important;
+        box-shadow: 0 3px 12px rgba(197, 160, 89, 0.45), inset 0 1px 1px #ffffff !important;
+        color: #0B1C33 !important;
+        flex: 0 0 auto !important;
+        cursor: pointer !important;
+        transition: all 0.2s cubic-bezier(0.32, 0.72, 0, 1) !important;
+        -webkit-tap-highlight-color: transparent !important;
+      }
+      .dd-navbar .mobile-hamburger-btn svg {
+        width: 19px !important;
+        height: 19px !important;
+        stroke: #0B1C33 !important;
+        stroke-width: 2.4 !important;
+        transition: transform 0.2s ease !important;
+      }
+      .dd-navbar .mobile-hamburger-btn:hover {
+        background: linear-gradient(135deg, #FFF0B8 0%, #E8CA82 52%, #D4AE62 100%) !important;
+        box-shadow: 0 5px 18px rgba(197, 160, 89, 0.6), inset 0 1px 1px #ffffff !important;
+      }
+      .dd-navbar .mobile-hamburger-btn:active {
+        transform: scale(0.92) !important;
+      }
+
+      /* จอแคบพิเศษ (<360px): ย่อขนาดเล็กน้อยให้พอดีเป๊ะ */
+      @media (max-width: 359px) {
+        .dd-nav-left .kasa-logo-img { height: 28px !important; }
+        .dd-nav-left .dd-logo, .dd-nav-left .kasa-logo, .dd-nav-left .sp-logo { max-width: 36vw !important; }
+        .dd-mobile-quick .dd-menu-item { padding: 4px 10px !important; font-size: 12px !important; min-height: 30px !important; }
+        .dd-mobile-quick { gap: 4px !important; }
+        .mobile-hamburger-btn { width: 34px !important; height: 34px !important; border-radius: 10px !important; }
       }
       .dd-navbar:not(.scrolled) .dd-logo,
       .dd-navbar:not(.scrolled) .mobile-hamburger-btn {
@@ -1732,6 +2114,39 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
         grid-auto-columns: minmax(0, 82%);
       }
     }
+
+    /* ======================================================================
+       Property Reels pill — สีทองทึบ (ต้องอยู่ท้ายสุดของ <style>)
+       index.php มีกฎ .reels-flagship-nav-btn ซ้ำกันหลายชุด (1245/1356/1385/
+       1565/1613/1641) และแต่ละชุดเปลี่ยนสีตาม context เช่น :not(.scrolled)
+       ทำให้ปุ่มบนพื้น navy เข้มกลายเป็นพื้นขาวจางจนกลืนกับพื้นหลัง
+       กฎนี้ล็อกสีให้คงที่เสมอ ไม่ขึ้นกับ navbar state / media query
+       ====================================================================== */
+    .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn,
+    .dd-navbar.scrolled .dd-desktop-menu > a.reels-flagship-nav-btn,
+    .dd-navbar:not(.scrolled) .dd-desktop-menu > a.reels-flagship-nav-btn {
+      background-color: #E8CE8C !important;
+      background-image: linear-gradient(180deg, #FFF1C9 0%, #E8CE8C 52%, #C9A560 100%) !important;
+      border: 1px solid rgba(120, 90, 32, 0.45) !important;
+      color: #0B1C33 !important;
+      -webkit-text-fill-color: #0B1C33 !important;
+      text-shadow: none !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 3px 10px rgba(6, 15, 28, 0.45),
+        0 8px 20px -10px rgba(197, 160, 89, 0.9) !important;
+    }
+    .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+      background-color: #F3DC9E !important;
+      background-image: linear-gradient(180deg, #FFF9E4 0%, #F3DC9E 52%, #D6B570 100%) !important;
+      border-color: rgba(120, 90, 32, 0.6) !important;
+    }
+    .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+      color: #0B1C33 !important;
+      stroke: currentColor !important;
+    }
   </style>
   <link rel="stylesheet" href="css/home.css?v=<?= e((string) filemtime(__DIR__ . '/css/home.css')) ?>">
   <?php /* ต้องอยู่หลัง <style> ของหน้านี้ เพื่อให้กฏ drawer/hamburger ชนะ CSS เฉพาะของหน้าแรก */ ?>
@@ -1755,11 +2170,6 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
       </a>
       <a href="ai-search.php" class="dd-menu-item" title="<?= e(t('ค้นหาด้วยภาษาธรรมชาติ', 'Natural language search')) ?>"><?= e(t('ค้นหาด้วย AI', 'AI Search')) ?></a>
       <a href="project.php" class="dd-menu-item"><?= e(t('โครงการใหม่', 'New Projects')) ?></a>
-      <a href="favorites.php" class="dd-menu-item" title="<?= e(t('ทรัพย์ที่บันทึกไว้', 'Saved Properties')) ?>">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display:inline-block; vertical-align:-1px; color:#ef4444;"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-        <span><?= e(t('ที่ชอบ', 'Favorites')) ?></span>
-        <span class="sp-fav-count-badge" style="display:none; background:#b91c1c; color:#fff; font-size:10px; font-weight:800; padding:1px 6px; border-radius:999px; margin-left:2px;"></span>
-      </a>
       <a href="notifications.php" class="dd-menu-item" title="<?= e(t('การแจ้งเตือน', 'Notifications')) ?>">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:inline-block; vertical-align:-1px; color:#C5A059;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
         <span><?= e(t('แจ้งเตือน', 'Alerts')) ?></span>
@@ -1785,6 +2195,12 @@ foreach (PROPERTY_CATEGORIES as $categorySlug => $categoryLabel) {
     <?php endif; ?>
     <?php render_lang_toggle(); ?>
   </div>
+
+  <!-- ปุ่ม ซื้อ/เช่า สำหรับ navbar โหมดมือถือ/iPad -->
+  <nav class="dd-mobile-quick" aria-label="<?= e(t('เมนูหลัก', 'Main menu')) ?>">
+    <a href="search.php?type=sale" class="dd-menu-item"><?= e(t('ซื้อ', 'Buy')) ?></a>
+    <a href="search.php?type=rent" class="dd-menu-item"><?= e(t('เช่า', 'Rent')) ?></a>
+  </nav>
 
   <!-- ปุ่ม Hamburger สำหรับ Mobile -->
   <?php /* ปุ่ม hamburger + drawer มาจาก includes/mobile_nav.php */ ?>
@@ -2802,6 +3218,9 @@ render_site_footer(); ?>
 </a>
 
 <script src="js/app.js?v=<?= time() ?>"></script>
+
+<?php require_once __DIR__ . '/includes/footnav.php'; ?>
+<?= render_glass_footnav('home') ?>
 <script>
 /* Hero video: วิดีโอเป็น 4K ~75 MB — ห้ามโหลดระหว่างที่หน้าหลักยังโหลดไม่เสร็จ
    ลำดับ: 1) แสดง poster (50 KB) ทันที  2) รอ load + idle 4s  3) ค่อยต่อวิดีโอ

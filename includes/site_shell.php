@@ -391,6 +391,11 @@ function render_site_footer(): void
       </div>
     </footer>
     <?php render_lang_float_toggle(); ?>
+    <?php
+    /* แถบเมนูล่าง iOS (iPhone/iPad) — แสดงทุกหน้าที่ใช้ site footer */
+    require_once __DIR__ . '/ios_bottom_nav.php';
+    render_ios_bottom_nav();
+    ?>
     <script>
       (() => {
         const isAdminPage = location.pathname.split('/').includes('admin');

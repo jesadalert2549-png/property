@@ -8,6 +8,13 @@ function e($value): string
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+// สำหรับค่าใน attribute ที่เป็น URL/path — ไม่ escape '/' เป็น '\/'
+// (htmlspecialchars ทำแบบนั้น ซึ่งทำให้ href="\/css/x.css" กลายเป็น host "css" ในเบราว์เซอร์)
+function e_url($value): string
+{
+    return str_replace('\\/', '/', e($value));
+}
+
 require_once __DIR__ . '/i18n.php';
 
 /**
@@ -25,7 +32,7 @@ function render_logo_html(string $href = 'index.php', string $class = ''): strin
     $scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
     $inAdmin = (strpos($scriptPath, '/admin/') !== false) || (strpos($href, '../') === 0);
     $imgPrefix = $inAdmin ? '../images/' : 'images/';
-    $v = (string) @filemtime(__DIR__ . '/../images/kasa_logo.png');
+    $v = (string)(@filemtime(__DIR__ . '/../images/kasa_logo.png') ?: '1');
 
     return '<a href="' . $eHref . '" class="' . $cls . '" aria-label="' . $eName . '">'
         . '<img src="' . $imgPrefix . 'kasa_logo_light.png?v=' . $v . '" alt="' . $eName . '" class="kasa-logo-img kasa-logo-img--light" width="200" height="52" loading="eager">'
@@ -117,7 +124,13 @@ function request_is_post(): bool
 
 function site_url(): string
 {
-    return rtrim(defined('SITE_URL') ? SITE_URL : 'https://standardproperty.cloud', '/');
+    if (!defined('SITE_URL')) {
+        // Auto-detect site URL from current request
+        $protocol = request_is_https() ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
+        return rtrim($protocol . '://' . $host, '/');
+    }
+  return rtrim(SITE_URL, '/');
 }
 
 function page_url(string $path = ''): string
@@ -129,11 +142,17 @@ function site_asset_url(string $asset): string
 {
     $scriptPath = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '/');
     $basePath = rtrim(dirname($scriptPath), '/');
-    foreach (['/admin', '/api'] as $suffix) {
+    foreach (['/admin', '/api', '/staff'] as $suffix) {
         if (str_ends_with($basePath, $suffix)) {
             $basePath = substr($basePath, 0, -strlen($suffix));
             break;
         }
+    }
+    // dirname('/index.php') คืน '/' และ dirname('index.php') คืน '.' — rtrim ด้านบน
+    // ตัดจนเหลือ '' ทำให้ asset URL กลายเป็น relative ('css/x.css') แล้วเบราว์เซอร์
+    // ตีความ 'css' เป็น host ต้องคืน '/' (absolute) ทุกกรณีที่ไฟล์อยู่ที่ root
+    if ($basePath === '' || $basePath === '.') {
+        return '/' . ltrim($asset, '/');
     }
     return $basePath . '/' . ltrim($asset, '/');
 }
@@ -143,17 +162,21 @@ function site_controls_head(): void
     $cssVersion = filemtime(__DIR__ . '/../css/site-controls.css');
     $footerCssVersion = filemtime(__DIR__ . '/../css/seo-footer.css');
     $jsVersion = filemtime(__DIR__ . '/../js/site-controls.js');
-    $css = e(site_asset_url('css/site-controls.css') . '?v=' . $cssVersion);
-    $footerCss = e(site_asset_url('css/seo-footer.css') . '?v=' . $footerCssVersion);
-    $js = e(site_asset_url('js/site-controls.js') . '?v=' . $jsVersion);
+    // e_url() คง '/' ไว้ (ไม่กลายเป็น '\/') เพื่อให้ href เป็น path ที่โหลดได้จริง
+    $asset = static function (string $path, int $version): string {
+        return e_url(site_asset_url($path) . '?v=' . (int)$version);
+    };
+    $css = $asset('css/site-controls.css', (int)$cssVersion);
+    $footerCss = $asset('css/seo-footer.css', (int)$footerCssVersion);
+    $js = $asset('js/site-controls.js', (int)$jsVersion);
     // Google Search Favicon Guidelines: ต้องการ Absolute URL ที่นิ่ง (Stable URL) ไม่มี query parameter
     $googleFavicon48 = site_url() . '/images/favicon-48x48.png';
     $googleFaviconIco = site_url() . '/favicon.ico';
-    $faviconSvg = e(site_asset_url('images/favicon.svg'));
-    $favicon32  = e(site_asset_url('images/favicon-32x32.png'));
-    $favicon16  = e(site_asset_url('images/favicon-16x16.png'));
-    $appleTouch = e(site_asset_url('images/apple-touch-icon.png'));
-    $manifest   = e(site_asset_url('site.webmanifest'));
+    $faviconSvg = e_url(site_asset_url('images/favicon.svg'));
+    $favicon32  = e_url(site_asset_url('images/favicon-32x32.png'));
+    $favicon16  = e_url(site_asset_url('images/favicon-16x16.png'));
+    $appleTouch = e_url(site_asset_url('images/apple-touch-icon.png'));
+    $manifest   = e_url(site_asset_url('site.webmanifest'));
     // 1) แท็กหลักสำหรับ Googlebot และ Google Search SERP (Absolute URL, 48x48)
     echo '<link rel="icon" type="image/png" sizes="48x48" href="' . e($googleFavicon48) . '">' . "\n";
     echo '<link rel="shortcut icon" href="' . e($googleFaviconIco) . '">' . "\n";
@@ -169,35 +192,52 @@ function site_controls_head(): void
     echo '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Thai:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=Prompt:wght@300;400;500;600;700;800&display=swap">' . "\n";
     echo '<link rel="stylesheet" href="' . $css . '">' . "\n";
     echo '<link rel="stylesheet" href="' . $footerCss . '">' . "\n";
-    echo '<link rel="stylesheet" href="' . e(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
+    echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/promo-banners.css') . '?v=' . filemtime(__DIR__ . '/../css/promo-banners.css')) . '">' . "\n";
     // ระบบปุ่ม iOS — โหลดท้ายสุดเพื่อให้ค่าชนะสไตล์เฉพาะหน้าอื่น
-    echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-buttons.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-buttons.css')) . '">' . "\n";
+    echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/ios-buttons.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-buttons.css')) . '">' . "\n";
     // Accessibility: skip link + contrast helpers
-    echo '<link rel="stylesheet" href="' . e(site_asset_url('css/a11y.css') . '?v=' . filemtime(__DIR__ . '/../css/a11y.css')) . '">' . "\n";
+    echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/a11y.css') . '?v=' . filemtime(__DIR__ . '/../css/a11y.css')) . '">' . "\n";
     // การ์ดประกาศสไตล์ iOS — โหลดท้ายสุด ชนะสไตล์เฉพาะหน้า
     if (is_file(__DIR__ . '/../css/ios-card.css')) {
-        echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-card.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-card.css')) . '">' . "\n";
+        echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/ios-card.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-card.css')) . '">' . "\n";
     }
     // จัดระเบียบ header/navbar
     if (is_file(__DIR__ . '/../css/header-tidy.css')) {
-        echo '<link rel="stylesheet" href="' . e(site_asset_url('css/header-tidy.css') . '?v=' . filemtime(__DIR__ . '/../css/header-tidy.css')) . '">' . "\n";
+        echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/header-tidy.css') . '?v=' . filemtime(__DIR__ . '/../css/header-tidy.css')) . '">' . "\n";
     }
     // iOS 26/27 Liquid Glass buttons - member dashboard only (scoped CSS)
     if (is_file(__DIR__ . '/../css/ios-liquid-glass.css')) {
-        echo '<link rel="stylesheet" href="' . e(site_asset_url('css/ios-liquid-glass.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-liquid-glass.css')) . '">' . "\n";
+        echo '<link rel="stylesheet" href="' . e_url(site_asset_url('css/ios-liquid-glass.css') . '?v=' . filemtime(__DIR__ . '/../css/ios-liquid-glass.css')) . '">' . "\n";
     }
     echo '<script defer src="' . $js . '"></script>' . "\n";
-    echo '<script defer src="' . e(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
-    echo '<script defer src="' . e(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
+    echo '<script defer src="' . e_url(site_asset_url('js/instant-page.js')) . '"></script>' . "\n";
+    echo '<script defer src="' . e_url(site_asset_url('js/favorites.js') . '?v=' . filemtime(__DIR__ . '/../js/favorites.js')) . '"></script>' . "\n";
+    echo '<script defer src="' . e_url(site_asset_url('js/page-transition.js') . '?v=' . filemtime(__DIR__ . '/../js/page-transition.js')) . '"></script>' . "\n";
     echo '<script>window.spPendingEvents=window.spPendingEvents||[];window.spPendingEvents.push({event:"page",path:window.location.pathname+window.location.search});if(window.spFlushTracking){window.spFlushTracking();}</script>' . "\n";
 }
 
 function redirect(string $url): void
 {
+    // Validate URL to prevent open redirects and XSS
+    $parsed = parse_url($url);
+    if ($parsed === false) {
+        $url = 'index.php'; // Invalid URL, fallback to safe default
+    } elseif (isset($parsed['scheme'])) {
+        // Absolute URL - only allow http/https
+        $scheme = strtolower($parsed['scheme']);
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            $url = 'index.php';
+        }
+    }
+    // Relative URLs are safe
+    
     if (!headers_sent()) {
         header('Location: ' . $url);
     } else {
-        echo '<script>window.location.href=' . json_encode($url) . ';</script><noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES, 'UTF-8') . '"></noscript>';
+        // Use json_encode for JavaScript context (prevents XSS)
+        // Use htmlspecialchars for HTML meta refresh
+        echo '<script>window.location.href=' . json_encode($url, JSON_HEX_TAG | JSON_HEX_AMP) . ';</script>';
+        echo '<noscript><meta http-equiv="refresh" content="0;url=' . htmlspecialchars($url, ENT_QUOTES | ENT_HTML5, 'UTF-8') . '"></noscript>';
     }
     exit;
 }

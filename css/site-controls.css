@@ -146,6 +146,8 @@ body:has(.listing-form) .site-controls,
     width: auto;
     max-height: 40vh;
     padding: 13px 14px;
+    /* ยกขึ้นเหนือ glass footnavbar (สูง ~67px + 10px เว้นล่าง) */
+    bottom: calc(88px + env(safe-area-inset-bottom, 0px));
   }
 }
 

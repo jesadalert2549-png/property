@@ -45,7 +45,7 @@ function db(): PDO
             }
         }
 
-        $pdo->exec("SET time_zone = '+07:00'");
+        $pdo->exec("SET time_zone = '" . DB_TIMEZONE . "'");
 
         // Auto-migrate schema on production server if newly deployed columns are missing
         static $schemaChecked = false;

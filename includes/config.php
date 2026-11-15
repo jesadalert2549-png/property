@@ -2,6 +2,10 @@
 // ===== ตั้งค่าหลักของเว็บ =====
 date_default_timezone_set('Asia/Bangkok');
 
+// Database Timezone (MySQL format: '+07:00', '+00:00', etc.)
+// ปรับแก้ได้ตาม timezone ของระบบ หรือกำหนดใน config.local.php
+if (!defined('DB_TIMEZONE')) define('DB_TIMEZONE', '+07:00');
+
 // Load machine-specific database settings from the ignored local config file first.
 // Keep the local XAMPP defaults when the file is absent; production needs config.local.php.
 $localConfigPath = __DIR__ . '/config.local.php';

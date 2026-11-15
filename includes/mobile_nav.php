@@ -37,8 +37,8 @@ if (!function_exists('render_mobile_nav_assets')) {
       display: none;
       align-items: center;
       justify-content: center;
-      width: 44px !important;
-      height: 44px !important;
+      width: 40px;
+      height: 40px;
       padding: 0 !important;
       border: 1px solid #dce2e9;
       border-radius: 12px;
@@ -402,7 +402,13 @@ if (!function_exists('render_mobile_nav')) {
         $isAdmin   = $loggedIn && (($_SESSION['role'] ?? '') === 'admin');
         $dashUrl   = $isAdmin ? 'admin/index.php' : 'dashboard.php';
         ?>
-<button type="button" class="mobile-hamburger-btn" id="openDrawerBtn" aria-label="<?= e(t('เปิดเมนู', 'Open menu')) ?>" aria-expanded="false" aria-controls="mobileDrawer">☰</button>
+<button type="button" class="mobile-hamburger-btn" id="openDrawerBtn" aria-label="<?= e(t('เปิดเมนู', 'Open menu')) ?>" aria-expanded="false" aria-controls="mobileDrawer">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:block;">
+    <line x1="4" y1="6.5" x2="20" y2="6.5"></line>
+    <line x1="4" y1="12" x2="20" y2="12"></line>
+    <line x1="4" y1="17.5" x2="20" y2="17.5"></line>
+  </svg>
+</button>
 
 <div class="mobile-drawer-overlay" id="drawerOverlay"></div>
 <aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true">

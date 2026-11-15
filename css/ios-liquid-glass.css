@@ -2350,3 +2350,1789 @@ body.member-portal-body a.tt-hero-handle:focus-visible {
   body.member-portal-body .tt-hero-handle { transition: none !important; }
   body.member-portal-body .tt-hero-handle:active { transform: none; }
 }
+
+/* ==========================================================================
+   Round 13 - home page navbar as Liquid Glass
+   --------------------------------------------------------------------------
+   The top bar on index.php is a navy strip with plain text links. The rest of
+   the site uses glass pills, so the nav is the last piece that does not match.
+
+   Every link in .dd-desktop-menu becomes a glass pill:
+     - translucent white pane, hairline light edge, inner top highlight
+     - saturate + blur backdrop so the page behind shows through
+     - press compresses to .96, hover lifts 1px and warms the edge to gold
+     - an underline sweep on hover, drawn with ::after
+
+   The Property Reels entry keeps its gradient but is reshaped to match, and
+   the right-hand actions (post, language, account) share the same geometry.
+
+   Scope guard: body.home-page, so no other page is touched.
+   ========================================================================== */
+
+/* ------------------------------------------------ nav container rhythm */
+body.home-page .dd-navbar .dd-desktop-menu {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+/* -------------------------------------------- every link: glass pill */
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  border-radius: 999px !important;
+
+  background-color: rgba(255, 255, 255, .08) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .22) 0%,
+    rgba(255, 255, 255, .06) 100%) !important;
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.7) !important;
+  backdrop-filter: blur(16px) saturate(1.7) !important;
+
+  color: rgba(255, 255, 255, .92) !important;
+  text-decoration: none !important;
+  white-space: nowrap !important;
+
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.006em !important;
+  line-height: 1 !important;
+  text-shadow: none !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .30) inset,
+    0 -1px 0 rgba(0, 0, 0, .18) inset,
+    0 1px 2px rgba(6, 15, 28, .18),
+    0 6px 16px -10px rgba(6, 15, 28, .55) !important;
+
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .24s ease,
+    color .18s ease,
+    transform .18s cubic-bezier(.34, 1.2, .64, 1) !important;
+}
+
+/* a light that travels with the pointer */
+body.home-page .dd-navbar .dd-desktop-menu > a::before,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  opacity: 0;
+  background: radial-gradient(
+    110px 70px at 50% 50%,
+    rgba(255, 255, 255, .38),
+    rgba(255, 255, 255, 0) 72%) !important;
+  transition: opacity .24s ease !important;
+}
+
+/* a thin gold underline that sweeps in on hover */
+body.home-page .dd-navbar .dd-desktop-menu > a::after,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 4px !important;
+  width: 0 !important;
+  height: 2px !important;
+  border-radius: 2px !important;
+  background: linear-gradient(90deg,
+    rgba(248, 216, 136, 0),
+    rgba(248, 216, 136, .95),
+    rgba(248, 216, 136, 0)) !important;
+  transform: translateX(-50%) !important;
+  pointer-events: none !important;
+  transition: width .26s cubic-bezier(.34, 1.2, .64, 1) !important;
+}
+
+/* content sits above the sheen */
+body.home-page .dd-navbar .dd-desktop-menu > a > *,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle > * {
+  position: relative;
+  z-index: 1;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, .16) !important;
+    border-color: rgba(248, 216, 136, .55) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .40) inset,
+      0 -1px 0 rgba(0, 0, 0, .16) inset,
+      0 2px 4px rgba(6, 15, 28, .20),
+      0 10px 22px -10px rgba(248, 216, 136, .45) !important;
+  }
+
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover::before,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover::before {
+    opacity: 1;
+  }
+
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover::after,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover::after {
+    width: calc(100% - 24px) !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a:active,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:active {
+  transform: scale(.96);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .20) inset,
+    0 1px 2px rgba(6, 15, 28, .22) !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a:focus-visible,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:focus-visible {
+  outline: 3px solid rgba(248, 216, 136, .6) !important;
+  outline-offset: 2px !important;
+}
+
+/* --------------------------------------------- the Reels entry: gold */
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+  border-color: rgba(248, 216, 136, .5) !important;
+  background-color: rgba(168, 132, 63, .22) !important;
+  background-image: linear-gradient(180deg,
+    rgba(248, 216, 136, .26) 0%,
+    rgba(168, 132, 63, .14) 100%) !important;
+  color: #FBE9BE !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .32) inset,
+    0 -1px 0 rgba(120, 90, 30, .20) inset,
+    0 1px 2px rgba(6, 15, 28, .20),
+    0 8px 20px -10px rgba(248, 216, 136, .55) !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+  flex: 0 0 auto;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+    background-color: rgba(168, 132, 63, .32) !important;
+    border-color: rgba(248, 216, 136, .85) !important;
+    color: #FFF6DF !important;
+  }
+}
+
+/* ------------------------------------- right side: same pill geometry */
+body.home-page .dd-navbar .dd-icon-btn,
+body.home-page .dd-navbar .dd-btn-login {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 14px !important;
+  box-sizing: border-box !important;
+
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+  text-decoration: none !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .24s ease,
+    color .18s ease,
+    transform .18s cubic-bezier(.34, 1.2, .64, 1) !important;
+}
+
+/* neutral glass for the plain actions */
+body.home-page .dd-navbar .dd-icon-btn {
+  border: 1px solid rgba(255, 255, 255, .20) !important;
+  background-color: rgba(255, 255, 255, .07) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .20) 0%,
+    rgba(255, 255, 255, .05) 100%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.7) !important;
+  backdrop-filter: blur(16px) saturate(1.7) !important;
+  color: rgba(255, 255, 255, .9) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .26) inset,
+    0 -1px 0 rgba(0, 0, 0, .16) inset,
+    0 6px 16px -10px rgba(6, 15, 28, .5) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-icon-btn:hover {
+    background-color: rgba(255, 255, 255, .15) !important;
+    border-color: rgba(248, 216, 136, .5) !important;
+    color: #FFFFFF !important;
+    transform: translateY(-1px);
+  }
+}
+
+body.home-page .dd-navbar .dd-icon-btn:active {
+  transform: scale(.96);
+}
+
+/* the one gold call to action */
+body.home-page .dd-navbar .dd-btn-login {
+  border: 1px solid rgba(255, 255, 255, .5) !important;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, .34) 0%, rgba(255, 255, 255, 0) 46%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+  background-color: #C9A65F !important;
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 -1px 0 rgba(120, 90, 30, .18) inset,
+    0 4px 12px -4px rgba(168, 132, 63, .55) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-btn-login:hover {
+    filter: brightness(1.04);
+    transform: translateY(-1px);
+  }
+}
+
+body.home-page .dd-navbar .dd-btn-login:active {
+  transform: scale(.96);
+  filter: brightness(.98);
+}
+
+/* language toggle sits at the end of the row */
+body.home-page .dd-navbar .lang-toggle {
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 11px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  background: rgba(255, 255, 255, .06) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.5) !important;
+  backdrop-filter: blur(14px) saturate(1.5) !important;
+  color: rgba(255, 255, 255, .86) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .18) inset !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .lang-toggle:hover {
+    background: rgba(255, 255, 255, .14) !important;
+    border-color: rgba(248, 216, 136, .5) !important;
+    color: #FBE9BE !important;
+  }
+}
+
+/* ------------------------------------------------------- motion guards */
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-icon-btn,
+  body.home-page .dd-navbar .dd-btn-login,
+  body.home-page .dd-navbar .lang-toggle {
+    transition: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover,
+  body.home-page .dd-navbar .dd-icon-btn:hover,
+  body.home-page .dd-navbar .dd-btn-login:hover {
+    transform: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a::before,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before {
+    display: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a::after,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::after {
+    transition: none !important;
+  }
+}
+
+/* browsers without backdrop-filter: solid navy pills instead of faint ones */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-icon-btn {
+    background: rgba(255, 255, 255, .12) !important;
+  }
+}
+
+/* --------------------------------------------------------- small screens */
+@media (max-width: 1280px) {
+  body.home-page .dd-navbar .dd-desktop-menu { gap: 4px !important; }
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+    padding: 0 11px !important;
+    font-size: 12.5px !important;
+  }
+}
+
+/* ==========================================================================
+   Round 14 - navbar readability and fit
+   --------------------------------------------------------------------------
+   After Round 13 the pills were correct in shape but nearly invisible: white
+   text at 8% white fill over a light grey bar measures about 1.6:1 contrast.
+   The row also overflowed by 7px, clipping the login button.
+
+   Fixes:
+     - the navbar gets an explicit height and its content a max-width, so the
+       row cannot push past the right edge
+     - pills sit at 55-70% white with dark ink labels
+     - the Reels entry keeps its gold identity but is brought to the same
+       height and horizontal rhythm as everything else
+   ========================================================================== */
+
+/* ------------------------------------------------ 1) keep it in bounds */
+body.home-page .dd-navbar .header-inner,
+body.home-page .dd-navbar > div {
+  max-width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  gap: 5px !important;
+  flex-wrap: nowrap !important;
+}
+
+body.home-page .dd-navbar .dd-nav-right {
+  flex: 0 0 auto !important;
+  gap: 7px !important;
+  min-width: 0 !important;
+}
+
+/* the links themselves: slightly tighter so seven of them fit */
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 12.5px !important;
+}
+
+/* ------------------------------------------- 2) readable glass surface */
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+  background-color: rgba(255, 255, 255, .58) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .86) 0%,
+    rgba(255, 255, 255, .50) 100%) !important;
+
+  border-color: rgba(255, 255, 255, .92) !important;
+
+  color: #16202E !important;
+  -webkit-text-fill-color: #16202E !important;
+  font-weight: 600 !important;
+  text-shadow: none !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(120, 128, 145, .12) inset,
+    0 0 0 1px rgba(120, 128, 145, .10),
+    0 1px 2px rgba(17, 24, 39, .07),
+    0 6px 16px -10px rgba(17, 24, 39, .26) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, .86) !important;
+    border-color: rgba(168, 132, 63, .55) !important;
+    color: #0B1C33 !important;
+    -webkit-text-fill-color: #0B1C33 !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 1) inset,
+      0 -1px 0 rgba(120, 128, 145, .10) inset,
+      0 0 0 1px rgba(168, 132, 63, .22),
+      0 2px 4px rgba(17, 24, 39, .08),
+      0 10px 22px -10px rgba(168, 132, 63, .34) !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a:active,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:active {
+  background-color: rgba(255, 255, 255, .74) !important;
+  color: #0B1C33 !important;
+  -webkit-text-fill-color: #0B1C33 !important;
+}
+
+/* the caret beside a dropdown label */
+body.home-page .dd-navbar .dd-desktop-menu .nav-caret {
+  border-color: #6B7280 !important;
+}
+
+/* ------------------------------ 3) the Reels entry: same size, gold tint */
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 13px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+
+  background-color: rgba(255, 249, 235, .92) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 252, 244, .98) 0%,
+    rgba(248, 232, 198, .88) 100%) !important;
+
+  border-color: rgba(168, 132, 63, .42) !important;
+  color: #7A5C22 !important;
+  -webkit-text-fill-color: #7A5C22 !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(168, 132, 63, .12) inset,
+    0 0 0 1px rgba(168, 132, 63, .16),
+    0 1px 2px rgba(17, 24, 39, .07),
+    0 6px 16px -10px rgba(168, 132, 63, .38) !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+  width: 13px !important;
+  height: 13px !important;
+  color: #A8843F !important;
+  stroke: currentColor !important;
+  flex: 0 0 13px !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+    background-color: rgba(255, 250, 238, .98) !important;
+    border-color: rgba(168, 132, 63, .7) !important;
+    color: #6B4E1A !important;
+    -webkit-text-fill-color: #6B4E1A !important;
+  }
+}
+
+/* ------------------------------- the right-hand actions, same treatment */
+body.home-page .dd-navbar .dd-icon-btn {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 12px !important;
+  font-size: 12.5px !important;
+
+  background-color: rgba(255, 255, 255, .58) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .86) 0%,
+    rgba(255, 255, 255, .50) 100%) !important;
+
+  border-color: rgba(255, 255, 255, .92) !important;
+  color: #16202E !important;
+  -webkit-text-fill-color: #16202E !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(120, 128, 145, .12) inset,
+    0 0 0 1px rgba(120, 128, 145, .10),
+    0 6px 16px -10px rgba(17, 24, 39, .26) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-icon-btn:hover {
+    background-color: rgba(255, 255, 255, .88) !important;
+    border-color: rgba(168, 132, 63, .55) !important;
+    color: #0B1C33 !important;
+    -webkit-text-fill-color: #0B1C33 !important;
+  }
+}
+
+/* the gold CTA stays the strongest element, sized like the rest */
+body.home-page .dd-navbar .dd-btn-login {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 14px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+}
+
+/* language chip */
+body.home-page .dd-navbar .lang-toggle {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+  background: rgba(255, 255, 255, .55) !important;
+  border: 1px solid rgba(255, 255, 255, .9) !important;
+  color: #16202E !important;
+  -webkit-text-fill-color: #16202E !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .95) inset,
+    0 0 0 1px rgba(120, 128, 145, .08) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .lang-toggle:hover {
+    background: rgba(255, 255, 255, .88) !important;
+    border-color: rgba(168, 132, 63, .5) !important;
+    color: #0B1C33 !important;
+    -webkit-text-fill-color: #0B1C33 !important;
+  }
+}
+
+/* ------------------------------------ progressive tightening by width */
+@media (max-width: 1400px) {
+  body.home-page .dd-navbar .dd-desktop-menu { gap: 4px !important; }
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+    padding: 0 10px !important;
+    font-size: 12px !important;
+  }
+  body.home-page .dd-navbar .dd-nav-right { gap: 6px !important; }
+  body.home-page .dd-navbar .dd-icon-btn,
+  body.home-page .dd-navbar .dd-btn-login { padding: 0 11px !important; font-size: 12px !important; }
+}
+
+@media (max-width: 1260px) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+    padding: 0 9px !important;
+    font-size: 11.5px !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn span:not(.arrow) {
+    display: none;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+    width: 34px !important;
+    padding: 0 !important;
+  }
+}
+
+/* motion guard */
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-icon-btn,
+  body.home-page .dd-navbar .lang-toggle { transition: none !important; }
+}
+
+/* ==========================================================================
+   Round 15 - navbar leftovers: clipped "Post Reel" and the stray dot
+   --------------------------------------------------------------------------
+   1) The Post Reel anchor keeps an inline padding from the markup, so its
+      label was running under the rounded edge. Give it a min-width and let
+      the content breathe.
+
+   2) The favorites badge is the first child inside its anchor, so the pill's
+      gap pushed it in front of the label and it rendered as a lonely dot.
+      It is moved to the trailing edge with a fixed slot, and its number is
+      kept on one line.
+   ========================================================================== */
+
+/* ------------------------------------------------- 1) Post Reel: not clipped */
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+  min-width: 132px !important;
+  width: auto !important;
+  padding: 0 14px !important;
+  gap: 7px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] span,
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] > * {
+  white-space: nowrap !important;
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] svg {
+  flex: 0 0 13px !important;
+  width: 13px !important;
+  height: 13px !important;
+}
+
+/* make sure the inline rule on the anchor cannot win */
+body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn[href*="submit-reel"] {
+  min-width: 132px !important;
+  padding: 0 14px !important;
+}
+
+/* ------------------------------------------ 2) favorites badge: trailing */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding-right: 10px !important;
+}
+
+/* the badge is an inline span with display:none until it has a count */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"] .sp-fav-count-badge {
+  order: 9 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  margin: 0 0 0 2px !important;
+
+  border-radius: 999px !important;
+  background: #D9453B !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .35) inset,
+    0 1px 3px rgba(120, 30, 24, .35) !important;
+  vertical-align: middle;
+}
+
+/* when there is no count the badge hides, same as before */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"] .sp-fav-count-badge:empty {
+  display: none !important;
+}
+
+/* the notification badge follows the same rule */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="notifications"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding-right: 10px !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="notifications"] .sp-notif-badge {
+  order: 9 !important;
+  display: inline-grid !important;
+  place-items: center !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  padding: 0 5px !important;
+  margin: 0 0 0 2px !important;
+
+  border-radius: 999px !important;
+  background: #D9453B !important;
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+
+  font-size: 10.5px !important;
+  font-weight: 800 !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .35) inset,
+    0 1px 3px rgba(120, 30, 24, .35) !important;
+  vertical-align: middle;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="notifications"] .sp-notif-badge:empty {
+  display: none !important;
+}
+
+/* the emoji that precedes the label should not add its own gap */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"],
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="notifications"] {
+  letter-spacing: 0 !important;
+}
+
+/* ---------------------------------------- keep the row inside the bar */
+@media (max-width: 1400px) {
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+    min-width: 0 !important;
+    width: 34px !important;
+    padding: 0 !important;
+  }
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] span {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Round 16 - desktop navbar: remove the favourites entry, thin the row out,
+   and make the pills genuinely translucent
+   --------------------------------------------------------------------------
+      remains in the mobile drawer and in the account area, so nothing is lost.
+
+      exists in the left group - two entries for the same destination is the
+      main source of the clutter.
+
+   3. The glass is thinned. Fill goes from 58-86% white to 14-26%, so the navy
+      bar shows through and the pills read as material rather than paint. The
+      label switches to near-white and a hairline light edge keeps it legible
+      at this opacity.
+
+   4. A soft specular highlight travels with the pointer, and the underline
+      sweep stays for the hover state.
+   ========================================================================== */
+
+/* ---------------------------------------- 1) drop the favourites entry */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"] {
+  display: none !important;
+}
+
+/* ---------------------------------- 2) drop the duplicate post-listing */
+body.home-page .dd-navbar .dd-nav-right > a[href="submit.php"] {
+  display: none !important;
+}
+
+/* ---------------------------- 3) thin, transparent glass on a dark bar */
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 13px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.004em !important;
+
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 999px !important;
+
+  background-color: rgba(255, 255, 255, .10) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .26) 0%,
+    rgba(255, 255, 255, .10) 52%,
+    rgba(255, 255, 255, .04) 100%) !important;
+
+  -webkit-backdrop-filter: blur(20px) saturate(1.9) !important;
+  backdrop-filter: blur(20px) saturate(1.9) !important;
+
+  color: rgba(255, 255, 255, .95) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .95) !important;
+  text-shadow: 0 1px 2px rgba(6, 15, 28, .45) !important;
+
+  box-shadow:
+    /* top specular line */
+    0 1px 0 rgba(255, 255, 255, .30) inset,
+    /* bottom shade for thickness */
+    0 -1px 0 rgba(0, 0, 0, .22) inset,
+    /* contact */
+    0 1px 2px rgba(6, 15, 28, .22),
+    /* ambient lift */
+    0 8px 20px -12px rgba(6, 15, 28, .55) !important;
+
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* the moving highlight */
+body.home-page .dd-navbar .dd-desktop-menu > a::before,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before {
+  background: radial-gradient(
+    120px 76px at var(--lg-nx, 50%) var(--lg-ny, 50%),
+    rgba(255, 255, 255, .42),
+    rgba(255, 255, 255, 0) 74%) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, .20) !important;
+    border-color: rgba(248, 216, 136, .62) !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .42) inset,
+      0 -1px 0 rgba(0, 0, 0, .20) inset,
+      0 2px 4px rgba(6, 15, 28, .24),
+      0 12px 26px -12px rgba(248, 216, 136, .5) !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a:active,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:active {
+  background-color: rgba(255, 255, 255, .28) !important;
+  transform: scale(.96);
+}
+
+/* the caret on dropdowns */
+body.home-page .dd-navbar .dd-desktop-menu .nav-caret {
+  border-color: rgba(255, 255, 255, .7) !important;
+}
+
+/* ------------------------------------------ Reels: gold, same thin glass */
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+  border-color: rgba(248, 216, 136, .45) !important;
+  background-color: rgba(248, 216, 136, .13) !important;
+  background-image: linear-gradient(180deg,
+    rgba(248, 216, 136, .30) 0%,
+    rgba(168, 132, 63, .12) 100%) !important;
+  color: #FCEBC4 !important;
+  -webkit-text-fill-color: #FCEBC4 !important;
+  font-weight: 700 !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .30) inset,
+    0 -1px 0 rgba(120, 90, 30, .25) inset,
+    0 1px 2px rgba(6, 15, 28, .22),
+    0 8px 22px -12px rgba(248, 216, 136, .55) !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+  color: #F8D888 !important;
+  stroke: currentColor !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+    background-color: rgba(248, 216, 136, .22) !important;
+    border-color: rgba(248, 216, 136, .85) !important;
+    color: #FFF6DF !important;
+    -webkit-text-fill-color: #FFF6DF !important;
+  }
+}
+
+/* ------------------------------ right group: same thin glass, one gold CTA */
+body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn,
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 13px !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 999px !important;
+
+  background-color: rgba(255, 255, 255, .10) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .26) 0%,
+    rgba(255, 255, 255, .10) 52%,
+    rgba(255, 255, 255, .04) 100%) !important;
+
+  -webkit-backdrop-filter: blur(20px) saturate(1.9) !important;
+  backdrop-filter: blur(20px) saturate(1.9) !important;
+
+  color: rgba(255, 255, 255, .95) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .95) !important;
+  text-shadow: 0 1px 2px rgba(6, 15, 28, .45) !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .30) inset,
+    0 -1px 0 rgba(0, 0, 0, .22) inset,
+    0 1px 2px rgba(6, 15, 28, .22),
+    0 8px 20px -12px rgba(6, 15, 28, .55) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn:hover,
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"]:hover {
+    background-color: rgba(255, 255, 255, .20) !important;
+    border-color: rgba(248, 216, 136, .6) !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+  }
+}
+
+/* Post Reel: wide enough for its label, never clipped */
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+  min-width: 130px !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  overflow: visible !important;
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] * {
+  white-space: nowrap !important;
+}
+
+/* the single gold call to action */
+body.home-page .dd-navbar .dd-btn-login {
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 16px !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+
+  border: 1px solid rgba(255, 255, 255, .5) !important;
+  border-radius: 999px !important;
+
+  background-color: #C9A65F !important;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, .38) 0%, rgba(255, 255, 255, 0) 48%),
+    linear-gradient(160deg, #E7D0A0 0%, #C9A65F 55%, #B08D45 100%) !important;
+
+  color: #2A2416 !important;
+  -webkit-text-fill-color: #2A2416 !important;
+  text-shadow: none !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .6) inset,
+    0 -1px 0 rgba(120, 90, 30, .2) inset,
+    0 2px 6px -2px rgba(168, 132, 63, .55),
+    0 10px 22px -12px rgba(168, 132, 63, .7) !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-btn-login:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+  }
+}
+
+body.home-page .dd-navbar .dd-btn-login:active {
+  transform: scale(.96);
+  filter: brightness(.98);
+}
+
+/* language chip: thinnest glass, sits at the end */
+body.home-page .dd-navbar .lang-toggle {
+  height: 30px !important;
+  min-height: 30px !important;
+  padding: 0 10px !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+
+  border: 1px solid rgba(255, 255, 255, .16) !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, .08) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.7) !important;
+  backdrop-filter: blur(16px) saturate(1.7) !important;
+  color: rgba(255, 255, 255, .9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .9) !important;
+  text-shadow: 0 1px 2px rgba(6, 15, 28, .4) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .22) inset,
+    0 -1px 0 rgba(0, 0, 0, .18) inset !important;
+  transition: background-color .18s ease, border-color .18s ease, color .18s ease !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .lang-toggle:hover {
+    background: rgba(255, 255, 255, .18) !important;
+    border-color: rgba(248, 216, 136, .55) !important;
+    color: #FCEBC4 !important;
+    -webkit-text-fill-color: #FCEBC4 !important;
+  }
+}
+
+/* --------------------------------------------- spacing: let it breathe */
+body.home-page .dd-navbar .dd-desktop-menu { gap: 6px !important; }
+body.home-page .dd-navbar .dd-nav-right { gap: 8px !important; }
+
+/* a hairline divider between the two groups */
+body.home-page .dd-navbar .dd-nav-right::before {
+  content: "" !important;
+  width: 1px !important;
+  height: 20px !important;
+  margin-right: 2px !important;
+  background: rgba(255, 255, 255, .16) !important;
+  flex: 0 0 auto;
+}
+
+/* --------------------------- browsers without backdrop: readable fallback */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn,
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+    background: rgba(255, 255, 255, .16) !important;
+  }
+}
+
+/* ------------------------------------------------------- motion guards */
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-nav-right > a,
+  body.home-page .dd-navbar .dd-btn-login,
+  body.home-page .dd-navbar .lang-toggle { transition: none !important; }
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover,
+  body.home-page .dd-navbar .dd-btn-login:hover { transform: none !important; }
+}
+
+/* ------------------------------------------- narrower desktops stay tidy */
+@media (max-width: 1360px) {
+  body.home-page .dd-navbar .dd-desktop-menu { gap: 4px !important; }
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+    padding: 0 10px !important;
+    font-size: 12px !important;
+  }
+  body.home-page .dd-navbar .dd-nav-right { gap: 6px !important; }
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] {
+    min-width: 0 !important;
+    width: 34px !important;
+    padding: 0 !important;
+  }
+  body.home-page .dd-navbar .dd-nav-right > a[href*="submit-reel"] span {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Round 17 - dropdown wrappers and the login height
+   --------------------------------------------------------------------------
+   toggle button, not plain anchors, so the previous selector missed them and
+   they stayed square and opaque.
+
+   The login button has an inline height of 36px from the markup, which is why
+   it sits 2px taller than the rest of the row.
+   ========================================================================== */
+
+/* ---- the dropdown wrapper becomes the pill ---- */
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+
+  border: 1px solid rgba(255, 255, 255, .18) !important;
+  border-radius: 999px !important;
+
+  background-color: rgba(255, 255, 255, .10) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .26) 0%,
+    rgba(255, 255, 255, .10) 52%,
+    rgba(255, 255, 255, .04) 100%) !important;
+
+  -webkit-backdrop-filter: blur(20px) saturate(1.9) !important;
+  backdrop-filter: blur(20px) saturate(1.9) !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .30) inset,
+    0 -1px 0 rgba(0, 0, 0, .22) inset,
+    0 1px 2px rgba(6, 15, 28, .22),
+    0 8px 20px -12px rgba(6, 15, 28, .55) !important;
+
+  overflow: visible !important;
+  isolation: isolate;
+  transition:
+    background-color .2s ease,
+    border-color .2s ease,
+    box-shadow .24s ease,
+    transform .18s cubic-bezier(.34, 1.2, .64, 1) !important;
+}
+
+/* the button inside must not paint a second box */
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown > .nav-dropdown-toggle {
+  position: relative !important;
+  z-index: 1 !important;
+
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 13px !important;
+  margin: 0 !important;
+
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+
+  color: rgba(255, 255, 255, .95) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .95) !important;
+  text-shadow: 0 1px 2px rgba(6, 15, 28, .45) !important;
+
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+/* the toggle's own ::before / ::after belonged to the old flat style */
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown > .nav-dropdown-toggle::before,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown > .nav-dropdown-toggle::after {
+  display: none !important;
+}
+
+@media (hover: hover) {
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:hover {
+    background-color: rgba(255, 255, 255, .20) !important;
+    border-color: rgba(248, 216, 136, .62) !important;
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .42) inset,
+      0 -1px 0 rgba(0, 0, 0, .20) inset,
+      0 2px 4px rgba(6, 15, 28, .24),
+      0 12px 26px -12px rgba(248, 216, 136, .5) !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:hover > .nav-dropdown-toggle {
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:active {
+  transform: scale(.96);
+}
+
+/* an open dropdown keeps the warm edge */
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown.is-open,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown.has-active {
+  background-color: rgba(248, 216, 136, .16) !important;
+  border-color: rgba(248, 216, 136, .6) !important;
+}
+
+/* the caret */
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown .nav-caret {
+  border-color: rgba(255, 255, 255, .7) !important;
+  margin-left: 4px !important;
+}
+
+/* ---- login button: same height as everything else ---- */
+body.home-page .dd-navbar .dd-nav-right > a.dd-btn-login {
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 16px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+}
+
+/* ---- language chip: match the 34px rhythm instead of 30 ---- */
+body.home-page .dd-navbar .dd-nav-right > .lang-toggle {
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
+}
+
+/* ---- the divider sits between the two groups, not inside one ---- */
+body.home-page .dd-navbar .dd-nav-right::before {
+  height: 18px !important;
+  background: rgba(255, 255, 255, .14) !important;
+}
+
+/* ---- keep the dropdown menu panel above the glass ---- */
+body.home-page .dd-navbar .nav-dropdown-panel {
+  z-index: 1200 !important;
+}
+
+/* ---- motion guard ---- */
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown {
+    transition: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:hover {
+    transform: none !important;
+  }
+}
+
+/* ==========================================================================
+   Round 18 - navbar final polish (desktop)
+   --------------------------------------------------------------------------
+   The bar is the first thing anyone sees, so it is treated as one object:
+   every control shares the same 36px height, the same 999px radius, the same
+   hairline and the same inner light. Favourites is gone from the menu; the
+   notification bell stays because it is the only thing that needs a count.
+
+   Play is desktop only. On a mouse, a pointer-tracking highlight and a 1px
+   sink on press make the pills feel liquid; on touch, nothing moves.
+   ========================================================================== */
+
+/* -------------------------------------------- 1) favourites leaves the row */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"],
+body.home-page .dd-navbar .dd-desktop-menu > a.dd-menu-item[href="favorites.php"] {
+  display: none !important;
+}
+
+/* the divider that separated it goes too */
+body.home-page .dd-navbar .dd-desktop-menu > a[href*="favorites"]::after {
+  display: none !important;
+}
+
+/* ------------------------------------- 2) one height across the whole bar */
+body.home-page .dd-navbar {
+  --nav-pill-h: 36px;
+  --nav-pill-r: 999px;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown,
+body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn,
+body.home-page .dd-navbar .dd-nav-right > .nav-dropdown > .nav-dropdown-toggle,
+body.home-page .dd-navbar .dd-nav-right > a.dd-btn-login,
+body.home-page .dd-navbar .dd-navbar .lang-toggle,
+body.home-page .dd-navbar .lang-toggle {
+  height: var(--nav-pill-h) !important;
+  min-height: var(--nav-pill-h) !important;
+  max-height: var(--nav-pill-h) !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  border-radius: var(--nav-pill-r) !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  vertical-align: middle !important;
+}
+
+/* the menu keeps its labels on the baseline of the pills, not of the text */
+body.home-page .dd-navbar .dd-desktop-menu,
+body.home-page .dd-navbar .dd-nav-right {
+  align-items: center !important;
+}
+
+/* --------------------------------------- 3) the same glass, twice removed */
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+
+  border: 1px solid rgba(255, 255, 255, .22) !important;
+  background-color: rgba(255, 255, 255, .10) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .16) 0%,
+    rgba(255, 255, 255, .04) 48%,
+    rgba(255, 255, 255, .02) 100%) !important;
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.06) !important;
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.06) !important;
+
+  color: rgba(255, 255, 255, .94) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .94) !important;
+  text-shadow: none !important;
+
+  font-size: 13.5px !important;
+  font-weight: 650 !important;
+  letter-spacing: -.005em !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .38) inset,
+    0 -1px 0 rgba(255, 255, 255, .06) inset,
+    0 1px 2px rgba(6, 15, 28, .16),
+    0 8px 20px -14px rgba(6, 15, 28, .7) !important;
+
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .26s ease,
+    color .18s ease,
+    transform .16s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+/* the cursor highlight lives on a pseudo the script moves */
+body.home-page .dd-navbar .dd-desktop-menu > a::before,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: -1 !important;
+  border-radius: inherit !important;
+  pointer-events: none !important;
+  opacity: 0;
+  background: radial-gradient(
+    120px circle at var(--lg-x, 50%) var(--lg-y, 50%),
+    rgba(255, 255, 255, .42),
+    rgba(255, 255, 255, .10) 42%,
+    transparent 72%
+  ) !important;
+  transition: opacity .3s ease !important;
+}
+
+/* pointer-tracking highlight: only where a real mouse exists */
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover::before,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover::before,
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:hover::before {
+    opacity: 1;
+  }
+
+  body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover,
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:hover {
+    background-color: rgba(255, 255, 255, .19) !important;
+    border-color: rgba(255, 255, 255, .42) !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .6) inset,
+      0 -1px 0 rgba(255, 255, 255, .08) inset,
+      0 2px 4px rgba(6, 15, 28, .18),
+      0 12px 26px -16px rgba(6, 15, 28, .8) !important;
+  }
+}
+
+/* press: sinks into the bar */
+body.home-page .dd-navbar .dd-desktop-menu > a:active,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:active,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:active {
+  transform: translateY(1px) scale(.985) !important;
+  background-color: rgba(255, 255, 255, .26) !important;
+  box-shadow:
+    0 2px 6px rgba(6, 15, 28, .28) inset,
+    0 0 0 0 transparent !important;
+}
+
+/* ------------------------------------------------------ the caret */
+body.home-page .dd-navbar .dd-desktop-menu .nav-caret {
+  border-color: rgba(255, 255, 255, .72) !important;
+}
+
+/* ------------------------------- the Reels entry: same glass, gold thread */
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+  border-color: rgba(248, 216, 136, .46) !important;
+  background-color: rgba(248, 216, 136, .12) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 244, 214, .22) 0%,
+    rgba(248, 216, 136, .06) 52%,
+    rgba(248, 216, 136, .02) 100%) !important;
+  color: #FBE7B6 !important;
+  -webkit-text-fill-color: #FBE7B6 !important;
+}
+
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+  color: #F8D888 !important;
+  stroke: currentColor !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+    background-color: rgba(248, 216, 136, .24) !important;
+    border-color: rgba(255, 232, 168, .72) !important;
+    color: #FFF6DE !important;
+    -webkit-text-fill-color: #FFF6DE !important;
+  }
+}
+
+/* ------------------------------------- the right-hand pills, same material */
+body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn,
+body.home-page .dd-navbar .dd-nav-right > .nav-dropdown > .nav-dropdown-toggle {
+  position: relative !important;
+  isolation: isolate !important;
+  overflow: hidden !important;
+
+  border: 1px solid rgba(255, 255, 255, .2) !important;
+  background-color: rgba(255, 255, 255, .09) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .15) 0%,
+    rgba(255, 255, 255, .03) 100%) !important;
+
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) brightness(1.06) !important;
+  backdrop-filter: blur(16px) saturate(1.8) brightness(1.06) !important;
+
+  color: rgba(255, 255, 255, .92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .92) !important;
+  font-size: 13px !important;
+  font-weight: 650 !important;
+
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .34) inset,
+    0 1px 2px rgba(6, 15, 28, .16),
+    0 8px 20px -14px rgba(6, 15, 28, .7) !important;
+
+  transition:
+    background-color .22s ease,
+    border-color .22s ease,
+    box-shadow .26s ease,
+    transform .16s cubic-bezier(.32, .72, 0, 1) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn:hover {
+    background-color: rgba(255, 255, 255, .2) !important;
+    border-color: rgba(255, 255, 255, .44) !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn:active {
+  transform: translateY(1px) scale(.985) !important;
+  box-shadow: 0 2px 6px rgba(6, 15, 28, .28) inset !important;
+}
+
+/* ---------------------------------------------- the gold CTA stays gold */
+body.home-page .dd-navbar .dd-nav-right > a.dd-btn-login {
+  padding: 0 18px !important;
+  border: 1px solid rgba(255, 240, 205, .5) !important;
+  background-color: transparent !important;
+  background-image: linear-gradient(180deg, #EFD8A4 0%, #D9B96F 46%, #C5A059 100%) !important;
+  color: #1D2B3C !important;
+  -webkit-text-fill-color: #1D2B3C !important;
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0 !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, .28) !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .7) inset,
+    0 -1px 0 rgba(120, 90, 34, .18) inset,
+    0 2px 5px rgba(96, 70, 22, .26),
+    0 10px 22px -12px rgba(197, 160, 89, .8) !important;
+  transition:
+    transform .16s cubic-bezier(.32, .72, 0, 1),
+    box-shadow .24s ease,
+    filter .2s ease !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-nav-right > a.dd-btn-login:hover {
+    filter: brightness(1.06) saturate(1.04);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, .8) inset,
+      0 3px 8px rgba(96, 70, 22, .3),
+      0 14px 28px -14px rgba(197, 160, 89, .9) !important;
+    transform: translateY(-1px) !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-nav-right > a.dd-btn-login:active {
+  transform: translateY(1px) scale(.985) !important;
+  box-shadow:
+    0 2px 6px rgba(96, 70, 22, .3) inset,
+    0 1px 2px rgba(96, 70, 22, .2) !important;
+}
+
+/* ------------------------------------------------- the language pill */
+body.home-page .dd-navbar .lang-toggle {
+  padding: 0 12px !important;
+  border: 1px solid rgba(255, 255, 255, .2) !important;
+  background-color: rgba(255, 255, 255, .08) !important;
+  background-image: linear-gradient(180deg,
+    rgba(255, 255, 255, .14) 0%,
+    rgba(255, 255, 255, .02) 100%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.8) !important;
+  backdrop-filter: blur(16px) saturate(1.8) !important;
+  color: rgba(255, 255, 255, .9) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .9) !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: .04em !important;
+  cursor: pointer;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .3) inset,
+    0 1px 2px rgba(6, 15, 28, .16) !important;
+  transition:
+    background-color .2s ease, border-color .2s ease, transform .16s ease !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .lang-toggle:hover {
+    background-color: rgba(255, 255, 255, .18) !important;
+    border-color: rgba(255, 255, 255, .42) !important;
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+  }
+}
+
+body.home-page .dd-navbar .lang-toggle:active {
+  transform: scale(.96) !important;
+}
+
+/* ------------------------------------- spacing: fewer items, more air */
+body.home-page .dd-navbar .dd-desktop-menu { gap: 6px !important; }
+body.home-page .dd-navbar .dd-nav-right { gap: 9px !important; }
+
+body.home-page .dd-navbar .dd-desktop-menu > a,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+  padding-left: 13px !important;
+  padding-right: 13px !important;
+}
+
+/* ------------------------------------------ focus ring, one style to rule */
+body.home-page .dd-navbar .dd-desktop-menu > a:focus-visible,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:focus-visible,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:focus-within,
+body.home-page .dd-navbar .dd-nav-right > a:focus-visible,
+body.home-page .dd-navbar .lang-toggle:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .5) inset,
+    0 0 0 2px rgba(255, 255, 255, .9),
+    0 0 0 5px rgba(197, 160, 89, .5) !important;
+}
+
+/* ----------------------------- the bar itself: thinner when scrolled */
+body.home-page .dd-navbar.scrolled {
+  background-color: rgba(11, 28, 51, .82) !important;
+  -webkit-backdrop-filter: blur(22px) saturate(1.7) !important;
+  backdrop-filter: blur(22px) saturate(1.7) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, .12) !important;
+  box-shadow: 0 8px 24px -18px rgba(6, 15, 28, .9) !important;
+}
+
+/* ---------------------------- drop the old, conflicting hover backgrounds */
+body.home-page .dd-navbar .dd-desktop-menu > a:hover,
+body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:hover {
+  background-image: none !important;
+}
+
+/* ------------------------------------------------- no glass, no problem */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown,
+  body.home-page .dd-navbar .dd-nav-right > a.dd-icon-btn,
+  body.home-page .dd-navbar .lang-toggle {
+    background-color: rgba(20, 36, 58, .92) !important;
+    background-image: none !important;
+  }
+}
+
+/* ------------------------------------------------ narrow desktop widths */
+@media (min-width: 993px) and (max-width: 1400px) {
+  body.home-page .dd-navbar .dd-desktop-menu { gap: 4px !important; }
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    font-size: 13px !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn span:not(.arrow) {
+    display: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+    padding: 0 11px !important;
+  }
+}
+
+/* ------------------------------- desktop only; the drawer is untouched */
+@media (max-width: 992px) {
+  body.home-page .dd-navbar .dd-desktop-menu > a::before,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before {
+    display: none !important;
+  }
+}
+
+/* ---------------------------------------------------- reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-desktop-menu > a,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle,
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown,
+  body.home-page .dd-navbar .dd-nav-right > a,
+  body.home-page .dd-navbar .lang-toggle {
+    transition: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a:active,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle:active,
+  body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:active,
+  body.home-page .dd-navbar .dd-nav-right > a:active,
+  body.home-page .dd-navbar .lang-toggle:active {
+    transform: none !important;
+  }
+  body.home-page .dd-navbar .dd-desktop-menu > a::before,
+  body.home-page .dd-navbar .dd-desktop-menu .nav-dropdown-toggle::before {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Fix - the log out pill on the home navbar
+   --------------------------------------------------------------------------
+   header-tidy.css squashed this control into a 36px circle with
+   font-size:0, then Round 16 restored 13px text on .dd-icon-btn. The mix
+   left a circle with clipped words ("og ou"). This block, loaded last,
+   reclaims the pill: real label, same 34px height as its neighbours,
+   no backdrop-filter and a clear hover and press state. Nothing else on
+   the bar is touched - selectors are pinned to [href="logout.php"].
+   ========================================================================== */
+
+body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"] {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  max-height: 34px !important;
+  padding: 0 14px !important;
+  border-radius: 999px !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: -.004em !important;
+  white-space: nowrap !important;
+  color: rgba(255, 255, 255, .92) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, .92) !important;
+  text-shadow: 0 1px 2px rgba(6, 15, 28, .4) !important;
+
+  /* quiet ghost: no blur layer on a control used rarely */
+  background: rgba(255, 255, 255, .10) !important;
+  border: 1px solid rgba(255, 255, 255, .20) !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, .25) inset,
+    0 1px 2px rgba(6, 15, 28, .18) !important;
+
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"]::before {
+  content: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"]:hover {
+    background: rgba(217, 69, 59, .22) !important;
+    border-color: rgba(242, 132, 122, .55) !important;
+    color: #FFD9D4 !important;
+    -webkit-text-fill-color: #FFD9D4 !important;
+  }
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"]:active {
+  transform: translateY(1px) !important;
+  background: rgba(217, 69, 59, .30) !important;
+}
+
+body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"]:focus-visible {
+  outline: 2px solid rgba(248, 216, 136, .8) !important;
+  outline-offset: 2px !important;
+}
+
+@media (max-width: 992px) {
+  body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"] { display: none !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.home-page .dd-navbar .dd-nav-right > a[href="logout.php"] { transition: none !important; }
+}
+
+/* ==========================================================================
+   Fix - hide two buttons on the home navbar
+   --------------------------------------------------------------------------
+   1) "Property Reels" pill in the desktop menu (duplicates the floating
+      reels FAB further down the page)
+   2) "Post Reel" gold pill in the right group (its label was being
+      clipped mid-word at many widths; submit-reel stays reachable from
+      the reels page itself)
+   Hidden with display:none, not deleted, so both can be restored by
+   removing this block.
+   ========================================================================== */
+
+/* à¸›à¸¸à¹ˆà¸¡ Property Reels à¹à¸ªà¸”à¸‡à¸šà¸™ desktop (à¹€à¸”à¸´à¸¡à¸–à¸¹à¸à¸‹à¹ˆà¸­à¸™à¹„à¸§à¹‰) */
+
+body.home-page .dd-navbar .dd-nav-right > a[href="submit-reel.php"] {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Fix - dropdowns must be able to overflow their pill
+   --------------------------------------------------------------------------
+   Rounds 16-18 set overflow:hidden !important on the navbar pills (to clip
+   the specular sheen). That also clips .nav-dropdown-panel, which is a child
+   of the pill and hangs 300px BELOW it. Measured in a real browser: the
+   panel opens (aria-expanded=true, display:grid) but is invisible because
+   the 34px wrapper clips it. Dropdown wrappers get overflow:visible back;
+   the sheen ::before has border-radius:inherit and pointer-events:none so
+   nothing leaks visually.
+   ========================================================================== */
+
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown,
+body.home-page .dd-navbar .dd-desktop-menu > .nav-dropdown:active {
+  overflow: visible !important;
+}
+
+/* the menu row itself must not clip either */
+body.home-page .dd-navbar .dd-desktop-menu {
+  overflow: visible !important;
+}
+
+/* ==========================================================================
+   Fix - the Property Reels pill becomes Apple Liquid Glass
+   --------------------------------------------------------------------------
+   The page-level <style> in index.php defines the full liquid-glass look
+   (backdrop blur, sheen sweep, drifting gold caustic) but this file loads
+   AFTER the page style, and the gold-thread block at ~line 3703 was winning
+   every cascade tie. That block is neutralised below: same selectors, glass
+   values. Specificity-equal + later = wins.
+   ========================================================================== */
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn {
+  /* Darker pill: navy glass + gold ring so it no longer blends into light backgrounds */
+  border: 1px solid rgba(248, 216, 136, .55) !important;
+  background-color: #E8CE8C !important;
+  background-image: linear-gradient(180deg,
+    #FFF0C4 0%,
+    #E8CE8C 52%,
+    #C9A560 100%) !important;
+  color: #0B1C33 !important;
+  -webkit-text-fill-color: #0B1C33 !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  background-clip: padding-box;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 -1px 0 rgba(146, 110, 45, 0.35) inset,
+    0 0 0 1px rgba(120, 90, 32, 0.30),
+    0 3px 8px rgba(6, 15, 28, 0.45),
+    0 10px 24px -12px rgba(197, 160, 89, 0.85) !important;
+  text-shadow: none !important;
+}
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn svg {
+  color: #0B1C33 !important;
+  stroke: currentColor !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:hover {
+    background-color: #F2DA9A !important;
+    background-image: linear-gradient(180deg,
+      #FFF7DA 0%,
+      #F2DA9A 52%,
+      #D4B36C 100%) !important;
+    border-color: rgba(255, 244, 208, .95) !important;
+    color: #0B1C33 !important;
+    -webkit-text-fill-color: #0B1C33 !important;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.6) inset,
+      0 -1px 0 rgba(255, 255, 255, 0.10) inset,
+      0 4px 8px rgba(6, 15, 28, 0.3),
+      0 14px 30px -12px rgba(197, 160, 89, 0.9) !important;
+  }
+}
+body.home-page .dd-navbar .dd-desktop-menu > a.reels-flagship-nav-btn:active {
+  background-color: #D8BB78 !important;
+}
+
+/* ==========================================================================
+   Fix - mobile/iPad navbar: only Buy/Rent pills remain
+   --------------------------------------------------------------------------
+   The base rule above (line ~2373, display:flex !important) outranks the
+   page-level media query in index.php because of its higher specificity.
+   This same-specificity rule, placed last, wins and hides the full desktop
+   menu below 1200px — the drawer + glass footnavbar take over instead.
+   ========================================================================== */
+@media (max-width: 1199px) {
+  body.home-page .dd-navbar .dd-desktop-menu {
+    display: none !important;
+  }
+}

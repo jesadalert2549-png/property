@@ -182,6 +182,9 @@ render_page_cta([
 ]);
 render_to_top(); render_ux_scripts();
 render_site_footer();
+/* Footnavbar (iOS Liquid Glass) — แสดงเฉพาะมือถือ/iPad (≤1199px) */
+require_once __DIR__ . '/includes/footnav.php';
+render_glass_footnav('home');
 render_auth_background_script(); ?>
 </body>
 </html>
